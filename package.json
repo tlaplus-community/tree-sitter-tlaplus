@@ -1,0 +1,30 @@
+{
+  "name": "tree-sitter-tlaplus",
+  "version": "0.0.1",
+  "description": "A tree-sitter grammar for TLA+",
+  "main": "bindings/node",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlaplus-community/tree-sitter-tlaplus.git"
+  },
+  "keywords": [
+    "TLA+",
+    "tree-sitter",
+    "grammar"
+  ],
+  "author": "Andrew Helwer",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/tlaplus-community/tree-sitter-tlaplus/issues"
+  },
+  "homepage": "https://github.com/tlaplus-community/tree-sitter-tlaplus#readme",
+  "dependencies": {
+    "nan": "^2.14.2"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.19.3"
+  }
+}
