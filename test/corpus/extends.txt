@@ -1,0 +1,23 @@
+=======================
+Extend multiple modules
+=======================
+
+---- MODULE Test ----
+EXTENDS Naturals, FiniteSets, Sequences
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (extends
+      (identifier)
+      (identifier)
+      (identifier)
+    )
+    (double_line)
+  )
+)

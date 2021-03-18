@@ -1,0 +1,24 @@
+================
+Positive integer
+================
+
+---- MODULE Test ----
+x == 5
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (module_content
+      (definition
+        (identifier)
+        (integer_literal)
+      )
+    )
+    (double_line)
+  )
+)

@@ -1,0 +1,30 @@
+======================
+Finite set of integers
+======================
+
+---- MODULE Test ----
+s == {1, 2, 3, 4, 5}
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (module_content
+      (definition
+        (identifier)
+        (finite_set_literal
+          (integer_literal)
+          (integer_literal)
+          (integer_literal)
+          (integer_literal)
+          (integer_literal)
+        )
+      )
+    )
+    (double_line)
+  )
+)

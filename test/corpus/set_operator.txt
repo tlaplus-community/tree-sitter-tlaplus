@@ -1,0 +1,27 @@
+=======================
+Set membership operator
+=======================
+
+---- MODULE Test ----
+v == e \in S
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (module_content
+      (definition
+        (identifier)
+        (set_membership
+          (identifier)
+          (identifier)
+        )
+      )
+    )
+    (double_line)
+  )
+)

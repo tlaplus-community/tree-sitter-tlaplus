@@ -1,0 +1,27 @@
+=====================
+Range set of integers
+=====================
+
+---- MODULE Test ----
+s == 1 .. 3
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (module_content
+      (definition
+        (identifier)
+        (range_set_literal
+          (integer_literal)
+          (integer_literal)
+        )
+      )
+    )
+    (double_line)
+  )
+)

@@ -1,0 +1,24 @@
+============
+Basic string
+============
+
+---- MODULE Test ----
+str == "foobar"
+====
+
+---
+
+(source_file
+  (module
+    (single_line)
+    (identifier)
+    (single_line)
+    (module_content
+      (definition
+        (identifier)
+        (string_literal)
+      )
+    )
+    (double_line)
+  )
+)
