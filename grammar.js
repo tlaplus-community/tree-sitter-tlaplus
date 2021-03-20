@@ -1,58 +1,183 @@
+function commaList1(rule) {
+  return seq(rule, repeat(seq(',', rule)))
+}
+
+function commaList(rule) {
+  return optional(commaList1(rule))
+}
+
 module.exports = grammar({
   name: 'tlaplus',
 
   rules: {
     source_file: $ => repeat1($.module),
 
+    reserved_word: $ => choice(
+      'ASSUME',       'ELSE',       'LOCAL',      'UNION',
+      'ASSUMPTION',   'ENABLED',    'MODULE',     'VARIABLE',
+      'AXIOM',        'EXCEPT',     'OTHER',      'VARIABLES',
+      'CASE',         'EXTENDS',    'SF_',        'WF_',
+      'CHOOSE',       'IF',         'SUBSET',     'WITH',
+      'CONSTANT',     'IN',         'THEN',
+      'CONSTANTS',    'INSTANCE',   'THEOREM',
+      'DOMAIN',       'LET',        'UNCHANGED'
+    ),
+
+    // Name (module, definition, etc.)
+    // Can contain letters, numbers, and underscores
+    // If only one character long, must be letter (not number or _)
+    // Cannot begin with WF_ or SF_
+    name: $ => /\b(?!WF_|SF_)\w*[A-Za-z]\w*/,
+
+    // Identifier; should exclude reserved words
+    identifier: $ => $.name,
+
+    identifier_or_tuple: $ => choice(
+      $.identifier,
+      seq('<<', commaList1($.identifier), '>>')
+    ),
+
+    // Number literal encodings
+    number: $ => choice(
+      /\d+/,                  // Natural numbers
+      /\d+\.\d+/,             // Real numbers
+      /(\\b|\\B)[0-1]+/,      // Binary numbers
+      /(\\o|\\O)[0-7]+/,      // Octal numbers
+      /(\\h|\\H)[0-9a-fA-F]+/ // Hexadecimal numbers
+    ),
+
+    // "foobar", "", etc.
+    string: $ => /\".*\"/,
+
+    // Prefix operators
+    prefix_op: $ => choice(
+      '-',  '\\lnot', '[]', 'DOMAIN', 'ENABLED',  'UNION',
+      '~',  '\\neg',  '<>', 'SUBSET', 'UNCHANGED'
+    ),
+
+    // Infix operators
+    infix_op: $ => choice(
+      '!!',   '#',    '##',   '$',    '$$',   '%',    '%%',
+      '&',    '&&',   '(+)',  '(-)',  '(.)',  '(/)',  '(\\X)',
+      '*',    '**',   '+',    '++',   '-',    '-+->', '--',
+      '-|',   '..',   '...',  '/',    '//',   '/=',   '/\\',
+      '::=',  ':=',   ':>',   '<',    '<:',   '<=>',  '=',
+      '=<',   '=>',   '=|',   '>',    '>=',   '?',    '??',
+      '@@',   '\\',   '\\/',  '^',    '^^',   '|',    '|-',
+      '|=',   '||',   '~>',   '.',
+      '\\approx',   '\\geq',        '\\oslash',     '\\sqsupseteq',
+      '\\asymp',    '\\gg',         '\\otimes',     '\\star',
+      '\\bigcirc',  '\\in',         '\\prec',       '\\subset',
+      '\\bullet',   '\\intersect',  '\\preceq',     '\\subseteq',
+      '\\cap',      '\\land',       '\\propto',     '\\succ',
+      '\\cdot',     '\\leq',        '\\sim',        '\\succeq',
+      '\\circ',     '\\ll',         '\\simeq',      '\\supset',
+      '\\cong',     '\\lor',        '\\sqcap',      '\\supseteq',
+      '\\cup',      '\\o',          '\\sqcup',      '\\union',
+      '\\div',      '\\odot',       '\\sqsubset',   '\\uplus',
+      '\\doteq',    '\\ominus',     '\\sqsubseteq', '\\wr',
+      '\\equiv',    '\\oplus',      '\\sqsupset'
+    ),
+
+    // Postfix operators
+    postfix_op: $ => choice('^+', '^*', '^#', '\''),
+
+    // Line of ---------- of length at least 4
+    single_line: $ => seq('-', '-', '-', '-', repeat('-')),
+
+    // Line of =========== of length at least 4
+    double_line: $ => seq('=', '=', '=', '=', repeat('=')),
+
+    // Top-level module declaration
     module: $ => seq(
         $.single_line,
         'MODULE',
-        $.identifier,
+        $.name,
         $.single_line,
         optional($.extends),
-        repeat($.module_content),
+        repeat($.unit),
         $.double_line
     ),
 
-    extends: $ => seq(
-        'EXTENDS',
-        repeat(seq($.identifier, ',')),
-        $.identifier
+    // EXTENDS Naturals, FiniteSets, Sequences
+    extends: $ => seq('EXTENDS', commaList1($.name)),
+
+    unit: $ => choice(
+        $.variable_declaration,
+        $.constant_declaration,
+        seq(optional("LOCAL"), $.operator_definition),
+        seq(optional("LOCAL"), $.function_definition),
+        seq(optional("LOCAL"), $.instance),
+        seq(optional("LOCAL"), $.module_definition),
+        $.assumption,
+        $.theorem,
+        $.module,
+        $.single_line
     ),
 
-    module_content: $ => choice(
-        $.constants,
-        $.variables,
-        $.definition,
-        $.macro,
+    // VARIABLES v1, v2, v3
+    variable_declaration: $ => seq(
+        choice('VARIABLE', 'VARIABLES'),
+        commaList1($.identifier)
     ),
 
-    constants: $ => seq(
+    // CONSTANTS C1, C2, C3
+    constant_declaration: $ => seq(
         choice('CONSTANT', 'CONSTANTS'),
-        repeat(seq($.identifier, ',')),
-        $.identifier
+        commaList1($.operator_declaration)
     ),
 
-    variables: $ => seq(
-      choice('VARIABLE', 'VARIABLES'),
-        repeat(seq($.identifier, ',')),
-        $.identifier
-    ),
-
-    definition: $ => seq(
+    // Operator declaration (not definition)
+    // Used, for example, when op accepts another op as parameter
+    // op, op(_, _), _+_, etc.
+    operator_declaration: $ => choice(
       $.identifier,
+      seq($.identifier, '(', commaList1('_'), ')'),
+      seq($.prefix_op, '_'),
+      seq('_', $.infix_op, '_'),
+      seq('_', $.postfix_op)
+    ),
+
+    // Operator definition
+    // max(a, b) == IF a > b THEN a ELSE b
+    // a \prec b == a.val < b.val
+    operator_definition: $ => seq(
+      choice(
+        $.non_fix_lhs,
+        seq($.prefix_op, $.identifier),
+        seq($.identifier, $.infix_op, $.identifier),
+        seq($.identifier, $.postfix_op)
+      ),
       '==',
-      $._expression
+      $.expression
     ),
 
-    macro: $ => seq(
+    // Named operator left-hand-side, with or without parameters
+    // op, op(a, b)
+    non_fix_lhs: $ => seq(
       $.identifier,
-      '(',
-      repeat(seq($.identifier, ',')),
+      optional(seq(
+        '(',
+        commaList1(choice($.identifier, $.operator_declaration)),
+        ')'
+      )),
+    ),
+
+    // f[x \in Nat] == 2*x
+    function_definition: $ => seq(
       $.identifier,
-      ')',
+      '[',
+      commaList1($.quantifier_bound),
+      ']',
       '==',
-      $._expression
+      $.expression
+    ),
+
+    // x, y, z \in S
+    quantifier_bound: $ => seq(
+      choice($.identifier_or_tuple, commaList1($.identifier)),
+      '\\in',
+      $.expression
     ),
 
     // A recursive parse rule for TLA+ expressions
@@ -142,21 +267,6 @@ module.exports = grammar({
     // TRUE, FALSE
     boolean_literal: $ => choice('TRUE', 'FALSE'),
 
-    // 1, 42, -128, etc.
-    integer_literal: $ => /\-?\d+/,
-
-    // 3.14159, 2, -3.5, etc.
-    real_literal: $ => /\-?\d+(\.\d+)?/,
-
-    // "foobar", "", etc.
-    string_literal: $ => /\".*\"/,
-
-    // Line of --------- of length at least 4
-    single_line: $ => seq('-', '-', '-', '-', repeat('-')),
-
-    // Line of =========== of length at least 4
-    double_line: $ => seq('=', '=', '=', '=', repeat('=')),
-
     // x \in S
     single_named_element_in: $ => seq(
       $.identifier,
@@ -172,7 +282,5 @@ module.exports = grammar({
       $._expression
     ),
 
-    // Name (module, definition, etc.)
-    identifier: $ => /[A-Za-z0-9_]+/,
   }
 });
