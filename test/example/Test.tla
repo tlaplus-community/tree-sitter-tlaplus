@@ -1,3 +1,1 @@
----- MODULE Test ----
-x == 5
-====
+int IF = 5;
