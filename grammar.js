@@ -28,8 +28,7 @@ module.exports = grammar({
     // Name (module, definition, etc.)
     // Can contain letters, numbers, and underscores
     // If only one character long, must be letter (not number or _)
-    // Cannot begin with WF_ or SF_
-    name: $ => /\b(?!WF_|SF_)\w*[A-Za-z]\w*/,
+    name: $ => /\w*[A-Za-z]\w*/,
 
     // Identifier; should exclude reserved words
     identifier: $ => $.name,
@@ -186,7 +185,7 @@ module.exports = grammar({
     instance: $ => seq(
       'INSTANCE',
       $.name,
-      optional(seq('WITH'), commaList1($.substitution))
+      optional(seq('WITH', commaList1($.substitution)))
     ),
 
     // x <- y, w <- z
@@ -204,23 +203,31 @@ module.exports = grammar({
     ),
 
     // Foo(x, y)!Bar(w, z)!...
-    instance_prefix: $ => repeat(
+    instance_prefix: $ => repeat1(seq(
       $.identifier,
       optional(seq('(', commaList1($._expression), ')')),
       '!'
-    ),
+    )),
 
     // Foo!bar
-    general_identifier: $ => seq($.instance_prefix, $.identifier),
+    general_identifier: $ => seq(
+      optional($.instance_prefix), $.identifier
+    ),
 
     // Foo!\neg
-    general_prefix_op: $ => seq($.instance_prefix, $.prefix_op),
+    general_prefix_op: $ => seq(
+      optional($.instance_prefix), $.prefix_op
+    ),
 
     // Foo!+
-    general_infix_op: $ => seq($.instance_prefix, $.infix_op),
+    general_infix_op: $ => seq(
+      optional($.instance_prefix), $.infix_op
+    ),
 
     // Foo!^#
-    general_postfix_op: $ => seq($.instance_prefix, $.postfix_op),
+    general_postfix_op: $ => seq(
+      optional($.instance_prefix), $.postfix_op
+    ),
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
@@ -349,7 +356,7 @@ module.exports = grammar({
 
     // S \X T \X P
     cross_product: $ => seq(
-      $._expression, repeat1(choice('\\X', '\\times'), $._expression)
+      $._expression, repeat1(seq(choice('\\X', '\\times'), $._expression))
     ),
 
     // [x ' > x]_<<x>>
@@ -375,8 +382,8 @@ module.exports = grammar({
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
     case: $ => seq(
       'CASE', $._expression, '->', $._expression,
-      repeat('[]', $._expression, '->', $._expression),
-      optional('[]', 'OTHER', '->', $._expression)
+      repeat(seq('[]', $._expression, '->', $._expression)),
+      optional(seq('[]', 'OTHER', '->', $._expression))
     ),
 
     // LET x == 5 IN 2*x
