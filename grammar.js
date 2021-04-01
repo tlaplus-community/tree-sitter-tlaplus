@@ -55,6 +55,24 @@ module.exports = grammar({
     // "foobar", "", etc.
     string: $ => /\".*\"/,
 
+    // Various syntactic elements and their unicode equivalents.
+    def_eq: $ => choice('==', '≜'),
+    set_in: $ => choice('\\in', '∈'),
+    gets: $ => choice('<-', '⟵'),
+    forall: $ => choice('\\A', '\\forall', '∀'),
+    exists: $ => choice('\\E', '\\exists', '∃'),
+    temporal_forall: $ => choice('\\AA'),
+    temporal_exists: $ => choice('\\EE'),
+    all_map_to: $ => choice('|->', '⟼', '↦'),
+    maps_to: $ => choice('->', '⟶'),
+    left_angle_bracket: $ => choice('<<', '〈'),
+    right_angle_bracket: $ => choice('>>', '〉'),
+    cross_product: $ => choice('\\X', '\\times', '×'),
+    case_box: $ => choice('[]', '□'),
+    case_arrow: $ => choice('->', '⟶'),
+    bullet_conj: $ => choice('/\\', '∧'),
+    bullet_disj: $ => choice('\\/', '∨'),
+
     // All prefix operators
     prefix_op: $ => choice(
       $.prefix_op_lnot,       $.prefix_op_union,    $.prefix_op_subset,
@@ -218,7 +236,15 @@ module.exports = grammar({
     infix_op_rfield:      $ => prec.left(17, '.'),
 
     // Postfix operators
-    postfix_op: $ => choice('^+', '^*', '^#', '\''),
+    postfix_op: $ => choice(
+      $.postfix_op_plus,    $.postfix_op_ast,
+      $.postfix_op_hash,    $.postfix_op_prime
+    ),
+
+    postfix_op_plus:  $ => prec(15, choice('^+', '⁺')),
+    postfix_op_ast:   $ => prec(15, '^*'),
+    postfix_op_hash:  $ => prec(15, '^#'),
+    postfix_op_prime: $ => prec(15, '\''),
 
     // Line of ---------- of length at least 4
     single_line: $ => seq('-', '-', '-', '-', repeat('-')),
@@ -293,7 +319,7 @@ module.exports = grammar({
         seq($.identifier, $.infix_op, $.identifier),
         seq($.identifier, $.postfix_op)
       ),
-      '==',
+      $.def_eq,
       $.expression
     ),
 
@@ -314,7 +340,7 @@ module.exports = grammar({
       '[',
       commaList1($.quantifier_bound),
       ']',
-      '==',
+      $.def_eq,
       $.expression
     ),
 
@@ -324,7 +350,7 @@ module.exports = grammar({
         $.tuple_of_identifiers,
         commaList1($.identifier)
       ),
-      '\\in',
+      $.set_in,
       $.expression
     ),
 
@@ -338,7 +364,7 @@ module.exports = grammar({
     // x <- y, w <- z
     substitution: $ => seq(
       choice($.identifier, $.prefix_op, $.infix_op, $.postfix_op),
-      '<-',
+      $.gets,
       $.argument
     ),
 
@@ -386,7 +412,7 @@ module.exports = grammar({
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
       $.non_fix_lhs,
-      '==',
+      $.def_eq,
       $.instance
     ),
 
@@ -435,7 +461,6 @@ module.exports = grammar({
     ),
 
     expression: $ => choice(
-      $.set_membership,
       $.parentheses,
       $.bounded_quantification,
       $.unbounded_quantification,
@@ -465,8 +490,6 @@ module.exports = grammar({
       $.boolean
     ),
 
-    set_membership: $ => seq($.expression, '\\in', $.expression),
-
     // max(2, 3)
     bound_op: $ => seq($.general_identifier, '(', commaList1($.argument), ')'),
 
@@ -484,19 +507,21 @@ module.exports = grammar({
 
     // \A x \in Nat : P(x)
     bounded_quantification: $ => seq(
-      choice('\\A', '\\E'), commaList1($.quantifier_bound), ':', $.expression
+      choice($.forall, $.exists),
+      commaList1($.quantifier_bound), ':', $.expression
     ),
 
     // \EE x : P(x)
     unbounded_quantification: $ => seq(
-      choice('\\A', '\\E', '\\AA', '\\EE'), commaList1($.identifier), ':', $.expression
+      choice($.forall, $.exists, $.temporal_forall, $.temporal_exists),
+      commaList1($.identifier), ':', $.expression
     ),
 
     // CHOOSE r \in Real : r >= 0
     choose: $ => seq(
       'CHOOSE',
       choice($.identifier, $.tuple_of_identifiers),
-      optional(seq('\\in', $.expression)),
+      optional(seq($.set_in, $.expression)),
       ':',
       $.expression
     ),
@@ -508,7 +533,7 @@ module.exports = grammar({
     set_filter: $ => seq(
       '{',
       choice($.identifier, $.tuple_of_identifiers),
-      '\\in',
+      $.set_in,
       $.expression,
       ':',
       $.expression,
@@ -527,17 +552,17 @@ module.exports = grammar({
 
     // [n \in Nat |-> 2*n]
     function_definition: $ => seq(
-      '[', commaList1($.quantifier_bound), '|->', $.expression, ']'
+      '[', commaList1($.quantifier_bound), $.all_map_to, $.expression, ']'
     ),
 
     // [Nat -> Nat]
     set_of_functions: $ => seq(
-      '[', $.expression, '->', $.expression, ']'
+      '[', $.expression, $.maps_to, $.expression, ']'
     ),
 
     // [foo |-> 0, bar |-> 1]
     record_definition: $ => seq(
-      '[', commaList1(seq($.name, '|->', $.expression)), ']'
+      '[', commaList1(seq($.name, $.all_map_to, $.expression)), ']'
     ),
 
     // [foo : {0, 1}, bar : {0, 1}]
@@ -570,7 +595,11 @@ module.exports = grammar({
     prev_func_val: $ => '@',
 
     // <<1,2,3,4,5>>, <<>>
-    tuple_literal: $ => seq('<<', commaList($.expression), '>>'),
+    tuple_literal: $ => seq(
+      $.left_angle_bracket,
+      commaList($.expression),
+      $.right_angle_bracket
+    ),
 
     // S \X T \X P
     cross_product: $ => seq(
@@ -584,7 +613,10 @@ module.exports = grammar({
 
     // <<x' > x>>_<<x>>
     stepexpression_no_stutter: $ => seq(
-      '<<', $.expression, '>>_', $.expression
+      $.left_angle_bracket,
+      $.expression,
+      $.right_angle_bracket, token.immediate('_'),
+      $.expression
     ),
 
     // WF_vars(ActionName)
@@ -599,9 +631,9 @@ module.exports = grammar({
 
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
     case: $ => prec.left(seq(
-      'CASE', $.expression, '->', $.expression,
-      repeat(seq('[]', $.expression, '->', $.expression)),
-      optional(seq('[]', 'OTHER', '->', $.expression))
+      'CASE', $.expression, $.case_arrow, $.expression,
+      repeat(seq($.case_box, $.expression, $.case_arrow, $.expression)),
+      optional(seq($.case_box, 'OTHER', $.case_arrow, $.expression))
     )),
 
     // LET x == 5 IN 2*x
@@ -618,11 +650,13 @@ module.exports = grammar({
       $.expression
     ),
 
-    // x /\ y
-    conj: $ => repeat1(seq('/\\', $.expression)),
+    // /\ x
+    // /\ y
+    conj: $ => repeat1(seq($.bullet_conj, $.expression)),
 
-    // x \/ y
-    disj: $ => repeat1(seq('\\/', $.expression)),
+    // \/ x
+    // \/ y
+    disj: $ => repeat1(seq($.bullet_disj, $.expression)),
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
