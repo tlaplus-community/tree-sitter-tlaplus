@@ -10,8 +10,8 @@ module.exports = grammar({
   name: 'tlaplus',
 
   conflicts: $ => [
-    [$.set_membership, $.set_membership],
-    //[$.cross_product, $.cross_product]
+    //[$.set_membership, $.set_membership],
+    [$.cross_product, $.cross_product]
   ],
 
   inline: $ => [
@@ -22,34 +22,22 @@ module.exports = grammar({
     source_file: $ => $.expression,
 
     expression: $ => choice(
-      $.identifier,
+      prec(1, $.identifier),
       $.value,
-      //$.set_membership,
-      $.cross_product
+      $.cross_product,
+      $.parenthesis,
+      //$.set_union,
     ),
+
+    set_union: $ => prec.left(8, seq($.expression, '\\cup', $.expression)),
 
     identifier: $ => /\w*[A-Za-z]\w*/,
 
+    parenthesis: $ => seq('(', $.expression, ')'),
+
     value: $ => /\d+/,
 
-    set_membership: $ => seq(
-      $.expression, '\\in', $.expression
-    ),
-
-    cross_product: $ => choice(
-      $._cross_product_2,
-      $._cross_product_3,
-      $._cross_product_4,
-      //$._cross_product_n
-    ),
-
-    _cross_product_2: $ => prec(4, seq($.expression, '\\X', $.expression)),
-
-    _cross_product_3: $ => prec(5, seq($.expression, '\\X', $.expression, '\\X', $.expression)),
-
-    _cross_product_4: $ => prec(10, seq($.expression, '\\X', $.expression, '\\X', $.expression, '\\X', $.expression)),
-
-    _cross_product_n: $ => prec(6, seq(
+    cross_product: $ => prec.dynamic(-1, seq(
       repeat1(seq($.expression, '\\X')),
       $.expression
     )),
