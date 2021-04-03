@@ -11,7 +11,8 @@ module.exports = grammar({
 
   conflicts: $ => [
     //[$.set_membership, $.set_membership],
-    [$.cross_product, $.cross_product]
+    //[$.cross_product, $.cross_product],
+    //[$.cross_product, $.set_union]
   ],
 
   inline: $ => [
@@ -24,12 +25,16 @@ module.exports = grammar({
     expression: $ => choice(
       prec(1, $.identifier),
       $.value,
-      $.cross_product,
+      //$.cross_product,
       $.parenthesis,
-      //$.set_union,
+      $.set_union,
+      $.subseteq,
     ),
 
+    //set_union: $ => prec.dynamic(-2, prec.left(8, seq($.expression, '\\cup', $.expression))),
     set_union: $ => prec.left(8, seq($.expression, '\\cup', $.expression)),
+
+    subseteq: $ => prec(5, seq($.expression, '\\subseteq', $.expression)),
 
     identifier: $ => /\w*[A-Za-z]\w*/,
 
