@@ -154,7 +154,10 @@ module.exports = grammar({
       $.infix_op_powpow,      $.infix_op_rfield
     ),
 
-    // Infix operators are given highest value in precedence range
+    // Infix operators are given highest value in precedence range for parsing
+    // Infix operators are all marked as left-associative for parsing purposes
+    // Operator precedence range & associativity conflicts must be enforced
+    // on semantic level
     infix_op_implies:     $ => prec.left(1, choice('=>', '⟹')),
     infix_op_plus_arrow:  $ => prec.left(2, choice('-+->', '⇸', '⍆', '⥅')),
     infix_op_equiv:       $ => prec.left(2, choice('\\equiv', '≡')),
