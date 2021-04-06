@@ -11,28 +11,28 @@ function commaList(rule) {
 // Defines a labelled prefix operator of given precedence
 function prefixOpPrec(level, prefix, expr, symbol) {
   return prec(level, seq(
-    token('prefix', repeat(prefix)),
-    token('symbol', symbol),
-    token('rhs', expr)
+    field('prefix', repeat(prefix)),
+    field('symbol', symbol),
+    field('rhs', expr)
   ))
 }
 
 // Defines a labelled left-associative infix operator of given precedence
 function infixOpPrec(level, prefix, expr, symbol) {
   return prec.left(level, seq(
-    token('lhs', expr),
-    token('prefix', repeat(prefix)),
-    token('symbol', symbol),
-    token('rhs', expr)
+    field('lhs', expr),
+    field('prefix', repeat(prefix)),
+    field('symbol', symbol),
+    field('rhs', expr)
   ))
 }
 
 // Defines a labelled postfix operator of given precedence
 function postfixOpPrec(level, prefix, expr, symbol) {
   return prec(level, seq(
-    token('lhs', expr),
-    token('prefix', repeat(prefix)),
-    token('symbol', symbol)
+    field('lhs', expr),
+    field('prefix', repeat(prefix)),
+    field('symbol', symbol)
   ))
 }
 
@@ -41,11 +41,14 @@ module.exports = grammar({
 
   conflicts: $ => [
     [$.general_identifier, $.tuple_of_identifiers],
-    [$.general_identifier, $.instance_prefix]
+    [$.general_identifier, $.instance_prefix],
+    [$.general_identifier, $.quantifier_bound],
+    [$.general_identifier, $.set_filter],
   ],
 
   rules: {
-    source_file: $ => repeat1($.module),
+    //source_file: $ => repeat1($.module),
+    source_file: $ => $._expr,
 
     keyword: $ => choice(
       'ASSUME',       'ELSE',       'LOCAL',      'UNION',
@@ -124,9 +127,11 @@ module.exports = grammar({
     eventually:       $ => choice('<>', '⋄'),
 
     // All prefix operator symbols
+    // Note negative is disambiguated from minus with a '.'
     prefix_op_symbol: $ => choice(
-      $.lnot,     $.union,      $.subset,     $.domain,     $.negative,
-      $.enabled,  $.unchanged,  $.always,     $.eventually
+      $.lnot,     $.union,      $.subset,     $.domain,
+      $.enabled,  $.unchanged,  $.always,     $.eventually,
+      seq($.negative, token.immediate('.'))
     ),
 
     // Foo!\neg
@@ -335,21 +340,21 @@ module.exports = grammar({
     ),
 
     // Line of ---------- of length at least 4
-    _single_line: $ => prec.left(seq(
+    _single_line: $ => seq(
+      '-',
       token.immediate('-'),
       token.immediate('-'),
       token.immediate('-'),
-      token.immediate('-'),
-      repeat(token.immediate('-'))
-    )),
+      token.immediate(token.immediate(repeat('-')))
+    ),
 
     // Line of =========== of length at least 4
     _double_line: $ => seq(
+      '=',
       token.immediate('='),
       token.immediate('='),
       token.immediate('='),
-      token.immediate('='),
-      repeat(token.immediate('='))
+      token.immediate(token.immediate(repeat('=')))
     ),
 
     // Top-level module declaration
@@ -529,7 +534,7 @@ module.exports = grammar({
       $.tuple_literal,
       $.stepexpression_or_stutter,
       $.stepexpression_no_stutter,
-      $.fairness,
+      //$.fairness,
       $.if_then_else,
       $.case,
       //$.let_in,
@@ -541,7 +546,9 @@ module.exports = grammar({
     ),
 
     // max(2, 3)
-    bound_op: $ => seq($.general_identifier, '(', commaList1($.argument), ')'),
+    bound_op: $ => seq(
+      field('name', $.general_identifier),
+      '(', field('args', commaList1($.argument)), ')'),
 
     // ((a + b) + c)
     parentheses: $ => seq('(', $._expr, ')'),
@@ -573,17 +580,23 @@ module.exports = grammar({
     // { x \in S : P(x) }
     set_filter: $ => seq(
       '{',
-      choice($.identifier, $.tuple_of_identifiers),
-      $.set_in,
-      $._expr,
+      field('generator', seq(
+        choice($.identifier, $.tuple_of_identifiers),
+        $.set_in,
+        $._expr
+      )),
       ':',
-      $._expr,
+      field('filter', $._expr),
       '}'
     ),
 
     // { f[x, y] : x, y \in S }
     set_map: $ => seq(
-      '{', $._expr, ':', commaList1($.quantifier_bound), '}'
+      '{',
+      field('map', $._expr),
+      ':',
+      field('generator', commaList1($.quantifier_bound)),
+      '}'
     ),
 
     // f[5]
