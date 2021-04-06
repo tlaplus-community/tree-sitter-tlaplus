@@ -18,7 +18,7 @@ module.exports = grammar({
   rules: {
     source_file: $ => repeat1($._expr),
 
-    reserved_word: $ => choice(
+    keyword: $ => choice(
       'ASSUME',       'ELSE',       'LOCAL',      'UNION',
       'ASSUMPTION',   'ENABLED',    'MODULE',     'VARIABLE',
       'AXIOM',        'EXCEPT',     'OTHER',      'VARIABLES',
@@ -74,7 +74,7 @@ module.exports = grammar({
     exists:           $ => choice('\\E', '\\exists', '∃'),
     temporal_forall:  $ => choice('\\AA'),
     temporal_exists:  $ => choice('\\EE'),
-    all_map_to:       $ => choice('|->', '⟼', '↦'),
+    all_map_to:       $ => choice('|->', '⟼'), 
     maps_to:          $ => choice('->', '⟶'),
     langle_bracket:   $ => choice('<<', '〈'),
     rangle_bracket:   $ => choice('>>', '〉'),
@@ -93,6 +93,30 @@ module.exports = grammar({
     unchanged:        $ => 'UNCHANGED',
     always:           $ => choice('[]', '□'),
     eventually:       $ => choice('<>', '⋄'),
+
+    // All prefix operator symbols
+    prefix_op_symbol: $ => choice(
+      $.lnot,     $.union,      $.subset,     $.domain,     $.negative,
+      $.enabled,  $.unchanged,  $.always,     $.eventually
+    ),
+
+    // Prefix operators are given highest value in precedence range
+    prefix_op_lnot:       $ => prec(4, seq($.lnot, $._expr)),
+    prefix_op_union:      $ => prec(8, seq($.union, $._expr)),
+    prefix_op_subset:     $ => prec(8, seq($.subset, $._expr)),
+    prefix_op_domain:     $ => prec(9, seq($.domain, $._expr)),
+    prefix_op_negative:   $ => prec(12, seq($.negative, $._expr)),
+    prefix_op_enabled:    $ => prec(15, seq($.enabled, $._expr)),
+    prefix_op_unchanged:  $ => prec(15, seq($.unchanged, $._expr)),
+    prefix_op_always:     $ => prec(15, seq($.always, $._expr)),
+    prefix_op_eventually: $ => prec(15, seq($.eventually, $._expr)),
+
+    // All prefix operators
+    prefix_op: $ => choice(
+      $.prefix_op_lnot,       $.prefix_op_union,    $.prefix_op_subset,
+      $.prefix_op_domain,     $.prefix_op_negative, $.prefix_op_enabled,
+      $.prefix_op_unchanged,  $.prefix_op_always,   $.prefix_op_eventually
+    ),
 
     // Infix operator symbols and their unicode equivalents
     implies:          $ => choice('=>', '⟹'),
@@ -183,30 +207,6 @@ module.exports = grammar({
     pow:              $ => '^',
     powpow:           $ => '^^',
     rfield:           $ => '.',
-
-    // All prefix operator symbols
-    prefix_op_symbol: $ => choice(
-      $.lnot,     $.union,      $.subset,     $.domain,     $.negative,
-      $.enabled,  $.unchanged,  $.always,     $.eventually
-    ),
-
-    // All prefix operators
-    prefix_op: $ => choice(
-      $.prefix_op_lnot,       $.prefix_op_union,    $.prefix_op_subset,
-      $.prefix_op_domain,     $.prefix_op_negative, $.prefix_op_enabled,
-      $.prefix_op_unchanged,  $.prefix_op_always,   $.prefix_op_eventually
-    ),
-
-    // Prefix operators are given highest value in precedence range
-    prefix_op_lnot:       $ => prec(4, seq($.lnot, $._expr)),
-    prefix_op_union:      $ => prec(8, seq($.union, $._expr)),
-    prefix_op_subset:     $ => prec(8, seq($.subset, $._expr)),
-    prefix_op_domain:     $ => prec(9, seq($.domain, $._expr)),
-    prefix_op_negative:   $ => prec(12, seq($.negative, $._expr)),
-    prefix_op_enabled:    $ => prec(15, seq($.enabled, $._expr)),
-    prefix_op_unchanged:  $ => prec(15, seq($.unchanged, $._expr)),
-    prefix_op_always:     $ => prec(15, seq($.always, $._expr)),
-    prefix_op_eventually: $ => prec(15, seq($.eventually, $._expr)),
 
     // All infix operator symbols
     infix_op_symbol: $ => choice(
@@ -359,10 +359,15 @@ module.exports = grammar({
     infix_op_powpow:      $ => prec.left(14, '^^'),
     infix_op_rfield:      $ => prec.left(17, '.'),
 
-    // All postfix operators
-    postfix_op: $ => choice(
-      $.postfix_op_plus,    $.postfix_op_ast,
-      $.postfix_op_hash,    $.postfix_op_prime
+    // Postfix operator symbols and their unicode equivalents
+    sup_plus:         $ => choice('^+', '⁺'),
+    asterisk:         $ => '^*',
+    sup_hash:         $ => '^#',
+    prime:            $ => '\'',
+
+    // All postfix operator symbols
+    postfix_op_symbol: $ => choice(
+      $.sup_plus, $.asterisk, $.sup_hash, $.prime
     ),
 
     // Postfix operators are given highest value in precedence range
@@ -370,6 +375,12 @@ module.exports = grammar({
     postfix_op_ast:   $ => prec(15, '^*'),
     postfix_op_hash:  $ => prec(15, '^#'),
     postfix_op_prime: $ => prec(15, '\''),
+
+    // All postfix operators
+    postfix_op: $ => choice(
+      $.postfix_op_plus,    $.postfix_op_ast,
+      $.postfix_op_hash,    $.postfix_op_prime
+    ),
 
     // Line of ---------- of length at least 4
     single_line: $ => seq('-', '-', '-', '-', repeat('-')),
