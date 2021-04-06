@@ -8,15 +8,44 @@ function commaList(rule) {
   return optional(commaList1(rule))
 }
 
+// Defines a labelled prefix operator of given precedence
+function prefixOpPrec(level, prefix, expr, symbol) {
+  return prec(level, seq(
+    token('prefix', repeat(prefix)),
+    token('symbol', symbol),
+    token('rhs', expr)
+  ))
+}
+
+// Defines a labelled left-associative infix operator of given precedence
+function infixOpPrec(level, prefix, expr, symbol) {
+  return prec.left(level, seq(
+    token('lhs', expr),
+    token('prefix', repeat(prefix)),
+    token('symbol', symbol),
+    token('rhs', expr)
+  ))
+}
+
+// Defines a labelled postfix operator of given precedence
+function postfixOpPrec(level, prefix, expr, symbol) {
+  return prec(level, seq(
+    token('lhs', expr),
+    token('prefix', repeat(prefix)),
+    token('symbol', symbol)
+  ))
+}
+
 module.exports = grammar({
   name: 'tlaplus',
 
   conflicts: $ => [
-    [$.general_identifier, $.tuple_of_identifiers]
+    [$.general_identifier, $.tuple_of_identifiers],
+    [$.general_identifier, $.instance_prefix]
   ],
 
   rules: {
-    source_file: $ => repeat1($._expr),
+    source_file: $ => repeat1($.module),
 
     keyword: $ => choice(
       'ASSUME',       'ELSE',       'LOCAL',      'UNION',
@@ -100,22 +129,24 @@ module.exports = grammar({
       $.enabled,  $.unchanged,  $.always,     $.eventually
     ),
 
-    // Prefix operators are given highest value in precedence range
-    prefix_op_lnot:       $ => prec(4, seq($.lnot, $._expr)),
-    prefix_op_union:      $ => prec(8, seq($.union, $._expr)),
-    prefix_op_subset:     $ => prec(8, seq($.subset, $._expr)),
-    prefix_op_domain:     $ => prec(9, seq($.domain, $._expr)),
-    prefix_op_negative:   $ => prec(12, seq($.negative, $._expr)),
-    prefix_op_enabled:    $ => prec(15, seq($.enabled, $._expr)),
-    prefix_op_unchanged:  $ => prec(15, seq($.unchanged, $._expr)),
-    prefix_op_always:     $ => prec(15, seq($.always, $._expr)),
-    prefix_op_eventually: $ => prec(15, seq($.eventually, $._expr)),
+    // Foo!\neg
+    general_prefix_op: $ => seq(
+      repeat($.instance_prefix), $.prefix_op_symbol
+    ),
 
-    // All prefix operators
-    prefix_op: $ => choice(
-      $.prefix_op_lnot,       $.prefix_op_union,    $.prefix_op_subset,
-      $.prefix_op_domain,     $.prefix_op_negative, $.prefix_op_enabled,
-      $.prefix_op_unchanged,  $.prefix_op_always,   $.prefix_op_eventually
+    // All bound prefix operators
+    // Prefix operators are given highest value in precedence range
+    bound_prefix_op: $ => choice(
+      prefixOpPrec(4,   $.instance_prefix, $._expr,
+        $.lnot),
+      prefixOpPrec(8,   $.instance_prefix, $._expr, choice(
+        $.union, $.subset)),
+      prefixOpPrec(9,   $.instance_prefix, $._expr,
+        $.domain),
+      prefixOpPrec(12,  $.instance_prefix, $._expr,
+        $.negative),
+      prefixOpPrec(15,  $.instance_prefix, $._expr, choice(
+        $.enabled, $.unchanged, $.always, $.eventually))
     ),
 
     // Infix operator symbols and their unicode equivalents
@@ -233,131 +264,54 @@ module.exports = grammar({
       $.powpow,       $.rfield
     ),
 
-    // All infix operators
-    infix_op: $ => choice(
-      $.infix_op_implies,     $.infix_op_plus_arrow,      $.infix_op_equiv,
-      $.infix_op_iff,         $.infix_op_leads_to,        $.infix_op_land,
-      $.infix_op_lor,         $.infix_op_assign,          $.infix_op_bnf_rule,
-      $.infix_op_eq,          $.infix_op_neq,             $.infix_op_lt,
-      $.infix_op_gt,          $.infix_op_leq,             $.infix_op_geq,
-      $.infix_op_approx,      $.infix_op_rs_ttile,        $.infix_op_rd_ttile,
-      $.infix_op_ls_ttile,    $.infix_op_ld_ttile,        $.infix_op_asymp,
-      $.infix_op_cong,        $.infix_op_doteq,           $.infix_op_gg,
-      $.infix_op_ll,          $.infix_op_in,              $.infix_op_notin,
-      $.infix_op_prec,        $.infix_op_succ,            $.infix_op_preceq,
-      $.infix_op_succeq,      $.infix_op_sim,             $.infix_op_simeq,
-      $.infix_op_sqsubset,    $.infix_op_sqsupset,        $.infix_op_sqsubseteq,
-      $.infix_op_sqsupseteq,  $.infix_op_subset,          $.infix_op_supset,
-      $.infix_op_subseteq,    $.infix_op_supseteq,        $.infix_op_compose,
-      $.infix_op_map_to,      $.infix_op_map_from,        $.infix_op_setminus,
-      $.infix_op_cap,         $.infix_op_cup,             $.infix_op_2dots,
-      $.infix_op_3dots,       $.infix_op_plus,            $.infix_op_plusplus,
-      $.infix_op_oplus,       $.infix_op_ominus,          $.infix_op_mod,
-      $.infix_op_modmod,      $.infix_op_vert,            $.infix_op_vertvert,
-      $.infix_op_minus,       $.infix_op_minusminus,      $.infix_op_amp,
-      $.infix_op_ampamp,      $.infix_op_odot,            $.infix_op_oslash,
-      $.infix_op_otimes,      $.infix_op_mul,             $.infix_op_mulmul,
-      $.infix_op_slash,       $.infix_op_slashslash,      $.infix_op_bigcirc,
-      $.infix_op_bullet,      $.infix_op_div,             $.infix_op_circ,
-      $.infix_op_star,        $.infix_op_excl,            $.infix_op_hashhash,
-      $.infix_op_dol,         $.infix_op_doldol,          $.infix_op_qq,
-      $.infix_op_sqcap,       $.infix_op_sqcup,           $.infix_op_uplus,
-      $.infix_op_wr,          $.infix_op_cdot,            $.infix_op_pow,
-      $.infix_op_powpow,      $.infix_op_rfield
+    // Foo!+
+    general_infix_op: $ => seq(
+      repeat($.instance_prefix), $.infix_op_symbol
     ),
 
     // Infix operators are given highest value in precedence range for parsing
     // Infix operators are all marked as left-associative for parsing purposes
     // Operator precedence range & associativity conflicts must be enforced
     // on semantic level
-    infix_op_implies:     $ => prec.left(1, seq($._expr, $.implies, $._expr)),
-    infix_op_plus_arrow:  $ => prec.left(2, seq($._expr, $.plus_arrow, $._expr)),
-    infix_op_equiv:       $ => prec.left(2, choice('\\equiv', '≡')),
-    infix_op_iff:         $ => prec.left(2, choice('<=>', '⟺')),
-    infix_op_leads_to:    $ => prec.left(2, choice('~>', '⇝')),
-    infix_op_land:        $ => prec.left(3, choice('/\\', '\\land', '∧')),
-    infix_op_lor:         $ => prec.left(3, choice('\\/', '\\lor', '∨')),
-    infix_op_assign:      $ => prec.left(5, ':='),
-    infix_op_bnf_rule:    $ => prec.left(5, '::='),
-    infix_op_eq:          $ => prec.left(5, '='),
-    infix_op_neq:         $ => prec.left(5, choice('/=', '#', '≠')),
-    infix_op_lt:          $ => prec.left(5, '<'),
-    infix_op_gt:          $ => prec.left(5, '>'),
-    infix_op_leq:         $ => prec.left(5, choice('<=', '\\leq', '≤')),
-    infix_op_geq:         $ => prec.left(5, choice('>=', '\\geq', '≥')),
-    infix_op_approx:      $ => prec.left(5, choice('\\approx', '≈')),
-    infix_op_rs_ttile:    $ => prec.left(5, choice('|-', '⊢')),
-    infix_op_rd_ttile:    $ => prec.left(5, choice('|=', '⊨')),
-    infix_op_ls_ttile:    $ => prec.left(5, choice('-|', '⊣')),
-    infix_op_ld_ttile:    $ => prec.left(5, choice('=|', '⫤')),
-    infix_op_asymp:       $ => prec.left(5, choice('\\asymp', '≍')),
-    infix_op_cong:        $ => prec.left(5, choice('\\cong', '≅')),
-    infix_op_doteq:       $ => prec.left(5, choice('\\doteq', '≐')),
-    infix_op_gg:          $ => prec.left(5, choice('\\gg', '≫')),
-    infix_op_ll:          $ => prec.left(5, choice('\\ll', '≪')),
-    infix_op_in:          $ => prec.left(5, choice('\\in', '∈')),
-    infix_op_notin:       $ => prec.left(5, choice('\\notin', '∉')),
-    infix_op_prec:        $ => prec.left(5, choice('\\prec', '≺')),
-    infix_op_succ:        $ => prec.left(5, choice('\\succ', '≻')),
-    infix_op_preceq:      $ => prec.left(5, choice('\\preceq', '⪯')),
-    infix_op_succeq:      $ => prec.left(5, choice('\\succeq', '⪰')),
-    infix_op_propto:      $ => prec.left(5, choice('\\propto', '∝')),
-    infix_op_sim:         $ => prec.left(5, choice('\\sim', '∼')),
-    infix_op_simeq:       $ => prec.left(5, choice('\\simeq', '≃')),
-    infix_op_sqsubset:    $ => prec.left(5, choice('\\sqsubset', '⊏')),
-    infix_op_sqsupset:    $ => prec.left(5, choice('\\sqsupset', '⊐')),
-    infix_op_sqsubseteq:  $ => prec.left(5, choice('\\sqsubseteq', '⊑')),
-    infix_op_sqsupseteq:  $ => prec.left(5, choice('\\sqsupseteq', '⊒')),
-    infix_op_subset:      $ => prec.left(5, choice('\\subset', '⊂')),
-    infix_op_supset:      $ => prec.left(5, choice('\\supset', '⊃')),
-    infix_op_subseteq:    $ => prec.left(5, choice('\\subseteq', '⊆')),
-    infix_op_supseteq:    $ => prec.left(5, choice('\\supseteq', '⊇')),
-    infix_op_compose:     $ => prec.left(6, '@@'),
-    infix_op_map_to:      $ => prec.left(7, ':>'),
-    infix_op_map_from:    $ => prec.left(7, '<:'),
-    infix_op_setminus:    $ => prec.left(8, '\\'),
-    infix_op_cap:         $ => prec.left(8, choice('\\cap', '∩')),
-    infix_op_cup:         $ => prec.left(8, choice('\\cup', '∪')),
-    infix_op_2dots:       $ => prec.left(9, '..'),
-    infix_op_3dots:       $ => prec.left(9, choice('...', '…')),
-    infix_op_plus:        $ => prec.left(10, '+'),
-    infix_op_plusplus:    $ => prec.left(10, '++'),
-    infix_op_oplus:       $ => prec.left(10, choice('\\oplus', '⊕')),
-    infix_op_ominus:      $ => prec.left(11, choice('\\ominus', '⊖')),
-    infix_op_mod:         $ => prec.left(11, '%'),
-    infix_op_modmod:      $ => prec.left(11, '%%'),
-    infix_op_vert:        $ => prec.left(11, '|'),
-    infix_op_vertvert:    $ => prec.left(11, choice('||', '‖')),
-    infix_op_minus:       $ => prec.left(11, '-'),
-    infix_op_minusminus:  $ => prec.left(11, '--'),
-    infix_op_amp:         $ => prec.left(13, '&'),
-    infix_op_ampamp:      $ => prec.left(13, '&&'),
-    infix_op_odot:        $ => prec.left(13, choice('\\odot', '⊙')),
-    infix_op_oslash:      $ => prec.left(13, choice('\\oslash', '⊘')),
-    infix_op_otimes:      $ => prec.left(13, choice('\\otimes', '⊗')),
-    infix_op_mul:         $ => prec.left(13, '*'),
-    infix_op_mulmul:      $ => prec.left(13, '**'),
-    infix_op_slash:       $ => prec.left(13, '/'),
-    infix_op_slashslash:  $ => prec.left(13, '//'),
-    infix_op_bigcirc:     $ => prec.left(13, choice('\\bigcirc', '◯')),
-    infix_op_bullet:      $ => prec.left(13, choice('\\bullet', '●')),
-    infix_op_div:         $ => prec.left(13, choice('\\div', '÷')),
-    infix_op_circ:        $ => prec.left(13, choice('\\circ', '∘')),
-    infix_op_star:        $ => prec.left(13, choice('\\star', '⋆')),
-    infix_op_excl:        $ => prec.left(13, choice('!!', '‼')),
-    infix_op_hashhash:    $ => prec.left(13, '##'),
-    infix_op_dol:         $ => prec.left(13, '$'),
-    infix_op_doldol:      $ => prec.left(13, '$$'),
-    infix_op_qq:          $ => prec.left(13, '??'),
-    infix_op_sqcap:       $ => prec.left(13, choice('\\sqcap', '⊓')),
-    infix_op_sqcup:       $ => prec.left(13, choice('\\sqcup', '⊔')),
-    infix_op_uplus:       $ => prec.left(13, choice('\\uplus', '⊎')),
-    infix_op_times:       $ => prec.left(13, choice('\\X', '\\times', '×')),
-    infix_op_wr:          $ => prec.left(14, choice('\\wr', '≀')),
-    infix_op_cdot:        $ => prec.left(14, choice('\\cdot', '⋅')),
-    infix_op_pow:         $ => prec.left(14, '^'),
-    infix_op_powpow:      $ => prec.left(14, '^^'),
-    infix_op_rfield:      $ => prec.left(17, '.'),
+    bound_infix_op: $ => choice(
+      infixOpPrec(1, $.instance_prefix, $._expr, choice(
+        $.implies, $.plus_arrow)),
+      infixOpPrec(2, $.instance_prefix, $._expr, choice(
+        $.equiv, $.iff, $.leads_to)),
+      infixOpPrec(3, $.instance_prefix, $._expr, choice(
+        $.land, $.lor)),
+      infixOpPrec(5, $.instance_prefix, $._expr, choice(
+        $.assign,     $.bnf_rule, $.eq,       $.neq,      $.lt,
+        $.gt,         $.leq,      $.geq,      $.approx,   $.rs_ttile,
+        $.rd_ttile,   $.ls_ttile, $.ld_ttile, $.asymp,    $.cong,
+        $.doteq,      $.gg,       $.ll,       $.in,       $.notin,
+        $.prec,       $.succ,     $.preceq,   $.succeq,   $.propto,
+        $.sim,        $.simeq,    $.sqsubset, $.sqsupset, $.sqsubseteq,
+        $.sqsupseteq, $.subset,   $.supset,   $.subseteq, $.supseteq)),
+      infixOpPrec(6, $.instance_prefix, $._expr,
+        $.compose),
+      infixOpPrec(7, $.instance_prefix, $._expr, choice(
+        $.map_to, $.map_from)),
+      infixOpPrec(8, $.instance_prefix, $._expr, choice(
+        $.setminus, $.cap, $.cup)),
+      infixOpPrec(9, $.instance_prefix, $._expr, choice(
+        $.dots_2, $.dots_3)),
+      infixOpPrec(10, $.instance_prefix, $._expr, choice(
+        $.plus, $.plusplus, $.oplus)),
+      infixOpPrec(11, $.instance_prefix, $._expr, choice(
+        $.ominus,   $.mod,    $.modmod,     $.vert,
+        $.vertvert, $.minus,  $.minusminus)),
+      infixOpPrec(13, $.instance_prefix, $._expr, choice(
+        $.amp,      $.ampamp, $.odot,     $.oslash,     $.otimes,
+        $.mul,      $.mulmul, $.slash,    $.slashslash, $.bigcirc,
+        $.bullet,   $.div,    $.circ,     $.star,       $.excl,
+        $.hashhash, $.dol,    $.doldol,   $.qq,         $.sqcap,
+        $.sqcup,    $.uplus,  $.times)),
+      infixOpPrec(14, $.instance_prefix, $._expr, choice(
+        $.wr, $.cdot, $.pow, $.powpow)),
+      infixOpPrec(14, $.instance_prefix, $._expr,
+        $.rfield)
+    ),
 
     // Postfix operator symbols and their unicode equivalents
     sup_plus:         $ => choice('^+', '⁺'),
@@ -370,33 +324,43 @@ module.exports = grammar({
       $.sup_plus, $.asterisk, $.sup_hash, $.prime
     ),
 
-    // Postfix operators are given highest value in precedence range
-    postfix_op_plus:  $ => prec(15, choice('^+', '⁺')),
-    postfix_op_ast:   $ => prec(15, '^*'),
-    postfix_op_hash:  $ => prec(15, '^#'),
-    postfix_op_prime: $ => prec(15, '\''),
+    // Foo!^#
+    general_postfix_op: $ => seq(
+      repeat($.instance_prefix), $.postfix_op_symbol
+    ),
 
-    // All postfix operators
-    postfix_op: $ => choice(
-      $.postfix_op_plus,    $.postfix_op_ast,
-      $.postfix_op_hash,    $.postfix_op_prime
+    // All bound postfix operators
+    bound_postfix_op: $ => choice(
+      postfixOpPrec(15, $.instance_prefix, $._expr, $.postfix_op_symbol)
     ),
 
     // Line of ---------- of length at least 4
-    single_line: $ => seq('-', '-', '-', '-', repeat('-')),
+    _single_line: $ => prec.left(seq(
+      token.immediate('-'),
+      token.immediate('-'),
+      token.immediate('-'),
+      token.immediate('-'),
+      repeat(token.immediate('-'))
+    )),
 
     // Line of =========== of length at least 4
-    double_line: $ => seq('=', '=', '=', '=', repeat('=')),
+    _double_line: $ => seq(
+      token.immediate('='),
+      token.immediate('='),
+      token.immediate('='),
+      token.immediate('='),
+      repeat(token.immediate('='))
+    ),
 
     // Top-level module declaration
     module: $ => seq(
-        $.single_line,
+        $._single_line,
         'MODULE',
         $.name,
-        $.single_line,
+        $._single_line,
         optional($.extends),
         repeat($.unit),
-        $.double_line
+        $._double_line
     ),
 
     // EXTENDS Naturals, FiniteSets, Sequences
@@ -413,7 +377,7 @@ module.exports = grammar({
         $.assumption,
         $.theorem,
         $.module,
-        $.single_line
+        $._single_line
     ),
 
     // VARIABLES v1, v2, v3
@@ -441,7 +405,7 @@ module.exports = grammar({
       seq($.identifier, '(', commaList1('_'), ')'),
       seq($.prefix_op_symbol, '_'),
       seq('_', $.infix_op_symbol, '_'),
-      seq('_', $.postfix_op)
+      seq('_', $.postfix_op_symbol)
     ),
 
     // Operator definition
@@ -453,7 +417,7 @@ module.exports = grammar({
         $.non_fix_lhs,
         seq($.prefix_op_symbol, $.identifier),
         seq($.identifier, $.infix_op_symbol, $.identifier),
-        seq($.identifier, $.postfix_op)
+        seq($.identifier, $.postfix_op_symbol)
       ),
       $.def_eq,
       $._expr
@@ -464,18 +428,14 @@ module.exports = grammar({
     non_fix_lhs: $ => seq(
       $.identifier,
       optional(seq(
-        '(',
-        commaList1(choice($.identifier, $.operator_declaration)),
-        ')'
+        '(', commaList1($.operator_declaration), ')'
       )),
     ),
 
     // f[x \in Nat] == 2*x
     function_definition: $ => seq(
       $.identifier,
-      '[',
-      commaList1($.quantifier_bound),
-      ']',
+      '[', commaList1($.quantifier_bound), ']',
       $.def_eq,
       $._expr
     ),
@@ -499,7 +459,12 @@ module.exports = grammar({
 
     // x <- y, w <- z
     substitution: $ => seq(
-      choice($.identifier, $.prefix_op_symbol, $.infix_op_symbol, $.postfix_op),
+      choice(
+        $.identifier,
+        $.prefix_op_symbol,
+        $.infix_op_symbol,
+        $.postfix_op_symbol
+      ),
       $.gets,
       $.argument
     ),
@@ -521,26 +486,7 @@ module.exports = grammar({
 
     // Foo!bar
     general_identifier: $ => seq(
-      //repeat($.instance_prefix), $.identifier
-      $.identifier
-    ),
-
-    // Foo!\neg
-    general_prefix_op: $ => seq(
-      //repeat($.instance_prefix), $.prefix_op
-      $.prefix_op_symbol
-    ),
-
-    // Foo!+
-    general_infix_op: $ => seq(
-      //repeat($.instance_prefix), $.infix_op
-      $.infix_op_symbol
-    ),
-
-    // Foo!^#
-    general_postfix_op: $ => seq(
-      //repeat($.instance_prefix), $.postfix_op
-      $.postfix_op
+      repeat($.instance_prefix), $.identifier
     ),
 
     // M == INSTANCE ModuleName
@@ -562,10 +508,10 @@ module.exports = grammar({
     // Anything that evaluates to a value
     _expr: $ => choice(
       $.general_identifier,
-      //$.bound_op,
-      //$.bound_prefix_op,
-      //$.bound_infix_op,
-      //$.bound_postfix_op,
+      $.bound_op,
+      $.bound_prefix_op,
+      $.bound_infix_op,
+      $.bound_postfix_op,
       $.parentheses,
       $.bounded_quantification,
       $.unbounded_quantification,
@@ -596,15 +542,6 @@ module.exports = grammar({
 
     // max(2, 3)
     bound_op: $ => seq($.general_identifier, '(', commaList1($.argument), ')'),
-
-    // -5
-    bound_prefix_op: $ => seq($.general_prefix_op, $._expr),
-
-    // 3 + 5
-    bound_infix_op: $ => seq($._expr, $.general_infix_op, $._expr),
-
-    // x'
-    bound_postfix_op: $ => seq($._expr, $.general_postfix_op),
 
     // ((a + b) + c)
     parentheses: $ => seq('(', $._expr, ')'),
