@@ -10,7 +10,7 @@ function commaList(rule) {
 
 // Defines a labelled prefix operator of given precedence
 function prefixOpPrec(level, prefix, expr, symbol) {
-  return prec(level, seq(
+  return prec.left(level, seq(
     field('prefix', repeat(prefix)),
     field('symbol', symbol),
     field('rhs', expr)
@@ -44,11 +44,14 @@ module.exports = grammar({
     [$.general_identifier, $.instance_prefix],
     [$.general_identifier, $.quantifier_bound],
     [$.general_identifier, $.set_filter],
+    [$.bound_prefix_op, $.bound_infix_op, $.bound_postfix_op],
+    [$.bound_infix_op, $.bound_postfix_op],
+    [$.negative, $.minus]
   ],
 
   rules: {
-    //source_file: $ => repeat1($.module),
-    source_file: $ => $._expr,
+    source_file: $ => $.module,
+    //source_file: $ => $._expr,
 
     keyword: $ => choice(
       'ASSUME',       'ELSE',       'LOCAL',      'UNION',
@@ -341,37 +344,28 @@ module.exports = grammar({
 
     // Line of ---------- of length at least 4
     _single_line: $ => seq(
-      '-',
-      token.immediate('-'),
-      token.immediate('-'),
-      token.immediate('-'),
-      token.immediate(token.immediate(repeat('-')))
+      '----',
+      token.immediate(repeat(token.immediate('-')))
     ),
 
     // Line of =========== of length at least 4
     _double_line: $ => seq(
-      '=',
-      token.immediate('='),
-      token.immediate('='),
-      token.immediate('='),
-      token.immediate(token.immediate(repeat('=')))
+      '====',
+      token.immediate(repeat(token.immediate('=')))
     ),
 
     // Top-level module declaration
     module: $ => seq(
-        $._single_line,
-        'MODULE',
-        $.name,
-        $._single_line,
-        optional($.extends),
-        repeat($.unit),
+        $._single_line, 'MODULE', field('name', $.name), $._single_line,
+        field('extends', optional($.extends)),
+        field('unit', repeat($._unit)),
         $._double_line
     ),
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq('EXTENDS', commaList1($.name)),
 
-    unit: $ => choice(
+    _unit: $ => choice(
         $.variable_declaration,
         $.constant_declaration,
         $.recursive_operator_declaration,
@@ -537,7 +531,7 @@ module.exports = grammar({
       //$.fairness,
       $.if_then_else,
       $.case,
-      //$.let_in,
+      $.let_in,
       //$.conj,
       //$.disj,
       $.string,
@@ -675,7 +669,9 @@ module.exports = grammar({
 
     // IF a > b THEN a ELSE b
     if_then_else: $ => seq(
-      'IF', $._expr, 'THEN', $._expr, 'ELSE', $._expr
+      'IF', field('if', $._expr),
+      'THEN', field('then', $._expr),
+      'ELSE', field('else', $._expr)
     ),
 
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
