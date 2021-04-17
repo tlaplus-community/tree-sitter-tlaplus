@@ -11,7 +11,7 @@ function commaList(rule) {
 // Defines a labelled prefix operator of given precedence
 function prefixOpPrec(level, prefix, expr, symbol) {
   return prec.left(level, seq(
-    field('prefix', repeat(prefix)),
+    //field('prefix', repeat(prefix)),
     field('symbol', symbol),
     field('rhs', expr)
   ))
@@ -21,7 +21,7 @@ function prefixOpPrec(level, prefix, expr, symbol) {
 function infixOpPrec(level, prefix, expr, symbol) {
   return prec.left(level, seq(
     field('lhs', expr),
-    field('prefix', repeat(prefix)),
+    //field('prefix', repeat(prefix)),
     field('symbol', symbol),
     field('rhs', expr)
   ))
@@ -31,7 +31,7 @@ function infixOpPrec(level, prefix, expr, symbol) {
 function postfixOpPrec(level, prefix, expr, symbol) {
   return prec(level, seq(
     field('lhs', expr),
-    field('prefix', repeat(prefix)),
+    //field('prefix', repeat(prefix)),
     field('symbol', symbol)
   ))
 }
