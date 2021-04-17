@@ -5,3 +5,6 @@ src
 *.exp
 *.lib
 *.obj
+build
+target
+Cargo.lock
