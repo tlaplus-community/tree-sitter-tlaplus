@@ -53,6 +53,27 @@ module.exports = grammar({
     source_file: $ => $.module,
     //source_file: $ => $._expr,
 
+    // Top-level module declaration
+    module: $ => seq(
+        $._single_line, 'MODULE', field('name', $.name), $._single_line,
+        field('extends', optional($.extends)),
+        field('unit', repeat($._unit)),
+        $._double_line
+    ),
+
+    // Line of ---------- of length at least 4
+    _single_line: $ => seq(
+      '----',
+      token.immediate(repeat(token.immediate('-')))
+    ),
+
+    // Line of =========== of length at least 4
+    _double_line: $ => seq(
+      '====',
+      token.immediate(repeat(token.immediate('=')))
+    ),
+
+    // The set of all reserved keywords
     keyword: $ => choice(
       'ASSUME',       'ELSE',       'LOCAL',      'UNION',
       'ASSUMPTION',   'ENABLED',    'MODULE',     'VARIABLE',
@@ -76,8 +97,84 @@ module.exports = grammar({
     // If only one character long, must be letter (not number or _)
     name: $ => /\w*[A-Za-z]\w*/,
 
-    // Identifier; should exclude reserved words
+    // General-purpose identifier, should exclude reserved keywords,
+    // but tree-sitter currently does not support match exclusion logic.
     identifier: $ => $.name,
+
+    // EXTENDS Naturals, FiniteSets, Sequences
+    extends: $ => seq('EXTENDS', commaList1($.name)),
+
+    // A module-level definition
+    _unit: $ => choice(
+        $.variable_declaration,
+        $.constant_declaration,
+        $.recursive_operator_declaration,
+        seq(optional("LOCAL"), $.operator_definition),
+        seq(optional("LOCAL"), $.function_definition),
+        seq(optional("LOCAL"), $.instance),
+        seq(optional("LOCAL"), $.module_definition),
+        $.assumption,
+        $.theorem,
+        $.module,
+        $._single_line
+    ),
+
+    // VARIABLES v1, v2, v3
+    variable_declaration: $ => seq(
+        choice('VARIABLE', 'VARIABLES'),
+        commaList1($.identifier)
+    ),
+
+    // CONSTANTS C1, C2, C3
+    constant_declaration: $ => seq(
+        choice('CONSTANT', 'CONSTANTS'),
+        commaList1($.operator_declaration)
+    ),
+
+    // RECURSIVE op(_, _)
+    recursive_operator_declaration: $ => seq(
+      'RECURSIVE', commaList1($.operator_declaration)
+    ),
+
+    // Operator declaration (not definition)
+    // Used, for example, when op accepts another op as parameter
+    // op, op(_, _), _+_, etc.
+    operator_declaration: $ => choice(
+      $.identifier,
+      seq($.identifier, '(', commaList1('_'), ')'),
+      seq($.prefix_op_symbol, '_'),
+      seq('_', $.infix_op_symbol, '_'),
+      seq('_', $.postfix_op_symbol)
+    ),
+
+    // Operator definition
+    // max(a, b) == IF a > b THEN a ELSE b
+    // a \prec b == a.val < b.val
+    // x ≜ 〈 1, 2, 3, 4, 5 〉
+    operator_definition: $ => seq(
+      choice(
+        $.identifier,
+        $.non_fix_lhs,
+        seq($.prefix_op_symbol, $.identifier),
+        seq($.identifier, $.infix_op_symbol, $.identifier),
+        seq($.identifier, $.postfix_op_symbol)
+      ),
+      $.def_eq,
+      $._expr
+    ),
+
+    // Named operator left-hand-side with parameters
+    // op(a, b)
+    non_fix_lhs: $ => seq(
+      $.identifier, seq('(', commaList1($.operator_declaration), ')'),
+    ),
+
+    // M == INSTANCE ModuleName
+    module_definition: $ => seq(
+      choice($.identifier, $.non_fix_lhs),
+      $.def_eq,
+      $.instance
+    ),
 
     // <<x, y, z>>
     tuple_of_identifiers: $ => seq(
@@ -100,6 +197,271 @@ module.exports = grammar({
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
+
+    // f[x \in Nat] == 2*x
+    function_definition: $ => seq(
+      $.identifier,
+      '[', commaList1($.quantifier_bound), ']',
+      $.def_eq,
+      $._expr
+    ),
+
+    // x, y, z \in S
+    quantifier_bound: $ => seq(
+      choice(
+        $.tuple_of_identifiers,
+        commaList1($.identifier)
+      ),
+      $.set_in,
+      $._expr
+    ),
+
+    // INSTANCE ModuleName WITH x <- y, w <- z
+    instance: $ => seq(
+      'INSTANCE',
+      $.name,
+      optional(seq('WITH', commaList1($.substitution)))
+    ),
+
+    // x <- y, w <- z
+    substitution: $ => seq(
+      choice(
+        $.identifier,
+        $.prefix_op_symbol,
+        $.infix_op_symbol,
+        $.postfix_op_symbol
+      ),
+      $.gets,
+      $.argument
+    ),
+
+    // An argument given to an operator
+    argument: $ => choice(
+      $._expr,
+      $.general_prefix_op,
+      $.general_infix_op,
+      $.general_postfix_op
+    ),
+
+    // Foo(x, y)!Bar(w, z)!...
+    instance_prefix: $ => seq(
+      $.identifier,
+      optional(seq('(', commaList1($._expr), ')')),
+      '!'
+    ),
+
+    // Foo!bar
+    general_identifier: $ => seq(
+      repeat($.instance_prefix), $.identifier
+    ),
+
+    // ASSUME C \in Nat
+    assumption: $ => seq(
+      choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
+      $._expr
+    ),
+
+    // THEOREM Spec => []Safety
+    theorem: $ => seq('THEOREM', $._expr),
+
+    // Anything that evaluates to a value
+    _expr: $ => choice(
+      $.general_identifier,
+      $.bound_op,
+      $.bound_prefix_op,
+      $.bound_infix_op,
+      $.bound_postfix_op,
+      $.parentheses,
+      $.bounded_quantification,
+      $.unbounded_quantification,
+      $.choose,
+      $.finite_set_literal,
+      $.set_filter,
+      $.set_map,
+      $.function_evaluation,
+      $.function_value,
+      $.set_of_functions,
+      $.record_value,
+      $.set_of_records,
+      $.except,
+      $.prev_func_val,
+      $.tuple_literal,
+      $.stepexpression_or_stutter,
+      $.stepexpression_no_stutter,
+      //$.fairness,
+      $.if_then_else,
+      $.case,
+      $.let_in,
+      //$.conj,
+      //$.disj,
+      $.string,
+      $.number,
+      $.boolean
+    ),
+
+    // max(2, 3)
+    bound_op: $ => seq(
+      field('name', $.general_identifier),
+      '(', field('args', commaList1($.argument)), ')'),
+
+    // ((a + b) + c)
+    parentheses: $ => seq('(', $._expr, ')'),
+
+    // \A x \in Nat : P(x)
+    bounded_quantification: $ => seq(
+      choice($.forall, $.exists),
+      commaList1($.quantifier_bound), ':', $._expr
+    ),
+
+    // \EE x : P(x)
+    unbounded_quantification: $ => seq(
+      choice($.forall, $.exists, $.temporal_forall, $.temporal_exists),
+      commaList1($.identifier), ':', $._expr
+    ),
+
+    // CHOOSE r \in Real : r >= 0
+    choose: $ => seq(
+      'CHOOSE',
+      choice($.identifier, $.tuple_of_identifiers),
+      optional(seq($.set_in, $._expr)),
+      ':',
+      $._expr
+    ),
+
+    // {1, 2, 3, 4, 5}
+    finite_set_literal: $ => seq('{', commaList($._expr), '}'),
+
+    // { x \in S : P(x) }
+    set_filter: $ => seq(
+      '{',
+      field('generator', seq(
+        choice($.identifier, $.tuple_of_identifiers),
+        $.set_in,
+        $._expr
+      )),
+      ':',
+      field('filter', $._expr),
+      '}'
+    ),
+
+    // { f[x, y] : x, y \in S }
+    set_map: $ => seq(
+      '{',
+      field('map', $._expr),
+      ':',
+      field('generator', commaList1($.quantifier_bound)),
+      '}'
+    ),
+
+    // f[5]
+    function_evaluation: $ => prec(16, seq(
+      $._expr, '[', commaList1($._expr), ']'
+    )),
+
+    // [n \in Nat |-> 2*n]
+    function_value: $ => seq(
+      '[', commaList1($.quantifier_bound), $.all_map_to, $._expr, ']'
+    ),
+
+    // [Nat -> Nat]
+    set_of_functions: $ => seq(
+      '[', $._expr, $.maps_to, $._expr, ']'
+    ),
+
+    // [foo |-> 0, bar |-> 1]
+    record_value: $ => seq(
+      '[', commaList1(seq($.name, $.all_map_to, $._expr)), ']'
+    ),
+
+    // [foo : {0, 1}, bar : {0, 1}]
+    set_of_records: $ => seq(
+      '[', commaList1(seq($.name, ':', $._expr)), ']'
+    ),
+
+    // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
+    except: $ => seq(
+      '[',
+      $._expr,
+      'EXCEPT',
+      commaList1(
+        seq(
+          '!',
+          repeat1(
+            choice(
+              seq('.', $.name),
+              seq('[', commaList1($._expr), ']')
+            )
+          ),
+          '=',
+          $._expr
+        )
+      ),
+      ']'
+    ),
+
+    // [f EXCEPT ![2] = @ + 1]
+    prev_func_val: $ => '@',
+
+    // <<1,2,3,4,5>>, <<>>
+    tuple_literal: $ => seq(
+      $.langle_bracket,
+      commaList($._expr),
+      $.rangle_bracket
+    ),
+
+    // [x ' > x]_<<x>>
+    stepexpression_or_stutter: $ => seq(
+      '[', $._expr, ']_', $._expr
+    ),
+
+    // <<x' > x>>_<<x>>
+    stepexpression_no_stutter: $ => seq(
+      $.langle_bracket,
+      $._expr,
+      $.rangle_bracket, token.immediate('_'),
+      $._expr
+    ),
+
+    // WF_vars(ActionName)
+    fairness: $ => seq(
+      choice('WF_', 'SF_'), $._expr, '(', $._expr, ')'
+    ),
+
+    // IF a > b THEN a ELSE b
+    if_then_else: $ => seq(
+      'IF', field('if', $._expr),
+      'THEN', field('then', $._expr),
+      'ELSE', field('else', $._expr)
+    ),
+
+    // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
+    case: $ => prec.left(seq(
+      'CASE', $._expr, $.case_arrow, $._expr,
+      repeat(seq($.case_box, $._expr, $.case_arrow, $._expr)),
+      optional(seq($.case_box, 'OTHER', $.case_arrow, $._expr))
+    )),
+
+    // LET x == 5 IN 2*x
+    let_in: $ => seq(
+      'LET',
+      repeat1(
+        choice(
+          $.operator_definition,
+          $.function_definition,
+          $.module_definition
+        )
+      ),
+      'IN',
+      $._expr
+    ),
+
+    // /\ x
+    // /\ y
+    conj: $ => repeat1(seq($.bullet_conj, $._expr)),
+
+    // \/ x
+    // \/ y
+    disj: $ => repeat1(seq($.bullet_disj, $._expr)),
 
     // Various syntactic elements and their unicode equivalents
     def_eq:           $ => choice('==', '≜'),
@@ -340,367 +702,6 @@ module.exports = grammar({
     // All bound postfix operators
     bound_postfix_op: $ => choice(
       postfixOpPrec(15, $.instance_prefix, $._expr, $.postfix_op_symbol)
-    ),
-
-    // Line of ---------- of length at least 4
-    _single_line: $ => seq(
-      '----',
-      token.immediate(repeat(token.immediate('-')))
-    ),
-
-    // Line of =========== of length at least 4
-    _double_line: $ => seq(
-      '====',
-      token.immediate(repeat(token.immediate('=')))
-    ),
-
-    // Top-level module declaration
-    module: $ => seq(
-        $._single_line, 'MODULE', field('name', $.name), $._single_line,
-        field('extends', optional($.extends)),
-        field('unit', repeat($._unit)),
-        $._double_line
-    ),
-
-    // EXTENDS Naturals, FiniteSets, Sequences
-    extends: $ => seq('EXTENDS', commaList1($.name)),
-
-    _unit: $ => choice(
-        $.variable_declaration,
-        $.constant_declaration,
-        $.recursive_operator_declaration,
-        seq(optional("LOCAL"), $.operator_definition),
-        seq(optional("LOCAL"), $.function_definition),
-        seq(optional("LOCAL"), $.instance),
-        seq(optional("LOCAL"), $.module_definition),
-        $.assumption,
-        $.theorem,
-        $.module,
-        $._single_line
-    ),
-
-    // VARIABLES v1, v2, v3
-    variable_declaration: $ => seq(
-        choice('VARIABLE', 'VARIABLES'),
-        commaList1($.identifier)
-    ),
-
-    // CONSTANTS C1, C2, C3
-    constant_declaration: $ => seq(
-        choice('CONSTANT', 'CONSTANTS'),
-        commaList1($.operator_declaration)
-    ),
-
-    // RECURSIVE op(_, _)
-    recursive_operator_declaration: $ => seq(
-      'RECURSIVE', commaList1($.operator_declaration)
-    ),
-
-    // Operator declaration (not definition)
-    // Used, for example, when op accepts another op as parameter
-    // op, op(_, _), _+_, etc.
-    operator_declaration: $ => choice(
-      $.identifier,
-      seq($.identifier, '(', commaList1('_'), ')'),
-      seq($.prefix_op_symbol, '_'),
-      seq('_', $.infix_op_symbol, '_'),
-      seq('_', $.postfix_op_symbol)
-    ),
-
-    // Operator definition
-    // max(a, b) == IF a > b THEN a ELSE b
-    // a \prec b == a.val < b.val
-    // x ≜ 〈 1, 2, 3, 4, 5 〉
-    operator_definition: $ => seq(
-      choice(
-        $.non_fix_lhs,
-        seq($.prefix_op_symbol, $.identifier),
-        seq($.identifier, $.infix_op_symbol, $.identifier),
-        seq($.identifier, $.postfix_op_symbol)
-      ),
-      $.def_eq,
-      $._expr
-    ),
-
-    // Named operator left-hand-side, with or without parameters
-    // op, op(a, b)
-    non_fix_lhs: $ => seq(
-      $.identifier,
-      optional(seq(
-        '(', commaList1($.operator_declaration), ')'
-      )),
-    ),
-
-    // f[x \in Nat] == 2*x
-    function_definition: $ => seq(
-      $.identifier,
-      '[', commaList1($.quantifier_bound), ']',
-      $.def_eq,
-      $._expr
-    ),
-
-    // x, y, z \in S
-    quantifier_bound: $ => seq(
-      choice(
-        $.tuple_of_identifiers,
-        commaList1($.identifier)
-      ),
-      $.set_in,
-      $._expr
-    ),
-
-    // INSTANCE ModuleName WITH x <- y, w <- z
-    instance: $ => seq(
-      'INSTANCE',
-      $.name,
-      optional(seq('WITH', commaList1($.substitution)))
-    ),
-
-    // x <- y, w <- z
-    substitution: $ => seq(
-      choice(
-        $.identifier,
-        $.prefix_op_symbol,
-        $.infix_op_symbol,
-        $.postfix_op_symbol
-      ),
-      $.gets,
-      $.argument
-    ),
-
-    // An argument given to an operator
-    argument: $ => choice(
-      $._expr,
-      $.general_prefix_op,
-      $.general_infix_op,
-      $.general_postfix_op
-    ),
-
-    // Foo(x, y)!Bar(w, z)!...
-    instance_prefix: $ => seq(
-      $.identifier,
-      optional(seq('(', commaList1($._expr), ')')),
-      '!'
-    ),
-
-    // Foo!bar
-    general_identifier: $ => seq(
-      repeat($.instance_prefix), $.identifier
-    ),
-
-    // M == INSTANCE ModuleName
-    module_definition: $ => seq(
-      $.non_fix_lhs,
-      $.def_eq,
-      $.instance
-    ),
-
-    // ASSUME C \in Nat
-    assumption: $ => seq(
-      choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
-      $._expr
-    ),
-
-    // THEOREM Spec => []Safety
-    theorem: $ => seq('THEOREM', $._expr),
-
-    // Anything that evaluates to a value
-    _expr: $ => choice(
-      $.general_identifier,
-      $.bound_op,
-      $.bound_prefix_op,
-      $.bound_infix_op,
-      $.bound_postfix_op,
-      $.parentheses,
-      $.bounded_quantification,
-      $.unbounded_quantification,
-      $.choose,
-      $.finite_set_literal,
-      $.set_filter,
-      $.set_map,
-      $.function_evaluation,
-      $.function_value,
-      $.set_of_functions,
-      $.record_value,
-      $.set_of_records,
-      $.except,
-      $.prev_func_val,
-      $.tuple_literal,
-      $.stepexpression_or_stutter,
-      $.stepexpression_no_stutter,
-      //$.fairness,
-      $.if_then_else,
-      $.case,
-      $.let_in,
-      //$.conj,
-      //$.disj,
-      $.string,
-      $.number,
-      $.boolean
-    ),
-
-    // max(2, 3)
-    bound_op: $ => seq(
-      field('name', $.general_identifier),
-      '(', field('args', commaList1($.argument)), ')'),
-
-    // ((a + b) + c)
-    parentheses: $ => seq('(', $._expr, ')'),
-
-    // \A x \in Nat : P(x)
-    bounded_quantification: $ => seq(
-      choice($.forall, $.exists),
-      commaList1($.quantifier_bound), ':', $._expr
-    ),
-
-    // \EE x : P(x)
-    unbounded_quantification: $ => seq(
-      choice($.forall, $.exists, $.temporal_forall, $.temporal_exists),
-      commaList1($.identifier), ':', $._expr
-    ),
-
-    // CHOOSE r \in Real : r >= 0
-    choose: $ => seq(
-      'CHOOSE',
-      choice($.identifier, $.tuple_of_identifiers),
-      optional(seq($.set_in, $._expr)),
-      ':',
-      $._expr
-    ),
-
-    // {1, 2, 3, 4, 5}
-    finite_set_literal: $ => seq('{', commaList($._expr), '}'),
-
-    // { x \in S : P(x) }
-    set_filter: $ => seq(
-      '{',
-      field('generator', seq(
-        choice($.identifier, $.tuple_of_identifiers),
-        $.set_in,
-        $._expr
-      )),
-      ':',
-      field('filter', $._expr),
-      '}'
-    ),
-
-    // { f[x, y] : x, y \in S }
-    set_map: $ => seq(
-      '{',
-      field('map', $._expr),
-      ':',
-      field('generator', commaList1($.quantifier_bound)),
-      '}'
-    ),
-
-    // f[5]
-    function_evaluation: $ => prec(16, seq(
-      $._expr, '[', commaList1($._expr), ']'
-    )),
-
-    // [n \in Nat |-> 2*n]
-    function_value: $ => seq(
-      '[', commaList1($.quantifier_bound), $.all_map_to, $._expr, ']'
-    ),
-
-    // [Nat -> Nat]
-    set_of_functions: $ => seq(
-      '[', $._expr, $.maps_to, $._expr, ']'
-    ),
-
-    // [foo |-> 0, bar |-> 1]
-    record_value: $ => seq(
-      '[', commaList1(seq($.name, $.all_map_to, $._expr)), ']'
-    ),
-
-    // [foo : {0, 1}, bar : {0, 1}]
-    set_of_records: $ => seq(
-      '[', commaList1(seq($.name, ':', $._expr)), ']'
-    ),
-
-    // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
-    except: $ => seq(
-      '[',
-      $._expr,
-      'EXCEPT',
-      commaList1(
-        seq(
-          '!',
-          repeat1(
-            choice(
-              seq('.', $.name),
-              seq('[', commaList1($._expr), ']')
-            )
-          ),
-          '=',
-          $._expr
-        )
-      ),
-      ']'
-    ),
-
-    // [f EXCEPT ![2] = @ + 1]
-    prev_func_val: $ => '@',
-
-    // <<1,2,3,4,5>>, <<>>
-    tuple_literal: $ => seq(
-      $.langle_bracket,
-      commaList($._expr),
-      $.rangle_bracket
-    ),
-
-    // [x ' > x]_<<x>>
-    stepexpression_or_stutter: $ => seq(
-      '[', $._expr, ']_', $._expr
-    ),
-
-    // <<x' > x>>_<<x>>
-    stepexpression_no_stutter: $ => seq(
-      $.langle_bracket,
-      $._expr,
-      $.rangle_bracket, token.immediate('_'),
-      $._expr
-    ),
-
-    // WF_vars(ActionName)
-    fairness: $ => seq(
-      choice('WF_', 'SF_'), $._expr, '(', $._expr, ')'
-    ),
-
-    // IF a > b THEN a ELSE b
-    if_then_else: $ => seq(
-      'IF', field('if', $._expr),
-      'THEN', field('then', $._expr),
-      'ELSE', field('else', $._expr)
-    ),
-
-    // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
-    case: $ => prec.left(seq(
-      'CASE', $._expr, $.case_arrow, $._expr,
-      repeat(seq($.case_box, $._expr, $.case_arrow, $._expr)),
-      optional(seq($.case_box, 'OTHER', $.case_arrow, $._expr))
-    )),
-
-    // LET x == 5 IN 2*x
-    let_in: $ => seq(
-      'LET',
-      repeat1(
-        choice(
-          $.operator_definition,
-          $.function_definition,
-          $.module_definition
-        )
-      ),
-      'IN',
-      $._expr
-    ),
-
-    // /\ x
-    // /\ y
-    conj: $ => repeat1(seq($.bullet_conj, $._expr)),
-
-    // \/ x
-    // \/ y
-    disj: $ => repeat1(seq($.bullet_disj, $._expr)),
+    )
   }
 });
