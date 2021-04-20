@@ -56,8 +56,8 @@ module.exports = grammar({
     // Top-level module declaration
     module: $ => seq(
         $._single_line, 'MODULE', field('name', $.name), $._single_line,
-        field('extends', optional($.extends)),
-        field('unit', repeat($._unit)),
+        optional($.extends),
+        repeat($.unit),
         $._double_line
     ),
 
@@ -72,6 +72,23 @@ module.exports = grammar({
       '====',
       token.immediate(repeat(token.immediate('=')))
     ),
+
+    // Various syntactic elements and their unicode equivalents
+    def_eq:           $ => choice('==', '≜'),
+    set_in:           $ => choice('\\in', '∈'),
+    gets:             $ => choice('<-', '⟵'),
+    forall:           $ => choice('\\A', '\\forall', '∀'),
+    exists:           $ => choice('\\E', '\\exists', '∃'),
+    temporal_forall:  $ => choice('\\AA'),
+    temporal_exists:  $ => choice('\\EE'),
+    all_map_to:       $ => choice('|->', '⟼'), 
+    maps_to:          $ => choice('->', '⟶'),
+    langle_bracket:   $ => choice('<<', '〈'),
+    rangle_bracket:   $ => choice('>>', '〉'),
+    case_box:         $ => choice('[]', '□'),
+    case_arrow:       $ => choice('->', '⟶'),
+    bullet_conj:      $ => choice('/\\', '∧'),
+    bullet_disj:      $ => choice('\\/', '∨'),
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -105,7 +122,7 @@ module.exports = grammar({
     extends: $ => seq('EXTENDS', commaList1($.name)),
 
     // A module-level definition
-    _unit: $ => choice(
+    unit: $ => choice(
         $.variable_declaration,
         $.constant_declaration,
         $.recursive_operator_declaration,
@@ -169,35 +186,6 @@ module.exports = grammar({
       $.identifier, seq('(', commaList1($.operator_declaration), ')'),
     ),
 
-    // M == INSTANCE ModuleName
-    module_definition: $ => seq(
-      choice($.identifier, $.non_fix_lhs),
-      $.def_eq,
-      $.instance
-    ),
-
-    // <<x, y, z>>
-    tuple_of_identifiers: $ => seq(
-      $.langle_bracket,
-      commaList1($.identifier),
-      $.rangle_bracket
-    ),
-
-    // Number literal encodings
-    number: $ => choice(
-      /\d+/,                  // Natural numbers
-      /\d+\.\d+/,             // Real numbers
-      /(\\b|\\B)[0-1]+/,      // Binary numbers
-      /(\\o|\\O)[0-7]+/,      // Octal numbers
-      /(\\h|\\H)[0-9a-fA-F]+/ // Hexadecimal numbers
-    ),
-
-    // "foobar", "", etc.
-    string: $ => /\".*\"/,
-
-    // TRUE, FALSE, BOOLEAN
-    boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
-
     // f[x \in Nat] == 2*x
     function_definition: $ => seq(
       $.identifier,
@@ -214,6 +202,13 @@ module.exports = grammar({
       ),
       $.set_in,
       $._expr
+    ),
+
+    // <<x, y, z>>
+    tuple_of_identifiers: $ => seq(
+      $.langle_bracket,
+      commaList1($.identifier),
+      $.rangle_bracket
     ),
 
     // INSTANCE ModuleName WITH x <- y, w <- z
@@ -243,16 +238,11 @@ module.exports = grammar({
       $.general_postfix_op
     ),
 
-    // Foo(x, y)!Bar(w, z)!...
-    instance_prefix: $ => seq(
-      $.identifier,
-      optional(seq('(', commaList1($._expr), ')')),
-      '!'
-    ),
-
-    // Foo!bar
-    general_identifier: $ => seq(
-      repeat($.instance_prefix), $.identifier
+    // M == INSTANCE ModuleName
+    module_definition: $ => seq(
+      choice($.identifier, $.non_fix_lhs),
+      $.def_eq,
+      $.instance
     ),
 
     // ASSUME C \in Nat
@@ -264,14 +254,21 @@ module.exports = grammar({
     // THEOREM Spec => []Safety
     theorem: $ => seq('THEOREM', $._expr),
 
+    /************************************************************************/
+    /* EXPRESSIONS                                                          */
+    /************************************************************************/
+
     // Anything that evaluates to a value
     _expr: $ => choice(
+      $.number,
+      $.string,
+      $.boolean,
+      $.parentheses,
       $.general_identifier,
-      $.bound_op,
+      $.bound_named_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
-      $.parentheses,
       $.bounded_quantification,
       $.unbounded_quantification,
       $.choose,
@@ -294,29 +291,60 @@ module.exports = grammar({
       $.let_in,
       //$.conj,
       //$.disj,
-      $.string,
-      $.number,
-      $.boolean
     ),
 
-    // max(2, 3)
-    bound_op: $ => seq(
-      field('name', $.general_identifier),
-      '(', field('args', commaList1($.argument)), ')'),
+    // Number literal encodings
+    number: $ => choice(
+      /\d+/,                  // Natural numbers
+      /\d+\.\d+/,             // Real numbers
+      /(\\b|\\B)[0-1]+/,      // Binary numbers
+      /(\\o|\\O)[0-7]+/,      // Octal numbers
+      /(\\h|\\H)[0-9a-fA-F]+/ // Hexadecimal numbers
+    ),
+
+    // "foobar", "", etc.
+    string: $ => /\".*\"/,
+
+    // TRUE, FALSE, BOOLEAN
+    boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
 
     // ((a + b) + c)
     parentheses: $ => seq('(', $._expr, ')'),
 
+    // Foo!bar
+    general_identifier: $ => seq(
+      repeat($.instance_prefix), $.identifier
+    ),
+
+    // Foo(x, y)!Bar(w, z)!...
+    instance_prefix: $ => seq(
+      $.identifier,
+      optional(seq('(', commaList1($._expr), ')')),
+      '!'
+    ),
+
+    // max(2, 3)
+    bound_named_op: $ => seq(
+      field('name', $.general_identifier),
+      '(', field('args', commaList1($.argument)), ')'
+    ),
+
     // \A x \in Nat : P(x)
     bounded_quantification: $ => seq(
-      choice($.forall, $.exists),
-      commaList1($.quantifier_bound), ':', $._expr
+      field('quantifier', choice($.forall, $.exists)),
+      field('bound', commaList1($.quantifier_bound)),
+      ':',
+      field('expression', $._expr)
     ),
 
     // \EE x : P(x)
     unbounded_quantification: $ => seq(
-      choice($.forall, $.exists, $.temporal_forall, $.temporal_exists),
-      commaList1($.identifier), ':', $._expr
+      field('quantifier', choice(
+        $.forall, $.exists, $.temporal_forall, $.temporal_exists
+      )),
+      field('identifier', commaList1($.identifier)),
+      ':',
+      field('expression', $._expr)
     ),
 
     // CHOOSE r \in Real : r >= 0
@@ -463,22 +491,9 @@ module.exports = grammar({
     // \/ y
     disj: $ => repeat1(seq($.bullet_disj, $._expr)),
 
-    // Various syntactic elements and their unicode equivalents
-    def_eq:           $ => choice('==', '≜'),
-    set_in:           $ => choice('\\in', '∈'),
-    gets:             $ => choice('<-', '⟵'),
-    forall:           $ => choice('\\A', '\\forall', '∀'),
-    exists:           $ => choice('\\E', '\\exists', '∃'),
-    temporal_forall:  $ => choice('\\AA'),
-    temporal_exists:  $ => choice('\\EE'),
-    all_map_to:       $ => choice('|->', '⟼'), 
-    maps_to:          $ => choice('->', '⟶'),
-    langle_bracket:   $ => choice('<<', '〈'),
-    rangle_bracket:   $ => choice('>>', '〉'),
-    case_box:         $ => choice('[]', '□'),
-    case_arrow:       $ => choice('->', '⟶'),
-    bullet_conj:      $ => choice('/\\', '∧'),
-    bullet_disj:      $ => choice('\\/', '∨'),
+    /************************************************************************/
+    /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
+    /************************************************************************/
 
     // Prefix operator symbols and their unicode equivalents
     lnot:             $ => choice('\\lnot', '\\neg', '~', '¬'),
@@ -702,6 +717,35 @@ module.exports = grammar({
     // All bound postfix operators
     bound_postfix_op: $ => choice(
       postfixOpPrec(15, $.instance_prefix, $._expr, $.postfix_op_symbol)
-    )
+    ),
+
+    /************************************************************************/
+    /* PROOF CONSTRUCTS                                                     */
+    /************************************************************************/
+
+    proof_step_id: $ => seq(
+      '<', choice(/\d+/, '*'), '>', /[\w|\d|_]+/
+    ),
+
+    begin_proof_step_token: $ => seq(
+      '<', choice(/\d+/, '*', '+'), '>', /[\w|\d]*/, /\.*/
+    ),
+
+    /*
+    use_or_hide: $ => seq(
+      choice(
+        seq('USE', optional('ONLY')),
+        'HIDE'
+      ),
+      $.use_body
+    ),
+
+    use_body: $ => seq(
+      optional(choice(
+        commaList($._expr),
+        seq('MODULE', $.name)
+      ))
+    ),
+    */
   }
 });
