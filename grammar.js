@@ -8,6 +8,21 @@ function commaList(rule) {
   return optional(commaList1(rule))
 }
 
+// An operator with one parameter.
+function arity1(op, expr) {
+  return seq(op, '(', expr, ')')
+}
+
+// An operator with two parameters.
+function arity2(op, expr) {
+  return seq(op, '(', expr, ',', expr, ')')
+}
+
+// An operator with 1 or more parameters.
+function arityN(op, expr) {
+  return seq(op, '(', commaList1(expr), ')')
+}
+
 // Defines a labelled prefix operator of given precedence
 function prefixOpPrec(level, prefix, expr, symbol) {
   return prec.left(level, seq(
@@ -39,15 +54,7 @@ function postfixOpPrec(level, prefix, expr, symbol) {
 module.exports = grammar({
   name: 'tlaplus',
 
-  conflicts: $ => [
-    [$.general_identifier, $.tuple_of_identifiers],
-    [$.general_identifier, $.instance_prefix],
-    [$.general_identifier, $.quantifier_bound],
-    [$.general_identifier, $.set_filter],
-    [$.bound_prefix_op, $.bound_infix_op, $.bound_postfix_op],
-    [$.bound_infix_op, $.bound_postfix_op],
-    [$.negative, $.minus]
-  ],
+  conflicts: $ => [],
 
   rules: {
     source_file: $ => $.module,
@@ -233,9 +240,60 @@ module.exports = grammar({
     // An argument given to an operator
     argument: $ => choice(
       $._expr,
-      $.general_prefix_op,
-      $.general_infix_op,
-      $.general_postfix_op
+      $.operator_name,
+      $.lambda
+    ),
+
+    operator_name: $ => seq(
+      choice(
+        $.identifier,
+        $.prefix_op_symbol,
+        $.infix_op_symbol,
+        $.postfix_op_symbol,
+        //$.proof_step_id,
+      ),
+      repeat(seq(
+        '!',
+        choice(
+          $.identifier,
+          $.prefix_op_symbol,
+          $.infix_op_symbol,
+          $.postfix_op_symbol,
+          //$.proof_step_id
+        )
+      ))
+    ),
+
+    operator_args: $ => seq(
+      '(', commaList1($.argument), ')'
+    ),
+
+    instance_or_subexpression_prefix: $ => seq(
+      choice(
+        $.identifier,                           // id without params
+        arityN($.identifier, $.argument),       // id with params
+        choice(
+          $.langle_bracket,                     // equal to !1
+          $.rangle_bracket,                     // equal to !2
+          ':',                                  // op of LET/IN
+          /\d+/                                 // expr index
+        ),
+        $.operator_args,                        // bind quantifier
+        arity1($.prefix_op_symbol, $._expr),    // bind prefix op
+        arity1($.postfix_op_symbol, $._expr),   // bind postfix op
+        arity2($.infix_op_symbol, $._expr),     // bind infix op
+      ),
+      '!'
+    ),
+
+    instance_or_subexpression_prefix: $ => seq(
+      optional(seq($.proof_step_id, '!')),
+      
+    ),
+
+    // LAMBDA a, b, c : a + b * c
+    lambda: $ => seq(
+      'LAMBDA', commaList1($.identifier), ':', $._expr
     ),
 
     // M == INSTANCE ModuleName
