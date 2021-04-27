@@ -12,25 +12,3 @@ Single module
     (name)
   )
 )
-
-===========|||
-Nested = module
-===========|||
-
-
----- MODULE Test ----
----- MODULE Nested ----
-====
-====
-
-
----|||
-
-(source_file
-  (module 
-    (name)
-    (module 
-      (name)
-    )
-  )
-)

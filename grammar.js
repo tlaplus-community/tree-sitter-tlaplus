@@ -23,6 +23,12 @@ function arityN(op, expr) {
   return seq(op, '(', commaList1(expr), ')')
 }
 
+// A rule matching either the first or second rule, or the first then the
+// second rule, but not matching nothing.
+function eitherOrBoth(first, second) {
+  return choice(first, second, seq(first, second))
+}
+
 // Defines a labelled prefix operator of given precedence
 function prefixOpPrec(level, prefix, expr, symbol) {
   return prec.left(level, seq(
@@ -54,7 +60,9 @@ function postfixOpPrec(level, prefix, expr, symbol) {
 module.exports = grammar({
   name: 'tlaplus',
 
-  conflicts: $ => [],
+  conflicts: $ => [
+    [$.minus, $.negative]
+  ],
 
   rules: {
     source_file: $ => $.module,
@@ -96,6 +104,7 @@ module.exports = grammar({
     case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
     bullet_disj:      $ => choice('\\/', '∨'),
+    sq_dots:          $ => choice('::', '⸬'),
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -190,7 +199,7 @@ module.exports = grammar({
     // Named operator left-hand-side with parameters
     // op(a, b)
     non_fix_lhs: $ => seq(
-      $.identifier, seq('(', commaList1($.operator_declaration), ')'),
+      arityN($.identifier, $.operator_declaration)
     ),
 
     // f[x \in Nat] == 2*x
@@ -250,7 +259,7 @@ module.exports = grammar({
         $.prefix_op_symbol,
         $.infix_op_symbol,
         $.postfix_op_symbol,
-        //$.proof_step_id,
+        $.proof_step_id,
       ),
       repeat(seq(
         '!',
@@ -286,14 +295,22 @@ module.exports = grammar({
       '!'
     ),
 
-    instance_or_subexpression_prefix: $ => seq(
+    instance_proof_or_subexpression_prefix: $ => seq(
       optional(seq($.proof_step_id, '!')),
-      
+      repeat1($.instance_or_subexpression_prefix)
     ),
 
     // LAMBDA a, b, c : a + b * c
     lambda: $ => seq(
       'LAMBDA', commaList1($.identifier), ':', $._expr
+    ),
+
+    general_identifier: $ => choice(
+      seq(
+        optional($.instance_proof_or_subexpression_prefix),
+        $.identifier
+      ),
+      $.proof_step_id
     ),
 
     // M == INSTANCE ModuleName
@@ -302,15 +319,6 @@ module.exports = grammar({
       $.def_eq,
       $.instance
     ),
-
-    // ASSUME C \in Nat
-    assumption: $ => seq(
-      choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
-      $._expr
-    ),
-
-    // THEOREM Spec => []Safety
-    theorem: $ => seq('THEOREM', $._expr),
 
     /************************************************************************/
     /* EXPRESSIONS                                                          */
@@ -368,18 +376,6 @@ module.exports = grammar({
 
     // ((a + b) + c)
     parentheses: $ => seq('(', $._expr, ')'),
-
-    // Foo!bar
-    general_identifier: $ => seq(
-      repeat($.instance_prefix), $.identifier
-    ),
-
-    // Foo(x, y)!Bar(w, z)!...
-    instance_prefix: $ => seq(
-      $.identifier,
-      optional(seq('(', commaList1($._expr), ')')),
-      '!'
-    ),
 
     // max(2, 3)
     bound_named_op: $ => seq(
@@ -552,6 +548,8 @@ module.exports = grammar({
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
     /************************************************************************/
+
+    instance_prefix: $ => 'REMOVE ME',
 
     // Prefix operator symbols and their unicode equivalents
     lnot:             $ => choice('\\lnot', '\\neg', '~', '¬'),
@@ -781,15 +779,113 @@ module.exports = grammar({
     /* PROOF CONSTRUCTS                                                     */
     /************************************************************************/
 
-    proof_step_id: $ => seq(
-      '<', choice(/\d+/, '*'), '>', /[\w|\d|_]+/
+    // ASSUME C \in Nat
+    assumption: $ => seq(
+      choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
+      optional(seq($.name, $.def_eq)),
+      $._expr
     ),
 
-    begin_proof_step_token: $ => seq(
-      '<', choice(/\d+/, '*', '+'), '>', /[\w|\d]*/, /\.*/
+    // THEOREM Spec => []Safety
+    theorem: $ => seq(
+      choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
+      optional(seq($.name, $.def_eq)),
+      choice($._expr, $.assume_prove)
     ),
 
-    /*
+    // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
+    assume_prove: $ => seq(
+      'ASSUME',
+      commaList1(choice($._expr, $.new, $.inner_assume_prove)),
+      'PROVE',
+      $._expr
+    ),
+
+    // triangle ⸬ ASSUME x > y, y > z PROVE x > z
+    inner_assume_prove: $ => seq(
+      optional(seq($.name, $.sq_dots)),
+      $.assume_prove
+    ),
+
+    // NEW CONSTANT x \in Nat
+    new: $ => seq(
+      eitherOrBoth('NEW', $.level),
+      choice(
+        seq($.identifier, $.set_in, $._expr),
+        $.operator_declaration
+      )
+    ),
+
+    // The scope level of an introduction
+    level: $ => choice(
+      'CONSTANT', 'VARIABLE', 'STATE', 'ACTION', 'TEMPORAL'
+    ),
+
+    proof: $ => choice(
+      $.terminal_proof,
+      $.non_terminal_proof
+    ),
+
+    // PROOF BY z \in Nat
+    terminal_proof: $ => choice(
+      seq(optional('PROOF'), 'BY', optional('ONLY'), $.use_body),
+      'OBVIOUS',
+      'OMITTED'
+    ),
+
+    non_terminal_proof: $ => seq(
+      optional('PROOF'),
+      repeat($.proof_step),
+      $.qed_step
+    ),
+
+    // A single step in a proof. Can be many things!
+    proof_step: $ => seq(
+      $.begin_proof_step_token,
+      choice(
+        choice(
+          $.use_or_hide,
+          seq(
+            optional('DEFINE'),
+            repeat1(
+              choice(
+                $.operator_definition,
+                $.function_definition,
+                $.module_definition
+              )
+            )
+          ),
+          $.instance,
+          seq('HAVE', $._expr),
+          seq('WITNESS', commaList1($._expr)),
+          seq('TAKE', choice(
+            commaList1($.quantifier_bound),
+            commaList1($.identifier)
+          ))
+        ),
+        seq(
+          choice(
+            seq(optional('SUFFICES'), choice($._expr, $.assume_prove)),
+            seq('CASE', $._expr),
+            seq(
+              'PICK',
+              commaList1(choice($.quantifier_bound, $.identifier)),
+              ':',
+              $._expr
+            )
+          ),
+          optional($.proof)
+        )
+      )
+    ),
+
+    // <*> QED
+    qed_step: $ => seq(
+      $.begin_proof_step_token,
+      'QED',
+      optional($.proof)
+    ),
+
     use_or_hide: $ => seq(
       choice(
         seq('USE', optional('ONLY')),
@@ -798,12 +894,32 @@ module.exports = grammar({
       $.use_body
     ),
 
-    use_body: $ => seq(
-      optional(choice(
-        commaList($._expr),
+    use_body: $ => eitherOrBoth($.use_body_expr, $.use_body_def),
+
+    use_body_expr: $ => commaList1(
+      choice(
+        $._expr,
+        seq('MODULE', $.name)
+      )
+    ),
+
+    // DEFS foo, MODULE bar, baz
+    use_body_def: $ => seq(
+      choice('DEF', 'DEFS'),
+      commaList1(choice(
+        $.operator_name,
         seq('MODULE', $.name)
       ))
     ),
-    */
+
+    // <3>10a.
+    proof_step_id: $ => seq(
+      '<', choice(/\d+/, '*'), '>', /[\w|\d|_]+/
+    ),
+
+    // <+>
+    begin_proof_step_token: $ => seq(
+      '<', choice(/\d+/, '*', '+'), '>', /[\w|\d]*/, /\.*/
+    ),
   }
 });
