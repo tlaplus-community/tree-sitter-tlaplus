@@ -23,9 +23,14 @@ function arityN(op, expr) {
   return seq(op, '(', commaList1(expr), ')')
 }
 
+// An operator with 0 or more parameters.
+function arity0OrN(op, expr) {
+  return seq(op, optional(seq('(', commaList1(expr), ')')))
+}
+
 // A rule matching either the first or second rule, or the first then the
 // second rule, but not matching nothing.
-function eitherOrBoth(first, second) {
+function oneOrBoth(first, second) {
   return choice(first, second, seq(first, second))
 }
 
@@ -61,12 +66,15 @@ module.exports = grammar({
   name: 'tlaplus',
 
   conflicts: $ => [
-    [$.minus, $.negative]
+    [$.minus, $.negative],
+    [$.identifier, $.proportional_to],
+    [$.prefix, $.general_identifier],
+    [$.subexpr_prefix],   // TODO: figure out if should be left-assoc
   ],
 
   rules: {
-    source_file: $ => $.module,
-    //source_file: $ => $._expr,
+    //source_file: $ => $.module,
+    source_file: $ => $._expr,
 
     // Top-level module declaration
     module: $ => seq(
@@ -104,7 +112,9 @@ module.exports = grammar({
     case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
     bullet_disj:      $ => choice('\\/', '∨'),
-    sq_dots:          $ => choice('::', '⸬'),
+    ratio:            $ => choice(':', '∶'),
+    proportion:       $ => choice('::', '∷'),
+    placeholder:      $ => '_',
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -173,11 +183,10 @@ module.exports = grammar({
     // Used, for example, when op accepts another op as parameter
     // op, op(_, _), _+_, etc.
     operator_declaration: $ => choice(
-      $.identifier,
-      seq($.identifier, '(', commaList1('_'), ')'),
-      seq($.prefix_op_symbol, '_'),
-      seq('_', $.infix_op_symbol, '_'),
-      seq('_', $.postfix_op_symbol)
+      arity0OrN($.identifier, $.placeholder),
+      seq($.prefix_op_symbol, $.placeholder),
+      seq($.placeholder, $.infix_op_symbol, $.placeholder),
+      seq($.placeholder, $.postfix_op_symbol)
     ),
 
     // Operator definition
@@ -186,20 +195,13 @@ module.exports = grammar({
     // x ≜ 〈 1, 2, 3, 4, 5 〉
     operator_definition: $ => seq(
       choice(
-        $.identifier,
-        $.non_fix_lhs,
+        arity0OrN($.identifier, $.operator_declaration),
         seq($.prefix_op_symbol, $.identifier),
         seq($.identifier, $.infix_op_symbol, $.identifier),
         seq($.identifier, $.postfix_op_symbol)
       ),
       $.def_eq,
       $._expr
-    ),
-
-    // Named operator left-hand-side with parameters
-    // op(a, b)
-    non_fix_lhs: $ => seq(
-      arityN($.identifier, $.operator_declaration)
     ),
 
     // f[x \in Nat] == 2*x
@@ -243,7 +245,16 @@ module.exports = grammar({
         $.postfix_op_symbol
       ),
       $.gets,
-      $.argument
+      $.op_or_expr
+    ),
+
+    // 
+    op_or_expr: $ => choice(
+      $.prefix_op_symbol,
+      $.infix_op_symbol,
+      $.postfix_op_symbol,
+      $.lambda,
+      $._expr
     ),
 
     // An argument given to an operator
@@ -268,7 +279,12 @@ module.exports = grammar({
           $.prefix_op_symbol,
           $.infix_op_symbol,
           $.postfix_op_symbol,
-          //$.proof_step_id
+          choice(
+            $.langle_bracket,
+            $.rangle_bracket,
+            '@',
+            $.nat_number
+          )
         )
       ))
     ),
@@ -277,27 +293,27 @@ module.exports = grammar({
       '(', commaList1($.argument), ')'
     ),
 
-    instance_or_subexpression_prefix: $ => seq(
-      choice(
-        $.identifier,                           // id without params
-        arityN($.identifier, $.argument),       // id with params
-        choice(
-          $.langle_bracket,                     // equal to !1
-          $.rangle_bracket,                     // equal to !2
-          ':',                                  // op of LET/IN
-          /\d+/                                 // expr index
-        ),
-        $.operator_args,                        // bind quantifier
-        arity1($.prefix_op_symbol, $._expr),    // bind prefix op
-        arity1($.postfix_op_symbol, $._expr),   // bind postfix op
-        arity2($.infix_op_symbol, $._expr),     // bind infix op
-      ),
-      '!'
+    subexpr_prefix: $ => oneOrBoth(
+      seq($.proof_step_id, '!'),
+      repeat1(seq($.prefix, '!'))
     ),
 
-    instance_proof_or_subexpression_prefix: $ => seq(
-      optional(seq($.proof_step_id, '!')),
-      repeat1($.instance_or_subexpression_prefix)
+    prefix: $ => choice(
+      $.subexpr_tree_nav,
+      arity0OrN($.identifier, $.argument),
+      arity1($.prefix_op_symbol, $._expr),
+      arity1($.postfix_op_symbol, $._expr),
+      arity2($.infix_op_symbol, $._expr)
+    ),
+
+    // Metalanguage to navigate the parse tree of an expression
+    // F!:!〈!〉!2!(0, 3)
+    subexpr_tree_nav: $ => choice(
+      $.langle_bracket,   // first parse node child
+      $.rangle_bracket,   // second parse node child
+      $.nat_number,       // nth parse node child
+      $.ratio,            // op of LET/IN
+      $.operator_args     // bind quantifier
     ),
 
     // LAMBDA a, b, c : a + b * c
@@ -307,7 +323,7 @@ module.exports = grammar({
 
     general_identifier: $ => choice(
       seq(
-        optional($.instance_proof_or_subexpression_prefix),
+        optional($.subexpr_prefix),
         $.identifier
       ),
       $.proof_step_id
@@ -315,7 +331,7 @@ module.exports = grammar({
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
-      choice($.identifier, $.non_fix_lhs),
+      arity0OrN($.identifier, $.operator_declaration),
       $.def_eq,
       $.instance
     ),
@@ -330,8 +346,9 @@ module.exports = grammar({
       $.string,
       $.boolean,
       $.parentheses,
-      $.general_identifier,
-      $.bound_named_op,
+      $.proportional_to,
+      $.subexpression,
+      seq($.general_identifier, optional($.operator_args)),
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -361,27 +378,35 @@ module.exports = grammar({
 
     // Number literal encodings
     number: $ => choice(
-      /\d+/,                  // Natural numbers
-      /\d+\.\d+/,             // Real numbers
-      /(\\b|\\B)[0-1]+/,      // Binary numbers
-      /(\\o|\\O)[0-7]+/,      // Octal numbers
-      /(\\h|\\H)[0-9a-fA-F]+/ // Hexadecimal numbers
+      $.nat_number,     $.real_number,
+      $.binary_number,  $.octal_number,   $.hex_number
     ),
 
+    nat_number: $ => /\d+/,
+    real_number: $ => /\d+\.\d+/,
+    binary_number: $ => /(\\b|\\B)[0-1]+/,
+    octal_number: $ => /(\\o|\\O)[0-7]+/,
+    hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
+
     // "foobar", "", etc.
-    string: $ => /\".*\"/,
+    string: $ => choice(/\".*\"/, 'STRING'),
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
 
+    proportional_to: $ => seq(
+      arity0OrN($.name, $.identifier),
+      $.proportion,
+      $._expr
+    ),
+
+    subexpression: $ => seq(
+      $.subexpr_prefix,
+      $.subexpr_tree_nav
+    ),
+
     // ((a + b) + c)
     parentheses: $ => seq('(', $._expr, ')'),
-
-    // max(2, 3)
-    bound_named_op: $ => seq(
-      field('name', $.general_identifier),
-      '(', field('args', commaList1($.argument)), ')'
-    ),
 
     // \A x \in Nat : P(x)
     bounded_quantification: $ => seq(
@@ -790,7 +815,8 @@ module.exports = grammar({
     theorem: $ => seq(
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
       optional(seq($.name, $.def_eq)),
-      choice($._expr, $.assume_prove)
+      choice($._expr, $.assume_prove),
+      optional($.proof)
     ),
 
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
@@ -801,15 +827,15 @@ module.exports = grammar({
       $._expr
     ),
 
-    // triangle ⸬ ASSUME x > y, y > z PROVE x > z
+    // triangle ∷ ASSUME x > y, y > z PROVE x > z
     inner_assume_prove: $ => seq(
-      optional(seq($.name, $.sq_dots)),
+      optional(seq($.name, $.proportion)),
       $.assume_prove
     ),
 
     // NEW CONSTANT x \in Nat
     new: $ => seq(
-      eitherOrBoth('NEW', $.level),
+      oneOrBoth('NEW', $.level),
       choice(
         seq($.identifier, $.set_in, $._expr),
         $.operator_declaration
@@ -894,7 +920,7 @@ module.exports = grammar({
       $.use_body
     ),
 
-    use_body: $ => eitherOrBoth($.use_body_expr, $.use_body_def),
+    use_body: $ => oneOrBoth($.use_body_expr, $.use_body_def),
 
     use_body_expr: $ => commaList1(
       choice(
@@ -914,12 +940,12 @@ module.exports = grammar({
 
     // <3>10a.
     proof_step_id: $ => seq(
-      '<', choice(/\d+/, '*'), '>', /[\w|\d|_]+/
+      '<', choice($.nat_number, '*'), '>', /[\w|\d|_]+/
     ),
 
     // <+>
     begin_proof_step_token: $ => seq(
-      '<', choice(/\d+/, '*', '+'), '>', /[\w|\d]*/, /\.*/
+      '<', choice($.nat_number, '*', '+'), '>', /[\w|\d]*/, /\.*/
     ),
   }
 });
