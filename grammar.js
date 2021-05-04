@@ -348,7 +348,8 @@ module.exports = grammar({
       $.parentheses,
       $.proportional_to,
       $.subexpression,
-      seq($.general_identifier, optional($.operator_args)),
+      $.bound_general_op,
+      $.bound_general_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -374,6 +375,28 @@ module.exports = grammar({
       $.let_in,
       //$.conj,
       //$.disj,
+    ),
+
+    // Expressions allowed in subscripts; must be enclosed in delimiters
+    // Used in WF_expr, <><<f>>_expr, etc.
+    _subscript_expr: $ => choice(
+      $.bound_general_op,
+      $.parentheses,
+      $.finite_set_literal,
+      $.set_filter,
+      $.set_map,
+      $.function_value,
+      $.set_of_functions,
+      $.record_value,
+      $.set_of_records,
+      $.except,
+      $.tuple_literal,
+      $.stepexpression_no_stutter,
+      $.stepexpression_or_stutter,
+    ),
+
+    bound_general_op: $ => seq(
+      seq($.general_identifier, optional($.operator_args)),
     ),
 
     // Number literal encodings
@@ -518,7 +541,7 @@ module.exports = grammar({
 
     // [x ' > x]_<<x>>
     stepexpression_or_stutter: $ => seq(
-      '[', $._expr, ']_', $._expr
+      '[', $._expr, ']_', $._subscript_expr
     ),
 
     // <<x' > x>>_<<x>>
@@ -526,12 +549,12 @@ module.exports = grammar({
       $.langle_bracket,
       $._expr,
       $.rangle_bracket, token.immediate('_'),
-      $._expr
+      $._subscript_expr
     ),
 
     // WF_vars(ActionName)
     fairness: $ => seq(
-      choice('WF_', 'SF_'), $._expr, '(', $._expr, ')'
+      choice('WF_', 'SF_'), $._subscript_expr, '(', $._expr, ')'
     ),
 
     // IF a > b THEN a ELSE b
