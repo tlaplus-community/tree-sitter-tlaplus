@@ -63,9 +63,22 @@ module.exports = grammar({
   name: 'tlaplus',
 
   conflicts: $ => [
+    // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
-    [$.identifier, $.label_as],
-    [$.subexpr_prefix],   // TODO: figure out if should be left-assoc
+    // Lookahead to disambiguate name  •  '('  …
+    [$.identifier, $.label],
+    // Lookahead to disambiguate '['  identifier  •  '\in'  …
+    // Matches both step_expr_or_stutter and function_value
+    [$.bound_general_op, $.quantifier_bound],
+    // Lookahead to disambiguate '{'  identifier  •  '\in'  …
+    // Matches set_filter, set_map, and finite_set_literal
+    [$.bound_general_op, $.single_quantifier_bound],
+    // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
+    // Matches step_expr_or_stutter and function_value
+    [$.bound_general_op, $.tuple_of_identifiers],
+    // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
+    // The '\in' could be followed by a ! or it could be the end
+    [$.subexpr_prefix]
   ],
 
   rules: {
@@ -210,10 +223,22 @@ module.exports = grammar({
     ),
 
     // x, y, z \in S
+    // <<x, y, z>> \in S \X T \X P
     quantifier_bound: $ => seq(
       choice(
-        $.tuple_of_identifiers,
-        commaList1($.identifier)
+        commaList1($.identifier),
+        $.tuple_of_identifiers
+      ),
+      $.set_in,
+      $._expr
+    ),
+
+    // x \in S
+    // <<x, y, z>> \in S \X T \X P
+    single_quantifier_bound: $ => seq(
+      choice(
+        $.identifier,
+        $.tuple_of_identifiers
       ),
       $.set_in,
       $._expr
@@ -437,17 +462,15 @@ module.exports = grammar({
     finite_set_literal: $ => seq('{', commaList($._expr), '}'),
 
     // { x \in S : P(x) }
-    set_filter: $ => seq(
+    // Set dynamic precedence to 1 so that the expression {x \in S : x \in P}
+    // is parsed as set_filter instead of set_map during GLR parsing.
+    set_filter: $ => prec.dynamic(1, seq(
       '{',
-      field('generator', seq(
-        choice($.identifier, $.tuple_of_identifiers),
-        $.set_in,
-        $._expr
-      )),
+      field('generator', $.single_quantifier_bound),
       ':',
       field('filter', $._expr),
       '}'
-    ),
+    )),
 
     // { f[x, y] : x, y \in S }
     set_map: $ => seq(
@@ -534,11 +557,17 @@ module.exports = grammar({
     ),
 
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
-    case: $ => seq(
+    // This exhibits dangling else parsing ambiguity; consider
+    // CASE e -> CASE f -> g [] h -> i
+    // This can be parsed as:
+    // (1) CASE e -> (CASE f -> g) [] h -> i 
+    // (2) CASE e -> (CASE f -> g [] h -> i)
+    // Parse (2) is used, making this right-associative
+    case: $ => prec.right(seq(
       'CASE', $.case_arm,
       repeat(seq($.case_box, $.case_arm)),
       optional(seq($.case_box, $.other_arm))
-    ),
+    )),
 
     // p -> val
     case_arm: $ => seq($._expr, $.case_arrow, $._expr),
