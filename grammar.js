@@ -35,29 +35,26 @@ function oneOrBoth(first, second) {
 }
 
 // Defines a labelled prefix operator of given precedence
-function prefixOpPrec(level, prefix, expr, symbol) {
+function prefixOpPrec(level, expr, symbol) {
   return prec.left(level, seq(
-    //field('prefix', repeat(prefix)),
     field('symbol', symbol),
     field('rhs', expr)
   ))
 }
 
 // Defines a labelled left-associative infix operator of given precedence
-function infixOpPrec(level, prefix, expr, symbol) {
+function infixOpPrec(level, expr, symbol) {
   return prec.left(level, seq(
     field('lhs', expr),
-    //field('prefix', repeat(prefix)),
     field('symbol', symbol),
     field('rhs', expr)
   ))
 }
 
 // Defines a labelled postfix operator of given precedence
-function postfixOpPrec(level, prefix, expr, symbol) {
+function postfixOpPrec(level, expr, symbol) {
   return prec(level, seq(
     field('lhs', expr),
-    //field('prefix', repeat(prefix)),
     field('symbol', symbol)
   ))
 }
@@ -67,8 +64,7 @@ module.exports = grammar({
 
   conflicts: $ => [
     [$.minus, $.negative],
-    [$.identifier, $.proportional_to],
-    [$.prefix, $.general_identifier],
+    [$.identifier, $.label_as],
     [$.subexpr_prefix],   // TODO: figure out if should be left-assoc
   ],
 
@@ -112,8 +108,9 @@ module.exports = grammar({
     case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
     bullet_disj:      $ => choice('\\/', '∨'),
-    ratio:            $ => choice(':', '∶'),
-    proportion:       $ => choice('::', '∷'),
+    colon:            $ => choice(':', '∶'),
+    address:          $ => '@',
+    label_as:         $ => choice('::', '∷'),
     placeholder:      $ => '_',
 
     // The set of all reserved keywords
@@ -181,10 +178,10 @@ module.exports = grammar({
 
     // Operator declaration (not definition)
     // Used, for example, when op accepts another op as parameter
-    // op, op(_, _), _+_, etc.
+    // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
       arity0OrN($.identifier, $.placeholder),
-      seq($.prefix_op_symbol, $.placeholder),
+      seq($.standalone_prefix_op_symbol, $.placeholder),
       seq($.placeholder, $.infix_op_symbol, $.placeholder),
       seq($.placeholder, $.postfix_op_symbol)
     ),
@@ -196,7 +193,7 @@ module.exports = grammar({
     operator_definition: $ => seq(
       choice(
         arity0OrN($.identifier, $.operator_declaration),
-        seq($.prefix_op_symbol, $.identifier),
+        seq($.standalone_prefix_op_symbol, $.identifier),
         seq($.identifier, $.infix_op_symbol, $.identifier),
         seq($.identifier, $.postfix_op_symbol)
       ),
@@ -240,7 +237,7 @@ module.exports = grammar({
     substitution: $ => seq(
       choice(
         $.identifier,
-        $.prefix_op_symbol,
+        $.standalone_prefix_op_symbol,
         $.infix_op_symbol,
         $.postfix_op_symbol
       ),
@@ -248,85 +245,52 @@ module.exports = grammar({
       $.op_or_expr
     ),
 
-    // 
+    // Either an operator (op, +, *, LAMBDA, etc.) or an expression
     op_or_expr: $ => choice(
-      $.prefix_op_symbol,
+      $.standalone_prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol,
       $.lambda,
       $._expr
     ),
 
-    // An argument given to an operator
-    argument: $ => choice(
-      $._expr,
-      $.operator_name,
-      $.lambda
+    // foo!bar!baz!
+    subexpr_prefix: $ => seq(
+      choice($.subexpr_component, $.proof_step_id), '!',
+      repeat(seq(choice($.subexpr_component, $.subexpr_tree_nav), '!'))
     ),
 
-    operator_name: $ => seq(
-      choice(
-        $.identifier,
-        $.prefix_op_symbol,
-        $.infix_op_symbol,
-        $.postfix_op_symbol,
-        $.proof_step_id,
-      ),
-      repeat(seq(
-        '!',
-        choice(
-          $.identifier,
-          $.prefix_op_symbol,
-          $.infix_op_symbol,
-          $.postfix_op_symbol,
-          choice(
-            $.langle_bracket,
-            $.rangle_bracket,
-            '@',
-            $.nat_number
-          )
-        )
-      ))
-    ),
-
-    operator_args: $ => seq(
-      '(', commaList1($.argument), ')'
-    ),
-
-    subexpr_prefix: $ => oneOrBoth(
-      seq($.proof_step_id, '!'),
-      repeat1(seq($.prefix, '!'))
-    ),
-
-    prefix: $ => choice(
-      $.subexpr_tree_nav,
-      arity0OrN($.identifier, $.argument),
-      arity1($.prefix_op_symbol, $._expr),
+    // Subexpression component referencing a previously-defined symbol
+    // Can either bind parameters to the op or leave them unbound
+    subexpr_component: $ => choice(
+      arity0OrN($.identifier, $.op_or_expr),
+      arity1($.standalone_prefix_op_symbol, $._expr),
+      arity2($.infix_op_symbol, $._expr),
       arity1($.postfix_op_symbol, $._expr),
-      arity2($.infix_op_symbol, $._expr)
+      $.standalone_prefix_op_symbol,
+      $.infix_op_symbol,
+      $.postfix_op_symbol
     ),
 
     // Metalanguage to navigate the parse tree of an expression
-    // F!:!〈!〉!2!(0, 3)
+    // F!:!〈!〉!2!(0, 3)!@
     subexpr_tree_nav: $ => choice(
       $.langle_bracket,   // first parse node child
       $.rangle_bracket,   // second parse node child
       $.nat_number,       // nth parse node child
-      $.ratio,            // op of LET/IN
+      $.colon,            // for recursive operators
+      $.address,          // use unbound quantifier as lambda
       $.operator_args     // bind quantifier
+    ),
+
+    // ...!(a, b, c)!...
+    operator_args: $ => seq(
+      '(', commaList1($.op_or_expr), ')'
     ),
 
     // LAMBDA a, b, c : a + b * c
     lambda: $ => seq(
       'LAMBDA', commaList1($.identifier), ':', $._expr
-    ),
-
-    general_identifier: $ => choice(
-      seq(
-        optional($.subexpr_prefix),
-        $.identifier
-      ),
-      $.proof_step_id
     ),
 
     // M == INSTANCE ModuleName
@@ -346,10 +310,11 @@ module.exports = grammar({
       $.string,
       $.boolean,
       $.parentheses,
-      $.proportional_to,
+      $.label,
       $.subexpression,
+      $.proof_step_id,
       $.bound_general_op,
-      $.bound_general_op,
+      $.bound_nonfix_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -367,8 +332,8 @@ module.exports = grammar({
       $.except,
       $.prev_func_val,
       $.tuple_literal,
-      $.stepexpression_or_stutter,
-      $.stepexpression_no_stutter,
+      $.step_expr_or_stutter,
+      $.step_expr_no_stutter,
       //$.fairness,
       $.if_then_else,
       $.case,
@@ -391,12 +356,22 @@ module.exports = grammar({
       $.set_of_records,
       $.except,
       $.tuple_literal,
-      $.stepexpression_no_stutter,
-      $.stepexpression_or_stutter,
+      $.step_expr_or_stutter,
+      $.step_expr_no_stutter,
     ),
 
     bound_general_op: $ => seq(
-      seq($.general_identifier, optional($.operator_args)),
+      optional($.subexpr_prefix),
+      arity0OrN($.identifier, $.op_or_expr)
+    ),
+
+    bound_nonfix_op: $ => seq(
+      optional($.subexpr_prefix),
+      choice(
+        arity1($.standalone_prefix_op_symbol, $._expr),
+        arity2($.infix_op_symbol, $._expr),
+        arity1($.postfix_op_symbol, $._expr)
+      )
     ),
 
     // Number literal encodings
@@ -417,9 +392,9 @@ module.exports = grammar({
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
 
-    proportional_to: $ => seq(
+    label: $ => seq(
       arity0OrN($.name, $.identifier),
-      $.proportion,
+      $.label_as,
       $._expr
     ),
 
@@ -510,23 +485,17 @@ module.exports = grammar({
 
     // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
     except: $ => seq(
-      '[',
-      $._expr,
-      'EXCEPT',
-      commaList1(
-        seq(
-          '!',
-          repeat1(
-            choice(
-              seq('.', $.name),
-              seq('[', commaList1($._expr), ']')
-            )
-          ),
-          '=',
-          $._expr
-        )
-      ),
+      '[', $._expr, 'EXCEPT',
+      commaList1(seq('!', $._except_val, '=', $._expr)),
       ']'
+    ),
+
+    // .foo[bar].baz
+    _except_val: $ => repeat1(
+      choice(
+        seq('.', $.name),
+        seq('[', commaList1($._expr), ']')
+      )
     ),
 
     // [f EXCEPT ![2] = @ + 1]
@@ -540,12 +509,12 @@ module.exports = grammar({
     ),
 
     // [x ' > x]_<<x>>
-    stepexpression_or_stutter: $ => seq(
+    step_expr_or_stutter: $ => seq(
       '[', $._expr, ']_', $._subscript_expr
     ),
 
     // <<x' > x>>_<<x>>
-    stepexpression_no_stutter: $ => seq(
+    step_expr_no_stutter: $ => seq(
       $.langle_bracket,
       $._expr,
       $.rangle_bracket, token.immediate('_'),
@@ -565,11 +534,17 @@ module.exports = grammar({
     ),
 
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
-    case: $ => prec.left(seq(
-      'CASE', $._expr, $.case_arrow, $._expr,
-      repeat(seq($.case_box, $._expr, $.case_arrow, $._expr)),
-      optional(seq($.case_box, 'OTHER', $.case_arrow, $._expr))
-    )),
+    case: $ => seq(
+      'CASE', $.case_arm,
+      repeat(seq($.case_box, $.case_arm)),
+      optional(seq($.case_box, $.other_arm))
+    ),
+
+    // p -> val
+    case_arm: $ => seq($._expr, $.case_arrow, $._expr),
+
+    // OTHER -> val
+    other_arm: $ => seq('OTHER', $.case_arrow, $._expr),
 
     // LET x == 5 IN 2*x
     let_in: $ => seq(
@@ -578,7 +553,8 @@ module.exports = grammar({
         choice(
           $.operator_definition,
           $.function_definition,
-          $.module_definition
+          $.module_definition,
+          $.recursive_operator_declaration
         )
       ),
       'IN',
@@ -597,8 +573,6 @@ module.exports = grammar({
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
     /************************************************************************/
 
-    instance_prefix: $ => 'REMOVE ME',
-
     // Prefix operator symbols and their unicode equivalents
     lnot:             $ => choice('\\lnot', '\\neg', '~', '¬'),
     union:            $ => 'UNION',
@@ -610,31 +584,26 @@ module.exports = grammar({
     always:           $ => choice('[]', '□'),
     eventually:       $ => choice('<>', '⋄'),
 
-    // All prefix operator symbols
-    // Note negative is disambiguated from minus with a '.'
-    prefix_op_symbol: $ => choice(
+    _prefix_op_symbol_except_negative: $ => choice(
       $.lnot,     $.union,      $.subset,     $.domain,
-      $.enabled,  $.unchanged,  $.always,     $.eventually,
-      seq($.negative, token.immediate('.'))
+      $.enabled,  $.unchanged,  $.always,     $.eventually
     ),
 
-    // Foo!\neg
-    general_prefix_op: $ => seq(
-      repeat($.instance_prefix), $.prefix_op_symbol
+    // Use rule when using ops as higher-order constructs
+    // Negative is disambiguated from minus with a '.'
+    standalone_prefix_op_symbol: $ => choice(
+      $._prefix_op_symbol_except_negative,
+      seq($.negative, token.immediate('.'))
     ),
 
     // All bound prefix operators
     // Prefix operators are given highest value in precedence range
     bound_prefix_op: $ => choice(
-      prefixOpPrec(4,   $.instance_prefix, $._expr,
-        $.lnot),
-      prefixOpPrec(8,   $.instance_prefix, $._expr, choice(
-        $.union, $.subset)),
-      prefixOpPrec(9,   $.instance_prefix, $._expr,
-        $.domain),
-      prefixOpPrec(12,  $.instance_prefix, $._expr,
-        $.negative),
-      prefixOpPrec(15,  $.instance_prefix, $._expr, choice(
+      prefixOpPrec(4,   $._expr,  $.lnot),
+      prefixOpPrec(8,   $._expr, choice($.union, $.subset)),
+      prefixOpPrec(9,   $._expr, $.domain),
+      prefixOpPrec(12,  $._expr, $.negative),
+      prefixOpPrec(15,  $._expr, choice(
         $.enabled, $.unchanged, $.always, $.eventually))
     ),
 
@@ -753,23 +722,18 @@ module.exports = grammar({
       $.powpow,       $.rfield
     ),
 
-    // Foo!+
-    general_infix_op: $ => seq(
-      repeat($.instance_prefix), $.infix_op_symbol
-    ),
-
     // Infix operators are given highest value in precedence range for parsing
     // Infix operators are all marked as left-associative for parsing purposes
     // Operator precedence range & associativity conflicts must be enforced
     // on semantic level
     bound_infix_op: $ => choice(
-      infixOpPrec(1, $.instance_prefix, $._expr, choice(
+      infixOpPrec(1, $._expr, choice(
         $.implies, $.plus_arrow)),
-      infixOpPrec(2, $.instance_prefix, $._expr, choice(
+      infixOpPrec(2, $._expr, choice(
         $.equiv, $.iff, $.leads_to)),
-      infixOpPrec(3, $.instance_prefix, $._expr, choice(
+      infixOpPrec(3, $._expr, choice(
         $.land, $.lor)),
-      infixOpPrec(5, $.instance_prefix, $._expr, choice(
+      infixOpPrec(5, $._expr, choice(
         $.assign,     $.bnf_rule, $.eq,       $.neq,      $.lt,
         $.gt,         $.leq,      $.geq,      $.approx,   $.rs_ttile,
         $.rd_ttile,   $.ls_ttile, $.ld_ttile, $.asymp,    $.cong,
@@ -777,28 +741,28 @@ module.exports = grammar({
         $.prec,       $.succ,     $.preceq,   $.succeq,   $.propto,
         $.sim,        $.simeq,    $.sqsubset, $.sqsupset, $.sqsubseteq,
         $.sqsupseteq, $.subset,   $.supset,   $.subseteq, $.supseteq)),
-      infixOpPrec(6, $.instance_prefix, $._expr,
+      infixOpPrec(6, $._expr,
         $.compose),
-      infixOpPrec(7, $.instance_prefix, $._expr, choice(
+      infixOpPrec(7, $._expr, choice(
         $.map_to, $.map_from)),
-      infixOpPrec(8, $.instance_prefix, $._expr, choice(
+      infixOpPrec(8, $._expr, choice(
         $.setminus, $.cap, $.cup)),
-      infixOpPrec(9, $.instance_prefix, $._expr, choice(
+      infixOpPrec(9, $._expr, choice(
         $.dots_2, $.dots_3)),
-      infixOpPrec(10, $.instance_prefix, $._expr, choice(
+      infixOpPrec(10, $._expr, choice(
         $.plus, $.plusplus, $.oplus)),
-      infixOpPrec(11, $.instance_prefix, $._expr, choice(
+      infixOpPrec(11, $._expr, choice(
         $.ominus,   $.mod,    $.modmod,     $.vert,
         $.vertvert, $.minus,  $.minusminus)),
-      infixOpPrec(13, $.instance_prefix, $._expr, choice(
+      infixOpPrec(13, $._expr, choice(
         $.amp,      $.ampamp, $.odot,     $.oslash,     $.otimes,
         $.mul,      $.mulmul, $.slash,    $.slashslash, $.bigcirc,
         $.bullet,   $.div,    $.circ,     $.star,       $.excl,
         $.hashhash, $.dol,    $.doldol,   $.qq,         $.sqcap,
         $.sqcup,    $.uplus,  $.times)),
-      infixOpPrec(14, $.instance_prefix, $._expr, choice(
+      infixOpPrec(14, $._expr, choice(
         $.wr, $.cdot, $.pow, $.powpow)),
-      infixOpPrec(14, $.instance_prefix, $._expr,
+      infixOpPrec(14, $._expr,
         $.rfield)
     ),
 
@@ -813,14 +777,9 @@ module.exports = grammar({
       $.sup_plus, $.asterisk, $.sup_hash, $.prime
     ),
 
-    // Foo!^#
-    general_postfix_op: $ => seq(
-      repeat($.instance_prefix), $.postfix_op_symbol
-    ),
-
     // All bound postfix operators
     bound_postfix_op: $ => choice(
-      postfixOpPrec(15, $.instance_prefix, $._expr, $.postfix_op_symbol)
+      postfixOpPrec(15, $._expr, $.postfix_op_symbol)
     ),
 
     /************************************************************************/
@@ -852,7 +811,7 @@ module.exports = grammar({
 
     // triangle ∷ ASSUME x > y, y > z PROVE x > z
     inner_assume_prove: $ => seq(
-      optional(seq($.name, $.proportion)),
+      optional(seq($.name, $.label_as)),
       $.assume_prove
     ),
 
@@ -956,19 +915,27 @@ module.exports = grammar({
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
       commaList1(choice(
-        $.operator_name,
+        $.op_or_expr,
         seq('MODULE', $.name)
       ))
     ),
 
-    // <3>10a.
-    proof_step_id: $ => seq(
-      '<', choice($.nat_number, '*'), '>', /[\w|\d|_]+/
+    // <+>foo22..
+    // Used when writing another proof step
+    begin_proof_step_token: $ => seq(
+      '<',
+      field('level', token.immediate(/\d+|\+|\*/)),
+      token.immediate('>'),
+      field('name', token.immediate(/[\w|\d]*/)),
+      token.immediate(/\.*/)
     ),
 
-    // <+>
-    begin_proof_step_token: $ => seq(
-      '<', choice($.nat_number, '*', '+'), '>', /[\w|\d]*/, /\.*/
+    // Used when referring to a prior proof step
+    proof_step_id: $ => seq(
+      '<',
+      field('level', token.immediate(/\d+|\*/)),
+      token.immediate('>'),
+      field('name', token.immediate(/[\w|\d]+/))
     ),
   }
 });
