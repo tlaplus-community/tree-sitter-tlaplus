@@ -18,11 +18,6 @@ function arity2(op, expr) {
   return seq(op, '(', expr, ',', expr, ')')
 }
 
-// An operator with 1 or more parameters.
-function arityN(op, expr) {
-  return seq(op, '(', commaList1(expr), ')')
-}
-
 // An operator with 0 or more parameters.
 function arity0OrN(op, expr) {
   return seq(op, optional(seq('(', commaList1(expr), ')')))
@@ -65,6 +60,10 @@ module.exports = grammar({
   conflicts: $ => [
     // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
+    // Lookahead to disambiguate '/\'  •  '('  …
+    [$.bullet_conj, $.land],
+    // Lookahead to disambiguate '\/'  •  '('  …
+    [$.bullet_disj, $.lor],
     // Lookahead to disambiguate name  •  '('  …
     [$.identifier, $.label],
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
@@ -76,14 +75,37 @@ module.exports = grammar({
     // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
     // Matches step_expr_or_stutter and function_value
     [$.bound_general_op, $.tuple_of_identifiers],
+    // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
+    // Could be SF_f(x)(e) or could be SF_f(e)
+    [$.bound_general_op, $.subexpr_component],
+    // Lookahead to disambiguate identifier  •  '\in'  …
+    // Could be x \in y == ... (op def'n) or x \in S (expression)
+    [$.bound_general_op, $.operator_definition],
+    // Lookahead to disambiguate identifier  '('  identifier  •  ','  …
+    // Could be op(a, b) == ... (decl'n) or op(a, b) (expression)
+    [$.bound_general_op, $.operator_declaration],
+    // Lookahead to disambiguate identifier  •  '['  …
+    // Could be f[x \in S] == ... (function def'n) or f[x] (application)
+    [$.bound_general_op, $.function_definition],
+    // Lookahead to disambiguate 'SF_'  subexpr_prefix  identifier  •  '('  …
+    // Could be SF_f(x)!g(y)(e) or could be SF_f(x)(e)
+    [$.bound_general_op],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
-    [$.subexpr_prefix]
+    [$.subexpr_prefix],
+    // Lookahead to disambiguate begin_proof_step_token  _expr  •
+    // begin_proof_step_token  …
+    // Could be <1>a QED or could be <1>a (proof continues)
+    [$.proof_step],
+    // Lookahead to disambiguate begin_proof_step_token  'QED'  •
+    // begin_proof_step_token  …
+    // Proof can follow a QED statement; is this a grammar bug?
+    [$.qed_step]
   ],
 
   rules: {
-    //source_file: $ => $.module,
-    source_file: $ => $._expr,
+    source_file: $ => $.module,
+    //source_file: $ => $._expr,
 
     // Top-level module declaration
     module: $ => seq(
@@ -359,12 +381,12 @@ module.exports = grammar({
       $.tuple_literal,
       $.step_expr_or_stutter,
       $.step_expr_no_stutter,
-      //$.fairness,
+      $.fairness,
       $.if_then_else,
       $.case,
       $.let_in,
-      //$.conj,
-      //$.disj,
+      $.conj,
+      $.disj,
     ),
 
     // Expressions allowed in subscripts; must be enclosed in delimiters
@@ -592,11 +614,13 @@ module.exports = grammar({
 
     // /\ x
     // /\ y
-    conj: $ => repeat1(seq($.bullet_conj, $._expr)),
+    // TODO: replace with context-sensitive parser
+    conj: $ => prec.left(repeat1(seq($.bullet_conj, $._expr))),
 
     // \/ x
     // \/ y
-    disj: $ => repeat1(seq($.bullet_disj, $._expr)),
+    // TODO: replace with context-sensitive parser
+    disj: $ => prec.left(repeat1(seq($.bullet_disj, $._expr))),
 
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
@@ -895,25 +919,22 @@ module.exports = grammar({
           $.instance,
           seq('HAVE', $._expr),
           seq('WITNESS', commaList1($._expr)),
-          seq('TAKE', choice(
-            commaList1($.quantifier_bound),
-            commaList1($.identifier)
-          ))
+          seq('TAKE', $.bound_or_identifier_list)
         ),
         seq(
           choice(
             seq(optional('SUFFICES'), choice($._expr, $.assume_prove)),
             seq('CASE', $._expr),
-            seq(
-              'PICK',
-              commaList1(choice($.quantifier_bound, $.identifier)),
-              ':',
-              $._expr
-            )
+            seq('PICK', $.bound_or_identifier_list, ':', $._expr)
           ),
           optional($.proof)
         )
       )
+    ),
+
+    bound_or_identifier_list: $ => choice(
+      commaList1($.quantifier_bound),
+      commaList1($.identifier)
     ),
 
     // <*> QED
@@ -951,20 +972,24 @@ module.exports = grammar({
 
     // <+>foo22..
     // Used when writing another proof step
-    begin_proof_step_token: $ => seq(
-      '<',
-      field('level', token.immediate(/\d+|\+|\*/)),
-      token.immediate('>'),
-      field('name', token.immediate(/[\w|\d]*/)),
-      token.immediate(/\.*/)
-    ),
+//    begin_proof_step_token: $ => seq(
+//      '<',
+//      field('level', token.immediate(/\d+|\+|\*/)),
+//      token.immediate('>'),
+//      field('name', token.immediate(/[\w|\d]*/)),
+//      token.immediate(/\.*/)
+//    ),
 
-    // Used when referring to a prior proof step
-    proof_step_id: $ => seq(
-      '<',
-      field('level', token.immediate(/\d+|\*/)),
-      token.immediate('>'),
-      field('name', token.immediate(/[\w|\d]+/))
-    ),
+    begin_proof_step_token: $ => /<[\d+|\*|\+]>[\w|\d]+\.*/,
+
+//    // Used when referring to a prior proof step
+//    proof_step_id: $ => seq(
+//      '<',
+//      field('level', token.immediate(/\d+|\*/)),
+//      token.immediate('>'),
+//      field('name', token.immediate(/[\w|\d]+/))
+//    ),
+
+    proof_step_id: $ => /<[\d+|\*]>[\w|\d]+/
   }
 });
