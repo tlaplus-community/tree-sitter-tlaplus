@@ -5,10 +5,10 @@ Single module
 ---- MODULE Test ----
 ====
 
------------------------
+---
 
 (source_file
   (module 
-    (name)
+    name: (name)
   )
 )

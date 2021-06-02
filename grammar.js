@@ -57,6 +57,12 @@ function postfixOpPrec(level, expr, symbol) {
 module.exports = grammar({
   name: 'tlaplus',
 
+  extras: $ => [
+    /\s|\r?\n/,
+    $.single_line_comment,
+    $.multi_line_comment
+  ],
+
   conflicts: $ => [
     // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
@@ -106,6 +112,13 @@ module.exports = grammar({
   rules: {
     source_file: $ => $.module,
     //source_file: $ => $._expr,
+
+    // \* this is a comment ending with newline
+    single_line_comment: $ => /\\\*.*/,
+
+    // (* this is a multi-line comment *)
+    // Taken from https://stackoverflow.com/a/36328890/2852699
+    multi_line_comment: $ => /\(\*[^*]*\*+([^)*][^*]*\*+)*\)/,
 
     // Top-level module declaration
     module: $ => seq(
