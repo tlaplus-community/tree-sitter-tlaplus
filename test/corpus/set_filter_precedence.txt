@@ -1,0 +1,24 @@
+=====================|||
+Set Filter Precedence
+=====================|||
+
+---- MODULE Test ----
+def == {x \in S : x \in T}
+====
+
+---------------------|||
+
+(source_file
+  (module 
+    (name)
+    (unit
+      (operator_definition
+        (identifier (name)) (def_eq)
+        (set_filter
+          (single_quantifier_bound (identifier (name)) (set_in) (bound_general_op (identifier (name))))
+          (bound_infix_op (bound_general_op (identifier (name))) (in) (bound_general_op (identifier (name))))
+        )
+      )
+    )
+  )
+)
