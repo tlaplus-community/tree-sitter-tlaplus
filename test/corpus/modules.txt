@@ -1,14 +1,36 @@
-=============
+=============|||
 Single module
-=============
+=============|||
 
 ---- MODULE Test ----
 ====
 
----
+-------------|||
 
 (source_file
   (module 
     name: (name)
+  )
+)
+
+=============|||
+Nested modules
+=============|||
+
+---- MODULE Test ----
+---- MODULE Inner ----
+====
+====
+
+-------------|||
+
+(source_file
+  (module 
+    name: (name)
+    (unit
+      (module
+      name: (name)
+      )
+    )
   )
 )
