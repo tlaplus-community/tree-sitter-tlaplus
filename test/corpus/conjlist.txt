@@ -1,0 +1,53 @@
+=============|||
+Basic Conjlist
+=============|||
+
+op ==
+    /\ 1
+    /\ 2
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (number)
+    (number)
+  )
+)
+
+=============|||
+Inline Conjlist
+=============|||
+
+op == /\ 1
+      /\ 2
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (number)
+    (number)
+  )
+)
+
+=============|||
+Left-Shifted Conjlist
+=============|||
+
+op ==
+ /\ 1
+/\ 2
+
+-------------|||
+
+(unit
+  (identifier)
+  (infix_op
+    (conj_list (number))
+    (land)
+    (number)
+  )
+)

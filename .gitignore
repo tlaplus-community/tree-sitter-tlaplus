@@ -1,7 +1,13 @@
 bindings
 node_modules
 package-lock.json
-src
+src/grammar.json
+src/node-types.json
+src/parser.c
+src/tree_sitter/parser.h
+build
+target
+.vscode
 *.exp
 *.lib
 *.obj

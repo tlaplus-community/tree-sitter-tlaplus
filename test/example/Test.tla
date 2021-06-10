@@ -1,1 +1,1 @@
-a \X b \X c \cup x \X d \X e \X f
+op == 1 /\ 2 + 3 * 4

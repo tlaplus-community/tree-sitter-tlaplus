@@ -1,35 +1,47 @@
-const NL = /[\n\r]+/
-const WS = /[\t ]+/
-
 module.exports = grammar({
-    name: 'test',
+    name: 'tlaplus',
+
+    externals: $ => [
+      $.conj_bullet,
+      $.indent,
+      $.dedent,
+      $.newline,
+    ],
 
     conflicts: $ => [
-      [$.list],
+      [$.conj_list]
     ],
 
     rules: {
+        source_file: $ => repeat($.unit),
 
-        source_file: $ => repeat(
-            $._stmt,
+        unit: $ => seq(
+          $.identifier, '==', $._expr
         ),
 
-        _stmt: $ => seq(
-            $.list, optional(WS), ';'
+        identifier: $ => /\w+/,
+
+        _expr: $ => choice(
+          $.number,
+          $.infix_op,
+          $.conj_list
         ),
 
-        list: $ => seq(
-            $.sel,
-            repeat(seq(WS, $.sel))
+        number: $ => /\d+/,
+
+        infix_op: $ => choice(
+          prec.left(1, seq($._expr, $.land, $._expr)),
+          prec.left(2, seq($._expr, $.add, $._expr)),
+          prec.left(3, seq($._expr, $.multiply, $._expr)),
         ),
 
-        sel: $ => seq(
-            optional('.'),
-            $.id,
-            repeat(seq('.', $.id))
+        land: $ => choice('/\\', '∧'),
+        add: $ => '+',
+        multiply: $ => '*',
+
+        conj_list: $ => seq(
+          $.indent, $.conj_bullet, $._expr,
+          repeat(seq($.newline, $.indent, $.conj_bullet, $._expr))
         ),
-
-        id: $ => /[a-zA-Z]+/
-
     }
 });
