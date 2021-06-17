@@ -74,28 +74,28 @@ module.exports = grammar({
     [$.identifier, $.label],
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
     // Matches both step_expr_or_stutter and function_value
-    [$.bound_general_op, $.quantifier_bound],
+    [$.bound_op, $.quantifier_bound],
     // Lookahead to disambiguate '{'  identifier  •  '\in'  …
     // Matches set_filter, set_map, and finite_set_literal
-    [$.bound_general_op, $.single_quantifier_bound],
+    [$.bound_op, $.single_quantifier_bound],
     // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
     // Matches step_expr_or_stutter and function_value
-    [$.bound_general_op, $.tuple_of_identifiers],
+    [$.bound_op, $.tuple_of_identifiers],
     // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
     // Could be SF_f(x)(e) or could be SF_f(e)
-    [$.bound_general_op, $.subexpr_component],
+    [$.bound_op, $.subexpr_component],
     // Lookahead to disambiguate identifier  •  '\in'  …
     // Could be x \in y == ... (op def'n) or x \in S (expression)
-    [$.bound_general_op, $.operator_definition],
+    [$.bound_op, $.operator_definition],
     // Lookahead to disambiguate identifier  '('  identifier  •  ','  …
     // Could be op(a, b) == ... (decl'n) or op(a, b) (expression)
-    [$.bound_general_op, $.operator_declaration],
+    [$.bound_op, $.operator_declaration],
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
-    [$.bound_general_op, $.function_definition],
+    [$.bound_op, $.function_definition],
     // Lookahead to disambiguate 'SF_'  subexpr_prefix  identifier  •  '('  …
     // Could be SF_f(x)!g(y)(e) or could be SF_f(x)(e)
-    [$.bound_general_op],
+    [$.bound_op],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
@@ -323,13 +323,21 @@ module.exports = grammar({
     // Subexpression component referencing a previously-defined symbol
     // Can either bind parameters to the op or leave them unbound
     subexpr_component: $ => choice(
-      arity0OrN($.identifier, $.op_or_expr),
-      arity1($.standalone_prefix_op_symbol, $._expr),
-      arity2($.infix_op_symbol, $._expr),
-      arity1($.postfix_op_symbol, $._expr),
+      $.bound_op,
+      $.bound_nonfix_op,
       $.standalone_prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol
+    ),
+
+    // f(a, op, b)
+    bound_op: $ => arity0OrN($.identifier, $.op_or_expr),
+
+    // +(2, 4)
+    bound_nonfix_op: $ => choice(
+      arity1($.standalone_prefix_op_symbol, $._expr),
+      arity2($.infix_op_symbol, $._expr),
+      arity1($.postfix_op_symbol, $._expr)
     ),
 
     // Metalanguage to navigate the parse tree of an expression
@@ -373,8 +381,8 @@ module.exports = grammar({
       $.label,
       $.subexpression,
       $.proof_step_id,
-      $.bound_general_op,
-      $.bound_nonfix_op,
+      $.general_bound_op,
+      $.general_bound_nonfix_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -405,7 +413,8 @@ module.exports = grammar({
     // Expressions allowed in subscripts; must be enclosed in delimiters
     // Used in WF_expr, <><<f>>_expr, etc.
     _subscript_expr: $ => choice(
-      $.bound_general_op,
+      $.general_bound_op,
+      $.general_bound_nonfix_op,
       $.parentheses,
       $.finite_set_literal,
       $.set_filter,
@@ -420,18 +429,12 @@ module.exports = grammar({
       $.step_expr_no_stutter,
     ),
 
-    bound_general_op: $ => seq(
-      optional($.subexpr_prefix),
-      arity0OrN($.identifier, $.op_or_expr)
+    general_bound_op: $ => seq(
+      optional($.subexpr_prefix), $.bound_op
     ),
 
-    bound_nonfix_op: $ => seq(
-      optional($.subexpr_prefix),
-      choice(
-        arity1($.standalone_prefix_op_symbol, $._expr),
-        arity2($.infix_op_symbol, $._expr),
-        arity1($.postfix_op_symbol, $._expr)
-      )
+    general_bound_nonfix_op: $ => seq(
+      optional($.subexpr_prefix), $.bound_nonfix_op
     ),
 
     // Number literal encodings
