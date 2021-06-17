@@ -2,14 +2,13 @@ module.exports = grammar({
     name: 'tlaplus',
 
     externals: $ => [
-      $.conj_bullet,
-      $.indent,
-      $.dedent,
-      $.newline,
+      $._indent,
+      $._newline,
+      $._dedent,
     ],
 
     conflicts: $ => [
-      [$.conj_list]
+      //[$.conj_list]
     ],
 
     rules: {
@@ -40,8 +39,11 @@ module.exports = grammar({
         multiply: $ => '*',
 
         conj_list: $ => seq(
-          $.indent, $.conj_bullet, $._expr,
-          repeat(seq($.newline, $.indent, $.conj_bullet, $._expr))
+          $._indent, $.conj_item,
+          repeat(seq($._newline, $.conj_item)),
+          $._dedent
         ),
+
+        conj_item: $ => seq($.land, $._expr)
     }
 });

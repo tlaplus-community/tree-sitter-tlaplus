@@ -51,3 +51,85 @@ op ==
     (number)
   )
 )
+
+=============|||
+Right-Shifted Conjlist
+=============|||
+
+op ==
+/\ 1
+ /\ 2
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (infix_op
+      (number)
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Separated Conjlist
+=============|||
+
+op ==
+  /\ 1
+
+  /\ 2
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (number)
+    (number)
+  )
+)
+
+=============|||
+Multiline Conjlist
+=============|||
+
+op ==
+  /\ 
+   1
+  /\
+   2
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (number)
+    (number)
+  )
+)
+
+=============|||
+Nested Conjlist
+=============|||
+
+op ==
+ /\ /\ 1
+    /\ 2
+ /\ 3
+
+-------------|||
+
+(unit
+  (identifier)
+  (conj_list
+    (conj_list
+      (number)
+      (number)
+    )
+    (number)
+  )
+)
