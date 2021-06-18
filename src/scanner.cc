@@ -87,28 +87,43 @@ namespace {
 
     /**
      * Conjlists are identified with the column position (cpos) of the first
-     * land token in the list. For a given conjunct, there are three cases:
-     * 1. the conjunct is after the cpos of the current conjlist
+     * land token in the list. For a given conjunct, there are four cases:
+     * 1. The conjunct is after the cpos of the current conjlist, and an
+     *    INDENT token is expected
      *    -> this is a new nested conjlist, emit INDENT token
-     * 2. the conjunct is equal to the cpos of the current conjlist
+     * 2. The conjunct is after the cpos of the current conjlist, and an
+     *    INDENT token is *not* expected
+     *    -> this is an infix land operator; emit nothing
+     * 3. The conjunct is equal to the cpos of the current conjlist
      *    -> this is an item of the current conjlist; emit NEWLINE token
-     * 3. the conjunct is prior to the cpos of the current conjlist
+     * 4. The conjunct is prior to the cpos of the current conjlist
      *    -> this ends the current conjlist, emit DEDENT token
      * 
      * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
      * @param next The column position of the land token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_land_token(TSLexer* lexer, const column_index next) {
+    bool handle_land_token(
+      TSLexer* lexer,
+      const bool* valid_symbols,
+      const column_index next
+    ) {
       const column_index current = get_current_jlist_column_index();
       if (current < next) {
-        lexer->result_symbol = INDENT;
-        this->column_indices.push_back(next);
-        return true;
+        if (valid_symbols[INDENT]) {
+          lexer->result_symbol = INDENT;
+          this->column_indices.push_back(next);
+          return true;
+        } else {
+          return false;
+        }
       } else if (current == next) {
+        assert(valid_symbols[NEWLINE]);
         lexer->result_symbol = NEWLINE;
         return true;
       } else {
+        assert(valid_symbols[DEDENT]);
         lexer->result_symbol = DEDENT;
         this->column_indices.pop_back();
         return true;
@@ -137,9 +152,14 @@ namespace {
      * @param next The column position of the non-land token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_non_land_token(TSLexer* lexer, const column_index next) {
+    bool handle_non_land_token(
+      TSLexer* lexer,
+      const bool* valid_symbols,
+      const column_index next
+    ) {
       const column_index current = get_current_jlist_column_index();
       if (next <= current) {
+        assert(valid_symbols[DEDENT]);
         lexer->result_symbol = DEDENT;
         this->column_indices.pop_back();
         return true;
@@ -150,14 +170,14 @@ namespace {
     }
 
     /**
-    * INDENT tokens are emitted prior to the first conjunct in a list
-    * NEWLINE tokens are emitted between list conjuncts
-    * DEDENT tokens are emitted after the final conjunct in a list
-    * 
-    * @param lexer The tree-sitter lexing control structure.
-    * @param valid_symbols Tokens possibly expected in this spot.
-    * @return Whether a token was encountered.
-    */
+     * INDENT tokens are emitted prior to the first conjunct in a list
+     * NEWLINE tokens are emitted between list conjuncts
+     * DEDENT tokens are emitted after the final conjunct in a list
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
+     * @return Whether a token was encountered.
+     */
     bool scan(TSLexer* lexer, const bool* valid_symbols) {
       if (valid_symbols[INDENT] || valid_symbols[NEWLINE] || valid_symbols[DEDENT]) {
         while (has_next(lexer)) {
@@ -177,19 +197,19 @@ namespace {
             } case '∧': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
-              return handle_land_token(lexer, conj_col);
+              return handle_land_token(lexer, valid_symbols, conj_col);
             } case '/': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
               advance(lexer);
               if (next_codepoint_is(lexer, '\\')) {
-                return handle_land_token(lexer, conj_col);
+                return handle_land_token(lexer, valid_symbols, conj_col);
               } else {
                 return false;
               }
             } default: {
               const column_index conj_col = lexer->get_column(lexer);
-              return handle_non_land_token(lexer, conj_col);
+              return handle_non_land_token(lexer, valid_symbols, conj_col);
             }
           }
         }
