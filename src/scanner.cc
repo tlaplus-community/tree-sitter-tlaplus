@@ -25,22 +25,24 @@ namespace {
     unsigned serialize(char* buffer) {
       const size_t nested_conjlist_depth = this->column_indices.size();
       assert(nested_conjlist_depth <= UINT8_MAX);
-      buffer[0] = nested_conjlist_depth;
+      buffer[0] = static_cast<uint8_t>(nested_conjlist_depth);
       const size_t byte_count = nested_conjlist_depth * sizeof(column_index);
+      const size_t length_offset = sizeof(uint8_t);
       if (nested_conjlist_depth > 0) {
-        memcpy(&buffer[sizeof(uint8_t)], this->column_indices.data(), byte_count);
+        memcpy(&buffer[length_offset], this->column_indices.data(), byte_count);
       }
 
-      return sizeof(uint8_t) + byte_count;
+      return length_offset + byte_count;
     }
 
     void deserialize(const char* buffer, const unsigned length) {
       if (length > 0) {
         const uint8_t nested_conjlist_depth = buffer[0];
         const size_t byte_count = nested_conjlist_depth * sizeof(column_index);
+        const size_t length_offset = sizeof(uint8_t);
         if (nested_conjlist_depth > 0) {
           this->column_indices.resize(nested_conjlist_depth);
-          memcpy(this->column_indices.data(), &buffer[sizeof(uint8_t)], byte_count);
+          memcpy(this->column_indices.data(), &buffer[length_offset], byte_count);
         }
       }
     }
@@ -78,15 +80,30 @@ namespace {
       return false;
     }
 
-    bool handle_land(TSLexer* lexer, const column_index conj_col) {
+    /**
+     * Conjlists are identified with the column position (cpos) of the first
+     * land token in the list. For a given conjunct, there are three cases:
+     * 
+     * 1. the conjunct is after the cpos of the current conjlist
+     *    -> this is a new nested conjlist, emit INDENT token
+     * 2. the conjunct is equal to the cpos of the current conjlist
+     *    -> this is an item of the current conjlist; emit NEWLINE token
+     * 3. the conjunct is prior to the cpos of the current conjlist
+     *    -> this ends the current conjlist, emit DEDENT token
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the land token encountered.
+     * @return Whether a jlist-relevant token should be emitted.
+     */
+    bool handle_land(TSLexer* lexer, const column_index next) {
       const column_index current =
         this->column_indices.empty()
         ? -1 : this->column_indices.back();
-      if (current < conj_col) {
+      if (current < next) {
         lexer->result_symbol = INDENT;
-        this->column_indices.push_back(conj_col);
+        this->column_indices.push_back(next);
         return true;
-      } else if (current == conj_col) {
+      } else if (current == next) {
         lexer->result_symbol = NEWLINE;
         return true;
       } else {
@@ -96,35 +113,36 @@ namespace {
       }
     }
 
-    /*
-      Rules:
-      (1) INDENT tokens are emitted prior to the first conjunct in a list
-      (2) NEWLINE tokens are emitted between list conjuncts
-      (3) DEDENT tokens are emitted after the final conjunct in a list
-      (4) The first conjunct in a list is identified with its column position
-      (5) For a given conjunct, there are three cases:
-          (a) the conjunct is after the cpos of the current conjlist
-              -> this is a new nested conjlist, emit INDENT token
-          (b) the conjunct is equal to the cpos of the current conjlist
-              -> this is an item of the current conjlist; emite NEWLINE token
-          (c) the conjunct is prior to the cpos of the current conjlist
-              -> this ends the current conjlist, emit DEDENT token
+    /**
+    * INDENT tokens are emitted prior to the first conjunct in a list
+    * NEWLINE tokens are emitted between list conjuncts
+    * DEDENT tokens are emitted after the final conjunct in a list
+    * 
+    * @param lexer The tree-sitter lexing control structure.
+    * @param valid_symbols Tokens possibly expected in this spot.
+    * @return Whether a token was encountered.
     */
     bool scan(TSLexer* lexer, const bool* valid_symbols) {
-      if (valid_symbols[INDENT]) {
+      if (valid_symbols[INDENT] || valid_symbols[NEWLINE] || valid_symbols[DEDENT]) {
         while (has_next(lexer)) {
           switch (next_codepoint(lexer)) {
-            case ' ':
+            case ' ': {
               skip(lexer);
               break;
-            case '\t':
+            } case '\t': {
               skip(lexer);
               break;
-            case '∧':
+            } case '\n': {
+              skip(lexer);
+              break;
+            } case '\r': {
+              skip(lexer);
+              break;
+            } case '∧': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
               return handle_land(lexer, conj_col);
-            case '/':
+            } case '/': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
               advance(lexer);
@@ -133,8 +151,9 @@ namespace {
               } else {
                 return false;
               }
-            default:
+            } default: {
               return false;
+            }
           }
         }
       }
