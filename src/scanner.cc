@@ -47,6 +47,11 @@ namespace {
       }
     }
 
+    column_index get_current_jlist_column_index() {
+      return this->column_indices.empty()
+        ? -1 : this->column_indices.back();
+    }
+
     void advance(TSLexer* lexer) {
       lexer->advance(lexer, false);
     }
@@ -83,7 +88,6 @@ namespace {
     /**
      * Conjlists are identified with the column position (cpos) of the first
      * land token in the list. For a given conjunct, there are three cases:
-     * 
      * 1. the conjunct is after the cpos of the current conjlist
      *    -> this is a new nested conjlist, emit INDENT token
      * 2. the conjunct is equal to the cpos of the current conjlist
@@ -95,10 +99,8 @@ namespace {
      * @param next The column position of the land token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_land(TSLexer* lexer, const column_index next) {
-      const column_index current =
-        this->column_indices.empty()
-        ? -1 : this->column_indices.back();
+    bool handle_land_token(TSLexer* lexer, const column_index next) {
+      const column_index current = get_current_jlist_column_index();
       if (current < next) {
         lexer->result_symbol = INDENT;
         this->column_indices.push_back(next);
@@ -110,6 +112,40 @@ namespace {
         lexer->result_symbol = DEDENT;
         this->column_indices.pop_back();
         return true;
+      }
+    }
+
+    /**
+     * Non-land tokens could possibly indicate the end of a conjlist. Rules:
+     * - If the token cpos is leq to the current conjlist cpos, the conjlist
+     *   has ended; emit a DEDENT token (possibly multiple).
+     * - If the cpos is gt the current conjlist cpos and the token is one of
+     *   the following:
+     *   1. A right delimiter matching some left delimiter that occurred
+     *      *before* the beginning of the current conjlist; includes ),
+     *      ], }, and >>
+     *   2. The beginning of the next module unit (ex. op == expr)
+     *   then emit a DEDENT token (possibly multiple).
+     * - Otherwise the token is treated as part of the expression in that
+     *   conjunct; for example:
+     *       /\ IF e THEN P
+     *               ELSE Q
+     *       /\ R
+     *   so emit no token.
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the non-land token encountered.
+     * @return Whether a jlist-relevant token should be emitted.
+     */
+    bool handle_non_land_token(TSLexer* lexer, const column_index next) {
+      const column_index current = get_current_jlist_column_index();
+      if (next <= current) {
+        lexer->result_symbol = DEDENT;
+        this->column_indices.pop_back();
+        return true;
+      } else {
+        // TODO: implement DEDENT logic
+        return false;
       }
     }
 
@@ -141,18 +177,19 @@ namespace {
             } case '∧': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
-              return handle_land(lexer, conj_col);
+              return handle_land_token(lexer, conj_col);
             } case '/': {
               const column_index conj_col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
               advance(lexer);
               if (next_codepoint_is(lexer, '\\')) {
-                return handle_land(lexer, conj_col);
+                return handle_land_token(lexer, conj_col);
               } else {
                 return false;
               }
             } default: {
-              return false;
+              const column_index conj_col = lexer->get_column(lexer);
+              return handle_non_land_token(lexer, conj_col);
             }
           }
         }
