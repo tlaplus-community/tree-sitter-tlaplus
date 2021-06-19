@@ -173,3 +173,56 @@ op ==
     )
   )
 )
+
+=============|||
+Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+ + 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (infix_op
+        (conj_list (conj_item (land) (number)))
+        (add)
+        (number)
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+
+=============|||
+Division Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+ / 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (infix_op
+        (conj_list (conj_item (land) (number)))
+        (divide)
+        (number)
+      )
+      (land)
+      (number)
+    )
+  )
+)
