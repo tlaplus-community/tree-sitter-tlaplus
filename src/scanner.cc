@@ -230,6 +230,12 @@ namespace {
         ? -1 : this->jlists.back().alignment_column;
     }
 
+    void push_delimiter(const DelimiterType type) {
+      if (!jlists.empty()) {
+        jlists.back().contained_delimiters.push_back(type);
+      }
+    }
+
     std::vector<int32_t> next_token(TSLexer* lexer) {
       std::vector<int32_t> token;
       while (has_next(lexer)) {
@@ -249,19 +255,6 @@ namespace {
           advance(lexer);
         }
       }
-    }
-
-    bool next_codepoint_is_one_of(
-      TSLexer* lexer,
-      const std::vector<int32_t>& tokens
-    ) {
-      for (int i = 0; i < tokens.size(); i++) {
-        if (next_codepoint_is(lexer, tokens[i])) {
-          return true;
-        }
-      }
-
-      return false;
     }
 
     void emit_indent(TSLexer* lexer, column_index next) {
@@ -352,16 +345,32 @@ namespace {
         emit_dedent(lexer);
         return true;
       } else {
-        DelimiterType delimiter = delimiter_type(lexer);
+        const DelimiterType delimiter = delimiter_type(lexer);
         if (is_left_delimiter(delimiter)) {
-
+          push_delimiter(delimiter);
+          return false;
         } else if (is_right_delimiter(delimiter)) {
-
+          if (!jlists.empty()) {
+            if (jlists.back().contained_delimiters.empty()) {
+              emit_dedent(lexer);
+              return true;
+            } else {
+              if (delimiter == jlists.back().contained_delimiters.back()) {
+                jlists.back().contained_delimiters.pop_back();
+              } else {
+                // Mismatched delimiters! This is a parse error.
+                // Do nothing; let tree-sitter handle error recovery.
+                return false;
+              }
+            }
+          } else {
+            // Not in jlist; ignore this delimiter.
+            return false;
+          }
         } else /* NOT_A_DELIMITER */ {
-
+          // TODO check for unit definition
+          return false;
         }
-
-        return false;
       }
     }
 
