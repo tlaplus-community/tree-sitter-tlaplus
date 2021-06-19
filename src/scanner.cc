@@ -67,10 +67,12 @@ namespace {
       case '〈': return L_ANGLE_BRACKET;
       case '〉': return R_ANGLE_BRACKET;
       case '<':
+        lexer->mark_end(lexer);
         advance(lexer);
         if (next_codepoint_is(lexer, '<')) return L_ANGLE_BRACKET;
         else return NOT_A_DELIMITER;  // Less-than operator.
       case '>':
+        lexer->mark_end(lexer);
         advance(lexer);
         if (next_codepoint_is(lexer, '>')) return R_ANGLE_BRACKET;
         else return NOT_A_DELIMITER;  // Greater-than operator.
@@ -78,18 +80,25 @@ namespace {
     }
   }
 
-  bool is_left_delimiter(DelimiterType delimiter) {
+  bool is_left_delimiter(const DelimiterType delimiter) {
     return delimiter == L_PARENTHESIS
       || delimiter == L_SQUARE_BRACKET
       || delimiter == L_CURLY_BRACE
       || delimiter == L_ANGLE_BRACKET;
   }
 
-  bool is_right_delimiter(DelimiterType delimiter) {
+  bool is_right_delimiter(const DelimiterType delimiter) {
     return delimiter == R_PARENTHESIS
       || delimiter == R_SQUARE_BRACKET
       || delimiter == R_CURLY_BRACE
       || delimiter == R_ANGLE_BRACKET;
+  }
+
+  bool delimiter_match(const DelimiterType left, const DelimiterType right) {
+    return (left == L_PARENTHESIS && right == R_PARENTHESIS)
+      || (left == L_SQUARE_BRACKET && right == R_SQUARE_BRACKET)
+      || (left == L_CURLY_BRACE && right == R_CURLY_BRACE)
+      || (left == L_ANGLE_BRACKET && right == R_ANGLE_BRACKET);
   }
 
   using column_index = int16_t;
@@ -355,7 +364,7 @@ namespace {
               emit_dedent(lexer);
               return true;
             } else {
-              if (delimiter == jlists.back().contained_delimiters.back()) {
+              if (delimiter_match(delimiter, jlists.back().contained_delimiters.back())) {
                 jlists.back().contained_delimiters.pop_back();
               } else {
                 // Mismatched delimiters! This is a parse error.
