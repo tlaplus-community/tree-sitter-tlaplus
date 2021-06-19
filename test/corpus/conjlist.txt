@@ -175,7 +175,89 @@ op ==
 )
 
 =============|||
+Start-of-Line Nested Conjlist
+=============|||
+
+op ==
+/\ /\ A
+   /\ B
+/\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land)
+        (conj_list
+          (conj_item (land) (identifier))
+          (conj_item (land) (identifier))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
 Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+  + 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (infix_op
+          (number)
+          (add)
+          (number)
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Division Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+  / 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (infix_op
+          (number)
+          (divide)
+          (number)
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Infix Op Terminated Conjlist
 =============|||
 
 op ==
@@ -200,9 +282,8 @@ op ==
   )
 )
 
-
 =============|||
-Division Infix Op Conjlist
+Division Infix Op Terminated Conjlist
 =============|||
 
 op ==

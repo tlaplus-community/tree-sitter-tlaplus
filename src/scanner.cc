@@ -5,71 +5,250 @@
 
 namespace {
 
+  /**
+   * Tokens emitted by this external scanner.
+   */
   enum TokenType {
-    INDENT,
-    NEWLINE,
-    DEDENT
+    INDENT,   // Marks beginning of junction list.
+    NEWLINE,  // Separates items of junction list.
+    DEDENT    // Marks end of junction list.
   };
+
+  void advance(TSLexer* lexer) {
+    lexer->advance(lexer, false);
+  }
+
+  void skip(TSLexer* lexer) {
+    lexer->advance(lexer, true);
+  }
+
+  int32_t next_codepoint(TSLexer* lexer) {
+    return lexer->lookahead;
+  }
+
+  bool next_codepoint_is(TSLexer* lexer, int32_t token) {
+    return token == next_codepoint(lexer);
+  }
+
+  bool has_next(TSLexer* lexer) {
+    return !next_codepoint_is(lexer, 0);
+  }
+
+  bool is_whitespace(int32_t codepoint) {
+    return codepoint == ' '
+      || codepoint == '\t'
+      || codepoint == '\n'
+      || codepoint == '\r';
+  }
+
+  /**
+   * Symmetrical delimiters encountered in TLA+.
+   */
+  enum DelimiterType {
+    L_PARENTHESIS,    // (
+    R_PARENTHESIS,    // )
+    L_SQUARE_BRACKET, // [
+    R_SQUARE_BRACKET, // ]
+    L_CURLY_BRACE,    // {
+    R_CURLY_BRACE,    // }
+    L_ANGLE_BRACKET,  // << or 〈 
+    R_ANGLE_BRACKET,  // >> or 〉
+    NOT_A_DELIMITER   // None of the above.
+  };
+
+  DelimiterType delimiter_type(TSLexer* lexer) {
+    switch (next_codepoint(lexer)) {
+      case '(': return L_PARENTHESIS;
+      case ')': return R_PARENTHESIS;
+      case '[': return L_SQUARE_BRACKET;
+      case ']': return R_SQUARE_BRACKET;
+      case '{': return L_CURLY_BRACE;
+      case '}': return R_CURLY_BRACE;
+      case '〈': return L_ANGLE_BRACKET;
+      case '〉': return R_ANGLE_BRACKET;
+      case '<':
+        advance(lexer);
+        if (next_codepoint_is(lexer, '<')) return L_ANGLE_BRACKET;
+        else return NOT_A_DELIMITER;  // Less-than operator.
+      case '>':
+        advance(lexer);
+        if (next_codepoint_is(lexer, '>')) return R_ANGLE_BRACKET;
+        else return NOT_A_DELIMITER;  // Greater-than operator.
+      default: return NOT_A_DELIMITER;
+    }
+  }
+
+  bool is_left_delimiter(DelimiterType delimiter) {
+    return delimiter == L_PARENTHESIS
+      || delimiter == L_SQUARE_BRACKET
+      || delimiter == L_CURLY_BRACE
+      || delimiter == L_ANGLE_BRACKET;
+  }
+
+  bool is_right_delimiter(DelimiterType delimiter) {
+    return delimiter == R_PARENTHESIS
+      || delimiter == R_SQUARE_BRACKET
+      || delimiter == R_CURLY_BRACE
+      || delimiter == R_ANGLE_BRACKET;
+  }
 
   using column_index = int16_t;
 
+  enum JunctType {
+    CONJUNCTION,
+    DISJUNCTION
+  };
+
+  struct JunctList {
+    JunctType type;
+    column_index alignment_column;
+    std::vector<DelimiterType> contained_delimiters;
+
+    JunctList() { }
+
+    JunctList(JunctType type, column_index alignment_column) {
+      this->type = type;
+      this->alignment_column = alignment_column;
+    }
+
+    unsigned serialize(char* buffer) {
+      size_t offset = 0;
+      size_t byte_count = 0;
+      size_t copied = 0;
+
+      // Serialize junction type
+      copied = sizeof(uint8_t);
+      buffer[offset] = static_cast<uint8_t>(type);
+      offset += copied;
+      byte_count += copied;
+
+      // Serialize alignment column
+      copied = sizeof(column_index);
+      memcpy(&buffer[offset], (char*)&alignment_column, copied);
+      offset += copied;
+      byte_count += copied;
+
+      // Serialize delimiters
+      const size_t delimiter_count = contained_delimiters.size();
+      assert(delimiter_count <= UINT8_MAX);
+      copied = sizeof(uint8_t);
+      buffer[offset] = static_cast<uint8_t>(delimiter_count);
+      offset += copied;
+      byte_count += copied;
+      for (int i = 0; i < delimiter_count; i++) {
+        copied = sizeof(uint8_t);
+        buffer[offset] = static_cast<uint8_t>(contained_delimiters[i]);
+        offset += copied;
+        byte_count += copied;
+      }
+
+      return byte_count;
+    }
+
+    unsigned deserialize(const char* buffer, const unsigned length) {
+      size_t byte_count = 0;
+      size_t offset = 0;
+      size_t copied = 0;
+
+      // Deserialize junction type
+      copied = sizeof(uint8_t);
+      type = JunctType(buffer[offset]);
+      offset += copied;
+      byte_count += copied;
+
+      // Deserialize alignment column
+      copied = sizeof(column_index);
+      memcpy((char*)&alignment_column, &buffer[offset], copied);
+      offset += copied;
+      byte_count += copied;
+
+      // Deserialize delimiters
+      copied = sizeof(uint8_t);
+      const size_t delimiter_count = static_cast<size_t>(buffer[offset]);
+      offset += copied;
+      byte_count += copied;
+      contained_delimiters.resize(delimiter_count);
+      for (int i = 0; i < delimiter_count; i++) {
+        copied = sizeof(uint8_t);
+        contained_delimiters.push_back(DelimiterType(buffer[offset]));
+        offset += copied;
+        byte_count += copied;
+      }
+
+      return byte_count;
+    }
+  };
+
+
   struct Scanner {
-    std::vector<column_index> column_indices;
+    std::vector<JunctList> jlists;
 
     Scanner() {
       deserialize(NULL, 0);
     }
 
     // Support nested conjlists up to 256 deep
-    // Support column positions up to 2^15
     unsigned serialize(char* buffer) {
-      const size_t nested_conjlist_depth = this->column_indices.size();
-      assert(nested_conjlist_depth <= UINT8_MAX);
-      buffer[0] = static_cast<uint8_t>(nested_conjlist_depth);
-      const size_t byte_count = nested_conjlist_depth * sizeof(column_index);
-      const size_t length_offset = sizeof(uint8_t);
-      if (nested_conjlist_depth > 0) {
-        memcpy(&buffer[length_offset], this->column_indices.data(), byte_count);
+      size_t offset = 0;
+      size_t byte_count = 0;
+      size_t copied = 0;
+
+      const size_t jlist_depth = jlists.size();
+      assert(jlist_depth <= UINT8_MAX);
+      copied = sizeof(uint8_t);
+      buffer[offset] = static_cast<uint8_t>(jlist_depth);
+      offset += copied;
+      byte_count += copied;
+      for (int i = 0; i < jlist_depth; i++) {
+        copied = jlists[i].serialize(&buffer[offset]);
+        offset += copied;
+        byte_count += copied;
       }
 
-      return length_offset + byte_count;
+      return byte_count;
     }
 
     void deserialize(const char* buffer, const unsigned length) {
       if (length > 0) {
-        const uint8_t nested_conjlist_depth = buffer[0];
-        const size_t byte_count = nested_conjlist_depth * sizeof(column_index);
-        const size_t length_offset = sizeof(uint8_t);
-        if (nested_conjlist_depth > 0) {
-          this->column_indices.resize(nested_conjlist_depth);
-          memcpy(this->column_indices.data(), &buffer[length_offset], byte_count);
+        size_t offset = 0;
+        size_t copied = 0;
+
+        copied = sizeof(uint8_t);
+        const size_t jlist_depth = buffer[offset];
+        jlists.resize(jlist_depth);
+        offset += copied;
+        for (int i = 0; i < jlist_depth; i++) {
+          assert(offset <= length);
+          copied = jlists[i].deserialize(&buffer[offset], length - offset);
+          offset += copied;
         }
       }
     }
 
     column_index get_current_jlist_column_index() {
-      return this->column_indices.empty()
-        ? -1 : this->column_indices.back();
+      return this->jlists.empty()
+        ? -1 : this->jlists.back().alignment_column;
     }
 
-    void advance(TSLexer* lexer) {
-      lexer->advance(lexer, false);
-    }
+    std::vector<int32_t> next_token(TSLexer* lexer) {
+      std::vector<int32_t> token;
+      while (has_next(lexer)) {
+        int32_t codepoint = next_codepoint(lexer);
+        if (is_whitespace(codepoint)) {
+          if (token.empty()) {
+            skip(lexer);
+          } else {
+            return token;
+          }
+        } else {
+          if (token.empty()) {
+            lexer->mark_end(lexer);
+          }
 
-    void skip(TSLexer* lexer) {
-      lexer->advance(lexer, true);
-    }
-
-    int32_t next_codepoint(TSLexer* lexer) {
-      return lexer->lookahead;
-    }
-
-    bool next_codepoint_is(TSLexer* lexer, int32_t token) {
-      return token == next_codepoint(lexer);
-    }
-
-    bool has_next(TSLexer* lexer) {
-      return !next_codepoint_is(lexer, 0);
+          token.push_back(codepoint);
+          advance(lexer);
+        }
+      }
     }
 
     bool next_codepoint_is_one_of(
@@ -87,12 +266,13 @@ namespace {
 
     void emit_indent(TSLexer* lexer, column_index next) {
       lexer->result_symbol = INDENT;
-      this->column_indices.push_back(next);
+      JunctList new_list(CONJUNCTION, next);
+      this->jlists.push_back(new_list);
     }
 
     void emit_dedent(TSLexer* lexer) {
       lexer->result_symbol = DEDENT;
-      this->column_indices.pop_back();
+      this->jlists.pop_back();
     }
 
     /**
@@ -167,11 +347,20 @@ namespace {
     ) {
       const column_index current = get_current_jlist_column_index();
       if (next <= current) {
+        // TODO: handle parentheses nonsense here.
         assert(valid_symbols[DEDENT]);
         emit_dedent(lexer);
         return true;
       } else {
-        // TODO: implement DEDENT logic
+        DelimiterType delimiter = delimiter_type(lexer);
+        if (is_left_delimiter(delimiter)) {
+
+        } else if (is_right_delimiter(delimiter)) {
+
+        } else /* NOT_A_DELIMITER */ {
+
+        }
+
         return false;
       }
     }
