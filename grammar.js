@@ -18,15 +18,21 @@ module.exports = grammar({
           $.identifier, '==', $._expr
         ),
 
-        identifier: $ => /\w+/,
+        identifier: $ => /[a-zA-Z]+/,
 
         _expr: $ => choice(
           $.number,
+          $.identifier,
+          $.parentheses,
           $.infix_op,
           $.conj_list
         ),
 
         number: $ => /\d+/,
+
+        parentheses: $ => seq(
+          '(', $._expr, ')'
+        ),
 
         infix_op: $ => choice(
           prec.left(1, seq($._expr, $.land, $._expr)),

@@ -85,6 +85,16 @@ namespace {
       return false;
     }
 
+    void emit_indent(TSLexer* lexer, column_index next) {
+      lexer->result_symbol = INDENT;
+      this->column_indices.push_back(next);
+    }
+
+    void emit_dedent(TSLexer* lexer) {
+      lexer->result_symbol = DEDENT;
+      this->column_indices.pop_back();
+    }
+
     /**
      * Conjlists are identified with the column position (cpos) of the first
      * land token in the list. For a given conjunct, there are four cases:
@@ -112,8 +122,7 @@ namespace {
       const column_index current = get_current_jlist_column_index();
       if (current < next) {
         if (valid_symbols[INDENT]) {
-          lexer->result_symbol = INDENT;
-          this->column_indices.push_back(next);
+          emit_indent(lexer, next);
           return true;
         } else {
           return false;
@@ -124,8 +133,7 @@ namespace {
         return true;
       } else {
         assert(valid_symbols[DEDENT]);
-        lexer->result_symbol = DEDENT;
-        this->column_indices.pop_back();
+        emit_dedent(lexer);
         return true;
       }
     }
@@ -160,8 +168,7 @@ namespace {
       const column_index current = get_current_jlist_column_index();
       if (next <= current) {
         assert(valid_symbols[DEDENT]);
-        lexer->result_symbol = DEDENT;
-        this->column_indices.pop_back();
+        emit_dedent(lexer);
         return true;
       } else {
         // TODO: implement DEDENT logic
@@ -195,25 +202,34 @@ namespace {
               skip(lexer);
               break;
             } case '∧': {
-              const column_index conj_col = lexer->get_column(lexer);
+              const column_index col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
-              return handle_land_token(lexer, valid_symbols, conj_col);
+              return handle_land_token(lexer, valid_symbols, col);
             } case '/': {
-              const column_index conj_col = lexer->get_column(lexer);
+              const column_index col = lexer->get_column(lexer);
               lexer->mark_end(lexer);
               advance(lexer);
               if (next_codepoint_is(lexer, '\\')) {
-                return handle_land_token(lexer, valid_symbols, conj_col);
+                return handle_land_token(lexer, valid_symbols, col);
               } else {
-                return false;
+                // This is probably the division infix operator.
+                return handle_non_land_token(lexer, valid_symbols, col);
               }
             } default: {
-              const column_index conj_col = lexer->get_column(lexer);
-              return handle_non_land_token(lexer, valid_symbols, conj_col);
+              const column_index col = lexer->get_column(lexer);
+              return handle_non_land_token(lexer, valid_symbols, col);
             }
           }
         }
+
+        // Emit DEDENT if have reached EOF while in jlist.
+        if (valid_symbols[DEDENT]) {
+          emit_dedent(lexer);
+          return true;
+        }
       }
+
+      return false;
     }
   };
 }
