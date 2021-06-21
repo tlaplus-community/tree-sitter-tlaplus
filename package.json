@@ -4,7 +4,7 @@
   "description": "A tree-sitter grammar for TLA+",
   "main": "bindings/node",
   "scripts": {
-    "test": "test"
+    "test": "tree-sitter test"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,6 @@
     "nan": "^2.14.2"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.19.3"
+    "ahelwer-tree-sitter-cli": "^0.19.3"
   }
 }

@@ -14,27 +14,62 @@ namespace {
     DEDENT    // Marks end of junction list.
   };
 
+  /**
+   * Advances the scanner while marking the codepoint as non-whitespace.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   */
   void advance(TSLexer* lexer) {
     lexer->advance(lexer, false);
   }
 
+  /**
+   * Advances the scanner while marking the codepoint as whitespace.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   */
   void skip(TSLexer* lexer) {
     lexer->advance(lexer, true);
   }
 
+  /**
+   * Gets the next codepoint in the string.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @return The next codepoint in the string.
+   */
   int32_t next_codepoint(TSLexer* lexer) {
     return lexer->lookahead;
   }
 
-  bool next_codepoint_is(TSLexer* lexer, int32_t token) {
-    return token == next_codepoint(lexer);
+  /**
+   * Checks whether the next codepoint is the one given.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param codepoint The codepoint to check.
+   * @return Whether the next codepoint is the one given.
+   */
+  bool next_codepoint_is(TSLexer* lexer, const int32_t codepoint) {
+    return codepoint == next_codepoint(lexer);
   }
 
+  /**
+   * Checks whether there are any codepoints left in the string.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @return Whether there are any codepoints left in the string.
+   */
   bool has_next(TSLexer* lexer) {
     return !next_codepoint_is(lexer, 0);
   }
 
-  bool is_whitespace(int32_t codepoint) {
+  /**
+   * Checks whether the given codepoint is whitespace.
+   * 
+   * @param codepoint The codepoint to check.
+   * @return Whether the given codepoint is whitespace.
+   */
+  bool is_whitespace(const int32_t codepoint) {
     return codepoint == ' '
       || codepoint == '\t'
       || codepoint == '\n'
@@ -56,6 +91,14 @@ namespace {
     NOT_A_DELIMITER   // None of the above.
   };
 
+  /**
+   * Determines the type of delimiter from the next token in the string.
+   * The function also marks the end of the codepoints consumed by the lexer
+   * before advancing beyond the first non-whitespace codepoint.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @return The type of delimiter expressed by the next token.
+   */
   DelimiterType delimiter_type(TSLexer* lexer) {
     switch (next_codepoint(lexer)) {
       case '(': return L_PARENTHESIS;
@@ -101,12 +144,69 @@ namespace {
       || (left == L_ANGLE_BRACKET && right == R_ANGLE_BRACKET);
   }
 
+  bool is_unit_definition(TSLexer* lexer) {
+    // TODO: write this logic
+    return false;
+  }
+
   using column_index = int16_t;
 
   enum JunctType {
     CONJUNCTION,
     DISJUNCTION
   };
+
+  /**
+   * Looks at next token to determine whether it is a junction of some kind.
+   * If so:
+   * - function sets out_jtype to type of junction
+   * - function sets out_token_start_col to start column of junction
+   * - function returns true
+   * If not:
+   * - function DOES NOT SET VALUE OF out_jtype
+   * - function sets out_token_start_col to start column of junction
+   * - function returns false
+   * The function also marks the end of the codepoints consumed by the lexer
+   * before advancing beyond the first non-whitespace codepoint.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param out_jtype Out parameter; the type of junc token.
+   * @param out_token_start_col Out parameter; the token's starting column.
+   * @return Whether the next token is a junct token.
+   */
+  bool try_peek_junct_token(
+    TSLexer* lexer,
+    JunctType& out_jtype,
+    column_index& out_token_start_col
+  ) {
+    const int32_t next = next_codepoint(lexer);
+    if (next == '∧') {
+      out_jtype = CONJUNCTION;
+      out_token_start_col = lexer->get_column(lexer);
+      lexer->mark_end(lexer);
+      return true;
+    } else if (next == '/') {
+      out_jtype = CONJUNCTION;
+      out_token_start_col = lexer->get_column(lexer);
+      lexer->mark_end(lexer);
+      advance(lexer);
+      return next_codepoint_is(lexer, '\\');
+    } else if (next == '∨') {
+      out_jtype = DISJUNCTION;
+      out_token_start_col = lexer->get_column(lexer);
+      lexer->mark_end(lexer);
+      return true;
+    } else if (next == '\\') {
+      out_jtype = DISJUNCTION;
+      out_token_start_col = lexer->get_column(lexer);
+      lexer->mark_end(lexer);
+      advance(lexer);
+      return next_codepoint_is(lexer, '/');
+    } else {
+      out_token_start_col = lexer->get_column(lexer);
+      return false;
+    }
+  }
 
   struct JunctList {
     JunctType type;
@@ -239,6 +339,10 @@ namespace {
         ? -1 : this->jlists.back().alignment_column;
     }
 
+    bool is_in_jlist() {
+      return !jlists.empty();
+    }
+
     void push_delimiter(const DelimiterType type) {
       if (!jlists.empty()) {
         jlists.back().contained_delimiters.push_back(type);
@@ -266,7 +370,7 @@ namespace {
       }
     }
 
-    void emit_indent(TSLexer* lexer, column_index next) {
+    void emit_indent(TSLexer* lexer, const column_index next) {
       lexer->result_symbol = INDENT;
       JunctList new_list(CONJUNCTION, next);
       this->jlists.push_back(new_list);
@@ -278,27 +382,29 @@ namespace {
     }
 
     /**
-     * Conjlists are identified with the column position (cpos) of the first
-     * land token in the list. For a given conjunct, there are four cases:
-     * 1. The conjunct is after the cpos of the current conjlist, and an
+     * Jlists are identified with the column position (cpos) of the first
+     * junct token in the list. For a given junct, there are four cases:
+     * 1. The junct is after the cpos of the current jlist, and an
      *    INDENT token is expected
-     *    -> this is a new nested conjlist, emit INDENT token
-     * 2. The conjunct is after the cpos of the current conjlist, and an
+     *    -> this is a new nested jlist, emit INDENT token
+     * 2. The junct is after the cpos of the current jlist, and an
      *    INDENT token is *not* expected
-     *    -> this is an infix land operator; emit nothing
-     * 3. The conjunct is equal to the cpos of the current conjlist
-     *    -> this is an item of the current conjlist; emit NEWLINE token
-     * 4. The conjunct is prior to the cpos of the current conjlist
-     *    -> this ends the current conjlist, emit DEDENT token
+     *    -> this is an infix junct operator; emit nothing
+     * 3. The junct is equal to the cpos of the current jlist
+     *    -> this is an item of the current jlist; emit NEWLINE token
+     * 4. The junct is prior to the cpos of the current jlist
+     *    -> this ends the current jlist, emit DEDENT token
      * 
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
-     * @param next The column position of the land token encountered.
+     * @param type The type of junction encountered.
+     * @param next The column position of the junct token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_land_token(
+    bool handle_junct_token(
       TSLexer* lexer,
       const bool* valid_symbols,
+      const JunctType type,
       const column_index next
     ) {
       const column_index current = get_current_jlist_column_index();
@@ -321,18 +427,18 @@ namespace {
     }
 
     /**
-     * Non-land tokens could possibly indicate the end of a conjlist. Rules:
-     * - If the token cpos is leq to the current conjlist cpos, the conjlist
+     * Non-junct tokens could possibly indicate the end of a jlist. Rules:
+     * - If the token cpos is leq to the current jlist cpos, the jlist
      *   has ended; emit a DEDENT token (possibly multiple).
-     * - If the cpos is gt the current conjlist cpos and the token is one of
+     * - If the cpos is gt the current jlist cpos and the token is one of
      *   the following:
      *   1. A right delimiter matching some left delimiter that occurred
-     *      *before* the beginning of the current conjlist; includes ),
+     *      *before* the beginning of the current jlist; includes ),
      *      ], }, and >>
      *   2. The beginning of the next module unit (ex. op == expr)
      *   then emit a DEDENT token (possibly multiple).
      * - Otherwise the token is treated as part of the expression in that
-     *   conjunct; for example:
+     *   junct; for example:
      *       /\ IF e THEN P
      *               ELSE Q
      *       /\ R
@@ -342,51 +448,82 @@ namespace {
      * @param next The column position of the non-land token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_non_land_token(
+    bool handle_non_junct_token(
       TSLexer* lexer,
       const bool* valid_symbols,
       const column_index next
     ) {
       const column_index current = get_current_jlist_column_index();
       if (next <= current) {
-        // TODO: handle parentheses nonsense here.
+        /**
+         * Found a token prior to the jlist's start column; this means
+         * the current jlist has ended, so emit a DEDENT token.
+         */
         assert(valid_symbols[DEDENT]);
         emit_dedent(lexer);
         return true;
       } else {
         const DelimiterType delimiter = delimiter_type(lexer);
         if (is_left_delimiter(delimiter)) {
+          /**
+           * Left delimiter encountered; record its presence within the scope
+           * of this jlist and wait to encounter a right counterpart.
+           */
           push_delimiter(delimiter);
           return false;
         } else if (is_right_delimiter(delimiter)) {
-          if (!jlists.empty()) {
-            if (jlists.back().contained_delimiters.empty()) {
-              emit_dedent(lexer);
-              return true;
-            } else {
-              if (delimiter_match(delimiter, jlists.back().contained_delimiters.back())) {
-                jlists.back().contained_delimiters.pop_back();
-              } else {
-                // Mismatched delimiters! This is a parse error.
-                // Do nothing; let tree-sitter handle error recovery.
-                return false;
-              }
-            }
+          if (jlists.back().contained_delimiters.empty()) {
+            /**
+             * There have been no left-delimiters within this jlist; assume
+             * the encountered right-delimiter matches a delimiter prior to
+             * the start of this jlist, and mark its end with a DEDENT.
+             */
+            assert(valid_symbols[DEDENT]);
+            emit_dedent(lexer);
+            return true;
+          } else if (
+            delimiter_match(
+              delimiter,
+              jlists.back().contained_delimiters.back())
+          ) {
+            /**
+             * The encountered delimiter matches a delimiter previously
+             * encountered within this jlist, thus it does not mark the end
+             * of this jlist. Mark the previous delimiter as matched.
+             */
+            jlists.back().contained_delimiters.pop_back();
           } else {
-            // Not in jlist; ignore this delimiter.
+            /**
+             * Mismatched delimiters! Example: [(])
+             * This is a parse error. Do nothing; let tree-sitter handle
+             * error recovery.
+             */
             return false;
           }
         } else /* NOT_A_DELIMITER */ {
-          // TODO check for unit definition
-          return false;
+          if (is_unit_definition(lexer)) {
+            /**
+             * We've encountered a new unit definition, so override all
+             * alignment logic and end the jlist.
+             */
+            assert(valid_symbols[DEDENT]);
+            emit_dedent(lexer);
+            return true;
+          } else {
+            /**
+             * The token encountered must be part of the expression in this
+             * jlist item; ignore it.
+             */
+            return false;
+          }
         }
       }
     }
 
     /**
-     * INDENT tokens are emitted prior to the first conjunct in a list
-     * NEWLINE tokens are emitted between list conjuncts
-     * DEDENT tokens are emitted after the final conjunct in a list
+     * INDENT tokens are emitted prior to the first junct in a list
+     * NEWLINE tokens are emitted between list juncts
+     * DEDENT tokens are emitted after the final junct in a list
      * 
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -395,37 +532,16 @@ namespace {
     bool scan(TSLexer* lexer, const bool* valid_symbols) {
       if (valid_symbols[INDENT] || valid_symbols[NEWLINE] || valid_symbols[DEDENT]) {
         while (has_next(lexer)) {
-          switch (next_codepoint(lexer)) {
-            case ' ': {
-              skip(lexer);
-              break;
-            } case '\t': {
-              skip(lexer);
-              break;
-            } case '\n': {
-              skip(lexer);
-              break;
-            } case '\r': {
-              skip(lexer);
-              break;
-            } case '∧': {
-              const column_index col = lexer->get_column(lexer);
-              lexer->mark_end(lexer);
-              return handle_land_token(lexer, valid_symbols, col);
-            } case '/': {
-              const column_index col = lexer->get_column(lexer);
-              lexer->mark_end(lexer);
-              advance(lexer);
-              if (next_codepoint_is(lexer, '\\')) {
-                return handle_land_token(lexer, valid_symbols, col);
-              } else {
-                // This is probably the division infix operator.
-                return handle_non_land_token(lexer, valid_symbols, col);
-              }
-            } default: {
-              const column_index col = lexer->get_column(lexer);
-              return handle_non_land_token(lexer, valid_symbols, col);
-            }
+          JunctType jtype;
+          column_index col;
+          if (is_whitespace(next_codepoint(lexer))) {
+            skip(lexer);
+          } else if(try_peek_junct_token(lexer, jtype, col)) {
+            return handle_junct_token(lexer, valid_symbols, jtype, col);
+          } else {
+            return is_in_jlist()
+              ? handle_non_junct_token(lexer, valid_symbols, col)
+              : false;
           }
         }
 

@@ -25,7 +25,8 @@ module.exports = grammar({
           $.identifier,
           $.parentheses,
           $.infix_op,
-          $.conj_list
+          $.conj_list,
+          $.disj_list
         ),
 
         number: $ => /\d+/,
@@ -36,6 +37,7 @@ module.exports = grammar({
 
         infix_op: $ => choice(
           prec.left(1, seq($._expr, $.land, $._expr)),
+          prec.left(1, seq($._expr, $.lor, $._expr)),
           prec.left(2, seq($._expr, $.add, $._expr)),
           prec.left(2, seq($._expr, $.subtract, $._expr)),
           prec.left(3, seq($._expr, $.multiply, $._expr)),
@@ -43,6 +45,7 @@ module.exports = grammar({
         ),
 
         land: $ => choice('/\\', '∧'),
+        lor: $ => choice('\\/', '∨'),
         add: $ => '+',
         subtract: $ => '-',
         multiply: $ => '*',
@@ -54,6 +57,14 @@ module.exports = grammar({
           $._dedent
         ),
 
-        conj_item: $ => seq($.land, $._expr)
+        conj_item: $ => seq($.land, $._expr),
+
+        disj_list: $ => seq(
+          $._indent, $.disj_item,
+          repeat(seq($._newline, $.disj_item)),
+          $._dedent
+        ),
+
+        disj_item: $ => seq($.lor, $._expr)
     }
 });
