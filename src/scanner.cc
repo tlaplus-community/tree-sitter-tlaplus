@@ -464,7 +464,7 @@ namespace {
            * this as an infix operator by terminating the current list.
            */
           assert(valid_symbols[DEDENT]);
-          lexer->result_symbol = DEDENT;
+          emit_dedent(lexer);
           return true;
         }
       } else {
