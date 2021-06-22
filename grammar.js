@@ -18,7 +18,7 @@ module.exports = grammar({
           $.identifier, '==', $._expr
         ),
 
-        identifier: $ => /[a-zA-Z][\w]+/,
+        identifier: $ => /[a-zA-Z]+/,
 
         _expr: $ => choice(
           $.number,
