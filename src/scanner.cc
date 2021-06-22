@@ -153,7 +153,8 @@ namespace {
 
   enum JunctType {
     CONJUNCTION,
-    DISJUNCTION
+    DISJUNCTION,
+    NOT_A_JUNCTION
   };
 
   /**
@@ -163,7 +164,7 @@ namespace {
    * - function sets out_token_start_col to start column of junction
    * - function returns true
    * If not:
-   * - function DOES NOT SET VALUE OF out_jtype
+   * - function sets out_jtype to NOT_A_JUNCTION
    * - function sets out_token_start_col to start column of junction
    * - function returns false
    * The function also marks the end of the codepoints consumed by the lexer
@@ -203,6 +204,7 @@ namespace {
       advance(lexer);
       return next_codepoint_is(lexer, '/');
     } else {
+      out_jtype = NOT_A_JUNCTION;
       out_token_start_col = lexer->get_column(lexer);
       return false;
     }
@@ -339,6 +341,11 @@ namespace {
         ? -1 : this->jlists.back().alignment_column;
     }
 
+    JunctType get_current_jlist_type() {
+      return this->jlists.empty()
+        ? NOT_A_JUNCTION : this->jlists.back().type;
+    }
+
     bool is_in_jlist() {
       return !jlists.empty();
     }
@@ -370,9 +377,13 @@ namespace {
       }
     }
 
-    void emit_indent(TSLexer* lexer, const column_index next) {
+    void emit_indent(
+      TSLexer* lexer,
+      const JunctType type,
+      const column_index next
+    ) {
       lexer->result_symbol = INDENT;
-      JunctList new_list(CONJUNCTION, next);
+      JunctList new_list(type, next);
       this->jlists.push_back(new_list);
     }
 
@@ -383,16 +394,21 @@ namespace {
 
     /**
      * Jlists are identified with the column position (cpos) of the first
-     * junct token in the list. For a given junct, there are four cases:
+     * junct token in the list, and the junction type. For a given junct
+     * token there are five possible interpretations:
      * 1. The junct is after the cpos of the current jlist, and an
      *    INDENT token is expected
      *    -> this is a new nested jlist, emit INDENT token
      * 2. The junct is after the cpos of the current jlist, and an
      *    INDENT token is *not* expected
      *    -> this is an infix junct operator; emit nothing
-     * 3. The junct is equal to the cpos of the current jlist
+     * 3. The junct is equal to the cpos of the current jlist, and is
+     *    the same junct type (conjunction or disjunction)
      *    -> this is an item of the current jlist; emit NEWLINE token
-     * 4. The junct is prior to the cpos of the current jlist
+     * 4. The junct is equal to the cpos of the current jlist, and is
+     *    a DIFFERENT junct type (conjunction vs. disjunction)
+     *    -> 
+     * 5. The junct is prior to the cpos of the current jlist
      *    -> this ends the current jlist, emit DEDENT token
      * 
      * @param lexer The tree-sitter lexing control structure.
@@ -404,22 +420,58 @@ namespace {
     bool handle_junct_token(
       TSLexer* lexer,
       const bool* valid_symbols,
-      const JunctType type,
-      const column_index next
+      const JunctType next_type,
+      const column_index next_col
     ) {
-      const column_index current = get_current_jlist_column_index();
-      if (current < next) {
+      const column_index current_col = get_current_jlist_column_index();
+      if (current_col < next_col) {
         if (valid_symbols[INDENT]) {
-          emit_indent(lexer, next);
+          /**
+           * The start of a new junction list!
+           */
+          emit_indent(lexer, next_type, next_col);
           return true;
         } else {
+          /**
+           * This is an infix junction symbol. Tree-sitter will only look for
+           * a new jlist at the start of an expression rule; infix operators
+           * occur when joining two expression rules together, so tree-sitter
+           * is only looking for either NEWLINE or DEDENT rules. Examples:
+           * 
+           *   /\ a /\ b
+           *       ^ tree-sitter will NEVER look for an INDENT here
+           * 
+           *   /\ a
+           *   /\ b
+           *  ^ tree-sitter WILL look for a NEWLINE here
+           * 
+           *   /\ /\ a
+           *     ^ tree-sitter WILL look for an INDENT here
+           */
           return false;
         }
-      } else if (current == next) {
-        assert(valid_symbols[NEWLINE]);
-        lexer->result_symbol = NEWLINE;
-        return true;
+      } else if (current_col == next_col) {
+        if (get_current_jlist_type() == next_type) {
+          /**
+           * This is another entry in the jlist.
+           */
+          assert(valid_symbols[NEWLINE]);
+          lexer->result_symbol = NEWLINE;
+          return true;
+        } else {
+          /** 
+           * Disjunct in alignment with conjunct list or vice-versa; treat
+           * this as an infix operator by terminating the current list.
+           */
+          assert(valid_symbols[DEDENT]);
+          lexer->result_symbol = DEDENT;
+          return true;
+        }
       } else {
+        /**
+         * Junct found prior to the alignment column of the current jlist.
+         * This marks the end of the jlist.
+         */
         assert(valid_symbols[DEDENT]);
         emit_dedent(lexer);
         return true;
