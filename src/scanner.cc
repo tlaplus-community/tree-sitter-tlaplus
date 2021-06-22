@@ -540,8 +540,7 @@ namespace {
             return handle_junct_token(lexer, valid_symbols, jtype, col);
           } else {
             return is_in_jlist()
-              ? handle_non_junct_token(lexer, valid_symbols, col)
-              : false;
+              && handle_non_junct_token(lexer, valid_symbols, col);
           }
         }
 

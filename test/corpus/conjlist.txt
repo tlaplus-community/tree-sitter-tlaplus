@@ -307,3 +307,147 @@ op ==
     )
   )
 )
+
+=============|||
+Not a Conjlist
+=============|||
+
+op == 1 /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (number)
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Conjlist with Parentheses
+=============|||
+
+op ==
+  /\ (1)
+  /\ (2)
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (parentheses (number)))
+      (conj_item (land) (parentheses (number)))
+    )
+  )
+)
+
+=============|||
+Conjlist Terminated by Parentheses
+=============|||
+
+op == (
+  /\ 1
+   )
+  /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (parentheses
+        (conj_list (conj_item (land) (number)))
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Nested Conjlist Terminated by Parentheses
+=============|||
+
+op == (
+  /\ 1
+  /\  /\ 2
+      /\ 3
+       )
+  /\ 4
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (parentheses
+        (conj_list
+          (conj_item (land) (number))
+          (conj_item
+            (land)
+            (conj_list
+              (conj_item (land) (number))
+              (conj_item (land) (number))
+            )
+          )
+        )
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Double-Nested Conjlist Terminated by Parentheses
+=============|||
+
+op ==
+  /\ 1
+  /\  /\ 2 + (
+        /\ 3
+        /\ 4
+          )
+      /\ 5
+  /\ 6
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item
+        (land)
+        (conj_list
+          (conj_item
+            (land)
+            (infix_op
+              (number)
+              (add)
+              (parentheses
+                (conj_list
+                  (conj_item (land) (number))
+                  (conj_item (land) (number))
+                )
+              )
+            )
+          )
+          (conj_item (land) (number))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+
