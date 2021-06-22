@@ -333,6 +333,8 @@ namespace {
           copied = jlists[i].deserialize(&buffer[offset], length - offset);
           offset += copied;
         }
+      } else {
+        jlists.clear();
       }
     }
 
@@ -544,6 +546,7 @@ namespace {
              * of this jlist. Mark the previous delimiter as matched.
              */
             jlists.back().contained_delimiters.pop_back();
+            return false;
           } else {
             /**
              * Mismatched delimiters! Example: [(])
