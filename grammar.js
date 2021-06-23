@@ -383,8 +383,8 @@ module.exports = grammar({
       $.label,
       $.subexpression,
       $.proof_step_id,
-      $.general_bound_op,
-      $.general_bound_nonfix_op,
+      $.bound_general_op,
+      $.bound_general_nonfix_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -415,8 +415,8 @@ module.exports = grammar({
     // Expressions allowed in subscripts; must be enclosed in delimiters
     // Used in WF_expr, <><<f>>_expr, etc.
     _subscript_expr: $ => choice(
-      $.general_bound_op,
-      $.general_bound_nonfix_op,
+      $.bound_general_op,
+      $.bound_general_nonfix_op,
       $.parentheses,
       $.finite_set_literal,
       $.set_filter,
@@ -431,11 +431,11 @@ module.exports = grammar({
       $.step_expr_no_stutter,
     ),
 
-    general_bound_op: $ => seq(
+    bound_general_op: $ => seq(
       optional($.subexpr_prefix), $.bound_op
     ),
 
-    general_bound_nonfix_op: $ => seq(
+    bound_general_nonfix_op: $ => seq(
       optional($.subexpr_prefix), $.bound_nonfix_op
     ),
 
