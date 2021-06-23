@@ -8,3 +8,4 @@ src
 build
 target
 Cargo.lock
+.vscode

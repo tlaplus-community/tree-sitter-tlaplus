@@ -57,6 +57,12 @@ function postfixOpPrec(level, expr, symbol) {
 module.exports = grammar({
   name: 'tlaplus',
 
+  externals: $ => [
+    $._indent,
+    $._newline,
+    $._dedent
+  ],
+
   extras: $ => [
     /\s|\r?\n/,
     $.single_line_comment,
@@ -66,10 +72,6 @@ module.exports = grammar({
   conflicts: $ => [
     // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
-    // Lookahead to disambiguate '/\'  •  '('  …
-    [$.bullet_conj, $.land],
-    // Lookahead to disambiguate '\/'  •  '('  …
-    [$.bullet_disj, $.lor],
     // Lookahead to disambiguate name  •  '('  …
     [$.identifier, $.label],
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
@@ -406,8 +408,8 @@ module.exports = grammar({
       $.if_then_else,
       $.case,
       $.let_in,
-      $.conj,
-      $.disj,
+      $.conj_list,
+      $.disj_list,
     ),
 
     // Expressions allowed in subscripts; must be enclosed in delimiters
@@ -630,13 +632,25 @@ module.exports = grammar({
 
     // /\ x
     // /\ y
-    // TODO: replace with context-sensitive parser
-    conj: $ => prec.left(repeat1(seq($.bullet_conj, $._expr))),
+    conj_list: $ => seq(
+      $._indent, $.conj_item,
+      repeat(seq($._newline, $.conj_item)),
+      $._dedent
+    ),
+
+    // /\ x
+    conj_item: $ => seq($.land, $._expr),
 
     // \/ x
     // \/ y
-    // TODO: replace with context-sensitive parser
-    disj: $ => prec.left(repeat1(seq($.bullet_disj, $._expr))),
+    disj_list: $ => seq(
+      $._indent, $.disj_item,
+      repeat(seq($._newline, $.disj_item)),
+      $._dedent
+    ),
+
+    // \\ x
+    disj_item: $ => seq($.lor, $._expr),
 
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */

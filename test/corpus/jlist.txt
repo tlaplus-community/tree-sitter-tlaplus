@@ -1,0 +1,135 @@
+=============|||
+Conjlist Followed by Disjunct
+=============|||
+
+op ==
+    /\ 1
+    /\ 2
+    \/ 3
+    
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (conj_list
+        (conj_item (land) (number))
+        (conj_item (land) (number))
+      )
+      (lor)
+      (number)
+    )
+  )
+)
+
+=============|||
+Disjlist Followed by Conjunct
+=============|||
+
+op ==
+    \/ 1
+    \/ 2
+    /\ 3
+    
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (disj_list
+        (disj_item (lor) (number))
+        (disj_item (lor) (number))
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Two Mismatched Jlists
+=============|||
+
+opA ==
+    /\ 1
+    /\ 2
+    \/ 3
+
+opB ==
+    \/ 1
+    \/ 2
+    /\ 3
+    
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (conj_list
+        (conj_item (land) (number))
+        (conj_item (land) (number))
+      )
+      (lor)
+      (number)
+    )
+  )
+  (unit
+    (identifier)
+    (infix_op
+      (disj_list
+        (disj_item (lor) (number))
+        (disj_item (lor) (number))
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Nested Alternating Jlists
+=============|||
+
+op ==
+  /\  \/ 1
+      \/ 2
+  /\  \/ 3
+      \/  /\ 4
+          /\ 5
+  /\ 6
+    
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (disj_list
+          (disj_item (lor) (number))
+          (disj_item (lor) (number))
+        )
+      )
+      (conj_item
+        (land)
+        (disj_list
+          (disj_item (lor) (number))
+          (disj_item
+            (lor)
+            (conj_list
+              (conj_item (land) (number))
+              (conj_item (land) (number))
+            )
+          )
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+

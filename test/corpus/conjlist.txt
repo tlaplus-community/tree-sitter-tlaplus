@@ -1,0 +1,479 @@
+=============|||
+Basic Conjlist
+=============|||
+
+op ==
+    /\ 1
+    /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Inline Conjlist
+=============|||
+
+op == /\ 1
+      /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Start-of-Line Conjlist
+=============|||
+
+op ==
+/\ 1
+/\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Left-Shifted Conjlist
+=============|||
+
+op ==
+ /\ 1
+/\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (conj_list (conj_item (land) (number)))
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Right-Shifted Conjlist
+=============|||
+
+op ==
+/\ 1
+ /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (infix_op
+          (number)
+          (land)
+          (number)
+        )
+      )
+    )
+  )
+)
+
+=============|||
+Separated Conjlist
+=============|||
+
+op ==
+  /\ 1
+
+  /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Multiline Conjlist
+=============|||
+
+op ==
+  /\ 
+   1
+  /\
+   2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Nested Conjlist
+=============|||
+
+op ==
+ /\ /\ 1
+    /\ 2
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (conj_list
+          (conj_item (land) (number))
+          (conj_item (land) (number))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Start-of-Line Nested Conjlist
+=============|||
+
+op ==
+/\ /\ A
+   /\ B
+/\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land)
+        (conj_list
+          (conj_item (land) (identifier))
+          (conj_item (land) (identifier))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+  + 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (infix_op
+          (number)
+          (add)
+          (number)
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Division Infix Op Conjlist
+=============|||
+
+op ==
+ /\ 1
+  / 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (infix_op
+          (number)
+          (divide)
+          (number)
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Infix Op Terminated Conjlist
+=============|||
+
+op ==
+ /\ 1
+ + 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (infix_op
+        (conj_list (conj_item (land) (number)))
+        (add)
+        (number)
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Division Infix Op Terminated Conjlist
+=============|||
+
+op ==
+ /\ 1
+ / 2 
+ /\ 3
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (infix_op
+        (conj_list (conj_item (land) (number)))
+        (divide)
+        (number)
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Not a Conjlist
+=============|||
+
+op == 1 /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (number)
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Conjlist with Parentheses
+=============|||
+
+op ==
+  /\ (1)
+  /\ (2)
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (parentheses (number)))
+      (conj_item (land) (parentheses (number)))
+    )
+  )
+)
+
+=============|||
+Conjlist Terminated by Parentheses
+=============|||
+
+op == (
+  /\ 1
+   )
+  /\ 2
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (parentheses
+        (conj_list (conj_item (land) (number)))
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Nested Conjlist Terminated by Parentheses
+=============|||
+
+op == (
+  /\ 1
+  /\  /\ 2
+      /\ 3
+       )
+  /\ 4
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (infix_op
+      (parentheses
+        (conj_list
+          (conj_item (land) (number))
+          (conj_item
+            (land)
+            (conj_list
+              (conj_item (land) (number))
+              (conj_item (land) (number))
+            )
+          )
+        )
+      )
+      (land)
+      (number)
+    )
+  )
+)
+
+=============|||
+Double-Nested Conjlist Terminated by Parentheses
+=============|||
+
+op ==
+  /\ 1
+  /\  /\ 2 + (
+        /\ 3
+        /\ 4
+          )
+      /\ 5
+  /\ 6
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item
+        (land)
+        (conj_list
+          (conj_item
+            (land)
+            (infix_op
+              (number)
+              (add)
+              (parentheses
+                (conj_list
+                  (conj_item (land) (number))
+                  (conj_item (land) (number))
+                )
+              )
+            )
+          )
+          (conj_item (land) (number))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+=============|||
+Overly-Permissive Conjlist Parentheses Parsing
+=============|||
+
+op ==
+  /\ 1
+  /\ (2 + 3
+)
+  /\ 4
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item
+        (land)
+        (parentheses
+          (infix_op (number) (add) (number))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
