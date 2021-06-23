@@ -2,414 +2,449 @@
 Basic Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
     /\ 1
     /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Inline Conjlist
 =============|||
 
+---- MODULE Test ----
 op == /\ 1
       /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Start-of-Line Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
 /\ 1
 /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Left-Shifted Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ 1
 /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
-      (conj_list (conj_item (land) (number)))
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (conj_list (conj_item (bullet_conj) (number (nat_number))))
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Right-Shifted Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
 /\ 1
  /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
       (conj_item
-        (land)
-        (infix_op
-          (number)
+        (bullet_conj)
+        (bound_infix_op
+          (number (nat_number))
           (land)
-          (number)
+          (number (nat_number))
         )
       )
     )
-  )
-)
+  ))
+))
 
 =============|||
 Separated Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
   /\ 1
 
   /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Multiline Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
   /\ 
    1
   /\
    2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Nested Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ /\ 1
     /\ 2
  /\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
       (conj_item
-        (land)
+        (bullet_conj)
         (conj_list
-          (conj_item (land) (number))
-          (conj_item (land) (number))
+          (conj_item (bullet_conj) (number (nat_number)))
+          (conj_item (bullet_conj) (number (nat_number)))
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Start-of-Line Nested Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
-/\ /\ A
-   /\ B
-/\ 2
+/\ /\ 1
+   /\ 2
+/\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land)
+      (conj_item (bullet_conj)
         (conj_list
-          (conj_item (land) (identifier))
-          (conj_item (land) (identifier))
+          (conj_item (bullet_conj) (number (nat_number)))
+          (conj_item (bullet_conj) (number (nat_number)))
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Infix Op Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ 1
   + 2 
  /\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
       (conj_item
-        (land)
-        (infix_op
-          (number)
-          (add)
-          (number)
+        (bullet_conj)
+        (bound_infix_op
+          (number (nat_number))
+          (plus)
+          (number (nat_number))
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Division Infix Op Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ 1
   / 2 
  /\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
       (conj_item
-        (land)
-        (infix_op
-          (number)
-          (divide)
-          (number)
+        (bullet_conj)
+        (bound_infix_op
+          (number (nat_number))
+          (slash)
+          (number (nat_number))
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Infix Op Terminated Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ 1
  + 2 
  /\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
-      (infix_op
-        (conj_list (conj_item (land) (number)))
-        (add)
-        (number)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (bound_infix_op
+        (conj_list (conj_item (bullet_conj) (number (nat_number))))
+        (plus)
+        (number (nat_number))
       )
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Division Infix Op Terminated Conjlist
 =============|||
 
+---- MODULE Test ----
 op ==
  /\ 1
  / 2 
  /\ 3
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
-      (infix_op
-        (conj_list (conj_item (land) (number)))
-        (divide)
-        (number)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (bound_infix_op
+        (conj_list (conj_item (bullet_conj) (number (nat_number))))
+        (slash)
+        (number (nat_number))
       )
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Not a Conjlist
 =============|||
 
+---- MODULE Test ----
 op == 1 /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
-      (number)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (number (nat_number))
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Conjlist with Parentheses
 =============|||
 
+---- MODULE Test ----
 op ==
   /\ (1)
   /\ (2)
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (parentheses (number)))
-      (conj_item (land) (parentheses (number)))
+      (conj_item (bullet_conj) (parentheses (number (nat_number))))
+      (conj_item (bullet_conj) (parentheses (number (nat_number))))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Conjlist Terminated by Parentheses
 =============|||
 
+---- MODULE Test ----
 op == (
   /\ 1
    )
   /\ 2
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
       (parentheses
-        (conj_list (conj_item (land) (number)))
+        (conj_list (conj_item (bullet_conj) (number (nat_number))))
       )
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Nested Conjlist Terminated by Parentheses
 =============|||
 
+---- MODULE Test ----
 op == (
   /\ 1
   /\  /\ 2
       /\ 3
        )
   /\ 4
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
-    (infix_op
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
       (parentheses
         (conj_list
-          (conj_item (land) (number))
+          (conj_item (bullet_conj) (number (nat_number)))
           (conj_item
-            (land)
+            (bullet_conj)
             (conj_list
-              (conj_item (land) (number))
-              (conj_item (land) (number))
+              (conj_item (bullet_conj) (number (nat_number)))
+              (conj_item (bullet_conj) (number (nat_number)))
             )
           )
         )
       )
       (land)
-      (number)
+      (number (nat_number))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Double-Nested Conjlist Terminated by Parentheses
 =============|||
 
+---- MODULE Test ----
 op ==
   /\ 1
   /\  /\ 2 + (
@@ -418,62 +453,67 @@ op ==
           )
       /\ 5
   /\ 6
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
       (conj_item
-        (land)
+        (bullet_conj)
         (conj_list
           (conj_item
-            (land)
-            (infix_op
-              (number)
-              (add)
+            (bullet_conj)
+            (bound_infix_op
+              (number (nat_number))
+              (plus)
               (parentheses
                 (conj_list
-                  (conj_item (land) (number))
-                  (conj_item (land) (number))
+                  (conj_item (bullet_conj) (number (nat_number)))
+                  (conj_item (bullet_conj) (number (nat_number)))
                 )
               )
             )
           )
-          (conj_item (land) (number))
+          (conj_item (bullet_conj) (number (nat_number)))
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))
 
 =============|||
 Overly-Permissive Conjlist Parentheses Parsing
 =============|||
 
+---- MODULE Test ----
 op ==
   /\ 1
   /\ (2 + 3
 )
   /\ 4
+====
 
 -------------|||
 
-(source_file
-  (unit
-    (identifier)
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
     (conj_list
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
       (conj_item
-        (land)
+        (bullet_conj)
         (parentheses
-          (infix_op (number) (add) (number))
+          (bound_infix_op
+            (number (nat_number)) (plus) (number (nat_number))
+          )
         )
       )
-      (conj_item (land) (number))
+      (conj_item (bullet_conj) (number (nat_number)))
     )
-  )
-)
+  ))
+))

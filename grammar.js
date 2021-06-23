@@ -630,6 +630,7 @@ module.exports = grammar({
       $._expr
     ),
 
+    // This makes use of the external scanner.
     // /\ x
     // /\ y
     conj_list: $ => seq(
@@ -639,8 +640,9 @@ module.exports = grammar({
     ),
 
     // /\ x
-    conj_item: $ => seq($.land, $._expr),
+    conj_item: $ => seq($.bullet_conj, $._expr),
 
+    // This makes use of the external scanner.
     // \/ x
     // \/ y
     disj_list: $ => seq(
@@ -650,7 +652,7 @@ module.exports = grammar({
     ),
 
     // \\ x
-    disj_item: $ => seq($.lor, $._expr),
+    disj_item: $ => seq($.bullet_disj, $._expr),
 
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
