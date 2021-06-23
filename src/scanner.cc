@@ -123,25 +123,11 @@ namespace {
     }
   }
 
-  bool is_left_delimiter(const DelimiterType delimiter) {
-    return delimiter == L_PARENTHESIS
-      || delimiter == L_SQUARE_BRACKET
-      || delimiter == L_CURLY_BRACE
-      || delimiter == L_ANGLE_BRACKET;
-  }
-
   bool is_right_delimiter(const DelimiterType delimiter) {
     return delimiter == R_PARENTHESIS
       || delimiter == R_SQUARE_BRACKET
       || delimiter == R_CURLY_BRACE
       || delimiter == R_ANGLE_BRACKET;
-  }
-
-  bool delimiter_match(const DelimiterType left, const DelimiterType right) {
-    return (left == L_PARENTHESIS && right == R_PARENTHESIS)
-      || (left == L_SQUARE_BRACKET && right == R_SQUARE_BRACKET)
-      || (left == L_CURLY_BRACE && right == R_CURLY_BRACE)
-      || (left == L_ANGLE_BRACKET && right == R_ANGLE_BRACKET);
   }
 
   bool is_unit_definition(TSLexer* lexer) {
@@ -213,7 +199,6 @@ namespace {
   struct JunctList {
     JunctType type;
     column_index alignment_column;
-    std::vector<DelimiterType> contained_delimiters;
 
     JunctList() { }
 
@@ -239,24 +224,12 @@ namespace {
       offset += copied;
       byte_count += copied;
 
-      // Serialize delimiters
-      const size_t delimiter_count = contained_delimiters.size();
-      assert(delimiter_count <= UINT8_MAX);
-      copied = sizeof(uint8_t);
-      buffer[offset] = static_cast<uint8_t>(delimiter_count);
-      offset += copied;
-      byte_count += copied;
-      for (int i = 0; i < delimiter_count; i++) {
-        copied = sizeof(uint8_t);
-        buffer[offset] = static_cast<uint8_t>(contained_delimiters[i]);
-        offset += copied;
-        byte_count += copied;
-      }
-
       return byte_count;
     }
 
     unsigned deserialize(const char* buffer, const unsigned length) {
+      assert(length > 0);
+
       size_t byte_count = 0;
       size_t offset = 0;
       size_t copied = 0;
@@ -273,19 +246,6 @@ namespace {
       offset += copied;
       byte_count += copied;
 
-      // Deserialize delimiters
-      copied = sizeof(uint8_t);
-      const size_t delimiter_count = static_cast<size_t>(buffer[offset]);
-      offset += copied;
-      byte_count += copied;
-      contained_delimiters.resize(delimiter_count);
-      for (int i = 0; i < delimiter_count; i++) {
-        copied = sizeof(uint8_t);
-        contained_delimiters.push_back(DelimiterType(buffer[offset]));
-        offset += copied;
-        byte_count += copied;
-      }
-
       return byte_count;
     }
   };
@@ -298,12 +258,12 @@ namespace {
       deserialize(NULL, 0);
     }
 
-    // Support nested conjlists up to 256 deep
     unsigned serialize(char* buffer) {
       size_t offset = 0;
       size_t byte_count = 0;
       size_t copied = 0;
 
+      // Support nested conjlists up to 256 deep
       const size_t jlist_depth = jlists.size();
       assert(jlist_depth <= UINT8_MAX);
       copied = sizeof(uint8_t);
@@ -329,10 +289,12 @@ namespace {
         jlists.resize(jlist_depth);
         offset += copied;
         for (int i = 0; i < jlist_depth; i++) {
-          assert(offset <= length);
+          assert(offset < length);
           copied = jlists[i].deserialize(&buffer[offset], length - offset);
           offset += copied;
         }
+
+        assert(offset == length);
       } else {
         jlists.clear();
       }
@@ -350,12 +312,6 @@ namespace {
 
     bool is_in_jlist() {
       return !jlists.empty();
-    }
-
-    void push_delimiter(const DelimiterType type) {
-      if (!jlists.empty()) {
-        jlists.back().contained_delimiters.push_back(type);
-      }
     }
 
     std::vector<int32_t> next_token(TSLexer* lexer) {
@@ -518,45 +474,48 @@ namespace {
         return true;
       } else {
         const DelimiterType delimiter = delimiter_type(lexer);
-        if (is_left_delimiter(delimiter)) {
+        if (is_right_delimiter(delimiter)) {
           /**
-           * Left delimiter encountered; record its presence within the scope
-           * of this jlist and wait to encounter a right counterpart.
+           * Previously I implemented complicated logic using a stack to keep
+           * track of all the delimiters that have been seen (and their
+           * pairs) but found that tree-sitter would never trigger the
+           * external scanner before encountering a right delimiter matching
+           * a left delimiter that started within the scope of a jlist. Thus
+           * we can assume that when we *do* see a right delimiter, it
+           * matches a left delimiter that occurred prior to the start of the
+           * jlist, so we can emit a DEDENT token to end the jlist. Example:
+           * 
+           *    /\ ( a + b )
+           *              ^ tree-sitter will never look for an INDENT,
+           *                NEWLINE, or DEDENT token here; it is only
+           *                looking for another infix operator or the
+           *                right-delimiter.
+           * 
+           *    ( /\ a + b )
+           *              ^ tree-sitter WILL look for an INDENT, NEWLINE, or
+           *                DEDENT token here in addition to looking for an
+           *                infix operator; it also wants to see a DEDENT
+           *                token before seeing the right delimiter, although
+           *                error recovery is simple enough that it would
+           *                barely notice its absence.
+           * 
+           * One side-effect of this is that tree-sitter parses certain
+           * arrangements of jlists and delimiters that are actually illegal
+           * according to TLA+ syntax rules; that is okay since tree-sitter's
+           * use case of error-tolerant editor tooling ensures its design
+           * errs on the side of being overly-permissive. For a concrete
+           * example here, tree-sitter will parse this illegal expression
+           * without complaint:
+           * 
+           *    /\ A
+           *    /\ (B + C
+           *  )
+           *    /\ D
            */
-          push_delimiter(delimiter);
-          return false;
-        } else if (is_right_delimiter(delimiter)) {
-          if (jlists.back().contained_delimiters.empty()) {
-            /**
-             * There have been no left-delimiters within this jlist; assume
-             * the encountered right-delimiter matches a delimiter prior to
-             * the start of this jlist, and mark its end with a DEDENT.
-             */
-            assert(valid_symbols[DEDENT]);
-            emit_dedent(lexer);
-            return true;
-          } else if (
-            delimiter_match(
-              delimiter,
-              jlists.back().contained_delimiters.back())
-          ) {
-            /**
-             * The encountered delimiter matches a delimiter previously
-             * encountered within this jlist, thus it does not mark the end
-             * of this jlist. Mark the previous delimiter as matched.
-             */
-            jlists.back().contained_delimiters.pop_back();
-            return false;
-          } else {
-            /**
-             * Mismatched delimiters! Example: [(])
-             * This is a parse error. Do nothing; let tree-sitter handle
-             * error recovery.
-             */
-            return false;
-          }
-        } else /* NOT_A_DELIMITER */ {
-          if (is_unit_definition(lexer)) {
+          assert(valid_symbols[DEDENT]);
+          emit_dedent(lexer);
+          return true;
+        } else if (delimiter == NOT_A_DELIMITER && is_unit_definition(lexer)) {
             /**
              * We've encountered a new unit definition, so override all
              * alignment logic and end the jlist.
@@ -564,13 +523,12 @@ namespace {
             assert(valid_symbols[DEDENT]);
             emit_dedent(lexer);
             return true;
-          } else {
-            /**
-             * The token encountered must be part of the expression in this
-             * jlist item; ignore it.
-             */
-            return false;
-          }
+        } else {
+          /**
+           * The token encountered must be part of the expression in this
+           * jlist item; ignore it.
+           */
+          return false;
         }
       }
     }
