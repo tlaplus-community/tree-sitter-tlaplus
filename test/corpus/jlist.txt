@@ -88,3 +88,48 @@ opB ==
     )
   )
 )
+
+=============|||
+Nested Alternating Jlists
+=============|||
+
+op ==
+  /\  \/ 1
+      \/ 2
+  /\  \/ 3
+      \/  /\ 4
+          /\ 5
+  /\ 6
+    
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item
+        (land)
+        (disj_list
+          (disj_item (lor) (number))
+          (disj_item (lor) (number))
+        )
+      )
+      (conj_item
+        (land)
+        (disj_list
+          (disj_item (lor) (number))
+          (disj_item
+            (lor)
+            (conj_list
+              (conj_item (land) (number))
+              (conj_item (land) (number))
+            )
+          )
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
+
+

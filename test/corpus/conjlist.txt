@@ -450,4 +450,30 @@ op ==
   )
 )
 
+=============|||
+Overly-Permissive Conjlist Parentheses Parsing
+=============|||
 
+op ==
+  /\ 1
+  /\ (2 + 3
+)
+  /\ 4
+
+-------------|||
+
+(source_file
+  (unit
+    (identifier)
+    (conj_list
+      (conj_item (land) (number))
+      (conj_item
+        (land)
+        (parentheses
+          (infix_op (number) (add) (number))
+        )
+      )
+      (conj_item (land) (number))
+    )
+  )
+)
