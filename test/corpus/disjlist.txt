@@ -517,3 +517,25 @@ op ==
     )
   ))
 ))
+
+=============|||
+Module-End-Terminated Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/ 2  ====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+

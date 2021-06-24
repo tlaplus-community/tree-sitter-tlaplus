@@ -517,3 +517,25 @@ op ==
     )
   ))
 ))
+
+=============|||
+Module-End-Terminated Conjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+  /\ 2  ====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+))
+

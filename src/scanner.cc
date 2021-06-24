@@ -1,6 +1,5 @@
 #include <tree_sitter/parser.h>
 #include <cassert>
-#include <cstring>
 #include <vector>
 
 namespace {
@@ -89,7 +88,7 @@ namespace {
    */
   bool next_token_is(
     TSLexer* const lexer,
-    const std::vector<int32_t>& const token
+    const std::vector<int32_t>& token
   ) {
     for (auto codepoint : token) {
       if (!next_codepoint_is(lexer, codepoint)) {
@@ -126,10 +125,10 @@ namespace {
     OTHER             // Tokens not requiring special handling logic.
   };
 
-  static std::vector<int32_t> LAND_TOKEN = {'/', '\\'};
-  static std::vector<int32_t> LOR_TOKEN = {'\\', '/'};
-  static std::vector<int32_t> R_ANGLE_BRACKET_TOKEN = {'>', '>'};
-  static std::vector<int32_t> MODULE_END_TOKEN = {'=', '=', '=', '='};
+  static const std::vector<int32_t> LAND_TOKEN = {'/', '\\'};
+  static const std::vector<int32_t> LOR_TOKEN = {'\\', '/'};
+  static const std::vector<int32_t> R_ANGLE_BRACKET_TOKEN = {'>', '>'};
+  static const std::vector<int32_t> MODULE_END_TOKEN = {'=', '=', '=', '='};
 
   using column_index = int16_t;
 
