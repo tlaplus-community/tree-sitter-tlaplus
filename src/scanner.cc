@@ -280,6 +280,7 @@ namespace {
     }
 
     void deserialize(const char* buffer, const unsigned length) {
+      jlists.clear();
       if (length > 0) {
         size_t offset = 0;
         size_t copied = 0;
@@ -295,8 +296,6 @@ namespace {
         }
 
         assert(offset == length);
-      } else {
-        jlists.clear();
       }
     }
 
