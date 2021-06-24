@@ -1,0 +1,141 @@
+=============|||
+Conjlist Followed by Disjunct
+=============|||
+
+---- MODULE Test ----
+op ==
+    /\ 1
+    /\ 2
+    \/ 3
+====
+    
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (conj_list
+        (conj_item (bullet_conj) (number (nat_number)))
+        (conj_item (bullet_conj) (number (nat_number)))
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Disjlist Followed by Conjunct
+=============|||
+
+---- MODULE Test ----
+op ==
+    \/ 1
+    \/ 2
+    /\ 3
+====
+    
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (disj_list
+        (disj_item (bullet_disj) (number (nat_number)))
+        (disj_item (bullet_disj) (number (nat_number)))
+      )
+      (land)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Two Mismatched Jlists
+=============|||
+
+---- MODULE Test ----
+opA ==
+    /\ 1
+    /\ 2
+    \/ 3
+
+opB ==
+    \/ 1
+    \/ 2
+    /\ 3
+====
+    
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (conj_list
+        (conj_item (bullet_conj) (number (nat_number)))
+        (conj_item (bullet_conj) (number (nat_number)))
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (disj_list
+        (disj_item (bullet_disj) (number (nat_number)))
+        (disj_item (bullet_disj) (number (nat_number)))
+      )
+      (land)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Nested Alternating Jlists
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\  \/ 1
+      \/ 2
+  /\  \/ 3
+      \/  /\ 4
+          /\ 5
+  /\ 6
+====
+    
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (conj_list
+      (conj_item
+        (bullet_conj)
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item (bullet_disj) (number (nat_number)))
+        )
+      )
+      (conj_item
+        (bullet_conj)
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item
+            (bullet_disj)
+            (conj_list
+              (conj_item (bullet_conj) (number (nat_number)))
+              (conj_item (bullet_conj) (number (nat_number)))
+            )
+          )
+        )
+      )
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+))

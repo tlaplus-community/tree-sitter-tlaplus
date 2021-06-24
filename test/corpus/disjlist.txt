@@ -1,0 +1,541 @@
+=============|||
+Basic Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+    \/ 1
+    \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Inline Disjlist
+=============|||
+
+---- MODULE Test ----
+op == \/ 1
+      \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Start-of-Line Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+\/ 1
+\/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Left-Shifted Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ 1
+\/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (disj_list (disj_item (bullet_disj) (number (nat_number))))
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Right-Shifted Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+\/ 1
+ \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (bound_infix_op
+          (number (nat_number))
+          (lor)
+          (number (nat_number))
+        )
+      )
+    )
+  ))
+))
+
+=============|||
+Separated Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+
+  \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Multiline Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 
+   1
+  \/
+   2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Nested Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ \/ 1
+    \/ 2
+ \/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item (bullet_disj) (number (nat_number)))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Start-of-Line Nested Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+\/ \/ 1
+   \/ 2
+\/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj)
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item (bullet_disj) (number (nat_number)))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Infix Op Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ 1
+  + 2 
+ \/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (bound_infix_op
+          (number (nat_number))
+          (plus)
+          (number (nat_number))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Division Infix Op Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ 1
+  / 2 
+ \/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (bound_infix_op
+          (number (nat_number))
+          (slash)
+          (number (nat_number))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Infix Op Terminated Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ 1
+ + 2 
+ \/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (bound_infix_op
+        (disj_list (disj_item (bullet_disj) (number (nat_number))))
+        (plus)
+        (number (nat_number))
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Division Infix Op Terminated Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+ \/ 1
+ / 2 
+ \/ 3
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (bound_infix_op
+        (disj_list (disj_item (bullet_disj) (number (nat_number))))
+        (slash)
+        (number (nat_number))
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Not a Disjlist
+=============|||
+
+---- MODULE Test ----
+op == 1 \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (number (nat_number))
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Disjlist with Parentheses
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ (1)
+  \/ (2)
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (parentheses (number (nat_number))))
+      (disj_item (bullet_disj) (parentheses (number (nat_number))))
+    )
+  ))
+))
+
+=============|||
+Disjlist Terminated by Parentheses
+=============|||
+
+---- MODULE Test ----
+op == (
+  \/ 1
+   )
+  \/ 2
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (parentheses
+        (disj_list (disj_item (bullet_disj) (number (nat_number))))
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Nested Disjlist Terminated by Parentheses
+=============|||
+
+---- MODULE Test ----
+op == (
+  \/ 1
+  \/  \/ 2
+      \/ 3
+       )
+  \/ 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (bound_infix_op
+      (parentheses
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item
+            (bullet_disj)
+            (disj_list
+              (disj_item (bullet_disj) (number (nat_number)))
+              (disj_item (bullet_disj) (number (nat_number)))
+            )
+          )
+        )
+      )
+      (lor)
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Double-Nested Disjlist Terminated by Parentheses
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/  \/ 2 + (
+        \/ 3
+        \/ 4
+          )
+      \/ 5
+  \/ 6
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item
+        (bullet_disj)
+        (disj_list
+          (disj_item
+            (bullet_disj)
+            (bound_infix_op
+              (number (nat_number))
+              (plus)
+              (parentheses
+                (disj_list
+                  (disj_item (bullet_disj) (number (nat_number)))
+                  (disj_item (bullet_disj) (number (nat_number)))
+                )
+              )
+            )
+          )
+          (disj_item (bullet_disj) (number (nat_number)))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Overly-Permissive Disjlist Parentheses Parsing
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/ (2 + 3
+)
+  \/ 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item
+        (bullet_disj)
+        (parentheses
+          (bound_infix_op
+            (number (nat_number)) (plus) (number (nat_number))
+          )
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Module-End-Terminated Disjlist
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/ 2  ====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
