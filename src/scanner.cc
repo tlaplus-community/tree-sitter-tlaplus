@@ -86,7 +86,7 @@ namespace {
    * @param lexer The tree-sitter lexing control structure.
    * @return Whether the next token is the one given.
    */
-  bool next_token_is(
+  bool is_next_token(
     TSLexer* const lexer,
     const std::vector<int32_t>& token
   ) {
@@ -99,6 +99,17 @@ namespace {
     }
 
     return true;
+  }
+
+  /**
+   * Checks whether the next token is a module-level unit.
+   * TODO: implement this logic
+   * 
+   * @param lexer the tree-sitter lexing control structure.
+   * @return Whether the next token is a unit.
+   */
+  bool is_next_token_unit(TSLexer* const lexer) {
+    return false;
   }
 
   /**
@@ -119,7 +130,7 @@ namespace {
     LAND,             // /\ or ∧
     LOR,              // \/ or ∨
     RIGHT_DELIMITER,  // ), ], }, 〉, or >>
-    UNIT_DEFINITION,  // op == expr, etc.
+    UNIT,             // op == expr, etc.
     MODULE_END,       // ====
     END_OF_FILE,      // The end of the file.
     OTHER             // Tokens not requiring special handling logic.
@@ -134,7 +145,6 @@ namespace {
 
   /**
    * Scans for & identifies the next interesting token.
-   * TODO: implement UNIT_DEFINITION identification logic.
    * 
    * @param lexer The tree-sitter lexing control structure.
    * @param out_col Out parameter; the column of the identified token.
@@ -147,27 +157,28 @@ namespace {
     consume_whitespace(lexer);
     lexer->mark_end(lexer);
     out_col = lexer->get_column(lexer);
-    int32_t next = next_codepoint(lexer);
+
     if (!has_next(lexer)) {
       return END_OF_FILE;
     }
 
-    switch (next) {
+    switch (next_codepoint(lexer)) {
       case '∧': return LAND;
-      case '/': return next_token_is(lexer, LAND_TOKEN) ? LAND : OTHER;
+      case '/': return is_next_token(lexer, LAND_TOKEN) ? LAND : OTHER;
       case '∨': return LOR;
-      case '\\': return next_token_is(lexer, LOR_TOKEN) ? LOR : OTHER;
+      case '\\': return is_next_token(lexer, LOR_TOKEN) ? LOR : OTHER;
       case ')': return RIGHT_DELIMITER;
       case ']': return RIGHT_DELIMITER;
       case '}': return RIGHT_DELIMITER;
       case '〉': return RIGHT_DELIMITER;
       case '>':
-        return next_token_is(lexer, R_ANGLE_BRACKET_TOKEN)
+        return is_next_token(lexer, R_ANGLE_BRACKET_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
       case '=':
-        return next_token_is(lexer, MODULE_END_TOKEN)
+        return is_next_token(lexer, MODULE_END_TOKEN)
           ? MODULE_END : OTHER;
-      default: return OTHER;
+      default:
+        return is_next_token_unit(lexer) ? UNIT : OTHER;
     }
   }
 
@@ -584,7 +595,7 @@ namespace {
             return handle_junct_token(lexer, valid_symbols, DISJUNCTION, col);
           case RIGHT_DELIMITER:
             return handle_right_delimiter_token(lexer, valid_symbols, col);
-          case UNIT_DEFINITION:
+          case UNIT:
             return handle_terminator_token(lexer, valid_symbols);
           case MODULE_END:
             return handle_terminator_token(lexer, valid_symbols);
