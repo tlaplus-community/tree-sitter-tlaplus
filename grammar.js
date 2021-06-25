@@ -379,6 +379,7 @@ module.exports = grammar({
       $.number,
       $.string,
       $.boolean,
+      $.primitive_value_set,
       $.parentheses,
       $.label,
       $.subexpression,
@@ -452,10 +453,13 @@ module.exports = grammar({
     hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
-    string: $ => choice(/\".*\"/, 'STRING'),
+    string: $ => /\".*\"/,
 
     // TRUE, FALSE, BOOLEAN
-    boolean: $ => choice('TRUE', 'FALSE', 'BOOLEAN'),
+    boolean: $ => choice('TRUE', 'FALSE'),
+
+    // Set of all strings, booleans
+    primitive_value_set: $ => choice('STRING', 'BOOLEAN'),
 
     label: $ => seq(
       arity0OrN($.name, $.identifier),
