@@ -46,8 +46,8 @@
 "SUFFICES"      @keyword
 "TAKE"          @keyword
 "TEMPORAL"      @keyword
-"THEOREM"       @keyword
 "THEN"          @keyword
+"THEOREM"       @keyword
 "UNCHANGED"     @keyword
 "UNION"         @keyword
 "USE"           @keyword
