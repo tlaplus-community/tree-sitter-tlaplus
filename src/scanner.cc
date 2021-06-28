@@ -347,8 +347,9 @@ namespace {
      * @param lexer The tree-sitter lexing control structure.
      * @param type The type of the new jlist.
      * @param col The column position of the new jlist.
+     * @return Whether an INDENT token was emitted.
      */
-    void emit_indent(
+    bool emit_indent(
       TSLexer* const lexer,
       JunctType const type,
       column_index const col
@@ -356,16 +357,31 @@ namespace {
       lexer->result_symbol = INDENT;
       JunctList new_list(type, col);
       this->jlists.push_back(new_list);
+      return true;
     }
 
     /**
-     * Emits a DEDENT token.
+     * Emits a NEWLINE token, marking the start of a new entry in the
+     * current jlist.
+     *
+     * @param lexer The tree-sitter lexing control structure.
+     * @return Whether a NEWLINE token was emitted.
+     */
+    bool emit_newline(TSLexer* const lexer) {
+      lexer->result_symbol = NEWLINE;
+      return true;
+    }
+
+    /**
+     * Emits a DEDENT token, removing a jlist from the Scanner state.
      * 
      * @param lexer The tree-sitter lexing control structure.
+     * @return Whether a DEDENT token was emitted.
      */
-    void emit_dedent(TSLexer* const lexer) {
+    bool emit_dedent(TSLexer* const lexer) {
       lexer->result_symbol = DEDENT;
       this->jlists.pop_back();
+      return true;
     }
 
     /**
@@ -405,8 +421,7 @@ namespace {
           /**
            * The start of a new junction list!
            */
-          emit_indent(lexer, next_type, next_col);
-          return true;
+          return emit_indent(lexer, next_type, next_col);
         } else {
           /**
            * This is an infix junction symbol. Tree-sitter will only look for
@@ -432,16 +447,14 @@ namespace {
            * This is another entry in the jlist.
            */
           assert(valid_symbols[NEWLINE]);
-          lexer->result_symbol = NEWLINE;
-          return true;
+          return emit_newline(lexer);
         } else {
           /** 
            * Disjunct in alignment with conjunct list or vice-versa; treat
            * this as an infix operator by terminating the current list.
            */
           assert(valid_symbols[DEDENT]);
-          emit_dedent(lexer);
-          return true;
+          return emit_dedent(lexer);
         }
       } else {
         /**
@@ -449,8 +462,7 @@ namespace {
          * This marks the end of the jlist.
          */
         assert(valid_symbols[DEDENT]);
-        emit_dedent(lexer);
-        return true;
+        return emit_dedent(lexer);
       }
     }
 
@@ -482,7 +494,31 @@ namespace {
      *                error recovery is simple enough that it would
      *                barely notice its absence.
      * 
-     * One side-effect of this is that tree-sitter parses certain
+     * There are a few notable examples to this rule; for example, the empty
+     * set or empty sequence:
+     * 
+     *    /\  { }
+     *    /\ << >>
+     *         ^ there is the option for an expression here, so tree-sitter
+     *           looks for INDENT tokens and we will see a right delimiter
+     *           in this external scanner.
+     * 
+     * Another example when the code is in a non-parseable state which we
+     * nonetheless wish to handle gracefully:
+     * 
+     *    /\ [x \in S |-> ]
+     *                   ^ user is about to write an expression here, but
+     *                     there is a time when the code is non-parseable;
+     *                     tree-sitter will again look for an INDENT token
+     *                     and we will see a right delimiter in this
+     *                     external scanner.
+     * 
+     * The easy solution to these cases is to simply check whether
+     * tree-sitter is looking for a DEDENT token. If so, emit one; if not,
+     * emit nothing. Tree-sitter will not look for a DEDENT token inside
+     * enclosing delimiters within the scope of a jlist.
+     * 
+     * One side-effect of all this is that tree-sitter parses certain
      * arrangements of jlists and delimiters that are actually illegal
      * according to TLA+ syntax rules; that is okay since tree-sitter's
      * use case of error-tolerant editor tooling ensures its design
@@ -494,19 +530,17 @@ namespace {
      *    /\ (B + C
      *  )
      *    /\ D
+     * 
+     * This should simply be detected as an error at the semantic level.
      */
     bool handle_right_delimiter_token(
       TSLexer* const lexer,
       const bool* const valid_symbols,
       column_index const next
     ) {
-      if (is_in_jlist()) {
-        assert(valid_symbols[DEDENT]);
-        emit_dedent(lexer);
-        return true;
-      } else {
-        return false;
-      }
+      return is_in_jlist()
+        && valid_symbols[DEDENT]
+        && emit_dedent(lexer);
     }
 
     /**
@@ -524,8 +558,7 @@ namespace {
     ) {
       if (is_in_jlist()) {
         assert(valid_symbols[DEDENT]);
-        emit_dedent(lexer);
-        return true;
+        return emit_dedent(lexer);
       } {
         return false;
       }
@@ -562,8 +595,7 @@ namespace {
          * the current jlist has ended, so emit a DEDENT token.
          */
         assert(valid_symbols[DEDENT]);
-        emit_dedent(lexer);
-        return true;
+        return emit_dedent(lexer);
       } else {
         /**
          * The token encountered must be part of the expression in this
