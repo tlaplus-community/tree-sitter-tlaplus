@@ -665,7 +665,7 @@ module.exports = grammar({
     // Prefix operator symbols and their unicode equivalents
     lnot:             $ => choice('\\lnot', '\\neg', '~', '¬'),
     union:            $ => 'UNION',
-    subset:           $ => 'SUBSET',
+    powerset:         $ => 'SUBSET',
     domain:           $ => 'DOMAIN',
     negative:         $ => '-',
     enabled:          $ => 'ENABLED',
@@ -674,7 +674,7 @@ module.exports = grammar({
     eventually:       $ => choice('<>', '⋄'),
 
     _prefix_op_symbol_except_negative: $ => choice(
-      $.lnot,     $.union,      $.subset,     $.domain,
+      $.lnot,     $.union,      $.powerset,   $.domain,
       $.enabled,  $.unchanged,  $.always,     $.eventually
     ),
 
@@ -689,7 +689,7 @@ module.exports = grammar({
     // Prefix operators are given highest value in precedence range
     bound_prefix_op: $ => choice(
       prefixOpPrec(4,   $._expr,  $.lnot),
-      prefixOpPrec(8,   $._expr, choice($.union, $.subset)),
+      prefixOpPrec(8,   $._expr, choice($.union, $.powerset)),
       prefixOpPrec(9,   $._expr, $.domain),
       prefixOpPrec(12,  $._expr, $.negative),
       prefixOpPrec(15,  $._expr, choice(
