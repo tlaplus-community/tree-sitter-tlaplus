@@ -539,3 +539,185 @@ op ==
   ))
 ))
 
+=============|||
+Disjlist with Empty Tuple
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/ <<>>
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (tuple_literal (langle_bracket) (rangle_bracket)))
+    )
+  ))
+))
+
+=============|||
+Disjlist with Empty Set
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+  \/ {}
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (finite_set_literal))
+    )
+  ))
+))
+
+=============|||
+Disjlist with ITE
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/  IF 1
+      THEN 2
+      ELSE 3
+  \/ 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (if_then_else
+          (number (nat_number))
+          (number (nat_number))
+          (number (nat_number))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Disjlist inside ITE
+=============|||
+
+---- MODULE Test ----
+op ==
+  IF
+    \/ 1
+    \/ 2
+      THEN 3
+      ELSE 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (if_then_else
+      (disj_list
+        (disj_item (bullet_disj) (number (nat_number)))
+        (disj_item (bullet_disj) (number (nat_number)))
+      )
+      (number (nat_number))
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Disjlist with CASE
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/  CASE 1 -> 2
+      [] 3 -> 2
+      [] OTHER -> 5
+  \/ 6
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (case
+          (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+          (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+          (case_box) (other_arm (case_arrow) (number (nat_number)))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Disjlist inside CASE
+=============|||
+
+---- MODULE Test ----
+op ==
+  CASE
+    \/ 1
+    \/ 2
+      ->
+        \/ 3
+        \/ 4
+  []
+    \/ 5
+    \/ 6
+      ->
+        \/ 7
+        \/ 8
+  [] OTHER ->
+    \/ 7
+    \/ 8
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (case
+      (case_arm
+        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (case_arrow)
+        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+      )
+      (case_box)
+      (case_arm
+        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (case_arrow)
+        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+      )
+      (case_box)
+      (other_arm (case_arrow)
+        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+      )
+    )
+  ))
+))

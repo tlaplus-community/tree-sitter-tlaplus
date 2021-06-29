@@ -1,5 +1,3 @@
 ---- MODULE Test ----
-op ==
-    /\ 1
-    /\ 2
+op == SUBSET x
 ====

@@ -140,6 +140,9 @@ namespace {
   static const std::vector<int32_t> LOR_TOKEN = {'\\', '/'};
   static const std::vector<int32_t> R_ANGLE_BRACKET_TOKEN = {'>', '>'};
   static const std::vector<int32_t> MODULE_END_TOKEN = {'=', '=', '=', '='};
+  static const std::vector<int32_t> THEN_TOKEN = {'T', 'H', 'E', 'N'};
+  static const std::vector<int32_t> ELSE_TOKEN = {'E', 'L', 'S', 'E'};
+  static const std::vector<int32_t> CASE_ARROW_TOKEN = {'-', '>'};
 
   using column_index = int16_t;
 
@@ -171,6 +174,15 @@ namespace {
       case ']': return RIGHT_DELIMITER;
       case '}': return RIGHT_DELIMITER;
       case '〉': return RIGHT_DELIMITER;
+      case 'T': // IF/THEN
+        return is_next_token(lexer, THEN_TOKEN)
+          ? RIGHT_DELIMITER : OTHER;
+      case 'E': // THEN/ELSE
+        return is_next_token(lexer, ELSE_TOKEN)
+          ? RIGHT_DELIMITER : OTHER;
+      case '-': // CASE/-> or []/->
+        return is_next_token(lexer, CASE_ARROW_TOKEN)
+          ? RIGHT_DELIMITER : OTHER;
       case '>':
         return is_next_token(lexer, R_ANGLE_BRACKET_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
@@ -469,7 +481,10 @@ namespace {
     /**
      * If a given right delimiter matches some left delimiter that occurred
      * *before* the beginning of the current jlist, then that ends the
-     * current jlist.
+     * current jlist. The concept of a delimiter is not limited (hah) to
+     * (), [], <<>>, and {}; it also includes IF/THEN, THEN/ELSE, CASE/->,
+     * and basically every other language construct where an expression is
+     * squeezed between a known start & end token.
      * 
      * Previously I implemented complicated logic using a stack to keep
      * track of all the delimiters that have been seen (and their
@@ -494,10 +509,11 @@ namespace {
      *                error recovery is simple enough that it would
      *                barely notice its absence.
      * 
-     * There are a few notable examples to this rule; for example, the empty
-     * set or empty sequence:
+     * There are a few notable exceptions to this rule; for example, the
+     * empty set or empty sequence:
      * 
      *    /\  { }
+     *         ^
      *    /\ << >>
      *         ^ there is the option for an expression here, so tree-sitter
      *           looks for INDENT tokens and we will see a right delimiter
