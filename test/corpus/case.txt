@@ -1,0 +1,23 @@
+=============|||
+Basic CASE
+=============|||
+
+---- MODULE Test ----
+op ==
+    CASE 1 -> 2
+    [] 3 -> 4
+    [] OTHER -> 5
+====
+
+--------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (case
+      (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+      (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+      (case_box) (other_arm (case_arrow) (number (nat_number)))
+    )
+  ))
+))

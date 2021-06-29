@@ -561,3 +561,163 @@ op ==
   ))
 ))
 
+=============|||
+Conjlist with Empty Set
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+  /\ {}
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (finite_set_literal))
+    )
+  ))
+))
+
+=============|||
+Conjlist with ITE
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\  IF 1
+      THEN 2
+      ELSE 3
+  /\ 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (conj_list
+      (conj_item
+        (bullet_conj)
+        (if_then_else
+          (number (nat_number))
+          (number (nat_number))
+          (number (nat_number))
+        )
+      )
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Conjlist inside ITE
+=============|||
+
+---- MODULE Test ----
+op ==
+  IF
+    /\ 1
+    /\ 2
+      THEN 3
+      ELSE 4
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (if_then_else
+      (conj_list
+        (conj_item (bullet_conj) (number (nat_number)))
+        (conj_item (bullet_conj) (number (nat_number)))
+      )
+      (number (nat_number))
+      (number (nat_number))
+    )
+  ))
+))
+
+=============|||
+Conjlist with CASE
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\  CASE 1 -> 2
+      [] 3 -> 2
+      [] OTHER -> 5
+  /\ 6
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (conj_list
+      (conj_item
+        (bullet_conj)
+        (case
+          (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+          (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
+          (case_box) (other_arm (case_arrow) (number (nat_number)))
+        )
+      )
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+))
+
+=============|||
+Conjlist inside CASE
+=============|||
+
+---- MODULE Test ----
+op ==
+  CASE
+    /\ 1
+    /\ 2
+      ->
+        /\ 3
+        /\ 4
+  []
+    /\ 5
+    /\ 6
+      ->
+        /\ 7
+        /\ 8
+  [] OTHER ->
+    /\ 7
+    /\ 8
+====
+
+-------------|||
+
+(source_file (module (name)
+  (unit (operator_definition
+    (identifier (name)) (def_eq)
+    (case
+      (case_arm
+        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (case_arrow)
+        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+      )
+      (case_box)
+      (case_arm
+        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (case_arrow)
+        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+      )
+      (case_box)
+      (other_arm (case_arrow)
+        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+      )
+    )
+  ))
+))
