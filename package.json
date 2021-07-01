@@ -25,7 +25,7 @@
     "nan": "^2.14.2"
   },
   "devDependencies": {
-    "ahelwer-tree-sitter-cli": "^0.19.5"
+    "ahelwer-tree-sitter-cli": "^1.20.0"
   },
   "tree-sitter": [
     {
