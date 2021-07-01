@@ -10,9 +10,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -31,9 +31,9 @@ op == /\ 1
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -53,9 +53,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -75,9 +75,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (conj_list (conj_item (bullet_conj) (number (nat_number))))
       (land)
@@ -98,9 +98,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -127,9 +127,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -151,9 +151,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -174,9 +174,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -203,9 +203,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj)
         (conj_list
@@ -231,9 +231,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -261,9 +261,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -291,9 +291,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (bound_infix_op
         (conj_list (conj_item (bullet_conj) (number (nat_number))))
@@ -319,9 +319,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (bound_infix_op
         (conj_list (conj_item (bullet_conj) (number (nat_number))))
@@ -344,9 +344,9 @@ op == 1 /\ 2
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (number (nat_number))
       (land)
@@ -367,9 +367,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (parentheses (number (nat_number))))
       (conj_item (bullet_conj) (parentheses (number (nat_number))))
@@ -390,9 +390,9 @@ op == (
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (parentheses
         (conj_list (conj_item (bullet_conj) (number (nat_number))))
@@ -418,9 +418,9 @@ op == (
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (parentheses
         (conj_list
@@ -457,9 +457,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item
@@ -500,9 +500,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item
@@ -529,9 +529,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (number (nat_number)))
@@ -551,9 +551,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (tuple_literal (langle_bracket) (rangle_bracket)))
@@ -573,9 +573,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item (bullet_conj) (number (nat_number)))
       (conj_item (bullet_conj) (finite_set_literal))
@@ -597,9 +597,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -629,9 +629,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (if_then_else
       (conj_list
         (conj_item (bullet_conj) (number (nat_number)))
@@ -657,9 +657,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
@@ -699,9 +699,9 @@ op ==
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (case
       (case_arm
         (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))

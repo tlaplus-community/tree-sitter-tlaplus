@@ -11,9 +11,9 @@ op ==
     
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (conj_list
         (conj_item (bullet_conj) (number (nat_number)))
@@ -38,9 +38,9 @@ op ==
     
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (disj_list
         (disj_item (bullet_disj) (number (nat_number)))
@@ -70,9 +70,9 @@ opB ==
     
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (conj_list
         (conj_item (bullet_conj) (number (nat_number)))
@@ -83,7 +83,7 @@ opB ==
     )
   ))
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_infix_op
       (disj_list
         (disj_item (bullet_disj) (number (nat_number)))
@@ -111,9 +111,9 @@ op ==
     
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)

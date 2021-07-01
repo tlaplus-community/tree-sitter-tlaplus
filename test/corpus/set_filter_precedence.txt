@@ -8,19 +8,15 @@ def == {x \in S : x \in T}
 
 ---------------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (set_filter
       (single_quantifier_bound
-        (identifier (name))
-        (set_in)
-        (bound_general_op (bound_op (identifier (name))))
+        (identifier) (set_in) (identifier)
       )
       (bound_infix_op
-        (bound_general_op (bound_op (identifier (name))))
-        (in)
-        (bound_general_op (bound_op (identifier (name))))
+        (identifier) (in) (identifier)
       )
     )
   ))

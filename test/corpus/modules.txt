@@ -8,9 +8,7 @@ Single module
 -------------|||
 
 (source_file
-  (module 
-    name: (name)
-  )
+  (module (identifier))
 )
 
 =============|||
@@ -25,12 +23,9 @@ Nested modules
 -------------|||
 
 (source_file
-  (module 
-    name: (name)
+  (module (identifier)
     (unit
-      (module
-      name: (name)
-      )
+      (module (identifier))
     )
   )
 )

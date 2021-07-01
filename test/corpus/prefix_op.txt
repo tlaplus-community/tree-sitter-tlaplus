@@ -8,12 +8,11 @@ op == SUBSET x
 
 -------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (bound_prefix_op
-      (powerset)
-      (bound_general_op (bound_op (identifier (name))))
+      (powerset) (identifier)
     )
   ))
 ))

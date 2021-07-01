@@ -11,9 +11,9 @@ op ==
 
 --------------|||
 
-(source_file (module (name)
+(source_file (module (identifier)
   (unit (operator_definition
-    (identifier (name)) (def_eq)
+    (identifier) (def_eq)
     (case
       (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
       (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))

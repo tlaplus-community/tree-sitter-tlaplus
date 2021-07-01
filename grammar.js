@@ -23,6 +23,14 @@ function arity0OrN(op, expr) {
   return seq(op, optional(seq('(', commaList1(expr), ')')))
 }
 
+// An operator with 1 or more parameters.
+function arity1OrN(op, expr) {
+  return seq(
+    field('name', op),
+    field('parameters', seq('(', commaList1(expr), ')'))
+  )
+}
+
 // A rule matching either the first or second rule, or the first then the
 // second rule, but not matching nothing.
 function oneOrBoth(first, second) {
@@ -72,32 +80,33 @@ module.exports = grammar({
   conflicts: $ => [
     // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
-    // Lookahead to disambiguate name  •  '('  …
-    [$.identifier, $.label],
+    // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
+    // Could be SF_op(x)(e) or could be SF_id(e)
+    [$.bound_op, $._subscript_expr],
+    // Lookahead to disambiguate SF_'  subexpr_prefix  identifier  •  '('  …
+    // Could be SF_A!B!C!op(x)(e) or could be SF_A!B!C!id(e)
+    [$.bound_op, $.prefixed_op],
+    // Lookahead to disambiguate identifier '(' identifier •  ',' …
+    // Could be op(a, b) or could be lbl(a, b) ::
+    [$._expr, $.label],
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
-    // Matches both step_expr_or_stutter and function_value
-    [$.bound_op, $.quantifier_bound],
+    // Matches both step_expr_or_stutter and function_literal
+    [$._expr, $.quantifier_bound],
     // Lookahead to disambiguate '{'  identifier  •  '\in'  …
     // Matches set_filter, set_map, and finite_set_literal
-    [$.bound_op, $.single_quantifier_bound],
+    [$._expr, $.single_quantifier_bound],
     // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
-    // Matches step_expr_or_stutter and function_value
-    [$.bound_op, $.tuple_of_identifiers],
-    // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
-    // Could be SF_f(x)(e) or could be SF_f(e)
-    [$.bound_op, $.subexpr_component],
+    // Matches step_expr_or_stutter and function_literal
+    [$._expr, $.tuple_of_identifiers],
     // Lookahead to disambiguate identifier  •  '\in'  …
     // Could be x \in y == ... (op def'n) or x \in S (expression)
-    [$.bound_op, $.operator_definition],
+    [$._expr, $.operator_definition],
     // Lookahead to disambiguate identifier  '('  identifier  •  ','  …
-    // Could be op(a, b) == ... (decl'n) or op(a, b) (expression)
-    [$.bound_op, $.operator_declaration],
+    // Could be op(a, b) == ... (decl'n) or op(a, b) (expression) or label
+    [$._expr, $.operator_declaration, $.label],
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
-    [$.bound_op, $.function_definition],
-    // Lookahead to disambiguate 'SF_'  subexpr_prefix  identifier  •  '('  …
-    // Could be SF_f(x)!g(y)(e) or could be SF_f(x)(e)
-    [$.bound_op],
+    [$._expr, $.function_definition],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
@@ -113,7 +122,6 @@ module.exports = grammar({
 
   rules: {
     source_file: $ => $.module,
-    //source_file: $ => $._expr,
 
     // \* this is a comment ending with newline
     single_line_comment: $ => /\\\*.*/,
@@ -124,7 +132,9 @@ module.exports = grammar({
 
     // Top-level module declaration
     module: $ => seq(
-        $._single_line, 'MODULE', field('name', $.name), $._single_line,
+        $._single_line,
+        'MODULE', field('name', $.identifier),
+        $._single_line,
         optional($.extends),
         repeat($.unit),
         $._double_line
@@ -158,9 +168,9 @@ module.exports = grammar({
     case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
     bullet_disj:      $ => choice('\\/', '∨'),
-    colon:            $ => choice(':', '∶'),
+    colon:            $ => ':',
     address:          $ => '@',
-    label_as:         $ => choice('::', '∷'),
+    label_as:         $ => '::',
     placeholder:      $ => '_',
 
     // The set of all reserved keywords
@@ -182,17 +192,14 @@ module.exports = grammar({
       'ONLY'
     ),
 
-    // Name (module, definition, etc.)
-    // Can contain letters, numbers, and underscores
-    // If only one character long, must be letter (not number or _)
-    name: $ => /\w*[A-Za-z]\w*/,
-
     // General-purpose identifier, should exclude reserved keywords,
     // but tree-sitter currently does not support match exclusion logic.
-    identifier: $ => $.name,
+    // Can contain letters, numbers, and underscores
+    // If only one character long, must be letter (not number or _)
+    identifier: $ => /\w*[A-Za-z]\w*/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
-    extends: $ => seq('EXTENDS', commaList1($.name)),
+    extends: $ => seq('EXTENDS', commaList1($.identifier)),
 
     // A module-level definition
     unit: $ => choice(
@@ -291,7 +298,7 @@ module.exports = grammar({
     // INSTANCE ModuleName WITH x <- y, w <- z
     instance: $ => seq(
       'INSTANCE',
-      $.name,
+      $.identifier,
       optional(seq('WITH', commaList1($.substitution)))
     ),
 
@@ -325,6 +332,7 @@ module.exports = grammar({
     // Subexpression component referencing a previously-defined symbol
     // Can either bind parameters to the op or leave them unbound
     subexpr_component: $ => choice(
+      $.identifier,
       $.bound_op,
       $.bound_nonfix_op,
       $.standalone_prefix_op_symbol,
@@ -333,7 +341,7 @@ module.exports = grammar({
     ),
 
     // f(a, op, b)
-    bound_op: $ => arity0OrN($.identifier, $.op_or_expr),
+    bound_op: $ => arity1OrN($.identifier, $.op_or_expr),
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
@@ -384,8 +392,10 @@ module.exports = grammar({
       $.label,
       $.subexpression,
       $.proof_step_id,
-      $.bound_general_op,
-      $.bound_general_nonfix_op,
+      $.identifier,
+      $.bound_op,
+      $.bound_nonfix_op,
+      $.prefixed_op,
       $.bound_prefix_op,
       $.bound_infix_op,
       $.bound_postfix_op,
@@ -396,10 +406,11 @@ module.exports = grammar({
       $.set_filter,
       $.set_map,
       $.function_evaluation,
-      $.function_value,
+      $.function_literal,
       $.set_of_functions,
-      $.record_value,
+      $.record_literal,
       $.set_of_records,
+      $.record_value,
       $.except,
       $.prev_func_val,
       $.tuple_literal,
@@ -416,15 +427,17 @@ module.exports = grammar({
     // Expressions allowed in subscripts; must be enclosed in delimiters
     // Used in WF_expr, <><<f>>_expr, etc.
     _subscript_expr: $ => choice(
-      $.bound_general_op,
-      $.bound_general_nonfix_op,
+      $.identifier,
+      $.bound_op,
+      $.bound_nonfix_op,
+      $.prefixed_op,
       $.parentheses,
       $.finite_set_literal,
       $.set_filter,
       $.set_map,
-      $.function_value,
+      $.function_literal,
       $.set_of_functions,
-      $.record_value,
+      $.record_literal,
       $.set_of_records,
       $.except,
       $.tuple_literal,
@@ -432,12 +445,14 @@ module.exports = grammar({
       $.step_expr_no_stutter,
     ),
 
-    bound_general_op: $ => seq(
-      optional($.subexpr_prefix), $.bound_op
-    ),
-
-    bound_general_nonfix_op: $ => seq(
-      optional($.subexpr_prefix), $.bound_nonfix_op
+    // foo!bar!baz!op(x, y)
+    prefixed_op: $ => seq(
+      field('prefix', $.subexpr_prefix),
+      field('op', choice(
+        $.identifier,
+        $.bound_op,
+        $.bound_nonfix_op
+      ))
     ),
 
     // Number literal encodings
@@ -462,7 +477,7 @@ module.exports = grammar({
     primitive_value_set: $ => choice('STRING', 'BOOLEAN'),
 
     label: $ => seq(
-      arity0OrN($.name, $.identifier),
+      arity0OrN($.identifier, $.identifier),
       $.label_as,
       $._expr
     ),
@@ -531,7 +546,7 @@ module.exports = grammar({
     )),
 
     // [n \in Nat |-> 2*n]
-    function_value: $ => seq(
+    function_literal: $ => seq(
       '[', commaList1($.quantifier_bound), $.all_map_to, $._expr, ']'
     ),
 
@@ -541,14 +556,17 @@ module.exports = grammar({
     ),
 
     // [foo |-> 0, bar |-> 1]
-    record_value: $ => seq(
-      '[', commaList1(seq($.name, $.all_map_to, $._expr)), ']'
+    record_literal: $ => seq(
+      '[', commaList1(seq($.identifier, $.all_map_to, $._expr)), ']'
     ),
 
     // [foo : {0, 1}, bar : {0, 1}]
     set_of_records: $ => seq(
-      '[', commaList1(seq($.name, ':', $._expr)), ']'
+      '[', commaList1(seq($.identifier, ':', $._expr)), ']'
     ),
+
+    // r.val
+    record_value: $ => prec.left(17, seq($._expr, '.', $.identifier)),
 
     // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
     except: $ => seq(
@@ -560,7 +578,7 @@ module.exports = grammar({
     // .foo[bar].baz
     _except_val: $ => repeat1(
       choice(
-        seq('.', $.name),
+        seq('.', $.identifier),
         seq('[', commaList1($._expr), ']')
       )
     ),
@@ -784,7 +802,6 @@ module.exports = grammar({
     cdot:             $ => choice('\\cdot', '⋅'),
     pow:              $ => '^',
     powpow:           $ => '^^',
-    rfield:           $ => '.',
 
     // All infix operator symbols
     infix_op_symbol: $ => choice(
@@ -808,7 +825,7 @@ module.exports = grammar({
       $.star,         $.excl,           $.hashhash,     $.dol,
       $.doldol,       $.qq,             $.sqcap,        $.sqcup,
       $.uplus,        $.wr,             $.cdot,         $.pow,
-      $.powpow,       $.rfield
+      $.powpow,
     ),
 
     // Infix operators are given highest value in precedence range for parsing
@@ -851,8 +868,6 @@ module.exports = grammar({
         $.sqcup,    $.uplus,  $.times)),
       infixOpPrec(14, $._expr, choice(
         $.wr, $.cdot, $.pow, $.powpow)),
-      infixOpPrec(14, $._expr,
-        $.rfield)
     ),
 
     // Postfix operator symbols and their unicode equivalents
@@ -878,14 +893,14 @@ module.exports = grammar({
     // ASSUME C \in Nat
     assumption: $ => seq(
       choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
-      optional(seq($.name, $.def_eq)),
+      optional(seq($.identifier, $.def_eq)),
       $._expr
     ),
 
     // THEOREM Spec => []Safety
     theorem: $ => seq(
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
-      optional(seq($.name, $.def_eq)),
+      optional(seq($.identifier, $.def_eq)),
       choice($._expr, $.assume_prove),
       optional($.proof)
     ),
@@ -900,7 +915,7 @@ module.exports = grammar({
 
     // triangle ∷ ASSUME x > y, y > z PROVE x > z
     inner_assume_prove: $ => seq(
-      optional(seq($.name, $.label_as)),
+      optional(seq($.identifier, $.label_as)),
       $.assume_prove
     ),
 
@@ -993,7 +1008,7 @@ module.exports = grammar({
     use_body_expr: $ => commaList1(
       choice(
         $._expr,
-        seq('MODULE', $.name)
+        seq('MODULE', $.identifier)
       )
     ),
 
@@ -1002,7 +1017,7 @@ module.exports = grammar({
       choice('DEF', 'DEFS'),
       commaList1(choice(
         $.op_or_expr,
-        seq('MODULE', $.name)
+        seq('MODULE', $.identifier)
       ))
     ),
 
