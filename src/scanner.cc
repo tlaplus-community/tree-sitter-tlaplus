@@ -1,6 +1,7 @@
 #include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
+#include <string>
 
 namespace {
 
@@ -166,14 +167,14 @@ namespace {
     }
 
     switch (next_codepoint(lexer)) {
-      case '∧': return LAND;
+      case L'∧': return LAND;
       case '/': return is_next_token(lexer, LAND_TOKEN) ? LAND : OTHER;
-      case '∨': return LOR;
+      case L'∨': return LOR;
       case '\\': return is_next_token(lexer, LOR_TOKEN) ? LOR : OTHER;
       case ')': return RIGHT_DELIMITER;
       case ']': return RIGHT_DELIMITER;
       case '}': return RIGHT_DELIMITER;
-      case '〉': return RIGHT_DELIMITER;
+      case L'〉': return RIGHT_DELIMITER;
       case 'T': // IF/THEN
         return is_next_token(lexer, THEN_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
