@@ -7,8 +7,13 @@ on:
     branches:
       - main
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
     steps:
-      - run: echo "Hello, world!"
+      - name: "Clone repo"
+        uses: actions/checkout@v2
+      - name: "Install node"
+        uses: actions/setup-node@v2
+      - name: "Build"
+        run: "npm install"
   
