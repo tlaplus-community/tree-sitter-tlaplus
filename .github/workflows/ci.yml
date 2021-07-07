@@ -8,14 +8,17 @@ on:
       - main
 jobs:
   build-and-test:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
-      - name: "Clone repo"
+      - name: Clone repo
         uses: actions/checkout@v2
-      - name: "Install node"
+      - name: Install node
         uses: actions/setup-node@v2
-      - name: "Build"
-        run: "npm install"
-      - name: "Test"
-        run: "node_modules/.bin/tree-sitter test"
+      - name: Build
+        run: npm install
+      - name: Test
+        run: node_modules/.bin/tree-sitter test
   
