@@ -1,7 +1,7 @@
 #include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
-#include <string>
+#include <cstring>
 
 namespace {
 
@@ -289,7 +289,7 @@ namespace {
       buffer[offset] = static_cast<uint8_t>(jlist_depth);
       offset += copied;
       byte_count += copied;
-      for (int i = 0; i < jlist_depth; i++) {
+      for (size_t i = 0; i < jlist_depth; i++) {
         copied = jlists[i].serialize(&buffer[offset]);
         offset += copied;
         byte_count += copied;
@@ -314,7 +314,7 @@ namespace {
         const size_t jlist_depth = buffer[offset];
         jlists.resize(jlist_depth);
         offset += copied;
-        for (int i = 0; i < jlist_depth; i++) {
+        for (size_t i = 0; i < jlist_depth; i++) {
           assert(offset < length);
           copied = jlists[i].deserialize(&buffer[offset], length - offset);
           offset += copied;
