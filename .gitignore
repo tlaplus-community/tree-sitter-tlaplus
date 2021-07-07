@@ -1,12 +1,7 @@
-bindings
-node_modules
-package-lock.json
-src
-*.exp
-*.lib
-*.obj
-build
-target
 Cargo.lock
+node_modules
+build
+package-lock.json
+target
 .vscode
 test/example/Test.tla
