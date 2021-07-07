@@ -11,8 +11,7 @@
         "src/parser.c",
         "src/scanner.cc",
       ],
-      "cflags_c": ["-std=c99"],
-      "cflags_cc": ["-Wall -Wextra -Werror"]
+      "cflags_c": ["-std=c99"]
     }
   ]
 }
