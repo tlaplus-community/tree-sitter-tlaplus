@@ -132,7 +132,7 @@ module.exports = grammar({
 
     // Top-level module declaration
     module: $ => seq(
-        $._single_line,
+        //$._single_line,
         'MODULE', field('name', $.identifier),
         $._single_line,
         optional($.extends),
