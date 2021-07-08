@@ -25,6 +25,12 @@ jobs:
         run: npm install
       - name: Generate
         run: node_modules/.bin/tree-sitter generate
+      - name: Output
+        shell: bash
+        run: git status --porcelain=v1 2>/dev/null
+      - name: Output2
+        shell: bash
+        run: git status --porcelain=v1 2>/dev/null | wc -l
       - name: Check grammar/code sync
         shell: bash
         # Command from https://stackoverflow.com/a/62768943/2852699
