@@ -27,7 +27,6 @@ jobs:
         run: node_modules/.bin/tree-sitter generate
       - name: Check grammar/code sync
         shell: bash
-        run: git status --porcelain=v1 2>/dev/null | wc -l
+        run: git status --porcelain=v1 2>/dev/null | wc -l | exit
       - name: Test
         run: node_modules/.bin/tree-sitter test
-  
