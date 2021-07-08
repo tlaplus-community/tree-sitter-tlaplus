@@ -309,17 +309,8 @@
       "value": "@"
     },
     "label_as": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "::"
-        },
-        {
-          "type": "STRING",
-          "value": "∷"
-        }
-      ]
+      "type": "STRING",
+      "value": "::"
     },
     "placeholder": {
       "type": "STRING",
@@ -2035,18 +2026,6 @@
         {
           "type": "STRING",
           "value": "BOOLEAN"
-        },
-        {
-          "type": "STRING",
-          "value": "Nat"
-        },
-        {
-          "type": "STRING",
-          "value": "Int"
-        },
-        {
-          "type": "STRING",
-          "value": "Real"
         }
       ]
     },
