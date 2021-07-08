@@ -11,7 +11,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        # Don't build on macOS until this issue is fixed:
+        # https://github.com/tree-sitter/tree-sitter/issues/1246
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest]
       fail-fast: false
     steps:
       - name: Clone repo
