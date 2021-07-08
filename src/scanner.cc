@@ -1,4 +1,4 @@
-#include <tree_sitter/parser.h>
+﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
 #include <cstring>
