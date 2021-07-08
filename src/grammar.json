@@ -2,8 +2,21 @@
   "name": "tlaplus",
   "rules": {
     "source_file": {
-      "type": "SYMBOL",
-      "name": "module"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "module"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_postscript"
+        }
+      ]
+    },
+    "_postscript": {
+      "type": "PATTERN",
+      "value": "(.|\\r?\\n)*"
     },
     "single_line_comment": {
       "type": "PATTERN",

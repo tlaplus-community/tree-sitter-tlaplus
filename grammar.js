@@ -121,7 +121,12 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => $.module,
+    source_file: $ => seq(
+      $.module,
+      $._postscript
+    ),
+
+    _postscript: $ => /(.|\r?\n)*/,
 
     // \* this is a comment ending with newline
     single_line_comment: $ => /\\\*.*/,
@@ -132,12 +137,12 @@ module.exports = grammar({
 
     // Top-level module declaration
     module: $ => seq(
-        $._single_line,
-        'MODULE', field('name', $.identifier),
-        $._single_line,
-        optional($.extends),
-        repeat($.unit),
-        $._double_line
+      $._single_line,
+      'MODULE', field('name', $.identifier),
+      $._single_line,
+      optional($.extends),
+      repeat($.unit),
+      $._double_line
     ),
 
     // Line of ---------- of length at least 4
