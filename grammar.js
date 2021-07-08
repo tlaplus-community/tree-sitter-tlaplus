@@ -728,7 +728,7 @@ module.exports = grammar({
     neq:              $ => choice('/=', '#', '≠'),
     lt:               $ => '<',
     gt:               $ => '>',
-    leq:              $ => choice('<=', '\\leq', '≤'),
+    leq:              $ => choice('<=', '=<', '\\leq', '≤'),
     geq:              $ => choice('>=', '\\geq', '≥'),
     approx:           $ => choice('\\approx', '≈'),
     rs_ttile:         $ => choice('|-', '⊢'),
