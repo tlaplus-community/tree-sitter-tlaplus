@@ -1,6 +1,7 @@
-#include <tree_sitter/parser.h>
+﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
+#include <cstring>
 
 namespace {
 
@@ -166,14 +167,14 @@ namespace {
     }
 
     switch (next_codepoint(lexer)) {
-      case '∧': return LAND;
+      case L'∧': return LAND;
       case '/': return is_next_token(lexer, LAND_TOKEN) ? LAND : OTHER;
-      case '∨': return LOR;
+      case L'∨': return LOR;
       case '\\': return is_next_token(lexer, LOR_TOKEN) ? LOR : OTHER;
       case ')': return RIGHT_DELIMITER;
       case ']': return RIGHT_DELIMITER;
       case '}': return RIGHT_DELIMITER;
-      case '〉': return RIGHT_DELIMITER;
+      case L'〉': return RIGHT_DELIMITER;
       case 'T': // IF/THEN
         return is_next_token(lexer, THEN_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
@@ -288,7 +289,7 @@ namespace {
       buffer[offset] = static_cast<uint8_t>(jlist_depth);
       offset += copied;
       byte_count += copied;
-      for (int i = 0; i < jlist_depth; i++) {
+      for (size_t i = 0; i < jlist_depth; i++) {
         copied = jlists[i].serialize(&buffer[offset]);
         offset += copied;
         byte_count += copied;
@@ -313,7 +314,7 @@ namespace {
         const size_t jlist_depth = buffer[offset];
         jlists.resize(jlist_depth);
         offset += copied;
-        for (int i = 0; i < jlist_depth; i++) {
+        for (size_t i = 0; i < jlist_depth; i++) {
           assert(offset < length);
           copied = jlists[i].deserialize(&buffer[offset], length - offset);
           offset += copied;

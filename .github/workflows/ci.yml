@@ -1,0 +1,28 @@
+name: Build & Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Don't build on macOS until this issue is fixed:
+        # https://github.com/tree-sitter/tree-sitter/issues/1246
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+      - name: Build
+        run: npm install
+      - name: Test
+        run: node_modules/.bin/tree-sitter test
+  
