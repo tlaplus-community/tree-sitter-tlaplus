@@ -1,0 +1,31 @@
+==================|||
+Basic String
+==================|||
+
+---- MODULE Test ----
+op == "Hello, world!"
+====
+
+------------------|||
+
+(source_file (module (identifier)
+  (unit (operator_definition
+    (identifier) (def_eq) (string)
+  ))
+))
+
+==================|||
+Escape Quote String
+==================|||
+
+---- MODULE Test ----
+op == "The cow goes \"moo\", the chicken goes \"cluck cluck\""
+====
+
+------------------|||
+
+(source_file (module (identifier)
+  (unit (operator_definition
+    (identifier) (def_eq) (string)
+  ))
+))

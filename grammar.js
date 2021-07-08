@@ -468,7 +468,7 @@ module.exports = grammar({
     hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
-    string: $ => /\".*\"/,
+    string: $ => /"([^"]|\\")*"/,
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
