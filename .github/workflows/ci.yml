@@ -34,9 +34,6 @@ jobs:
       - name: Output2
         shell: bash
         run: git status --porcelain=v1 2>/dev/null | wc -l
-      - name: OutputTest
-        shell: bash
-        run: exit 1
       - name: Check grammar/code sync
         shell: bash
         # Command from https://stackoverflow.com/a/62768943/2852699
