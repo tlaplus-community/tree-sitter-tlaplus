@@ -1,0 +1,16 @@
+==================|||
+ITE with Strings
+==================|||
+
+---- MODULE Test ----
+op == IF "A" THEN "B" ELSE "C"
+====
+
+------------------|||
+
+(source_file (module (identifier)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (if_then_else (string) (string) (string))
+  ))
+))

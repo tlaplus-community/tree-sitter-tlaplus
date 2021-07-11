@@ -2,16 +2,45 @@
   "name": "tlaplus",
   "rules": {
     "source_file": {
-      "type": "SYMBOL",
-      "name": "module"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "module"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_postscript"
+        }
+      ]
     },
-    "single_line_comment": {
+    "_postscript": {
+      "type": "PATTERN",
+      "value": "(.|\\r?\\n)*"
+    },
+    "comment": {
       "type": "PATTERN",
       "value": "\\\\\\*.*"
     },
-    "multi_line_comment": {
-      "type": "PATTERN",
-      "value": "\\(\\*[^*]*\\*+([^)*][^*]*\\*+)*\\)"
+    "block_comment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "(*"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "PATTERN",
+            "value": "([^(*]|\\([^*]|\\*[^)])*"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "*)"
+        }
+      ]
     },
     "module": {
       "type": "SEQ",
@@ -309,8 +338,17 @@
       "value": "@"
     },
     "label_as": {
-      "type": "STRING",
-      "value": "::"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "::"
+        },
+        {
+          "type": "STRING",
+          "value": "∷"
+        }
+      ]
     },
     "placeholder": {
       "type": "STRING",
@@ -2001,7 +2039,7 @@
     },
     "string": {
       "type": "PATTERN",
-      "value": "\\\".*\\\""
+      "value": "\"([^\"]|\\\\\")*\""
     },
     "boolean": {
       "type": "CHOICE",
@@ -2026,6 +2064,18 @@
         {
           "type": "STRING",
           "value": "BOOLEAN"
+        },
+        {
+          "type": "STRING",
+          "value": "Nat"
+        },
+        {
+          "type": "STRING",
+          "value": "Int"
+        },
+        {
+          "type": "STRING",
+          "value": "Real"
         }
       ]
     },
@@ -3698,6 +3748,10 @@
         {
           "type": "STRING",
           "value": "<="
+        },
+        {
+          "type": "STRING",
+          "value": "=<"
         },
         {
           "type": "STRING",
@@ -6550,11 +6604,11 @@
     },
     {
       "type": "SYMBOL",
-      "name": "single_line_comment"
+      "name": "comment"
     },
     {
       "type": "SYMBOL",
-      "name": "multi_line_comment"
+      "name": "block_comment"
     }
   ],
   "conflicts": [

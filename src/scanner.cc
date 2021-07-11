@@ -144,6 +144,7 @@ namespace {
   static const std::vector<int32_t> THEN_TOKEN = {'T', 'H', 'E', 'N'};
   static const std::vector<int32_t> ELSE_TOKEN = {'E', 'L', 'S', 'E'};
   static const std::vector<int32_t> CASE_ARROW_TOKEN = {'-', '>'};
+  static const std::vector<int32_t> IN_TOKEN = {'I', 'N'};
 
   using column_index = int16_t;
 
@@ -175,11 +176,14 @@ namespace {
       case ']': return RIGHT_DELIMITER;
       case '}': return RIGHT_DELIMITER;
       case L'〉': return RIGHT_DELIMITER;
-      case 'T': // IF/THEN
-        return is_next_token(lexer, THEN_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
       case 'E': // THEN/ELSE
         return is_next_token(lexer, ELSE_TOKEN)
+          ? RIGHT_DELIMITER : OTHER;
+      case 'I': // LET/IN
+        return is_next_token(lexer, IN_TOKEN)
+          ? RIGHT_DELIMITER : OTHER;
+      case 'T': // IF/THEN
+        return is_next_token(lexer, THEN_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
       case '-': // CASE/-> or []/->
         return is_next_token(lexer, CASE_ARROW_TOKEN)

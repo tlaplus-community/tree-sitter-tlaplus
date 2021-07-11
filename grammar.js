@@ -37,7 +37,7 @@ function oneOrBoth(first, second) {
   return choice(first, second, seq(first, second))
 }
 
-// Defines a labelled prefix operator of given precedence
+// Defines a labelled left-associative prefix operator of given precedence
 function prefixOpPrec(level, expr, symbol) {
   return prec.left(level, seq(
     field('symbol', symbol),
@@ -73,8 +73,8 @@ module.exports = grammar({
 
   extras: $ => [
     /\s|\r?\n/,
-    $.single_line_comment,
-    $.multi_line_comment
+    $.comment,
+    $.block_comment
   ],
 
   conflicts: $ => [
@@ -121,23 +121,33 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => $.module,
+    source_file: $ => seq(
+      $.module,
+      $._postscript
+    ),
+
+    // This requires an external scanner:
+    //_prelude: $ => /(.|\r?\n)*---- *MODULE/,
+
+    _postscript: $ => /(.|\r?\n)*/,
 
     // \* this is a comment ending with newline
-    single_line_comment: $ => /\\\*.*/,
+    comment: $ => /\\\*.*/,
 
-    // (* this is a multi-line comment *)
-    // Taken from https://stackoverflow.com/a/36328890/2852699
-    multi_line_comment: $ => /\(\*[^*]*\*+([^)*][^*]*\*+)*\)/,
+    // (* this is a (* nestable *) multi-line (* comment *) *)
+    // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
+    block_comment: $ => seq(
+      '(*', repeat(/([^(*]|\([^*]|\*[^)])*/), '*)'
+    ),
 
     // Top-level module declaration
     module: $ => seq(
-        $._single_line,
-        'MODULE', field('name', $.identifier),
-        $._single_line,
-        optional($.extends),
-        repeat($.unit),
-        $._double_line
+      $._single_line,
+      'MODULE', field('name', $.identifier),
+      $._single_line,
+      optional($.extends),
+      repeat($.unit),
+      $._double_line
     ),
 
     // Line of ---------- of length at least 4
@@ -170,7 +180,7 @@ module.exports = grammar({
     bullet_disj:      $ => choice('\\/', '∨'),
     colon:            $ => ':',
     address:          $ => '@',
-    label_as:         $ => '::',
+    label_as:         $ => choice('::', '∷'),
     placeholder:      $ => '_',
 
     // The set of all reserved keywords
@@ -194,6 +204,7 @@ module.exports = grammar({
 
     // General-purpose identifier, should exclude reserved keywords,
     // but tree-sitter currently does not support match exclusion logic.
+    // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/14
     // Can contain letters, numbers, and underscores
     // If only one character long, must be letter (not number or _)
     identifier: $ => /\w*[A-Za-z]\w*/,
@@ -468,20 +479,30 @@ module.exports = grammar({
     hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
-    string: $ => /\".*\"/,
+    string: $ => /"([^"]|\\")*"/,
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
 
-    // Set of all strings, booleans
-    primitive_value_set: $ => choice('STRING', 'BOOLEAN'),
+    // Set of all strings, booleans, and numbers
+    primitive_value_set: $ => choice(
+      'STRING',   // From TLA+ builtins
+      'BOOLEAN',  // From TLA+ builtins
+      'Nat',      // From Naturals standard module
+      'Int',      // From Integers standard module
+      'Real'      // From Reals standard module
+    ),
 
+    // Label for less-fragile addressing of subexpressions
+    // lbl(a, b) :: e
     label: $ => seq(
       arity0OrN($.identifier, $.identifier),
       $.label_as,
       $._expr
     ),
 
+    // Address subexpressions through syntax tree navigation
+    // op!+!<<!@
     subexpression: $ => seq(
       $.subexpr_prefix,
       $.subexpr_tree_nav
@@ -673,7 +694,7 @@ module.exports = grammar({
       $._dedent
     ),
 
-    // \\ x
+    // \/ x
     disj_item: $ => seq($.bullet_disj, $._expr),
 
     /************************************************************************/
@@ -728,7 +749,7 @@ module.exports = grammar({
     neq:              $ => choice('/=', '#', '≠'),
     lt:               $ => '<',
     gt:               $ => '>',
-    leq:              $ => choice('<=', '\\leq', '≤'),
+    leq:              $ => choice('<=', '=<', '\\leq', '≤'),
     geq:              $ => choice('>=', '\\geq', '≥'),
     approx:           $ => choice('\\approx', '≈'),
     rs_ttile:         $ => choice('|-', '⊢'),

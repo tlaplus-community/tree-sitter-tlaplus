@@ -373,6 +373,11 @@
     "fields": {}
   },
   {
+    "type": "block_comment",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "bnf_rule",
     "named": true,
     "fields": {}
@@ -4784,6 +4789,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "label_as",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "lambda",
@@ -9520,6 +9530,10 @@
     "named": false
   },
   {
+    "type": "(*",
+    "named": false
+  },
+  {
     "type": "(+)",
     "named": false
   },
@@ -9541,6 +9555,10 @@
   },
   {
     "type": ")",
+    "named": false
+  },
+  {
+    "type": "*)",
     "named": false
   },
   {
@@ -9592,6 +9610,10 @@
     "named": false
   },
   {
+    "type": "::",
+    "named": false
+  },
+  {
     "type": "::=",
     "named": false
   },
@@ -9621,6 +9643,10 @@
   },
   {
     "type": "=",
+    "named": false
+  },
+  {
+    "type": "=<",
     "named": false
   },
   {
@@ -9756,6 +9782,10 @@
     "named": false
   },
   {
+    "type": "Int",
+    "named": false
+  },
+  {
     "type": "LAMBDA",
     "named": false
   },
@@ -9777,6 +9807,10 @@
   },
   {
     "type": "NEW",
+    "named": false
+  },
+  {
+    "type": "Nat",
     "named": false
   },
   {
@@ -9817,6 +9851,10 @@
   },
   {
     "type": "RECURSIVE",
+    "named": false
+  },
+  {
+    "type": "Real",
     "named": false
   },
   {
@@ -10160,6 +10198,10 @@
     "named": true
   },
   {
+    "type": "comment",
+    "named": true
+  },
+  {
     "type": "compose",
     "named": true
   },
@@ -10185,10 +10227,6 @@
   },
   {
     "type": "identifier",
-    "named": true
-  },
-  {
-    "type": "label_as",
     "named": true
   },
   {
@@ -10221,10 +10259,6 @@
   },
   {
     "type": "mulmul",
-    "named": true
-  },
-  {
-    "type": "multi_line_comment",
     "named": true
   },
   {
@@ -10269,10 +10303,6 @@
   },
   {
     "type": "setminus",
-    "named": true
-  },
-  {
-    "type": "single_line_comment",
     "named": true
   },
   {
@@ -10409,6 +10439,10 @@
   },
   {
     "type": "∪",
+    "named": false
+  },
+  {
+    "type": "∷",
     "named": false
   },
   {
