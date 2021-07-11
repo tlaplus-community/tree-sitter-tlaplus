@@ -66,6 +66,8 @@ module.exports = grammar({
   name: 'tlaplus',
 
   externals: $ => [
+    $.extramodular_text,
+    $._block_comment_text,
     $._indent,
     $._newline,
     $._dedent
@@ -122,12 +124,10 @@ module.exports = grammar({
 
   rules: {
     source_file: $ => seq(
+      //$.extramodular_text,
       $.module,
       $._postscript
     ),
-
-    // This requires an external scanner:
-    //_prelude: $ => /(.|\r?\n)*---- *MODULE/,
 
     _postscript: $ => /(.|\r?\n)*/,
 
@@ -137,7 +137,7 @@ module.exports = grammar({
     // (* this is a (* nestable *) multi-line (* comment *) *)
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
     block_comment: $ => seq(
-      '(*', repeat(/([^(*]|\([^*]|\*[^)])*/), '*)'
+      '(*', repeat($._block_comment_text), '*)'
     ),
 
     // Top-level module declaration

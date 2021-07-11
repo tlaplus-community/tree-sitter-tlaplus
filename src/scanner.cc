@@ -1,6 +1,7 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
+#include <set>
 #include <cstring>
 
 namespace {
@@ -9,10 +10,26 @@ namespace {
    * Tokens emitted by this external scanner.
    */
   enum TokenType {
-    INDENT,   // Marks beginning of junction list.
-    NEWLINE,  // Separates items of junction list.
-    DEDENT    // Marks end of junction list.
+    EXTRAMODULAR_TEXT,  // Freeform text between modules.
+    BLOCK_COMMENT_TEXT, // Text inside block comments.
+    INDENT,             // Marks beginning of junction list.
+    NEWLINE,            // Separates items of junction list.
+    DEDENT              // Marks end of junction list.
   };
+
+  using token_t = std::vector<int32_t>;
+
+  static const token_t LAND_TOKEN = {'/', '\\'};
+  static const token_t LOR_TOKEN = {'\\', '/'};
+  static const token_t R_ANGLE_BRACKET_TOKEN = {'>', '>'};
+  static const token_t MODULE_END_TOKEN = {'=', '=', '=', '='};
+  static const token_t THEN_TOKEN = {'T', 'H', 'E', 'N'};
+  static const token_t ELSE_TOKEN = {'E', 'L', 'S', 'E'};
+  static const token_t CASE_ARROW_TOKEN = {'-', '>'};
+  static const token_t IN_TOKEN = {'I', 'N'};
+  static const token_t MODULE_TOKEN = {'M', 'O', 'D', 'U', 'L', 'E'};
+  static const token_t BLOCK_COMMENT_START_TOKEN = {'(', '*'};
+  static const token_t BLOCK_COMMENT_END_TOKEN = {'*', ')'};
 
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
@@ -80,6 +97,17 @@ namespace {
   }
 
   /**
+   * Consumes whitespace until it encounters a non-whitespace codepoint.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   */
+  void consume_whitespace(TSLexer* const lexer) {
+    while (is_whitespace(next_codepoint(lexer))) {
+      skip(lexer);
+    }
+  }
+
+  /**
    * Checks whether the next token is the one given.
    * A token is a sequence of codepoints.
    * This function can change the state of the lexer.
@@ -87,10 +115,7 @@ namespace {
    * @param lexer The tree-sitter lexing control structure.
    * @return Whether the next token is the one given.
    */
-  bool is_next_token(
-    TSLexer* const lexer,
-    const std::vector<int32_t>& token
-  ) {
+  bool is_next_token(TSLexer* const lexer, const token_t& token) {
     for (auto codepoint : token) {
       if (!next_codepoint_is(lexer, codepoint)) {
         return false;
@@ -100,6 +125,57 @@ namespace {
     }
 
     return true;
+  }
+
+  enum Match {
+    UNKNOWN,
+    MATCH,
+    NOT_A_MATCH
+  };
+
+  int token_lookahead(
+    TSLexer* const lexer,
+    const std::vector<token_t>& tokens
+  ) {
+    bool any_unknown = true;
+    std::vector<Match> token_match_result(tokens.size());
+    for (
+      size_t lookahead = 0;
+      any_unknown && has_next(lexer);
+      lookahead++, advance(lexer)
+    ) {
+      any_unknown = false;
+      for (size_t i = 0; i < tokens.size(); i++) {
+        const token_t& token = tokens.at(i);
+        if (UNKNOWN == token_match_result.at(i)) {
+          if (next_codepoint_is(lexer, token.at(lookahead))) {
+            if (lookahead + 1 == token.size()) {
+              token_match_result[i] = MATCH;
+            } else {
+              any_unknown = true;
+            }
+          } else {
+            token_match_result[i] = NOT_A_MATCH;
+          }
+        }
+      }
+    }
+
+    // Pick longest match
+    bool any_match = false;
+    size_t longest_match_length = 0;
+    int longest_match_index = 0;
+    for (int i = 0; i < token_match_result.size(); i++) {
+      if (MATCH == token_match_result.at(i)) {
+        any_match = true;
+        if (tokens.at(i).size() > longest_match_length) {
+          longest_match_length = tokens.at(i).size();
+          longest_match_index = i;
+        }
+      }
+    }
+
+    return any_match ? longest_match_index : -1;
   }
 
   /**
@@ -113,15 +189,111 @@ namespace {
     return false;
   }
 
-  /**
-   * Consumes whitespace until it encounters a non-whitespace codepoint.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   */
-  void consume_whitespace(TSLexer* const lexer) {
-    while (is_whitespace(next_codepoint(lexer))) {
-      skip(lexer);
+  size_t consume_hyphens(TSLexer* const lexer) {
+    size_t hyphen_count = 0;
+    while (next_codepoint_is(lexer, '-')) {
+      advance(lexer);
+      hyphen_count++;
     }
+
+    return hyphen_count;
+  }
+
+  bool scan_extramodular_text(TSLexer* const lexer) {
+    lexer->result_symbol = EXTRAMODULAR_TEXT;
+    size_t hyphen_count = 0;
+    size_t consume_count = 0;
+    while (has_next(lexer)) {
+      if (next_codepoint_is(lexer, '-')) {
+        if (0 == hyphen_count) {
+          lexer->mark_end(lexer);
+        }
+
+        hyphen_count++;
+      } else if (is_whitespace(next_codepoint(lexer))) {
+        if (hyphen_count < 4) {
+          hyphen_count = 0;
+        }
+
+        skip(lexer);
+        consume_count++;
+      } else {
+        advance(lexer);
+        consume_count++;
+      }
+    }
+
+    return consume_count > 0;
+  }
+
+  bool scan_block_comment_text_simple(TSLexer* const lexer) {
+    lexer->result_symbol = BLOCK_COMMENT_TEXT;
+    size_t consumed_count = 0;
+    while (has_next(lexer)) {
+      switch (next_codepoint(lexer)) {
+        case '*':
+          lexer->mark_end(lexer);
+          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN)) {
+            return consumed_count > 0;
+          } else {
+            consumed_count++;
+            break;
+          }
+        case '(':
+          lexer->mark_end(lexer);
+          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN)) {
+            return consumed_count > 0;
+          } else {
+            consumed_count++;
+            break;
+          }
+        default:
+          consumed_count++;
+          advance(lexer);
+      }
+    }
+
+    return consumed_count > 0;
+  }
+
+  bool scan_block_comment_text(TSLexer* const lexer) {
+    lexer->result_symbol = BLOCK_COMMENT_TEXT;
+    int32_t last_consumed = '^';
+    size_t consume_count = 0;
+    while (has_next(lexer)) {
+      if (next_codepoint_is(lexer, '(')) {
+        last_consumed = '(';
+        lexer->mark_end(lexer);
+        advance(lexer);
+        consume_count++;
+      } else if (next_codepoint_is(lexer, '*')) {
+        if ('(' == last_consumed) {
+          // Encountered (* without consuming
+          return consume_count > 1;
+        } else {
+          last_consumed = '*';
+          lexer->mark_end(lexer);
+          advance(lexer);
+          consume_count++;
+        }
+      } else if (next_codepoint_is(lexer, ')')) {
+        if ('*' == last_consumed) {
+          // Encountered *) without consuming
+          return consume_count > 1;
+        } else {
+          last_consumed = ')';
+          advance(lexer);
+          consume_count++;
+        }
+      } else {
+        last_consumed = '^';
+        advance(lexer);
+        consume_count++;
+      }
+    }
+
+    // If we reach EOF, declare entire read text as block comment text.
+    return consume_count > 0;
   }
 
   /**
@@ -136,15 +308,6 @@ namespace {
     END_OF_FILE,      // The end of the file.
     OTHER             // Tokens not requiring special handling logic.
   };
-
-  static const std::vector<int32_t> LAND_TOKEN = {'/', '\\'};
-  static const std::vector<int32_t> LOR_TOKEN = {'\\', '/'};
-  static const std::vector<int32_t> R_ANGLE_BRACKET_TOKEN = {'>', '>'};
-  static const std::vector<int32_t> MODULE_END_TOKEN = {'=', '=', '=', '='};
-  static const std::vector<int32_t> THEN_TOKEN = {'T', 'H', 'E', 'N'};
-  static const std::vector<int32_t> ELSE_TOKEN = {'E', 'L', 'S', 'E'};
-  static const std::vector<int32_t> CASE_ARROW_TOKEN = {'-', '>'};
-  static const std::vector<int32_t> IN_TOKEN = {'I', 'N'};
 
   using column_index = int16_t;
 
@@ -636,7 +799,11 @@ namespace {
      * @return Whether a token was encountered.
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
-      if (valid_symbols[INDENT]
+      if(valid_symbols[EXTRAMODULAR_TEXT]) {
+        return scan_extramodular_text(lexer);
+      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
+        return scan_block_comment_text_simple(lexer);
+      } else if (valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
         || valid_symbols[DEDENT]
       ) {
@@ -657,9 +824,9 @@ namespace {
           case OTHER:
             return handle_other_token(lexer, valid_symbols, col);
         }
+      } else {
+        return false;
       }
-
-      return false;
     }
   };
 }

@@ -32,8 +32,8 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "PATTERN",
-            "value": "([^(*]|\\([^*]|\\*[^)])*"
+            "type": "SYMBOL",
+            "name": "_block_comment_text"
           }
         },
         {
@@ -6665,6 +6665,14 @@
   ],
   "precedences": [],
   "externals": [
+    {
+      "type": "SYMBOL",
+      "name": "extramodular_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_block_comment_text"
+    },
     {
       "type": "SYMBOL",
       "name": "_indent"
