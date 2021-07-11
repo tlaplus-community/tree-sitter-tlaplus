@@ -373,6 +373,11 @@
     "fields": {}
   },
   {
+    "type": "block_comment",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "bnf_rule",
     "named": true,
     "fields": {}
@@ -9520,6 +9525,10 @@
     "named": false
   },
   {
+    "type": "(*",
+    "named": false
+  },
+  {
     "type": "(+)",
     "named": false
   },
@@ -9541,6 +9550,10 @@
   },
   {
     "type": ")",
+    "named": false
+  },
+  {
+    "type": "*)",
     "named": false
   },
   {
@@ -10164,6 +10177,10 @@
     "named": true
   },
   {
+    "type": "comment",
+    "named": true
+  },
+  {
     "type": "compose",
     "named": true
   },
@@ -10228,10 +10245,6 @@
     "named": true
   },
   {
-    "type": "multi_line_comment",
-    "named": true
-  },
-  {
     "type": "nat_number",
     "named": true
   },
@@ -10273,10 +10286,6 @@
   },
   {
     "type": "setminus",
-    "named": true
-  },
-  {
-    "type": "single_line_comment",
     "named": true
   },
   {

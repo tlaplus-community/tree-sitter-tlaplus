@@ -73,8 +73,8 @@ module.exports = grammar({
 
   extras: $ => [
     /\s|\r?\n/,
-    $.single_line_comment,
-    $.multi_line_comment
+    $.comment,
+    $.block_comment
   ],
 
   conflicts: $ => [
@@ -126,14 +126,19 @@ module.exports = grammar({
       $._postscript
     ),
 
+    // This requires an external scanner:
+    //_prelude: $ => /(.|\r?\n)*---- *MODULE/,
+
     _postscript: $ => /(.|\r?\n)*/,
 
     // \* this is a comment ending with newline
-    single_line_comment: $ => /\\\*.*/,
+    comment: $ => /\\\*.*/,
 
-    // (* this is a multi-line comment *)
-    // Taken from https://stackoverflow.com/a/36328890/2852699
-    multi_line_comment: $ => /\(\*[^*]*\*+([^)*][^*]*\*+)*\)/,
+    // (* this is a (* nestable *) multi-line (* comment *) *)
+    // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
+    block_comment: $ => seq(
+      '(*', repeat(/([^(*]|\([^*]|\*[^)])*/), '*)'
+    ),
 
     // Top-level module declaration
     module: $ => seq(
