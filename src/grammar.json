@@ -5,18 +5,42 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "module"
+          "type": "REPEAT1",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "extramodular_text"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "SYMBOL",
+                "name": "module"
+              }
+            ]
+          }
         },
         {
-          "type": "SYMBOL",
-          "name": "_postscript"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "extramodular_text"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
-    },
-    "_postscript": {
-      "type": "PATTERN",
-      "value": "(.|\\r?\\n)*"
     },
     "comment": {
       "type": "PATTERN",
@@ -32,8 +56,8 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "PATTERN",
-            "value": "([^(*]|\\([^*]|\\*[^)])*"
+            "type": "SYMBOL",
+            "name": "_block_comment_text"
           }
         },
         {
@@ -47,7 +71,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         },
         {
           "type": "STRING",
@@ -63,7 +87,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         },
         {
           "type": "CHOICE",
@@ -86,11 +110,11 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_double_line"
+          "name": "double_line"
         }
       ]
     },
-    "_single_line": {
+    "single_line": {
       "type": "SEQ",
       "members": [
         {
@@ -112,7 +136,7 @@
         }
       ]
     },
-    "_double_line": {
+    "double_line": {
       "type": "SEQ",
       "members": [
         {
@@ -730,7 +754,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         }
       ]
     },
@@ -6665,6 +6689,14 @@
   ],
   "precedences": [],
   "externals": [
+    {
+      "type": "SYMBOL",
+      "name": "extramodular_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_block_comment_text"
+    },
     {
       "type": "SYMBOL",
       "name": "_indent"

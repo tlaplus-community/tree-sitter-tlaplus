@@ -11,7 +11,7 @@ op ==
     
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -23,7 +23,7 @@ op ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Disjlist Followed by Conjunct
@@ -38,7 +38,7 @@ op ==
     
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -50,7 +50,7 @@ op ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Two Mismatched Jlists
@@ -70,7 +70,7 @@ opB ==
     
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -93,7 +93,7 @@ opB ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Nested Alternating Jlists
@@ -111,7 +111,7 @@ op ==
     
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (conj_list
@@ -138,4 +138,4 @@ op ==
       (conj_item (bullet_conj) (number (nat_number)))
     )
   ))
-))
+(double_line)))

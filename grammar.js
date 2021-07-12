@@ -66,6 +66,8 @@ module.exports = grammar({
   name: 'tlaplus',
 
   externals: $ => [
+    $.extramodular_text,
+    $._block_comment_text,
     $._indent,
     $._newline,
     $._dedent
@@ -122,14 +124,9 @@ module.exports = grammar({
 
   rules: {
     source_file: $ => seq(
-      $.module,
-      $._postscript
+      repeat1(seq(optional($.extramodular_text), $.module)),
+      optional($.extramodular_text)
     ),
-
-    // This requires an external scanner:
-    //_prelude: $ => /(.|\r?\n)*---- *MODULE/,
-
-    _postscript: $ => /(.|\r?\n)*/,
 
     // \* this is a comment ending with newline
     comment: $ => /\\\*.*/,
@@ -137,27 +134,25 @@ module.exports = grammar({
     // (* this is a (* nestable *) multi-line (* comment *) *)
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
     block_comment: $ => seq(
-      '(*', repeat(/([^(*]|\([^*]|\*[^)])*/), '*)'
+      '(*', repeat($._block_comment_text), '*)'
     ),
 
     // Top-level module declaration
     module: $ => seq(
-      $._single_line,
-      'MODULE', field('name', $.identifier),
-      $._single_line,
+      $.single_line, 'MODULE', field('name', $.identifier), $.single_line,
       optional($.extends),
       repeat($.unit),
-      $._double_line
+      $.double_line
     ),
 
     // Line of ---------- of length at least 4
-    _single_line: $ => seq(
+    single_line: $ => seq(
       '----',
       token.immediate(repeat(token.immediate('-')))
     ),
 
     // Line of =========== of length at least 4
-    _double_line: $ => seq(
+    double_line: $ => seq(
       '====',
       token.immediate(repeat(token.immediate('=')))
     ),
@@ -224,7 +219,7 @@ module.exports = grammar({
         $.assumption,
         $.theorem,
         $.module,
-        $._single_line
+        $.single_line
     ),
 
     // VARIABLES v1, v2, v3

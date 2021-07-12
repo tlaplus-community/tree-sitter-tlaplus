@@ -8,7 +8,7 @@ def == {x \in S : x \in T}
 
 ---------------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (set_filter
@@ -20,4 +20,4 @@ def == {x \in S : x \in T}
       )
     )
   ))
-))
+(double_line)))

@@ -8,7 +8,7 @@ Single module
 -------------|||
 
 (source_file
-  (module (identifier))
+  (module (single_line) (identifier) (single_line) (double_line))
 )
 
 =============|||
@@ -23,9 +23,110 @@ Nested modules
 -------------|||
 
 (source_file
-  (module (identifier)
+  (module (single_line) (identifier) (single_line)
     (unit
-      (module (identifier))
+      (module (single_line) (identifier) (single_line) (double_line))
     )
+    (double_line)
   )
+)
+
+=============|||
+Multiple modules
+=============|||
+
+---- MODULE First ----
+====
+
+---- MODULE Second ----
+====
+
+-------------|||
+
+(source_file
+  (module (single_line) (identifier) (single_line) (double_line))
+  (module (single_line) (identifier) (single_line) (double_line))
+)
+
+=============|||
+Extramodular Text
+=============|||
+
+This is free-form text.
+
+---- MODULE Test ----
+====
+
+This is some more free-form text.
+
+-------------|||
+
+(source_file
+  (extramodular_text)
+  (module (single_line) (identifier) (single_line) (double_line))
+  (extramodular_text)
+)
+
+=============|||
+Tricky Extramodular Text
+=============|||
+
+This is free-form text.
+---- MODUL
+That should not have ended the text.
+
+----------------                MODULE Test ----
+====
+
+This is some more free-form text.
+--- MODULE
+That also should not have ended the text.
+
+-------------|||
+
+(source_file
+  (extramodular_text)
+  (module (single_line) (identifier) (single_line) (double_line))
+  (extramodular_text)
+)
+
+=============|||
+Interleaved Extramodular Text
+=============|||
+
+This is free-form text.
+---- MODUL
+That should not have ended the text.
+
+----------------                MODULE First ----
+====
+
+This is some more free-form text.
+--- MODULE
+That also should not have ended the text.
+
+----MODULE Second ----
+====
+
+Even more free-form text!
+MODULE MODULE MODULE
+----
+MODULE NotValidModule ----
+====
+
+-------------MODULE Third ----
+====
+
+Final free-form text
+
+-------------|||
+
+(source_file
+  (extramodular_text)
+  (module (single_line) (identifier) (single_line) (double_line))
+  (extramodular_text)
+  (module (single_line) (identifier) (single_line) (double_line))
+  (extramodular_text)
+  (module (single_line) (identifier) (single_line) (double_line))
+  (extramodular_text)
 )

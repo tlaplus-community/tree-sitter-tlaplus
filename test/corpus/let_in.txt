@@ -1,0 +1,115 @@
+=============|||
+Conjlist with LET/IN
+=============|||
+
+---- MODULE Test ----
+op ==
+  /\ LET x == 1 IN 2
+  /\ 3
+====
+
+-------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item
+        (bullet_conj)
+        (let_in
+          (operator_definition (identifier) (def_eq) (number (nat_number)))
+          (number (nat_number))
+        )
+      )
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+=============|||
+Conjlist inside LET/IN
+=============|||
+
+---- MODULE Test ----
+op ==
+  LET
+    x ==
+      /\ 1
+      /\ 2
+        IN 3
+====
+
+-------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (let_in
+      (operator_definition (identifier) (def_eq)
+        (conj_list
+          (conj_item (bullet_conj) (number (nat_number)))
+          (conj_item (bullet_conj) (number (nat_number)))
+        )
+      )
+      (number (nat_number))
+    )
+  ))
+(double_line)))
+
+=============|||
+Disjlist with LET/IN
+=============|||
+
+---- MODULE Test ----
+op ==
+  \/ LET x == 1 IN 2
+  \/ 3
+====
+
+-------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item
+        (bullet_disj)
+        (let_in
+          (operator_definition (identifier) (def_eq) (number (nat_number)))
+          (number (nat_number))
+        )
+      )
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+=============|||
+Disjlist inside LET/IN
+=============|||
+
+---- MODULE Test ----
+op ==
+  LET
+    x ==
+      \/ 1
+      \/ 2
+        IN 3
+====
+
+-------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (let_in
+      (operator_definition (identifier) (def_eq)
+        (disj_list
+          (disj_item (bullet_disj) (number (nat_number)))
+          (disj_item (bullet_disj) (number (nat_number)))
+        )
+      )
+      (number (nat_number))
+    )
+  ))
+(double_line)))

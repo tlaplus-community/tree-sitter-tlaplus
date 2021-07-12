@@ -1,7 +1,9 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
+#include <set>
 #include <cstring>
+#include <functional>
 
 namespace {
 
@@ -9,9 +11,57 @@ namespace {
    * Tokens emitted by this external scanner.
    */
   enum TokenType {
-    INDENT,   // Marks beginning of junction list.
-    NEWLINE,  // Separates items of junction list.
-    DEDENT    // Marks end of junction list.
+    EXTRAMODULAR_TEXT,  // Freeform text between modules.
+    BLOCK_COMMENT_TEXT, // Text inside block comments.
+    INDENT,             // Marks beginning of junction list.
+    NEWLINE,            // Separates items of junction list.
+    DEDENT              // Marks end of junction list.
+  };
+
+  using token_t = std::vector<int32_t>;
+
+  static const token_t LAND_TOKEN = {'/','\\'};
+  static const token_t LOR_TOKEN = {'\\','/'};
+  static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
+  static const token_t CASE_ARROW_TOKEN = {'-','>'};
+  static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
+  static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
+  static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
+  static const token_t MODULE_END_TOKEN = {'=','=','=','='};
+  static const token_t ASSUME_TOKEN = {'A','S','S','U','M','E'};
+  static const token_t ASSUMPTION_TOKEN = {'A','S','S','U','M','P','T','I','O','N'};
+  static const token_t AXIOM_TOKEN = {'A','X','I','O','M'};
+  static const token_t CONSTANT_TOKEN = {'C','O','N','S','T','A','N','T'};
+  static const token_t CONSTANTS_TOKEN = {'C','O','N','S','T','A','N','T','S'};
+  static const token_t COROLLARY_TOKEN = {'C','O','R','O','L','L','A','R','Y'};
+  static const token_t ELSE_TOKEN = {'E','L','S','E'};
+  static const token_t IN_TOKEN = {'I','N'};
+  static const token_t INSTANCE_TOKEN = {'I','N','S','T','A','N','C','E'};
+  static const token_t LEMMA_TOKEN = {'L','E','M','M','A'};
+  static const token_t LOCAL_TOKEN = {'L','O','C','A','L'};
+  static const token_t MODULE_TOKEN = {'M','O','D','U','L','E'};
+  static const token_t PROPOSITION_TOKEN = {'P','R','O','P','O','S','I','T','I','O','N'};
+  static const token_t RECURSIVE_TOKEN = {'R','E','C','U','R','S','I','V','E'};
+  static const token_t THEN_TOKEN = {'T','H','E','N'};
+  static const token_t THEOREM_TOKEN = {'T','H','E','O','R','E','M'};
+  static const token_t VARIABLE_TOKEN = {'V','A','R','I','A','B','L','E'};
+  static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
+
+  static const std::vector<token_t> UNIT_TOKENS = {
+    ASSUME_TOKEN,
+    ASSUMPTION_TOKEN,
+    AXIOM_TOKEN,
+    CONSTANT_TOKEN,
+    CONSTANTS_TOKEN,
+    COROLLARY_TOKEN,
+    INSTANCE_TOKEN,
+    LEMMA_TOKEN,
+    LOCAL_TOKEN,
+    PROPOSITION_TOKEN,
+    RECURSIVE_TOKEN,
+    THEOREM_TOKEN,
+    VARIABLE_TOKEN,
+    VARIABLES_TOKEN
   };
 
   /**
@@ -49,7 +99,7 @@ namespace {
    * @param codepoint The codepoint to check.
    * @return Whether the next codepoint is the one given.
    */
-  bool next_codepoint_is(
+  bool is_next_codepoint(
     const TSLexer* const lexer,
     int32_t const codepoint
   ) {
@@ -63,7 +113,7 @@ namespace {
    * @return Whether there are any codepoints left in the string.
    */
   bool has_next(const TSLexer* const lexer) {
-    return !next_codepoint_is(lexer, 0);
+    return !is_next_codepoint(lexer, 0);
   }
 
   /**
@@ -80,48 +130,229 @@ namespace {
   }
 
   /**
+   * Consumes codepoints as long as the given condition function returns
+   * true, or lexer hits EOF.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param is_whitespace Whether to mark consumed as whitespace.
+   * @param condition Function determining whether to continue consuming.
+   * @return Number of codepoints consumed.
+   **/
+  size_t consume_while(
+    TSLexer* const lexer,
+    const bool is_whitespace,
+    const std::function<bool(int32_t)>& condition
+  ) {
+    size_t consume_count = 0;
+    while (has_next(lexer) && condition(next_codepoint(lexer))) {
+      lexer->advance(lexer, is_whitespace);
+      consume_count++;
+    }
+
+    return consume_count;
+  }
+
+  /**
    * Checks whether the next token is the one given.
    * A token is a sequence of codepoints.
    * This function can change the state of the lexer.
+   * Keeps track of number of consumed codepoints.
    * 
    * @param lexer The tree-sitter lexing control structure.
+   * @param token The token to check for.
+   * @param out_consumed_count Out parameter; number of codepoints consumed.
    * @return Whether the next token is the one given.
    */
   bool is_next_token(
     TSLexer* const lexer,
-    const std::vector<int32_t>& token
+    const token_t& token,
+    size_t& out_consumed_count
   ) {
-    for (auto codepoint : token) {
-      if (!next_codepoint_is(lexer, codepoint)) {
+    for (int32_t codepoint : token) {
+      if (!is_next_codepoint(lexer, codepoint)) {
         return false;
       }
 
       advance(lexer);
+      out_consumed_count++;
     }
 
     return true;
   }
 
   /**
+   * Checks whether the next token is the one given.
+   * A token is a sequence of codepoints.
+   * This function can change the state of the lexer.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param token The token to check for.
+   * @return Whether the next token is the one given.
+   */
+  bool is_next_token(TSLexer* const lexer, const token_t& token) {
+    size_t consumed;
+    return is_next_token(lexer, token, consumed);
+  }
+
+  /**
+   * Looks ahead at a list of tokens to see whether any match.
+   * Given multiple matches, returns index of longest.
+   * Returns -1 if no matches.
+   * Works best with small (fewer than 10) number of possible tokens, as
+   * for simplicity complexity is |tokens| * max({|t| : t \in tokens}).
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param tokens The list of tokens to check for.
+   * @return Index in list of token matched, or -1 if no matches.
+   **/
+  int token_lookahead(
+    TSLexer* const lexer,
+    const std::vector<token_t>& tokens
+  ) {
+    bool any_undecided = true;
+    std::vector<bool> decided(tokens.size());
+    std::vector<int> matches;
+    for (
+      size_t lookahead = 0;
+      any_undecided && has_next(lexer);
+      lookahead++, advance(lexer)
+    ) {
+      any_undecided = false;
+      for (int i = 0; i < tokens.size(); i++) {
+        if (!decided.at(i)) {
+          const token_t& token = tokens.at(i);
+          if (is_next_codepoint(lexer, token.at(lookahead))) {
+            if (lookahead + 1 == token.size()) {
+              decided[i] = true;
+              matches.push_back(i);
+            } else {
+              any_undecided = true;
+            }
+          } else {
+            // Not a match
+            decided[i] = true;
+          }
+        }
+      }
+    }
+
+    // Pick longest match
+    size_t longest_match_length = 0;
+    int longest_match_index = -1;
+    for (int match : matches) {
+      if (tokens.at(match).size() > longest_match_length) {
+        longest_match_index = match;
+      }
+    }
+
+    return longest_match_index;
+  }
+
+  /**
    * Checks whether the next token is a module-level unit.
-   * TODO: implement this logic
+   * Currently works for units that start with keywords (RECURSIVE,
+   * THEOREM, etc.)
+   * TODO: implement this logic for the rest of the unit definitions.
+   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/3
    * 
    * @param lexer the tree-sitter lexing control structure.
    * @return Whether the next token is a unit.
    */
   bool is_next_token_unit(TSLexer* const lexer) {
-    return false;
+    return token_lookahead(lexer, UNIT_TOKENS) != -1;
   }
 
   /**
-   * Consumes whitespace until it encounters a non-whitespace codepoint.
+   * Scans for extramodular text, the freeform text that can be present
+   * outside of TLA+ modules. This function skips any leading whitespace
+   * to avoid extraneous extramodular text tokens given newlines at the
+   * beginning or end of the file. It will consume any text up to the
+   * point it performs lookahead that captures the following regex:
+   *     /----[-]*[ ]*MODULE/
+   * or EOF, which marks the end of the extramodular text. It is important
+   * that the extramodular text does not itself include the captured module
+   * start sequence, which is why this is in an external scanner rather
+   * than a regex in the grammar itself.
+   *
+   * @param lexer The tree-sitter lexing control structure
+   * @return Whether any extramodular text was detected.
+   **/
+  bool scan_extramodular_text(TSLexer* const lexer) {
+    lexer->result_symbol = EXTRAMODULAR_TEXT;
+    consume_while(lexer, true, is_whitespace);
+    bool has_consumed_any = false;
+    while (has_next(lexer)) {
+      if (is_next_codepoint(lexer, '-')) {
+        lexer->mark_end(lexer);
+        if (is_next_token(lexer, SINGLE_LINE_TOKEN)) {
+          consume_while(lexer, false, [](int32_t cp) {return '-' == cp;});
+          consume_while(lexer, false, [](int32_t cp) {return ' ' == cp;});
+          if (is_next_token(lexer, MODULE_TOKEN)) {
+            return has_consumed_any;
+          } else {
+            has_consumed_any = true;
+          }
+        } else {
+          has_consumed_any = true;
+        }
+      } else {
+        advance(lexer);
+        has_consumed_any = true;
+      }
+    }
+
+    lexer->mark_end(lexer);
+    return has_consumed_any;
+  }
+
+  /**
+   * Scans for block comment text. This is any text except the block
+   * comment start & end tokens, (* and *). This function will consume
+   * everything up to (but not including) those tokens, until it hits
+   * the end of the file. It is important that this function only returns
+   * true if it has consumed at least 1 character, as otherwise the parser
+   * enters an infinite loop. It is also important that the function not
+   * consume the block comment start & end tokens themselves, which is why
+   * this is in an external scanner rather than a regex in the grammar
+   * itself.
+   * 
+   * For more info, see:
+   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
    * 
    * @param lexer The tree-sitter lexing control structure.
-   */
-  void consume_whitespace(TSLexer* const lexer) {
-    while (is_whitespace(next_codepoint(lexer))) {
-      skip(lexer);
+   * @return Whether any block comment text was detected.
+   **/
+  bool scan_block_comment_text(TSLexer* const lexer) {
+    lexer->result_symbol = BLOCK_COMMENT_TEXT;
+    bool has_consumed_any = false;
+    while (has_next(lexer)) {
+      switch (next_codepoint(lexer)) {
+        case '*': {
+          lexer->mark_end(lexer);
+          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN)) {
+            return has_consumed_any;
+          } else {
+            has_consumed_any = true;
+            break;
+          }
+        }
+        case '(': {
+          lexer->mark_end(lexer);
+          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN)) {
+            return has_consumed_any;
+          } else {
+            has_consumed_any = true;
+            break;
+          }
+        }
+        default:
+          advance(lexer);
+          has_consumed_any = true;
+      }
     }
+
+    lexer->mark_end(lexer);
+    return has_consumed_any;
   }
 
   /**
@@ -137,15 +368,6 @@ namespace {
     OTHER             // Tokens not requiring special handling logic.
   };
 
-  static const std::vector<int32_t> LAND_TOKEN = {'/', '\\'};
-  static const std::vector<int32_t> LOR_TOKEN = {'\\', '/'};
-  static const std::vector<int32_t> R_ANGLE_BRACKET_TOKEN = {'>', '>'};
-  static const std::vector<int32_t> MODULE_END_TOKEN = {'=', '=', '=', '='};
-  static const std::vector<int32_t> THEN_TOKEN = {'T', 'H', 'E', 'N'};
-  static const std::vector<int32_t> ELSE_TOKEN = {'E', 'L', 'S', 'E'};
-  static const std::vector<int32_t> CASE_ARROW_TOKEN = {'-', '>'};
-  static const std::vector<int32_t> IN_TOKEN = {'I', 'N'};
-
   using column_index = int16_t;
 
   /**
@@ -159,7 +381,7 @@ namespace {
     TSLexer* const lexer,
     column_index& out_col
   ) {
-    consume_whitespace(lexer);
+    consume_while(lexer, true, is_whitespace);
     lexer->mark_end(lexer);
     out_col = lexer->get_column(lexer);
 
@@ -185,9 +407,17 @@ namespace {
       case 'T': // IF/THEN
         return is_next_token(lexer, THEN_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
-      case '-': // CASE/-> or []/->
-        return is_next_token(lexer, CASE_ARROW_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
+      case '-': { // CASE/-> or []/-> or ----
+        const int result = token_lookahead(
+          lexer,
+          {CASE_ARROW_TOKEN, SINGLE_LINE_TOKEN}
+        );
+        switch (result) {
+          case -1: return OTHER;
+          case 0: return RIGHT_DELIMITER;
+          case 1: return UNIT;
+        }
+      }
       case '>':
         return is_next_token(lexer, R_ANGLE_BRACKET_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
@@ -636,7 +866,11 @@ namespace {
      * @return Whether a token was encountered.
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
-      if (valid_symbols[INDENT]
+      if(valid_symbols[EXTRAMODULAR_TEXT]) {
+        return scan_extramodular_text(lexer);
+      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
+        return scan_block_comment_text(lexer);
+      } else if (valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
         || valid_symbols[DEDENT]
       ) {
@@ -657,9 +891,9 @@ namespace {
           case OTHER:
             return handle_other_token(lexer, valid_symbols, col);
         }
+      } else {
+        return false;
       }
-
-      return false;
     }
   };
 }
