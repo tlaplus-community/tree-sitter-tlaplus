@@ -9,5 +9,6 @@ test/example/Test.tla
 parser.exp
 parser.lib
 parser.obj
+parser.so
 scanner.obj
 test/examples/Test.tla

@@ -8,11 +8,11 @@ op == "Hello, world!"
 
 ------------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq) (string)
   ))
-))
+(double_line)))
 
 ==================|||
 Escape Quote String
@@ -24,8 +24,24 @@ op == "The cow goes \"moo\", the chicken goes \"cluck cluck\""
 
 ------------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq) (string)
   ))
-))
+(double_line)))
+
+==================|||
+Unicode String
+==================|||
+
+---- MODULE Test ----
+op == "加拿大"
+====
+
+------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq) (string)
+  ))
+(double_line)))

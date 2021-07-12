@@ -10,7 +10,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -18,7 +18,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Inline Disjlist
@@ -31,7 +31,7 @@ op == \/ 1
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -39,7 +39,7 @@ op == \/ 1
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Start-of-Line Disjlist
@@ -53,7 +53,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -61,7 +61,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Left-Shifted Disjlist
@@ -75,7 +75,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -84,7 +84,7 @@ op ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Right-Shifted Disjlist
@@ -98,7 +98,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -112,7 +112,7 @@ op ==
       )
     )
   ))
-))
+(double_line)))
 
 =============|||
 Separated Disjlist
@@ -127,7 +127,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -135,7 +135,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Multiline Disjlist
@@ -151,7 +151,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -159,7 +159,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Nested Disjlist
@@ -174,7 +174,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -188,7 +188,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Start-of-Line Nested Disjlist
@@ -203,7 +203,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -216,7 +216,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Infix Op Disjlist
@@ -231,7 +231,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -246,7 +246,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Division Infix Op Disjlist
@@ -261,7 +261,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -276,7 +276,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Infix Op Terminated Disjlist
@@ -291,7 +291,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -304,7 +304,7 @@ op ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Division Infix Op Terminated Disjlist
@@ -319,7 +319,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -332,7 +332,7 @@ op ==
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Not a Disjlist
@@ -344,7 +344,7 @@ op == 1 \/ 2
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -353,7 +353,7 @@ op == 1 \/ 2
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Disjlist with Parentheses
@@ -367,7 +367,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -375,7 +375,7 @@ op ==
       (disj_item (bullet_disj) (parentheses (number (nat_number))))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Disjlist Terminated by Parentheses
@@ -390,7 +390,7 @@ op == (
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -401,7 +401,7 @@ op == (
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Nested Disjlist Terminated by Parentheses
@@ -418,7 +418,7 @@ op == (
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_infix_op
@@ -438,7 +438,7 @@ op == (
       (number (nat_number))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Double-Nested Disjlist Terminated by Parentheses
@@ -457,7 +457,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -484,7 +484,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Overly-Permissive Disjlist Parentheses Parsing
@@ -500,7 +500,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -516,7 +516,7 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Module-End-Terminated Disjlist
@@ -529,7 +529,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -537,7 +537,84 @@ op ==
       (disj_item (bullet_disj) (number (nat_number)))
     )
   ))
-))
+(double_line)))
+
+=============|||
+Keyword-Unit-Terminated Disjlist
+=============|||
+
+---- MODULE Test ----
+op1 ==
+  \/ 1
+  \/ 2
+      ASSUME x
+
+op2 ==
+  \/ 3
+  \/ 4
+      LOCAL INSTANCE ModuleName
+
+op3 ==
+  \/ 5
+  \/ 6
+      -----------------
+
+op4 ==
+  \/ 7
+  \/ 8
+      ---- MODULE Nested ----
+      ====
+
+op5 ==
+  \/ 9
+  \/ 10
+      VARIABLES x, y
+====
+
+-------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+  (unit (assumption (identifier)))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+  (unit (instance (identifier)))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+  (unit (single_line))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+  (unit (module (single_line) (identifier) (single_line) (double_line)))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+  (unit (variable_declaration (identifier) (identifier)))
+(double_line)))
 
 =============|||
 Disjlist with Empty Tuple
@@ -551,7 +628,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -559,7 +636,7 @@ op ==
       (disj_item (bullet_disj) (tuple_literal (langle_bracket) (rangle_bracket)))
     )
   ))
-))
+(double_line)))
 
 =============|||
 Disjlist with Empty Set
@@ -573,7 +650,7 @@ op ==
 
 -------------|||
 
-(source_file (module (identifier)
+(source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
@@ -581,201 +658,4 @@ op ==
       (disj_item (bullet_disj) (finite_set_literal))
     )
   ))
-))
-
-=============|||
-Disjlist with ITE
-=============|||
-
----- MODULE Test ----
-op ==
-  \/  IF 1
-      THEN 2
-      ELSE 3
-  \/ 4
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (disj_list
-      (disj_item
-        (bullet_disj)
-        (if_then_else
-          (number (nat_number))
-          (number (nat_number))
-          (number (nat_number))
-        )
-      )
-      (disj_item (bullet_disj) (number (nat_number)))
-    )
-  ))
-))
-
-=============|||
-Disjlist inside ITE
-=============|||
-
----- MODULE Test ----
-op ==
-  IF
-    \/ 1
-    \/ 2
-      THEN 3
-      ELSE 4
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (if_then_else
-      (disj_list
-        (disj_item (bullet_disj) (number (nat_number)))
-        (disj_item (bullet_disj) (number (nat_number)))
-      )
-      (number (nat_number))
-      (number (nat_number))
-    )
-  ))
-))
-
-=============|||
-Disjlist with CASE
-=============|||
-
----- MODULE Test ----
-op ==
-  \/  CASE 1 -> 2
-      [] 3 -> 2
-      [] OTHER -> 5
-  \/ 6
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (disj_list
-      (disj_item
-        (bullet_disj)
-        (case
-          (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (other_arm (case_arrow) (number (nat_number)))
-        )
-      )
-      (disj_item (bullet_disj) (number (nat_number)))
-    )
-  ))
-))
-
-=============|||
-Disjlist inside CASE
-=============|||
-
----- MODULE Test ----
-op ==
-  CASE
-    \/ 1
-    \/ 2
-      ->
-        \/ 3
-        \/ 4
-  []
-    \/ 5
-    \/ 6
-      ->
-        \/ 7
-        \/ 8
-  [] OTHER ->
-    \/ 7
-    \/ 8
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (case
-      (case_arm
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
-        (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
-      )
-      (case_box)
-      (case_arm
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
-        (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
-      )
-      (case_box)
-      (other_arm (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
-      )
-    )
-  ))
-))
-
-=============|||
-Disjlist with LET/IN
-=============|||
-
----- MODULE Test ----
-op ==
-  \/ LET x == 1 IN 2
-  \/ 3
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (disj_list
-      (disj_item
-        (bullet_disj)
-        (let_in
-          (operator_definition (identifier) (def_eq) (number (nat_number)))
-          (number (nat_number))
-        )
-      )
-      (disj_item (bullet_disj) (number (nat_number)))
-    )
-  ))
-))
-
-=============|||
-Disjlist inside LET/IN
-=============|||
-
----- MODULE Test ----
-op ==
-  LET
-    x ==
-      \/ 1
-      \/ 2
-        IN 3
-====
-
--------------|||
-
-(source_file (module (identifier)
-  (unit (operator_definition
-    (identifier) (def_eq)
-    (let_in
-      (operator_definition (identifier) (def_eq)
-        (disj_list
-          (disj_item (bullet_disj) (number (nat_number)))
-          (disj_item (bullet_disj) (number (nat_number)))
-        )
-      )
-      (number (nat_number))
-    )
-  ))
-))
+(double_line)))

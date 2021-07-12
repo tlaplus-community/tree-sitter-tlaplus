@@ -139,22 +139,20 @@ module.exports = grammar({
 
     // Top-level module declaration
     module: $ => seq(
-      $._single_line,
-      'MODULE', field('name', $.identifier),
-      $._single_line,
+      $.single_line, 'MODULE', field('name', $.identifier), $.single_line,
       optional($.extends),
       repeat($.unit),
-      $._double_line
+      $.double_line
     ),
 
     // Line of ---------- of length at least 4
-    _single_line: $ => seq(
+    single_line: $ => seq(
       '----',
       token.immediate(repeat(token.immediate('-')))
     ),
 
     // Line of =========== of length at least 4
-    _double_line: $ => seq(
+    double_line: $ => seq(
       '====',
       token.immediate(repeat(token.immediate('=')))
     ),
@@ -221,7 +219,7 @@ module.exports = grammar({
         $.assumption,
         $.theorem,
         $.module,
-        $._single_line
+        $.single_line
     ),
 
     // VARIABLES v1, v2, v3

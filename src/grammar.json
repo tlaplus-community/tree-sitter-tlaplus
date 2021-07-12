@@ -71,7 +71,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         },
         {
           "type": "STRING",
@@ -87,7 +87,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         },
         {
           "type": "CHOICE",
@@ -110,11 +110,11 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_double_line"
+          "name": "double_line"
         }
       ]
     },
-    "_single_line": {
+    "single_line": {
       "type": "SEQ",
       "members": [
         {
@@ -136,7 +136,7 @@
         }
       ]
     },
-    "_double_line": {
+    "double_line": {
       "type": "SEQ",
       "members": [
         {
@@ -754,7 +754,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_single_line"
+          "name": "single_line"
         }
       ]
     },

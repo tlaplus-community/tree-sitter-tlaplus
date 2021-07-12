@@ -48,7 +48,6 @@ namespace {
   static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
 
   static const std::vector<token_t> UNIT_TOKENS = {
-    SINGLE_LINE_TOKEN,
     ASSUME_TOKEN,
     ASSUMPTION_TOKEN,
     AXIOM_TOKEN,
@@ -408,9 +407,17 @@ namespace {
       case 'T': // IF/THEN
         return is_next_token(lexer, THEN_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
-      case '-': // CASE/-> or []/->
-        return is_next_token(lexer, CASE_ARROW_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
+      case '-': { // CASE/-> or []/-> or ----
+        const int result = token_lookahead(
+          lexer,
+          {CASE_ARROW_TOKEN, SINGLE_LINE_TOKEN}
+        );
+        switch (result) {
+          case -1: return OTHER;
+          case 0: return RIGHT_DELIMITER;
+          case 1: return UNIT;
+        }
+      }
       case '>':
         return is_next_token(lexer, R_ANGLE_BRACKET_TOKEN)
           ? RIGHT_DELIMITER : OTHER;
