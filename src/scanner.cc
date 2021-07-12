@@ -20,10 +20,18 @@ namespace {
 
   using token_t = std::vector<int32_t>;
 
+  // All the tokens the external scanner cares about.
   static const token_t LAND_TOKEN = {'/','\\'};
+  static const token_t UNICODE_LAND_TOKEN = {L'∧'};
   static const token_t LOR_TOKEN = {'\\','/'};
+  static const token_t UNICODE_LOR_TOKEN = {L'∨'};
+  static const token_t R_PARENTHESIS_TOKEN = {')'};
+  static const token_t R_SQUARE_BRACKET_TOKEN = {']'};
+  static const token_t R_CURLY_BRACE_TOKEN = {'}'};
   static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
+  static const token_t UNICODE_R_ANGLE_BRACKET_TOKEN = {L'〉'};
   static const token_t CASE_ARROW_TOKEN = {'-','>'};
+  static const token_t UNICODE_CASE_ARROW_TOKEN = {L'⟶'};
   static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
   static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
   static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
@@ -47,21 +55,61 @@ namespace {
   static const token_t VARIABLE_TOKEN = {'V','A','R','I','A','B','L','E'};
   static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
 
-  static const std::vector<token_t> UNIT_TOKENS = {
-    ASSUME_TOKEN,
-    ASSUMPTION_TOKEN,
-    AXIOM_TOKEN,
-    CONSTANT_TOKEN,
-    CONSTANTS_TOKEN,
-    COROLLARY_TOKEN,
-    INSTANCE_TOKEN,
-    LEMMA_TOKEN,
-    LOCAL_TOKEN,
-    PROPOSITION_TOKEN,
-    RECURSIVE_TOKEN,
-    THEOREM_TOKEN,
-    VARIABLE_TOKEN,
-    VARIABLES_TOKEN
+  /**
+   * Interesting token types for the purpose of parsing junctlists.
+   */
+  enum LookaheadTokenType {
+    LAND,             // /\ or ∧
+    LOR,              // \/ or ∨
+    RIGHT_DELIMITER,  // ), ], }, 〉, or >>
+    UNIT,             // op == expr, etc.
+    MODULE_END,       // ====
+    END_OF_FILE,      // The end of the file.
+    OTHER             // Tokens not requiring special handling logic.
+  };
+
+  /**
+   * A type for representing association between tokens and their category.
+   */
+  struct TokenTypeMap {
+    const token_t& token;
+    LookaheadTokenType type;
+    TokenTypeMap(const token_t& tk, LookaheadTokenType tp)
+      : token(tk), type(tp) {}
+  };
+
+  // The actual mapping between tokens and their type/category.
+  static const std::vector<TokenTypeMap> LOOKAHEAD_TOKEN_TYPE_MAPPING = {
+    TokenTypeMap(LAND_TOKEN, LAND),
+    TokenTypeMap(UNICODE_LAND_TOKEN, LAND),
+    TokenTypeMap(LOR_TOKEN, LOR),
+    TokenTypeMap(UNICODE_LOR_TOKEN, LOR),
+    TokenTypeMap(R_PARENTHESIS_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(R_SQUARE_BRACKET_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(R_CURLY_BRACE_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(CASE_ARROW_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(SINGLE_LINE_TOKEN, UNIT),
+    TokenTypeMap(MODULE_END_TOKEN, MODULE_END),
+    TokenTypeMap(ASSUME_TOKEN, UNIT),
+    TokenTypeMap(ASSUMPTION_TOKEN, UNIT),
+    TokenTypeMap(AXIOM_TOKEN, UNIT),
+    TokenTypeMap(CONSTANT_TOKEN, UNIT),
+    TokenTypeMap(CONSTANTS_TOKEN, UNIT),
+    TokenTypeMap(COROLLARY_TOKEN, UNIT),
+    TokenTypeMap(ELSE_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(IN_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(INSTANCE_TOKEN, UNIT),
+    TokenTypeMap(LEMMA_TOKEN, UNIT),
+    TokenTypeMap(LOCAL_TOKEN, UNIT),
+    TokenTypeMap(PROPOSITION_TOKEN, UNIT),
+    TokenTypeMap(RECURSIVE_TOKEN, UNIT),
+    TokenTypeMap(THEN_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(THEOREM_TOKEN, UNIT),
+    TokenTypeMap(VARIABLE_TOKEN, UNIT),
+    TokenTypeMap(VARIABLES_TOKEN, UNIT)
   };
 
   /**
@@ -196,18 +244,17 @@ namespace {
 
   /**
    * Looks ahead at a list of tokens to see whether any match.
-   * Given multiple matches, returns index of longest.
-   * Returns -1 if no matches.
-   * Works best with small (fewer than 10) number of possible tokens, as
+   * Given multiple matches, returns type of longest.
+   * Works best with small (fewer than 100) number of possible tokens, as
    * for simplicity complexity is |tokens| * max({|t| : t \in tokens}).
    * 
    * @param lexer The tree-sitter lexing control structure.
-   * @param tokens The list of tokens to check for.
-   * @return Index in list of token matched, or -1 if no matches.
+   * @param tokens The list of tokens to check for, with types.
+   * @return Type of token matched, or Other if none matched.
    **/
-  int token_lookahead(
+  LookaheadTokenType token_lookahead(
     TSLexer* const lexer,
-    const std::vector<token_t>& tokens
+    const std::vector<TokenTypeMap>& tokens
   ) {
     bool any_undecided = true;
     std::vector<bool> decided(tokens.size());
@@ -220,7 +267,7 @@ namespace {
       any_undecided = false;
       for (int i = 0; i < tokens.size(); i++) {
         if (!decided.at(i)) {
-          const token_t& token = tokens.at(i);
+          const token_t& token = tokens.at(i).token;
           if (is_next_codepoint(lexer, token.at(lookahead))) {
             if (lookahead + 1 == token.size()) {
               decided[i] = true;
@@ -238,28 +285,14 @@ namespace {
 
     // Pick longest match
     size_t longest_match_length = 0;
-    int longest_match_index = -1;
+    LookaheadTokenType longest_match_type = OTHER;
     for (int match : matches) {
-      if (tokens.at(match).size() > longest_match_length) {
-        longest_match_index = match;
+      if (tokens.at(match).token.size() > longest_match_length) {
+        longest_match_type = tokens.at(match).type;
       }
     }
 
-    return longest_match_index;
-  }
-
-  /**
-   * Checks whether the next token is a module-level unit.
-   * Currently works for units that start with keywords (RECURSIVE,
-   * THEOREM, etc.)
-   * TODO: implement this logic for the rest of the unit definitions.
-   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/3
-   * 
-   * @param lexer the tree-sitter lexing control structure.
-   * @return Whether the next token is a unit.
-   */
-  bool is_next_token_unit(TSLexer* const lexer) {
-    return token_lookahead(lexer, UNIT_TOKENS) != -1;
+    return longest_match_type;
   }
 
   /**
@@ -355,23 +388,10 @@ namespace {
     return has_consumed_any;
   }
 
-  /**
-   * Interesting token types for the purpose of parsing junctlists.
-   */
-  enum LookaheadTokenType {
-    LAND,             // /\ or ∧
-    LOR,              // \/ or ∨
-    RIGHT_DELIMITER,  // ), ], }, 〉, or >>
-    UNIT,             // op == expr, etc.
-    MODULE_END,       // ====
-    END_OF_FILE,      // The end of the file.
-    OTHER             // Tokens not requiring special handling logic.
-  };
-
   using column_index = int16_t;
 
   /**
-   * Scans for & identifies the next interesting token.
+   * Scans for & identifies the next token relevant to junctlists.
    * 
    * @param lexer The tree-sitter lexing control structure.
    * @param out_col Out parameter; the column of the identified token.
@@ -384,49 +404,10 @@ namespace {
     consume_while(lexer, true, is_whitespace);
     lexer->mark_end(lexer);
     out_col = lexer->get_column(lexer);
-
-    if (!has_next(lexer)) {
-      return END_OF_FILE;
-    }
-
-    switch (next_codepoint(lexer)) {
-      case L'∧': return LAND;
-      case '/': return is_next_token(lexer, LAND_TOKEN) ? LAND : OTHER;
-      case L'∨': return LOR;
-      case '\\': return is_next_token(lexer, LOR_TOKEN) ? LOR : OTHER;
-      case ')': return RIGHT_DELIMITER;
-      case ']': return RIGHT_DELIMITER;
-      case '}': return RIGHT_DELIMITER;
-      case L'〉': return RIGHT_DELIMITER;
-      case 'E': // THEN/ELSE
-        return is_next_token(lexer, ELSE_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
-      case 'I': // LET/IN
-        return is_next_token(lexer, IN_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
-      case 'T': // IF/THEN
-        return is_next_token(lexer, THEN_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
-      case '-': { // CASE/-> or []/-> or ----
-        const int result = token_lookahead(
-          lexer,
-          {CASE_ARROW_TOKEN, SINGLE_LINE_TOKEN}
-        );
-        switch (result) {
-          case -1: return OTHER;
-          case 0: return RIGHT_DELIMITER;
-          case 1: return UNIT;
-        }
-      }
-      case '>':
-        return is_next_token(lexer, R_ANGLE_BRACKET_TOKEN)
-          ? RIGHT_DELIMITER : OTHER;
-      case '=':
-        return is_next_token(lexer, MODULE_END_TOKEN)
-          ? MODULE_END : OTHER;
-      default:
-        return is_next_token_unit(lexer) ? UNIT : OTHER;
-    }
+    return
+      !has_next(lexer)
+      ? END_OF_FILE
+      : token_lookahead(lexer, LOOKAHEAD_TOKEN_TYPE_MAPPING);
   }
 
   enum JunctType {
