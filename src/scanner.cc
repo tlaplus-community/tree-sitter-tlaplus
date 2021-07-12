@@ -22,6 +22,7 @@ namespace {
   static const token_t LAND_TOKEN = {'/', '\\'};
   static const token_t LOR_TOKEN = {'\\', '/'};
   static const token_t R_ANGLE_BRACKET_TOKEN = {'>', '>'};
+  static const token_t SINGLE_LINE_TOKEN = {'-', '-', '-', '-'};
   static const token_t MODULE_END_TOKEN = {'=', '=', '=', '='};
   static const token_t THEN_TOKEN = {'T', 'H', 'E', 'N'};
   static const token_t ELSE_TOKEN = {'E', 'L', 'S', 'E'};
@@ -66,7 +67,7 @@ namespace {
    * @param codepoint The codepoint to check.
    * @return Whether the next codepoint is the one given.
    */
-  bool next_codepoint_is(
+  bool is_next_codepoint(
     const TSLexer* const lexer,
     int32_t const codepoint
   ) {
@@ -80,7 +81,7 @@ namespace {
    * @return Whether there are any codepoints left in the string.
    */
   bool has_next(const TSLexer* const lexer) {
-    return !next_codepoint_is(lexer, 0);
+    return !is_next_codepoint(lexer, 0);
   }
 
   /**
@@ -111,20 +112,43 @@ namespace {
    * Checks whether the next token is the one given.
    * A token is a sequence of codepoints.
    * This function can change the state of the lexer.
+   * Keeps track of number of consumed codepoints.
    * 
    * @param lexer The tree-sitter lexing control structure.
+   * @param token The token to check for.
+   * @param out_consumed_count Out parameter; number of codepoints consumed.
    * @return Whether the next token is the one given.
    */
-  bool is_next_token(TSLexer* const lexer, const token_t& token) {
-    for (auto codepoint : token) {
-      if (!next_codepoint_is(lexer, codepoint)) {
+  bool is_next_token(
+    TSLexer* const lexer,
+    const token_t& token,
+    size_t& out_consumed_count
+  ) {
+    out_consumed_count = 0;
+    for (int32_t codepoint : token) {
+      if (!is_next_codepoint(lexer, codepoint)) {
         return false;
       }
 
       advance(lexer);
+      out_consumed_count++;
     }
 
     return true;
+  }
+
+  /**
+   * Checks whether the next token is the one given.
+   * A token is a sequence of codepoints.
+   * This function can change the state of the lexer.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param token The token to check for.
+   * @return Whether the next token is the one given.
+   */
+  bool is_next_token(TSLexer* const lexer, const token_t& token) {
+    size_t consumed;
+    return is_next_token(lexer, token, consumed);
   }
 
   enum Match {
@@ -148,7 +172,7 @@ namespace {
       for (size_t i = 0; i < tokens.size(); i++) {
         const token_t& token = tokens.at(i);
         if (UNKNOWN == token_match_result.at(i)) {
-          if (next_codepoint_is(lexer, token.at(lookahead))) {
+          if (is_next_codepoint(lexer, token.at(lookahead))) {
             if (lookahead + 1 == token.size()) {
               token_match_result[i] = MATCH;
             } else {
@@ -189,64 +213,110 @@ namespace {
     return false;
   }
 
-  size_t consume_hyphens(TSLexer* const lexer) {
-    size_t hyphen_count = 0;
-    while (next_codepoint_is(lexer, '-')) {
+  /**
+   * Consumes a given codepoint until a different codepoint is encountered.
+   *
+   * @param lexer The tree-sitter lexing control structure.
+   * @param codepoint The type of codepoint to consume.
+   * @return The number of codepoints consumed.
+   **/
+  size_t consume_codepoint(TSLexer* const lexer, int32_t codepoint) {
+    size_t consumed_count = 0;
+    while (is_next_codepoint(lexer, codepoint)) {
       advance(lexer);
-      hyphen_count++;
+      consumed_count++;
     }
 
-    return hyphen_count;
+    return consumed_count;
   }
 
+  /**
+   * Scans for extramodular text, the freeform text that can be present
+   * outside of TLA+ modules. This function skips any leading whitespace
+   * to avoid extraneous extramodular text tokens given newlines at the
+   * beginning or end of the file. It will consume any text up to the
+   * point it performs lookahead that captures the following regex:
+   *     /----[-]*[ ]*MODULE/
+   * or EOF, which marks the end of the extramodular text. It is important
+   * that the extramodular text does not itself include the captured module
+   * start sequence, which is why this is in an external scanner rather
+   * than a regex in the grammar itself.
+   *
+   * @param lexer The tree-sitter lexing control structure
+   * @return Whether any extramodular text was detected.
+   **/
   bool scan_extramodular_text(TSLexer* const lexer) {
     lexer->result_symbol = EXTRAMODULAR_TEXT;
-    size_t hyphen_count = 0;
-    size_t consume_count = 0;
+    consume_whitespace(lexer);
+    size_t consumed_count = 0;
     while (has_next(lexer)) {
-      if (next_codepoint_is(lexer, '-')) {
-        if (0 == hyphen_count) {
-          lexer->mark_end(lexer);
+      if (is_next_codepoint(lexer, '-')) {
+        lexer->mark_end(lexer);
+        size_t possibly_consumed = 0;
+        size_t consumed;
+        if (is_next_token(lexer, SINGLE_LINE_TOKEN, consumed)) {
+          possibly_consumed += consumed;
+          possibly_consumed += consume_codepoint(lexer, '-');
+          possibly_consumed += consume_codepoint(lexer, ' ');
+          if (is_next_token(lexer, MODULE_TOKEN, consumed)) {
+            return consumed_count > 0;
+          } else {
+            consumed_count += possibly_consumed + consumed;
+          }
+        } else {
+          consumed_count += possibly_consumed;
         }
-
-        hyphen_count++;
-      } else if (is_whitespace(next_codepoint(lexer))) {
-        if (hyphen_count < 4) {
-          hyphen_count = 0;
-        }
-
-        skip(lexer);
-        consume_count++;
       } else {
+        consumed_count++;
         advance(lexer);
-        consume_count++;
       }
     }
 
-    return consume_count > 0;
+    return consumed_count > 0;
   }
 
-  bool scan_block_comment_text_simple(TSLexer* const lexer) {
+  /**
+   * Scans for block comment text. This is any text except the block
+   * comment start & end tokens, (* and *). This function will consume
+   * everything up to (but not including) those tokens, until it hits
+   * the end of the file. It is important that this function only returns
+   * true if it has consumed at least 1 character, as otherwise the parser
+   * enters an infinite loop. It is also important that the function not
+   * consume the block comment start & end tokens themselves, which is why
+   * this is in an external scanner rather than a regex in the grammar
+   * itself.
+   * 
+   * For more info, see:
+   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @return Whether any block comment text was detected.
+   **/
+  bool scan_block_comment_text(TSLexer* const lexer) {
     lexer->result_symbol = BLOCK_COMMENT_TEXT;
     size_t consumed_count = 0;
     while (has_next(lexer)) {
       switch (next_codepoint(lexer)) {
-        case '*':
+        case '*': {
           lexer->mark_end(lexer);
-          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN)) {
+          size_t consumed;
+          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN, consumed)) {
             return consumed_count > 0;
           } else {
-            consumed_count++;
+            consumed_count += consumed;
             break;
           }
-        case '(':
+        }
+        case '(': {
           lexer->mark_end(lexer);
-          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN)) {
+          size_t consumed;
+          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN, consumed)) {
             return consumed_count > 0;
           } else {
-            consumed_count++;
+            consumed_count += consumed;
             break;
           }
+        }
         default:
           consumed_count++;
           advance(lexer);
@@ -254,46 +324,6 @@ namespace {
     }
 
     return consumed_count > 0;
-  }
-
-  bool scan_block_comment_text(TSLexer* const lexer) {
-    lexer->result_symbol = BLOCK_COMMENT_TEXT;
-    int32_t last_consumed = '^';
-    size_t consume_count = 0;
-    while (has_next(lexer)) {
-      if (next_codepoint_is(lexer, '(')) {
-        last_consumed = '(';
-        lexer->mark_end(lexer);
-        advance(lexer);
-        consume_count++;
-      } else if (next_codepoint_is(lexer, '*')) {
-        if ('(' == last_consumed) {
-          // Encountered (* without consuming
-          return consume_count > 1;
-        } else {
-          last_consumed = '*';
-          lexer->mark_end(lexer);
-          advance(lexer);
-          consume_count++;
-        }
-      } else if (next_codepoint_is(lexer, ')')) {
-        if ('*' == last_consumed) {
-          // Encountered *) without consuming
-          return consume_count > 1;
-        } else {
-          last_consumed = ')';
-          advance(lexer);
-          consume_count++;
-        }
-      } else {
-        last_consumed = '^';
-        advance(lexer);
-        consume_count++;
-      }
-    }
-
-    // If we reach EOF, declare entire read text as block comment text.
-    return consume_count > 0;
   }
 
   /**
@@ -802,7 +832,7 @@ namespace {
       if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
-        return scan_block_comment_text_simple(lexer);
+        return scan_block_comment_text(lexer);
       } else if (valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
         || valid_symbols[DEDENT]

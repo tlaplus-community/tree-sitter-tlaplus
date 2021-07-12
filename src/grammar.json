@@ -5,18 +5,42 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "module"
+          "type": "REPEAT1",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "extramodular_text"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "SYMBOL",
+                "name": "module"
+              }
+            ]
+          }
         },
         {
-          "type": "SYMBOL",
-          "name": "_postscript"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "extramodular_text"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
-    },
-    "_postscript": {
-      "type": "PATTERN",
-      "value": "(.|\\r?\\n)*"
     },
     "comment": {
       "type": "PATTERN",

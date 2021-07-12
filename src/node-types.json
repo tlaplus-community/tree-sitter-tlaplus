@@ -7999,9 +7999,13 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "extramodular_text",
+          "named": true
+        },
         {
           "type": "module",
           "named": true
@@ -10211,6 +10215,10 @@
   },
   {
     "type": "doldol",
+    "named": true
+  },
+  {
+    "type": "extramodular_text",
     "named": true
   },
   {
