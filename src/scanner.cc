@@ -20,18 +20,50 @@ namespace {
 
   using token_t = std::vector<int32_t>;
 
-  static const token_t LAND_TOKEN = {'/', '\\'};
-  static const token_t LOR_TOKEN = {'\\', '/'};
-  static const token_t R_ANGLE_BRACKET_TOKEN = {'>', '>'};
-  static const token_t SINGLE_LINE_TOKEN = {'-', '-', '-', '-'};
-  static const token_t MODULE_END_TOKEN = {'=', '=', '=', '='};
-  static const token_t THEN_TOKEN = {'T', 'H', 'E', 'N'};
-  static const token_t ELSE_TOKEN = {'E', 'L', 'S', 'E'};
-  static const token_t CASE_ARROW_TOKEN = {'-', '>'};
-  static const token_t IN_TOKEN = {'I', 'N'};
-  static const token_t MODULE_TOKEN = {'M', 'O', 'D', 'U', 'L', 'E'};
-  static const token_t BLOCK_COMMENT_START_TOKEN = {'(', '*'};
-  static const token_t BLOCK_COMMENT_END_TOKEN = {'*', ')'};
+  static const token_t LAND_TOKEN = {'/','\\'};
+  static const token_t LOR_TOKEN = {'\\','/'};
+  static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
+  static const token_t CASE_ARROW_TOKEN = {'-','>'};
+  static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
+  static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
+  static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
+  static const token_t MODULE_END_TOKEN = {'=','=','=','='};
+  static const token_t ASSUME_TOKEN = {'A','S','S','U','M','E'};
+  static const token_t ASSUMPTION_TOKEN = {'A','S','S','U','M','P','T','I','O','N'};
+  static const token_t AXIOM_TOKEN = {'A','X','I','O','M'};
+  static const token_t CONSTANT_TOKEN = {'C','O','N','S','T','A','N','T'};
+  static const token_t CONSTANTS_TOKEN = {'C','O','N','S','T','A','N','T','S'};
+  static const token_t COROLLARY_TOKEN = {'C','O','R','O','L','L','A','R','Y'};
+  static const token_t ELSE_TOKEN = {'E','L','S','E'};
+  static const token_t IN_TOKEN = {'I','N'};
+  static const token_t INSTANCE_TOKEN = {'I','N','S','T','A','N','C','E'};
+  static const token_t LEMMA_TOKEN = {'L','E','M','M','A'};
+  static const token_t LOCAL_TOKEN = {'L','O','C','A','L'};
+  static const token_t MODULE_TOKEN = {'M','O','D','U','L','E'};
+  static const token_t PROPOSITION_TOKEN = {'P','R','O','P','O','S','I','T','I','O','N'};
+  static const token_t RECURSIVE_TOKEN = {'R','E','C','U','R','S','I','V','E'};
+  static const token_t THEN_TOKEN = {'T','H','E','N'};
+  static const token_t THEOREM_TOKEN = {'T','H','E','O','R','E','M'};
+  static const token_t VARIABLE_TOKEN = {'V','A','R','I','A','B','L','E'};
+  static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
+
+  static const std::vector<token_t> UNIT_TOKENS = {
+    SINGLE_LINE_TOKEN,
+    ASSUME_TOKEN,
+    ASSUMPTION_TOKEN,
+    AXIOM_TOKEN,
+    CONSTANT_TOKEN,
+    CONSTANTS_TOKEN,
+    COROLLARY_TOKEN,
+    INSTANCE_TOKEN,
+    LEMMA_TOKEN,
+    LOCAL_TOKEN,
+    PROPOSITION_TOKEN,
+    RECURSIVE_TOKEN,
+    THEOREM_TOKEN,
+    VARIABLE_TOKEN,
+    VARIABLES_TOKEN
+  };
 
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
@@ -163,66 +195,72 @@ namespace {
     return is_next_token(lexer, token, consumed);
   }
 
-  enum Match {
-    UNKNOWN,
-    MATCH,
-    NOT_A_MATCH
-  };
-
+  /**
+   * Looks ahead at a list of tokens to see whether any match.
+   * Given multiple matches, returns index of longest.
+   * Returns -1 if no matches.
+   * Works best with small (fewer than 10) number of possible tokens, as
+   * for simplicity complexity is |tokens| * max({|t| : t \in tokens}).
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   * @param tokens The list of tokens to check for.
+   * @return Index in list of token matched, or -1 if no matches.
+   **/
   int token_lookahead(
     TSLexer* const lexer,
     const std::vector<token_t>& tokens
   ) {
-    bool any_unknown = true;
-    std::vector<Match> token_match_result(tokens.size());
+    bool any_undecided = true;
+    std::vector<bool> decided(tokens.size());
+    std::vector<int> matches;
     for (
       size_t lookahead = 0;
-      any_unknown && has_next(lexer);
+      any_undecided && has_next(lexer);
       lookahead++, advance(lexer)
     ) {
-      any_unknown = false;
-      for (size_t i = 0; i < tokens.size(); i++) {
-        const token_t& token = tokens.at(i);
-        if (UNKNOWN == token_match_result.at(i)) {
+      any_undecided = false;
+      for (int i = 0; i < tokens.size(); i++) {
+        if (!decided.at(i)) {
+          const token_t& token = tokens.at(i);
           if (is_next_codepoint(lexer, token.at(lookahead))) {
             if (lookahead + 1 == token.size()) {
-              token_match_result[i] = MATCH;
+              decided[i] = true;
+              matches.push_back(i);
             } else {
-              any_unknown = true;
+              any_undecided = true;
             }
           } else {
-            token_match_result[i] = NOT_A_MATCH;
+            // Not a match
+            decided[i] = true;
           }
         }
       }
     }
 
     // Pick longest match
-    bool any_match = false;
     size_t longest_match_length = 0;
-    int longest_match_index = 0;
-    for (int i = 0; i < token_match_result.size(); i++) {
-      if (MATCH == token_match_result.at(i)) {
-        any_match = true;
-        if (tokens.at(i).size() > longest_match_length) {
-          longest_match_length = tokens.at(i).size();
-          longest_match_index = i;
-        }
+    int longest_match_index = -1;
+    for (int match : matches) {
+      if (tokens.at(match).size() > longest_match_length) {
+        longest_match_index = match;
       }
     }
 
-    return any_match ? longest_match_index : -1;
+    return longest_match_index;
   }
 
   /**
    * Checks whether the next token is a module-level unit.
-   * TODO: implement this logic
+   * Currently works for units that start with keywords (RECURSIVE,
+   * THEOREM, etc.)
+   * TODO: implement this logic for the rest of the unit definitions.
+   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/3
    * 
    * @param lexer the tree-sitter lexing control structure.
    * @return Whether the next token is a unit.
    */
   bool is_next_token_unit(TSLexer* const lexer) {
-    return false;
+    return token_lookahead(lexer, UNIT_TOKENS) != -1;
   }
 
   /**
