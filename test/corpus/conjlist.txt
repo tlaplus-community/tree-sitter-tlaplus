@@ -569,6 +569,11 @@ op5 ==
   /\ 9
   /\ 10
       VARIABLES x, y
+
+op6 ==
+  /\ 11
+  /\ 12
+      INSTANCE ModuleName
 ====
 
 -------------|||
@@ -614,6 +619,14 @@ op5 ==
     )
   ))
   (unit (variable_declaration (identifier) (identifier)))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+  (unit (instance (identifier)))
 (double_line)))
 
 =============|||
