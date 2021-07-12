@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <cstring>
+#include <functional>
 
 namespace {
 
@@ -98,14 +99,26 @@ namespace {
   }
 
   /**
-   * Consumes whitespace until it encounters a non-whitespace codepoint.
+   * Consumes codepoints as long as the given condition function returns
+   * true, or lexer hits EOF.
    * 
    * @param lexer The tree-sitter lexing control structure.
-   */
-  void consume_whitespace(TSLexer* const lexer) {
-    while (is_whitespace(next_codepoint(lexer))) {
-      skip(lexer);
+   * @param is_whitespace Whether to mark consumed as whitespace.
+   * @param condition Function determining whether to continue consuming.
+   * @return Number of codepoints consumed.
+   **/
+  size_t consume_while(
+    TSLexer* const lexer,
+    const bool is_whitespace,
+    const std::function<bool(int32_t)>& condition
+  ) {
+    size_t consume_count = 0;
+    while (has_next(lexer) && condition(next_codepoint(lexer))) {
+      lexer->advance(lexer, is_whitespace);
+      consume_count++;
     }
+
+    return consume_count;
   }
 
   /**
@@ -124,7 +137,6 @@ namespace {
     const token_t& token,
     size_t& out_consumed_count
   ) {
-    out_consumed_count = 0;
     for (int32_t codepoint : token) {
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
@@ -214,23 +226,6 @@ namespace {
   }
 
   /**
-   * Consumes a given codepoint until a different codepoint is encountered.
-   *
-   * @param lexer The tree-sitter lexing control structure.
-   * @param codepoint The type of codepoint to consume.
-   * @return The number of codepoints consumed.
-   **/
-  size_t consume_codepoint(TSLexer* const lexer, int32_t codepoint) {
-    size_t consumed_count = 0;
-    while (is_next_codepoint(lexer, codepoint)) {
-      advance(lexer);
-      consumed_count++;
-    }
-
-    return consumed_count;
-  }
-
-  /**
    * Scans for extramodular text, the freeform text that can be present
    * outside of TLA+ modules. This function skips any leading whitespace
    * to avoid extraneous extramodular text tokens given newlines at the
@@ -247,32 +242,30 @@ namespace {
    **/
   bool scan_extramodular_text(TSLexer* const lexer) {
     lexer->result_symbol = EXTRAMODULAR_TEXT;
-    consume_whitespace(lexer);
-    size_t consumed_count = 0;
+    consume_while(lexer, true, is_whitespace);
+    bool has_consumed_any = false;
     while (has_next(lexer)) {
       if (is_next_codepoint(lexer, '-')) {
         lexer->mark_end(lexer);
-        size_t possibly_consumed = 0;
-        size_t consumed;
-        if (is_next_token(lexer, SINGLE_LINE_TOKEN, consumed)) {
-          possibly_consumed += consumed;
-          possibly_consumed += consume_codepoint(lexer, '-');
-          possibly_consumed += consume_codepoint(lexer, ' ');
-          if (is_next_token(lexer, MODULE_TOKEN, consumed)) {
-            return consumed_count > 0;
+        if (is_next_token(lexer, SINGLE_LINE_TOKEN)) {
+          consume_while(lexer, false, [](int32_t cp) {return '-' == cp;});
+          consume_while(lexer, false, [](int32_t cp) {return ' ' == cp;});
+          if (is_next_token(lexer, MODULE_TOKEN)) {
+            return has_consumed_any;
           } else {
-            consumed_count += possibly_consumed + consumed;
+            has_consumed_any = true;
           }
         } else {
-          consumed_count += possibly_consumed;
+          has_consumed_any = true;
         }
       } else {
-        consumed_count++;
         advance(lexer);
+        has_consumed_any = true;
       }
     }
 
-    return consumed_count > 0;
+    lexer->mark_end(lexer);
+    return has_consumed_any;
   }
 
   /**
@@ -294,36 +287,35 @@ namespace {
    **/
   bool scan_block_comment_text(TSLexer* const lexer) {
     lexer->result_symbol = BLOCK_COMMENT_TEXT;
-    size_t consumed_count = 0;
+    bool has_consumed_any = false;
     while (has_next(lexer)) {
       switch (next_codepoint(lexer)) {
         case '*': {
           lexer->mark_end(lexer);
-          size_t consumed;
-          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN, consumed)) {
-            return consumed_count > 0;
+          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN)) {
+            return has_consumed_any;
           } else {
-            consumed_count += consumed;
+            has_consumed_any = true;
             break;
           }
         }
         case '(': {
           lexer->mark_end(lexer);
-          size_t consumed;
-          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN, consumed)) {
-            return consumed_count > 0;
+          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN)) {
+            return has_consumed_any;
           } else {
-            consumed_count += consumed;
+            has_consumed_any = true;
             break;
           }
         }
         default:
-          consumed_count++;
           advance(lexer);
+          has_consumed_any = true;
       }
     }
 
-    return consumed_count > 0;
+    lexer->mark_end(lexer);
+    return has_consumed_any;
   }
 
   /**
@@ -352,7 +344,7 @@ namespace {
     TSLexer* const lexer,
     column_index& out_col
   ) {
-    consume_whitespace(lexer);
+    consume_while(lexer, true, is_whitespace);
     lexer->mark_end(lexer);
     out_col = lexer->get_column(lexer);
 
