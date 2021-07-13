@@ -31,6 +31,62 @@ op == \* This is a comment
 (double_line)))
 
 ====================|||
+Comment in Conjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+\* this should be ignored
+  /\ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number (nat_number)))
+      (comment)
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+====================|||
+Comment in Disjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+\* this should be ignored
+  \/ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (comment)
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+
+
+
+
+
+
+
+
+====================|||
 Solitary Block Comment
 ====================|||
 
@@ -156,3 +212,59 @@ Lookahead Block Comment
   )
   (block_comment)
 (double_line)))
+
+====================|||
+Block Comment in Conjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+(* this should be ignored *)
+  /\ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number (nat_number)))
+      (block_comment)
+      (conj_item (bullet_conj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+====================|||
+Block Comment in Disjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+(* this should be ignored *)
+  \/ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number (nat_number)))
+      (block_comment)
+      (disj_item (bullet_disj) (number (nat_number)))
+    )
+  ))
+(double_line)))
+
+
+
+
+
+
+
+

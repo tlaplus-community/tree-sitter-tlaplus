@@ -124,9 +124,8 @@ module.exports = grammar({
 
   rules: {
     source_file: $ => seq(
-      //optional($.extramodular_text),
-      $.module,
-      //optional($.extramodular_text)
+      repeat1(seq(optional($.extramodular_text), $.module)),
+      optional($.extramodular_text)
     ),
 
     // \* this is a comment ending with newline

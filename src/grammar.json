@@ -5,8 +5,40 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "module"
+          "type": "REPEAT1",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "extramodular_text"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "SYMBOL",
+                "name": "module"
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "extramodular_text"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },

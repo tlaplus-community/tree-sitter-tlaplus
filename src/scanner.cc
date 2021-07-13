@@ -32,6 +32,7 @@ namespace {
   static const token_t UNICODE_R_ANGLE_BRACKET_TOKEN = {L'〉'};
   static const token_t CASE_ARROW_TOKEN = {'-','>'};
   static const token_t UNICODE_CASE_ARROW_TOKEN = {L'⟶'};
+  static const token_t COMMENT_START_TOKEN = {'\\','*'};
   static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
   static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
   static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
@@ -62,6 +63,7 @@ namespace {
     LAND,             // /\ or ∧
     LOR,              // \/ or ∨
     RIGHT_DELIMITER,  // ), ], }, 〉, or >>
+    COMMENT,          // \*, (*, *)
     UNIT,             // op == expr, etc.
     MODULE_END,       // ====
     END_OF_FILE,      // The end of the file.
@@ -91,6 +93,8 @@ namespace {
     TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
     TokenTypeMap(CASE_ARROW_TOKEN, RIGHT_DELIMITER),
     TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, RIGHT_DELIMITER),
+    TokenTypeMap(COMMENT_START_TOKEN, COMMENT),
+    TokenTypeMap(BLOCK_COMMENT_START_TOKEN, COMMENT),
     TokenTypeMap(SINGLE_LINE_TOKEN, UNIT),
     TokenTypeMap(MODULE_END_TOKEN, MODULE_END),
     TokenTypeMap(ASSUME_TOKEN, UNIT),
@@ -847,13 +851,20 @@ namespace {
      * @return Whether a token was encountered.
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
-      assert(!(valid_symbols[EXTRAMODULAR_TEXT]
+      // Tree-sitter calls the scanner with every symbol marked valid
+      // when it enters error recovery mode.
+      const bool is_error_recovery =
+        valid_symbols[EXTRAMODULAR_TEXT]
         && valid_symbols[BLOCK_COMMENT_TEXT]
         && valid_symbols[INDENT]
         && valid_symbols[NEWLINE]
-        && valid_symbols[DEDENT]));
+        && valid_symbols[DEDENT];
 
-      if(valid_symbols[EXTRAMODULAR_TEXT]) {
+      // TODO: actually function during error recovery
+      // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
+      if (is_error_recovery) {
+        return false;
+      } else if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
@@ -869,6 +880,8 @@ namespace {
             return handle_junct_token(lexer, valid_symbols, DISJUNCTION, col);
           case RIGHT_DELIMITER:
             return handle_right_delimiter_token(lexer, valid_symbols, col);
+          case COMMENT:
+            return false;
           case UNIT:
             return handle_terminator_token(lexer, valid_symbols);
           case MODULE_END:
@@ -877,6 +890,8 @@ namespace {
             return handle_terminator_token(lexer, valid_symbols);
           case OTHER:
             return handle_other_token(lexer, valid_symbols, col);
+          default:
+            return false;
         }
       } else {
         return false;
@@ -890,7 +905,7 @@ extern "C" {
   // Called once when language is set on a parser.
   // Allocates memory for storing scanner state.
   void* tree_sitter_tlaplus_external_scanner_create() {
-      return new Scanner();
+    return new Scanner();
   }
 
   // Called once parser is deleted or different language set.
