@@ -5,40 +5,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "REPEAT1",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "extramodular_text"
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              },
-              {
-                "type": "SYMBOL",
-                "name": "module"
-              }
-            ]
-          }
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "extramodular_text"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "module"
         }
       ]
     },
@@ -115,48 +83,12 @@
       ]
     },
     "single_line": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "----"
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "REPEAT",
-            "content": {
-              "type": "IMMEDIATE_TOKEN",
-              "content": {
-                "type": "STRING",
-                "value": "-"
-              }
-            }
-          }
-        }
-      ]
+      "type": "PATTERN",
+      "value": "-----*"
     },
     "double_line": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "===="
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "REPEAT",
-            "content": {
-              "type": "IMMEDIATE_TOKEN",
-              "content": {
-                "type": "STRING",
-                "value": "="
-              }
-            }
-          }
-        }
-      ]
+      "type": "PATTERN",
+      "value": "=====*"
     },
     "def_eq": {
       "type": "CHOICE",

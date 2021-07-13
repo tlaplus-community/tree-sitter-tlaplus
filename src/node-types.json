@@ -2693,11 +2693,6 @@
     "fields": {}
   },
   {
-    "type": "double_line",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "enabled",
     "named": true,
     "fields": {}
@@ -7837,11 +7832,6 @@
     "fields": {}
   },
   {
-    "type": "single_line",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "single_quantifier_bound",
     "named": true,
     "fields": {},
@@ -8017,13 +8007,9 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "extramodular_text",
-          "named": true
-        },
         {
           "type": "module",
           "named": true
@@ -9600,10 +9586,6 @@
     "named": false
   },
   {
-    "type": "----",
-    "named": false
-  },
-  {
     "type": "->",
     "named": false
   },
@@ -9677,10 +9659,6 @@
   },
   {
     "type": "==",
-    "named": false
-  },
-  {
-    "type": "====",
     "named": false
   },
   {
@@ -10240,7 +10218,7 @@
     "named": true
   },
   {
-    "type": "extramodular_text",
+    "type": "double_line",
     "named": true
   },
   {
@@ -10333,6 +10311,10 @@
   },
   {
     "type": "setminus",
+    "named": true
+  },
+  {
+    "type": "single_line",
     "named": true
   },
   {

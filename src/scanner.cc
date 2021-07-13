@@ -847,6 +847,12 @@ namespace {
      * @return Whether a token was encountered.
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
+      assert(!(valid_symbols[EXTRAMODULAR_TEXT]
+        && valid_symbols[BLOCK_COMMENT_TEXT]
+        && valid_symbols[INDENT]
+        && valid_symbols[NEWLINE]
+        && valid_symbols[DEDENT]));
+
       if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {

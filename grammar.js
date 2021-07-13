@@ -124,8 +124,9 @@ module.exports = grammar({
 
   rules: {
     source_file: $ => seq(
-      repeat1(seq(optional($.extramodular_text), $.module)),
-      optional($.extramodular_text)
+      //optional($.extramodular_text),
+      $.module,
+      //optional($.extramodular_text)
     ),
 
     // \* this is a comment ending with newline
@@ -146,16 +147,10 @@ module.exports = grammar({
     ),
 
     // Line of ---------- of length at least 4
-    single_line: $ => seq(
-      '----',
-      token.immediate(repeat(token.immediate('-')))
-    ),
+    single_line: $ => /-----*/,
 
     // Line of =========== of length at least 4
-    double_line: $ => seq(
-      '====',
-      token.immediate(repeat(token.immediate('=')))
-    ),
+    double_line: $ => /=====*/,
 
     // Various syntactic elements and their unicode equivalents
     def_eq:           $ => choice('==', '≜'),
