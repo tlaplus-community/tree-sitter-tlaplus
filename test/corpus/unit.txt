@@ -1,12 +1,12 @@
-=============|||
+==============================
 Basic Operator Definition
-=============|||
+==============================
 
 ---- MODULE Test ----
 op == f(10)
 ====
 
--------------|||
+-----------------------------
 
 (source_file (module (single_line) name: (identifier) (single_line)
   (unit (operator_definition name: (identifier) (def_eq)
