@@ -20,7 +20,9 @@ function arity2(op, expr) {
 
 // An operator with 0 or more parameters.
 function arity0OrN(op, expr) {
-  return seq(op, optional(seq('(', commaList1(expr), ')')))
+  return seq(
+    field('name', op),
+    field('parameters', optional(seq('(', commaList1(expr), ')'))))
 }
 
 // An operator with 1 or more parameters.
@@ -105,7 +107,7 @@ module.exports = grammar({
     [$._expr, $.operator_definition],
     // Lookahead to disambiguate identifier  '('  identifier  •  ','  …
     // Could be op(a, b) == ... (decl'n) or op(a, b) (expression) or label
-    [$._expr, $.operator_declaration, $.label],
+    [$._expr, $._id_or_op_declaration, $.label],
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
     [$._expr, $.function_definition],
@@ -225,22 +227,29 @@ module.exports = grammar({
     // CONSTANTS C1, C2, C3
     constant_declaration: $ => seq(
         choice('CONSTANT', 'CONSTANTS'),
-        commaList1($.operator_declaration)
+        commaList1($._id_or_op_declaration)
     ),
 
     // RECURSIVE op(_, _)
     recursive_operator_declaration: $ => seq(
-      'RECURSIVE', commaList1($.operator_declaration)
+      'RECURSIVE', commaList1($._id_or_op_declaration)
     ),
 
     // Operator declaration (not definition)
     // Used, for example, when op accepts another op as parameter
     // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
-      arity0OrN($.identifier, $.placeholder),
+      arity1OrN($.identifier, $.placeholder),
       seq($.standalone_prefix_op_symbol, $.placeholder),
       seq($.placeholder, $.infix_op_symbol, $.placeholder),
       seq($.placeholder, $.postfix_op_symbol)
+    ),
+
+    // Either an identifier or an operator declaration
+    // Used to define parameters to operators during their definition
+    _id_or_op_declaration: $ => choice(
+      $.identifier,
+      $.operator_declaration
     ),
 
     // Operator definition
@@ -249,7 +258,7 @@ module.exports = grammar({
     // x ≜ 〈 1, 2, 3, 4, 5 〉
     operator_definition: $ => seq(
       choice(
-        arity0OrN($.identifier, $.operator_declaration),
+        arity0OrN($.identifier, $._id_or_op_declaration),
         seq($.standalone_prefix_op_symbol, $.identifier),
         seq($.identifier, $.infix_op_symbol, $.identifier),
         seq($.identifier, $.postfix_op_symbol)
@@ -311,11 +320,11 @@ module.exports = grammar({
         $.postfix_op_symbol
       ),
       $.gets,
-      $.op_or_expr
+      $._op_or_expr
     ),
 
     // Either an operator (op, +, *, LAMBDA, etc.) or an expression
-    op_or_expr: $ => choice(
+    _op_or_expr: $ => choice(
       $.standalone_prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol,
@@ -341,7 +350,7 @@ module.exports = grammar({
     ),
 
     // f(a, op, b)
-    bound_op: $ => arity1OrN($.identifier, $.op_or_expr),
+    bound_op: $ => arity1OrN($.identifier, $._op_or_expr),
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
@@ -363,7 +372,7 @@ module.exports = grammar({
 
     // ...!(a, b, c)!...
     operator_args: $ => seq(
-      '(', commaList1($.op_or_expr), ')'
+      '(', commaList1($._op_or_expr), ')'
     ),
 
     // LAMBDA a, b, c : a + b * c
@@ -373,7 +382,7 @@ module.exports = grammar({
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
-      arity0OrN($.identifier, $.operator_declaration),
+      arity0OrN($.identifier, $._id_or_op_declaration),
       $.def_eq,
       $.instance
     ),
@@ -934,7 +943,7 @@ module.exports = grammar({
       oneOrBoth('NEW', $.level),
       choice(
         seq($.identifier, $.set_in, $._expr),
-        $.operator_declaration
+        $._id_or_op_declaration
       )
     ),
 
@@ -1026,7 +1035,7 @@ module.exports = grammar({
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
       commaList1(choice(
-        $.op_or_expr,
+        $._op_or_expr,
         seq('MODULE', $.identifier)
       ))
     ),
