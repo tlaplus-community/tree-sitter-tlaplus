@@ -618,7 +618,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "recursive_operator_declaration"
+          "name": "recursive_declaration"
         },
         {
           "type": "SEQ",
@@ -808,7 +808,7 @@
         }
       ]
     },
-    "recursive_operator_declaration": {
+    "recursive_declaration": {
       "type": "SEQ",
       "members": [
         {
@@ -3199,27 +3199,31 @@
           "value": "LET"
         },
         {
-          "type": "REPEAT1",
+          "type": "FIELD",
+          "name": "definitions",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "operator_definition"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "function_definition"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "module_definition"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "recursive_operator_declaration"
-              }
-            ]
+            "type": "REPEAT1",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "operator_definition"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "function_definition"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "module_definition"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "recursive_declaration"
+                }
+              ]
+            }
           }
         },
         {
@@ -3227,8 +3231,12 @@
           "value": "IN"
         },
         {
-          "type": "SYMBOL",
-          "name": "_expr"
+          "type": "FIELD",
+          "name": "expression",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_expr"
+          }
         }
       ]
     },

@@ -207,7 +207,7 @@ module.exports = grammar({
     unit: $ => choice(
         $.variable_declaration,
         $.constant_declaration,
-        $.recursive_operator_declaration,
+        $.recursive_declaration,
         seq(optional("LOCAL"), $.operator_definition),
         seq(optional("LOCAL"), $.function_definition),
         seq(optional("LOCAL"), $.instance),
@@ -231,7 +231,7 @@ module.exports = grammar({
     ),
 
     // RECURSIVE op(_, _)
-    recursive_operator_declaration: $ => seq(
+    recursive_declaration: $ => seq(
       'RECURSIVE', commaList1($._id_or_op_declaration)
     ),
 
@@ -659,16 +659,14 @@ module.exports = grammar({
     // LET x == 5 IN 2*x
     let_in: $ => seq(
       'LET',
-      repeat1(
-        choice(
-          $.operator_definition,
-          $.function_definition,
-          $.module_definition,
-          $.recursive_operator_declaration
-        )
-      ),
+      field('definitions', repeat1(choice(
+        $.operator_definition,
+        $.function_definition,
+        $.module_definition,
+        $.recursive_declaration
+      ))),
       'IN',
-      $._expr
+      field('expression', $._expr)
     ),
 
     // This makes use of the external scanner.
