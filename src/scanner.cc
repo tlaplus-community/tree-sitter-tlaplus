@@ -13,6 +13,12 @@ namespace {
   enum TokenType {
     EXTRAMODULAR_TEXT,  // Freeform text between modules.
     BLOCK_COMMENT_TEXT, // Text inside block comments.
+    EQ_OP,              // The = infix operator.
+    ASCII_DEF_EQ,       // The == definition-equals token.
+    ASCII_IMPLIES_OP,   // The => implies operator.
+    ASCII_EQLT_OP,      // The =< equal-to-or-less-than operator.
+    ASCII_LDTT_OP,      // The =| left-double turnstile operator.
+    DOUBLE_LINE,        // The /=====*/ token to end a module.
     INDENT,             // Marks beginning of junction list.
     NEWLINE,            // Separates items of junction list.
     DEDENT              // Marks end of junction list.
@@ -36,6 +42,11 @@ namespace {
   static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
   static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
   static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
+  static const token_t EQ_OP_TOKEN = {'='};
+  static const token_t ASCII_DEF_EQ_TOKEN = {'=','='};
+  static const token_t ASCII_IMPLIES_OP_TOKEN = {'=','>'};
+  static const token_t ASCII_EQLT_OP_TOKEN = {'=','<'};
+  static const token_t ASCII_LDTT_OP_TOKEN = {'=','|'};
   static const token_t MODULE_END_TOKEN = {'=','=','=','='};
   static const token_t ASSUME_TOKEN = {'A','S','S','U','M','E'};
   static const token_t ASSUMPTION_TOKEN = {'A','S','S','U','M','P','T','I','O','N'};
@@ -57,16 +68,15 @@ namespace {
   static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
 
   /**
-   * Interesting token types for the purpose of parsing junctlists.
+   * Tokenization categories provided by this scanner.
    */
-  enum LookaheadTokenType {
+  enum class ScannerTokenType {
     LAND,             // /\ or ∧
     LOR,              // \/ or ∨
     RIGHT_DELIMITER,  // ), ], }, 〉, or >>
     COMMENT,          // \*, (*, *)
     UNIT,             // op == expr, etc.
     MODULE_END,       // ====
-    END_OF_FILE,      // The end of the file.
     OTHER             // Tokens not requiring special handling logic.
   };
 
@@ -75,43 +85,48 @@ namespace {
    */
   struct TokenTypeMap {
     const token_t& token;
-    LookaheadTokenType type;
-    TokenTypeMap(const token_t& tk, LookaheadTokenType tp)
+    ScannerTokenType type;
+    TokenTypeMap(const token_t& tk, ScannerTokenType tp)
       : token(tk), type(tp) {}
   };
 
   // The actual mapping between tokens and their type/category.
-  static const std::vector<TokenTypeMap> LOOKAHEAD_TOKEN_TYPE_MAPPING = {
-    TokenTypeMap(LAND_TOKEN, LAND),
-    TokenTypeMap(UNICODE_LAND_TOKEN, LAND),
-    TokenTypeMap(LOR_TOKEN, LOR),
-    TokenTypeMap(UNICODE_LOR_TOKEN, LOR),
-    TokenTypeMap(R_PARENTHESIS_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_SQUARE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_CURLY_BRACE_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(CASE_ARROW_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(COMMENT_START_TOKEN, COMMENT),
-    TokenTypeMap(BLOCK_COMMENT_START_TOKEN, COMMENT),
-    TokenTypeMap(SINGLE_LINE_TOKEN, UNIT),
-    TokenTypeMap(MODULE_END_TOKEN, MODULE_END),
-    TokenTypeMap(ASSUME_TOKEN, UNIT),
-    TokenTypeMap(ASSUMPTION_TOKEN, UNIT),
-    TokenTypeMap(AXIOM_TOKEN, UNIT),
-    TokenTypeMap(CONSTANT_TOKEN, UNIT),
-    TokenTypeMap(CONSTANTS_TOKEN, UNIT),
-    TokenTypeMap(COROLLARY_TOKEN, UNIT),
-    TokenTypeMap(ELSE_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(IN_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(LEMMA_TOKEN, UNIT),
-    TokenTypeMap(LOCAL_TOKEN, UNIT),
-    TokenTypeMap(PROPOSITION_TOKEN, UNIT),
-    TokenTypeMap(THEN_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(THEOREM_TOKEN, UNIT),
-    TokenTypeMap(VARIABLE_TOKEN, UNIT),
-    TokenTypeMap(VARIABLES_TOKEN, UNIT)
+  static const std::vector<TokenTypeMap> SCANNER_TOKEN_TYPE_MAPPING = {
+    TokenTypeMap(LAND_TOKEN, ScannerTokenType::LAND),
+    TokenTypeMap(UNICODE_LAND_TOKEN, ScannerTokenType::LAND),
+    TokenTypeMap(LOR_TOKEN, ScannerTokenType::LOR),
+    TokenTypeMap(UNICODE_LOR_TOKEN, ScannerTokenType::LOR),
+    TokenTypeMap(R_PARENTHESIS_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(R_SQUARE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(R_CURLY_BRACE_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(R_ANGLE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(CASE_ARROW_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(COMMENT_START_TOKEN, ScannerTokenType::COMMENT),
+    TokenTypeMap(BLOCK_COMMENT_START_TOKEN, ScannerTokenType::COMMENT),
+    TokenTypeMap(EQ_OP_TOKEN, ScannerTokenType::OTHER),
+    TokenTypeMap(ASCII_DEF_EQ_TOKEN, ScannerTokenType::OTHER),
+    TokenTypeMap(ASCII_IMPLIES_OP_TOKEN, ScannerTokenType::OTHER),
+    TokenTypeMap(ASCII_EQLT_OP_TOKEN, ScannerTokenType::OTHER),
+    TokenTypeMap(ASCII_LDTT_OP_TOKEN, ScannerTokenType::OTHER),
+    TokenTypeMap(SINGLE_LINE_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(MODULE_END_TOKEN, ScannerTokenType::MODULE_END),
+    TokenTypeMap(ASSUME_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(ASSUMPTION_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(AXIOM_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(CONSTANT_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(CONSTANTS_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(COROLLARY_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(ELSE_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(IN_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(LEMMA_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(LOCAL_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(PROPOSITION_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(THEN_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
+    TokenTypeMap(THEOREM_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(VARIABLE_TOKEN, ScannerTokenType::UNIT),
+    TokenTypeMap(VARIABLES_TOKEN, ScannerTokenType::UNIT)
   };
 
   /**
@@ -246,15 +261,15 @@ namespace {
 
   /**
    * Looks ahead at a list of tokens to see whether any match.
-   * Given multiple matches, returns type of longest.
+   * Given multiple matches, returns index of longest.
    * Works best with small (fewer than 100) number of possible tokens, as
    * for simplicity complexity is |tokens| * max({|t| : t \in tokens}).
    * 
    * @param lexer The tree-sitter lexing control structure.
    * @param tokens The list of tokens to check for, with types.
-   * @return Type of token matched, or Other if none matched.
+   * @return Index of token matched, or -1 if none matched.
    **/
-  LookaheadTokenType token_lookahead(
+  int token_lookahead(
     TSLexer* const lexer,
     const std::vector<TokenTypeMap>& tokens
   ) {
@@ -287,14 +302,14 @@ namespace {
 
     // Pick longest match
     size_t longest_match_length = 0;
-    LookaheadTokenType longest_match_type = OTHER;
+    int longest_match_index = -1;
     for (int match : matches) {
       if (tokens.at(match).token.size() > longest_match_length) {
-        longest_match_type = tokens.at(match).type;
+        longest_match_index = match;
       }
     }
 
-    return longest_match_type;
+    return longest_match_index;
   }
 
   /**
@@ -391,26 +406,6 @@ namespace {
   }
 
   using column_index = int16_t;
-
-  /**
-   * Scans for & identifies the next token relevant to junctlists.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   * @param out_col Out parameter; the column of the identified token.
-   * @return The type of token identified.
-   */
-  LookaheadTokenType get_next_token(
-    TSLexer* const lexer,
-    column_index& out_col
-  ) {
-    consume_while(lexer, true, is_whitespace);
-    lexer->mark_end(lexer);
-    out_col = lexer->get_column(lexer);
-    return
-      !has_next(lexer)
-      ? END_OF_FILE
-      : token_lookahead(lexer, LOOKAHEAD_TOKEN_TYPE_MAPPING);
-  }
 
   enum JunctType {
     CONJUNCTION,
@@ -840,6 +835,80 @@ namespace {
     }
 
     /**
+     * Scans for & identifies the next token.
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @return Whether a token was identified.
+     */
+    bool scan_next_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      consume_while(lexer, true, is_whitespace);
+      lexer->mark_end(lexer);
+      if (!has_next(lexer)) {
+        return handle_terminator_token(lexer, valid_symbols);
+      }
+
+      const column_index col = lexer->get_column(lexer);
+      const int match_index = token_lookahead(lexer, SCANNER_TOKEN_TYPE_MAPPING);
+      if (-1 == match_index) {
+        return handle_other_token(lexer, valid_symbols, col);
+      }
+
+      const TokenTypeMap match = SCANNER_TOKEN_TYPE_MAPPING.at(match_index);
+      switch (match.type) {
+        case ScannerTokenType::LAND:
+          return handle_junct_token(lexer, valid_symbols, CONJUNCTION, col);
+        case ScannerTokenType::LOR:
+          return handle_junct_token(lexer, valid_symbols, DISJUNCTION, col);
+        case ScannerTokenType::RIGHT_DELIMITER:
+          return handle_right_delimiter_token(lexer, valid_symbols, col);
+        case ScannerTokenType::COMMENT:
+          return false;
+        case ScannerTokenType::UNIT:
+          return handle_terminator_token(lexer, valid_symbols);
+        case ScannerTokenType::MODULE_END:
+          if (handle_terminator_token(lexer, valid_symbols)) {
+            return true;
+          } else {
+            consume_while(lexer, false, [](int32_t cp){return cp == '=';});
+            lexer->mark_end(lexer);
+            lexer->result_symbol = DOUBLE_LINE;
+            return true;
+          }
+        case ScannerTokenType::OTHER:
+          if (handle_other_token(lexer, valid_symbols, col)) {
+            return true;
+          } else if (match.token == EQ_OP_TOKEN) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = EQ_OP;
+            return true;
+          } else if (match.token == ASCII_DEF_EQ_TOKEN) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = ASCII_DEF_EQ;
+            return true;
+          } else if (match.token == ASCII_IMPLIES_OP_TOKEN) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = ASCII_IMPLIES_OP;
+            return true;
+          } else if (match.token == ASCII_EQLT_OP_TOKEN) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = ASCII_EQLT_OP;
+            return true;
+          } else if (match.token == ASCII_LDTT_OP_TOKEN) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = ASCII_LDTT_OP;
+            return true;
+          } else {
+            return false;
+          }
+        default:
+          return false;
+      }
+    }
+
+    /**
      * INDENT tokens are emitted prior to the first junct in a list
      * NEWLINE tokens are emitted between list juncts
      * DEDENT tokens are emitted after the final junct in a list
@@ -854,6 +923,9 @@ namespace {
       const bool is_error_recovery =
         valid_symbols[EXTRAMODULAR_TEXT]
         && valid_symbols[BLOCK_COMMENT_TEXT]
+        && valid_symbols[EQ_OP]
+        && valid_symbols[ASCII_DEF_EQ]
+        && valid_symbols[DOUBLE_LINE]
         && valid_symbols[INDENT]
         && valid_symbols[NEWLINE]
         && valid_symbols[DEDENT];
@@ -861,36 +933,19 @@ namespace {
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
       if (is_error_recovery) {
-        return false;
+        return is_in_jlist() && emit_dedent(lexer);
       } else if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
-      } else if (valid_symbols[INDENT]
+      } else if (valid_symbols[EQ_OP]
+        || valid_symbols[ASCII_DEF_EQ]
+        || valid_symbols[DOUBLE_LINE]
+        || valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
         || valid_symbols[DEDENT]
       ) {
-        column_index col;
-        switch (get_next_token(lexer, col)) {
-          case LAND:
-            return handle_junct_token(lexer, valid_symbols, CONJUNCTION, col);
-          case LOR:
-            return handle_junct_token(lexer, valid_symbols, DISJUNCTION, col);
-          case RIGHT_DELIMITER:
-            return handle_right_delimiter_token(lexer, valid_symbols, col);
-          case COMMENT:
-            return false;
-          case UNIT:
-            return handle_terminator_token(lexer, valid_symbols);
-          case MODULE_END:
-            return handle_terminator_token(lexer, valid_symbols);
-          case END_OF_FILE:
-            return handle_terminator_token(lexer, valid_symbols);
-          case OTHER:
-            return handle_other_token(lexer, valid_symbols, col);
-          default:
-            return false;
-        }
+        return scan_next_token(lexer, valid_symbols);
       } else {
         return false;
       }

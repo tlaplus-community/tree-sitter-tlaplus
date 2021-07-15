@@ -67,12 +67,25 @@ function postfixOpPrec(level, expr, symbol) {
 module.exports = grammar({
   name: 'tlaplus',
 
+  // General categories of external tokens:
+  // * Freeform/comment text that requires lookahead to terminate; see:
+  //     https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
+  // * Keywords that are prefixes of other keywords, ex. |- and |->
+  //     Require external scanner to tokenize properly; see:
+  //     https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/20
+  // * Tokens for context-sensitive language constructs (junction lists)
   externals: $ => [
-    $.extramodular_text,
-    $._block_comment_text,
-    $._indent,
-    $._newline,
-    $._dedent
+    $.extramodular_text,    // Freeform text before/between/after modules
+    $._block_comment_text,  // Text in block comments
+    $._eq_op,               // =
+    $._ascii_def_eq,        // ==
+    $._ascii_implies_op,    // =>
+    $._ascii_eqlt_op,       // =<
+    $._ascii_ldtt_op,       // =|
+    $.double_line,          // /=====*/ to end module
+    $._indent,              // Start of a junctlist
+    $._newline,             // Separator between elements of a junctlist
+    $._dedent               // End of a junctlist
   ],
 
   extras: $ => [
@@ -150,11 +163,8 @@ module.exports = grammar({
     // Line of ---------- of length at least 4
     single_line: $ => /-----*/,
 
-    // Line of =========== of length at least 4
-    double_line: $ => /=====*/,
-
     // Various syntactic elements and their unicode equivalents
-    def_eq:           $ => choice('==', '≜'),
+    def_eq:           $ => choice($._ascii_def_eq, '≜'),
     set_in:           $ => choice('\\in', '∈'),
     gets:             $ => choice('<-', '⟵'),
     forall:           $ => choice('\\A', '\\forall', '∀'),
@@ -590,7 +600,7 @@ module.exports = grammar({
     // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
     except: $ => seq(
       '[', $._expr, 'EXCEPT',
-      commaList1(seq('!', $._except_val, '=', $._expr)),
+      commaList1(seq('!', $._except_val, $.eq, $._expr)),
       ']'
     ),
 
@@ -732,7 +742,7 @@ module.exports = grammar({
     ),
 
     // Infix operator symbols and their unicode equivalents
-    implies:          $ => choice('=>', '⟹'),
+    implies:          $ => choice($._ascii_implies_op, '⟹'),
     plus_arrow:       $ => choice('-+->', '⇸'),
     equiv:            $ => choice('\\equiv', '≡'),
     iff:              $ => choice('<=>', '⟺'),
@@ -741,17 +751,17 @@ module.exports = grammar({
     lor:              $ => choice('\\/', '\\lor', '∨'),
     assign:           $ => choice(':=', '≔'),
     bnf_rule:         $ => choice('::=', '⩴'),
-    eq:               $ => '=',
+    eq:               $ => $._eq_op,
     neq:              $ => choice('/=', '#', '≠'),
     lt:               $ => '<',
     gt:               $ => '>',
-    leq:              $ => choice('<=', '=<', '\\leq', '≤'),
+    leq:              $ => choice('<=', $._ascii_eqlt_op, '\\leq', '≤'),
     geq:              $ => choice('>=', '\\geq', '≥'),
     approx:           $ => choice('\\approx', '≈'),
     rs_ttile:         $ => choice('|-', '⊢'),
     rd_ttile:         $ => choice('|=', '⊨'),
     ls_ttile:         $ => choice('-|', '⊣'),
-    ld_ttile:         $ => choice('=|', '⫤'),
+    ld_ttile:         $ => choice($._ascii_ldtt_op, '⫤'),
     asymp:            $ => choice('\\asymp', '≍'),
     cong:             $ => choice('\\cong', '≅'),
     doteq:            $ => choice('\\doteq', '≐'),
