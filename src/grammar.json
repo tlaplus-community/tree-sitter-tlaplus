@@ -6618,12 +6618,26 @@
       ]
     },
     "begin_proof_step_token": {
-      "type": "PATTERN",
-      "value": "<[\\d+|\\*|\\+]>[\\w|\\d]+\\.*"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "<[\\d+|\\*|\\+]>[\\w|\\d]+\\.*"
+        }
+      }
     },
     "proof_step_id": {
-      "type": "PATTERN",
-      "value": "<[\\d+|\\*]>[\\w|\\d]+"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "<[\\d+|\\*]>[\\w|\\d]+"
+        }
+      }
     }
   },
   "extras": [

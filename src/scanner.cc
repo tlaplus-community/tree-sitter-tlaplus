@@ -11,31 +11,27 @@ namespace {
    * Tokens emitted by this external scanner.
    */
   enum TokenType {
-    EXTRAMODULAR_TEXT,  // Freeform text between modules.
-    BLOCK_COMMENT_TEXT, // Text inside block comments.
-    EQ_OP,              // The = infix operator.
-    ASCII_DEF_EQ,       // The == definition-equals token.
-    ASCII_IMPLIES_OP,   // The => implies operator.
-    ASCII_EQLT_OP,      // The =< equal-to-or-less-than operator.
-    ASCII_LDTT_OP,      // The =| left-double turnstile operator.
-    DOUBLE_LINE,        // The /=====*/ token to end a module.
-    INDENT,             // Marks beginning of junction list.
-    NEWLINE,            // Separates items of junction list.
-    DEDENT              // Marks end of junction list.
+    EXTRAMODULAR_TEXT,      // Freeform text between modules.
+    BLOCK_COMMENT_TEXT,     // Text inside block comments.
+    GT_OP,                  // The > infix operator.
+    R_ANGLE_BRACKET,        // The >> or 〉 delimiter.
+    R_ANGLE_BRACKET_SUB,    // The >>_ or 〉_ delimiter.
+    EQ_OP,                  // The = infix operator.
+    ASCII_DEF_EQ,           // The == definition-equals token.
+    ASCII_IMPLIES_OP,       // The => implies operator.
+    ASCII_EQLT_OP,          // The =< equal-to-or-less-than operator.
+    ASCII_LDTT_OP,          // The =| left-double turnstile operator.
+    DOUBLE_LINE,            // The /=====*/ token to end a module.
+    INDENT,                 // Marks beginning of junction list.
+    NEWLINE,                // Separates items of junction list.
+    DEDENT                  // Marks end of junction list.
   };
 
   using token_t = std::vector<int32_t>;
+  using column_index = int16_t;
 
   // All the tokens the external scanner cares about.
-  static const token_t LAND_TOKEN = {'/','\\'};
-  static const token_t UNICODE_LAND_TOKEN = {L'∧'};
-  static const token_t LOR_TOKEN = {'\\','/'};
-  static const token_t UNICODE_LOR_TOKEN = {L'∨'};
-  static const token_t R_PARENTHESIS_TOKEN = {')'};
-  static const token_t R_SQUARE_BRACKET_TOKEN = {']'};
-  static const token_t R_CURLY_BRACE_TOKEN = {'}'};
   static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
-  static const token_t UNICODE_R_ANGLE_BRACKET_TOKEN = {L'〉'};
   static const token_t CASE_ARROW_TOKEN = {'-','>'};
   static const token_t UNICODE_CASE_ARROW_TOKEN = {L'⟶'};
   static const token_t COMMENT_START_TOKEN = {'\\','*'};
@@ -259,6 +255,119 @@ namespace {
     return is_next_token(lexer, token, consumed);
   }
 
+  enum class LexState {
+    ERROR_RECOVERY,
+    CONSUME_LEADING_SPACE,
+    FIRST_NONSPACE_CP,
+    FORWARD_SLASH,
+    BACKWARD_SLASH,
+    LAND,
+    LOR,
+    RIGHT_DELIMITER,
+    RIGHT_ANGLE_BRACKET,
+    RIGHT_ANGLE_BRACKET_SUB,
+    GT,
+    EQ_ONE,
+    EQ_TWO,
+    EQ_THREE,
+    EQ_GEQ_FOUR,
+    LEQ,
+    IMPLIES,
+    LDTT,
+  };
+
+  bool lex(
+    TSLexer* const lexer,
+    const bool* const valid_symbols,
+    LexState state,
+    const std::function<bool(column_index)>& handle_junct,
+    const std::function<bool(column_index)>& handle_right_delimiter,
+    const std::function<bool(column_index)>& handle_other
+  ) {
+    START_LEXER();
+    eof = !has_next(lexer);
+    column_index col;
+    switch (state) {
+      case LexState::CONSUME_LEADING_SPACE:
+        if (eof) return false;
+        if (is_whitespace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
+        ADVANCE(LexState::FIRST_NONSPACE_CP);
+      case LexState::FIRST_NONSPACE_CP:
+        col = lexer->get_column(lexer);
+        lexer->mark_end(lexer);
+        if ('/' == lookahead) ADVANCE(LexState::FORWARD_SLASH);
+        if ('\\' == lookahead) ADVANCE(LexState::BACKWARD_SLASH);
+        if (L'∧' == lookahead) ADVANCE(LexState::LAND);
+        if (L'∨' == lookahead) ADVANCE(LexState::LOR);
+        if (')' == lookahead) ADVANCE(LexState::RIGHT_DELIMITER);
+        if (']' == lookahead) ADVANCE(LexState::RIGHT_DELIMITER);
+        if ('}' == lookahead) ADVANCE(LexState::RIGHT_DELIMITER);
+        if (L'〉' == lookahead) ADVANCE(LexState::RIGHT_ANGLE_BRACKET);
+        if ('>' == lookahead) ADVANCE(LexState::GT);
+        if ('=' == lookahead) ADVANCE(LexState::EQ_ONE);
+        END_STATE();
+      case LexState::FORWARD_SLASH:
+        if ('\\' == lookahead) ADVANCE(LexState::LAND);
+        if (handle_other(col)) return true;
+        END_STATE();
+      case LexState::BACKWARD_SLASH:
+        if ('/' == lookahead) ADVANCE(LexState::LOR);
+        if (handle_other(col)) return true;
+        END_STATE();
+      case LexState::LAND:
+        if (handle_junct(col)) return true;
+        END_STATE();
+      case LexState::LOR:
+        if (handle_junct(col)) return true;
+        END_STATE();
+      case LexState::RIGHT_DELIMITER:
+        if (handle_right_delimiter(col)) return true;
+        END_STATE();
+      case LexState::RIGHT_ANGLE_BRACKET:
+        if (handle_right_delimiter(col)) return true;
+        ACCEPT_TOKEN(R_ANGLE_BRACKET);
+        if ('_' == lookahead) ADVANCE(LexState::RIGHT_ANGLE_BRACKET_SUB);
+        END_STATE();
+      case LexState::RIGHT_ANGLE_BRACKET_SUB:
+        ACCEPT_TOKEN(R_ANGLE_BRACKET_SUB);
+        END_STATE();
+      case LexState::GT:
+        if ('>' == lookahead) ADVANCE(LexState::RIGHT_ANGLE_BRACKET);
+        ACCEPT_TOKEN(GT_OP);
+        END_STATE();
+      case LexState::EQ_ONE:
+        if (handle_other(col)) return true;
+        ACCEPT_TOKEN(EQ_OP);
+        if ('=' == lookahead) ADVANCE(LexState::EQ_TWO);
+        if ('<' == lookahead) ADVANCE(LexState::LEQ);
+        if ('>' == lookahead) ADVANCE(LexState::IMPLIES);
+        if ('|' == lookahead) ADVANCE(LexState::LDTT);
+        END_STATE();
+      case LexState::EQ_TWO:
+        ACCEPT_TOKEN(ASCII_DEF_EQ);
+        if ('=' == lookahead) ADVANCE(LexState::EQ_THREE);
+        END_STATE();
+      case LexState::EQ_THREE:
+        if ('=' == lookahead) ADVANCE(LexState::EQ_GEQ_FOUR);
+        END_STATE();
+      case LexState::EQ_GEQ_FOUR:
+        ACCEPT_TOKEN(DOUBLE_LINE);
+        if ('=' == lookahead) ADVANCE(LexState::EQ_GEQ_FOUR);
+        END_STATE();
+      case LexState::LEQ:
+        ACCEPT_TOKEN(ASCII_EQLT_OP);
+        END_STATE();
+      case LexState::IMPLIES:
+        ACCEPT_TOKEN(ASCII_IMPLIES_OP);
+        END_STATE();
+      case LexState::LDTT:
+        ACCEPT_TOKEN(ASCII_LDTT_OP);
+        END_STATE();
+      default:
+        return false;
+    }
+  }
+
   /**
    * Looks ahead at a list of tokens to see whether any match.
    * Given multiple matches, returns index of longest.
@@ -404,8 +513,6 @@ namespace {
     lexer->mark_end(lexer);
     return has_consumed_any;
   }
-
-  using column_index = int16_t;
 
   enum JunctType {
     CONJUNCTION,

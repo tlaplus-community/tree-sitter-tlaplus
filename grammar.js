@@ -77,6 +77,9 @@ module.exports = grammar({
   externals: $ => [
     $.extramodular_text,    // Freeform text before/between/after modules
     $._block_comment_text,  // Text in block comments
+    $._gt_op,               // >
+    $.r_angle_bracket,      // >>
+    $.r_angle_bracket_sub,  // >>_
     $._eq_op,               // =
     $._ascii_def_eq,        // ==
     $._ascii_implies_op,    // =>
@@ -112,7 +115,7 @@ module.exports = grammar({
     // Lookahead to disambiguate '{'  identifier  •  '\in'  …
     // Matches set_filter, set_map, and finite_set_literal
     [$._expr, $.single_quantifier_bound],
-    // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
+    // Lookahead to disambiguate '['  l_angle_bracket  identifier  •  '>>'  …
     // Matches step_expr_or_stutter and function_literal
     [$._expr, $.tuple_of_identifiers],
     // Lookahead to disambiguate identifier  •  '\in'  …
@@ -173,8 +176,7 @@ module.exports = grammar({
     temporal_exists:  $ => choice('\\EE'),
     all_map_to:       $ => choice('|->', '⟼'), 
     maps_to:          $ => choice('->', '⟶'),
-    langle_bracket:   $ => choice('<<', '〈'),
-    rangle_bracket:   $ => choice('>>', '〉'),
+    l_angle_bracket:  $ => choice('<<', '〈'),
     case_box:         $ => choice('[]', '□'),
     case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
@@ -309,9 +311,9 @@ module.exports = grammar({
 
     // <<x, y, z>>
     tuple_of_identifiers: $ => seq(
-      $.langle_bracket,
+      $.l_angle_bracket,
       commaList1($.identifier),
-      $.rangle_bracket
+      $.r_angle_bracket
     ),
 
     // INSTANCE ModuleName WITH x <- y, w <- z
@@ -372,8 +374,8 @@ module.exports = grammar({
     // Metalanguage to navigate the parse tree of an expression
     // F!:!〈!〉!2!(0, 3)!@
     subexpr_tree_nav: $ => choice(
-      $.langle_bracket,   // first parse node child
-      $.rangle_bracket,   // second parse node child
+      $.l_angle_bracket,   // first parse node child
+      $.r_angle_bracket,   // second parse node child
       $.nat_number,       // nth parse node child
       $.colon,            // for recursive operators
       $.address,          // use unbound quantifier as lambda
@@ -617,9 +619,9 @@ module.exports = grammar({
 
     // <<1,2,3,4,5>>, <<>>
     tuple_literal: $ => seq(
-      $.langle_bracket,
+      $.l_angle_bracket,
       commaList($._expr),
-      $.rangle_bracket
+      $.r_angle_bracket
     ),
 
     // [x ' > x]_<<x>>
@@ -629,9 +631,9 @@ module.exports = grammar({
 
     // <<x' > x>>_<<x>>
     step_expr_no_stutter: $ => seq(
-      $.langle_bracket,
+      $.l_angle_bracket,
       $._expr,
-      $.rangle_bracket, token.immediate('_'),
+      $.r_angle_bracket_sub,
       $._subscript_expr
     ),
 
@@ -1058,7 +1060,7 @@ module.exports = grammar({
 //      token.immediate(/\.*/)
 //    ),
 
-    begin_proof_step_token: $ => /<[\d+|\*|\+]>[\w|\d]+\.*/,
+    begin_proof_step_token: $ => token(prec(1, /<[\d+|\*|\+]>[\w|\d]+\.*/)),
 
 //    // Used when referring to a prior proof step
 //    proof_step_id: $ => seq(
@@ -1068,6 +1070,6 @@ module.exports = grammar({
 //      field('name', token.immediate(/[\w|\d]+/))
 //    ),
 
-    proof_step_id: $ => /<[\d+|\*]>[\w|\d]+/
+    proof_step_id: $ => token(prec(1, /<[\d+|\*]>[\w|\d]+/))
   }
 });
