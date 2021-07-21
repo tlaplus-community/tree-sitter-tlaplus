@@ -118,12 +118,16 @@
       "type": "PATTERN",
       "value": "-----*"
     },
+    "double_line": {
+      "type": "PATTERN",
+      "value": "=====*"
+    },
     "def_eq": {
       "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_ascii_def_eq"
+          "type": "STRING",
+          "value": "=="
         },
         {
           "type": "STRING",
@@ -2816,8 +2820,8 @@
                   "name": "_except_val"
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "eq"
+                  "type": "STRING",
+                  "value": "="
                 },
                 {
                   "type": "SYMBOL",
@@ -2846,8 +2850,8 @@
                         "name": "_except_val"
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "eq"
+                        "type": "STRING",
+                        "value": "="
                       },
                       {
                         "type": "SYMBOL",
@@ -3621,8 +3625,8 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_ascii_implies_op"
+          "type": "STRING",
+          "value": "=>"
         },
         {
           "type": "STRING",
@@ -3743,8 +3747,8 @@
       ]
     },
     "eq": {
-      "type": "SYMBOL",
-      "name": "_eq_op"
+      "type": "STRING",
+      "value": "="
     },
     "neq": {
       "type": "CHOICE",
@@ -3779,8 +3783,8 @@
           "value": "<="
         },
         {
-          "type": "SYMBOL",
-          "name": "_ascii_eqlt_op"
+          "type": "STRING",
+          "value": "=<"
         },
         {
           "type": "STRING",
@@ -3865,8 +3869,8 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_ascii_ldtt_op"
+          "type": "STRING",
+          "value": "=|"
         },
         {
           "type": "STRING",
@@ -6701,30 +6705,6 @@
     {
       "type": "SYMBOL",
       "name": "_block_comment_text"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_eq_op"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_ascii_def_eq"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_ascii_implies_op"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_ascii_eqlt_op"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_ascii_ldtt_op"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "double_line"
     },
     {
       "type": "SYMBOL",

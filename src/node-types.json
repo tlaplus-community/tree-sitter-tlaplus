@@ -2933,10 +2933,6 @@
           "named": true
         },
         {
-          "type": "eq",
-          "named": true
-        },
-        {
           "type": "except",
           "named": true
         },
@@ -10251,6 +10247,26 @@
   },
   {
     "type": "<>",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "=<",
+    "named": false
+  },
+  {
+    "type": "==",
+    "named": false
+  },
+  {
+    "type": "=>",
+    "named": false
+  },
+  {
+    "type": "=|",
     "named": false
   },
   {
