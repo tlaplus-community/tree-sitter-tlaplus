@@ -2115,10 +2115,6 @@
           "named": true
         },
         {
-          "type": "case_arrow",
-          "named": true
-        },
-        {
           "type": "choose",
           "named": true
         },
@@ -2191,6 +2187,10 @@
           "named": true
         },
         {
+          "type": "r_arrow",
+          "named": true
+        },
+        {
           "type": "record_literal",
           "named": true
         },
@@ -2240,11 +2240,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "case_arrow",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "case_box",
@@ -3924,6 +3919,11 @@
     "fields": {}
   },
   {
+    "type": "gt",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "if_then_else",
     "named": true,
     "fields": {
@@ -4796,6 +4796,11 @@
     }
   },
   {
+    "type": "l_angle_bracket",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "label",
     "named": true,
     "fields": {
@@ -5169,11 +5174,6 @@
     "fields": {}
   },
   {
-    "type": "langle_bracket",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "ld_ttile",
     "named": true,
     "fields": {}
@@ -5400,12 +5400,12 @@
     "fields": {}
   },
   {
-    "type": "maps_to",
+    "type": "minus",
     "named": true,
     "fields": {}
   },
   {
-    "type": "minus",
+    "type": "minusminus",
     "named": true,
     "fields": {}
   },
@@ -6259,10 +6259,6 @@
           "named": true
         },
         {
-          "type": "case_arrow",
-          "named": true
-        },
-        {
           "type": "choose",
           "named": true
         },
@@ -6332,6 +6328,10 @@
         },
         {
           "type": "proof_step_id",
+          "named": true
+        },
+        {
+          "type": "r_arrow",
           "named": true
         },
         {
@@ -7061,11 +7061,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "rangle_bracket",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "rd_ttile",
@@ -7872,10 +7867,6 @@
           "named": true
         },
         {
-          "type": "maps_to",
-          "named": true
-        },
-        {
           "type": "number",
           "named": true
         },
@@ -7897,6 +7888,10 @@
         },
         {
           "type": "proof_step_id",
+          "named": true
+        },
+        {
+          "type": "r_arrow",
           "named": true
         },
         {
@@ -8476,11 +8471,11 @@
           "named": true
         },
         {
-          "type": "label",
+          "type": "l_angle_bracket",
           "named": true
         },
         {
-          "type": "langle_bracket",
+          "type": "label",
           "named": true
         },
         {
@@ -8512,7 +8507,7 @@
           "named": true
         },
         {
-          "type": "rangle_bracket",
+          "type": "r_angle_bracket_sub",
           "named": true
         },
         {
@@ -8804,7 +8799,7 @@
           "named": true
         },
         {
-          "type": "langle_bracket",
+          "type": "l_angle_bracket",
           "named": true
         },
         {
@@ -8816,7 +8811,7 @@
           "named": true
         },
         {
-          "type": "rangle_bracket",
+          "type": "r_angle_bracket",
           "named": true
         }
       ]
@@ -9345,11 +9340,11 @@
           "named": true
         },
         {
-          "type": "label",
+          "type": "l_angle_bracket",
           "named": true
         },
         {
-          "type": "langle_bracket",
+          "type": "label",
           "named": true
         },
         {
@@ -9381,7 +9376,7 @@
           "named": true
         },
         {
-          "type": "rangle_bracket",
+          "type": "r_angle_bracket",
           "named": true
         },
         {
@@ -9448,11 +9443,11 @@
           "named": true
         },
         {
-          "type": "langle_bracket",
+          "type": "l_angle_bracket",
           "named": true
         },
         {
-          "type": "rangle_bracket",
+          "type": "r_angle_bracket",
           "named": true
         }
       ]
@@ -10182,22 +10177,6 @@
     "named": false
   },
   {
-    "type": "-",
-    "named": false
-  },
-  {
-    "type": "-+->",
-    "named": false
-  },
-  {
-    "type": "->",
-    "named": false
-  },
-  {
-    "type": "-|",
-    "named": false
-  },
-  {
     "type": ".",
     "named": false
   },
@@ -10251,14 +10230,6 @@
   },
   {
     "type": "<>",
-    "named": false
-  },
-  {
-    "type": ">=",
-    "named": false
-  },
-  {
-    "type": ">>",
     "named": false
   },
   {
@@ -10762,10 +10733,6 @@
     "named": false
   },
   {
-    "type": "_",
-    "named": false
-  },
-  {
     "type": "amp",
     "named": true
   },
@@ -10810,10 +10777,6 @@
     "named": true
   },
   {
-    "type": "gt",
-    "named": true
-  },
-  {
     "type": "hashhash",
     "named": true
   },
@@ -10835,10 +10798,6 @@
   },
   {
     "type": "map_to",
-    "named": true
-  },
-  {
-    "type": "minusminus",
     "named": true
   },
   {
@@ -10891,6 +10850,18 @@
   },
   {
     "type": "proof_step_id",
+    "named": true
+  },
+  {
+    "type": "r_angle_bracket",
+    "named": true
+  },
+  {
+    "type": "r_angle_bracket_sub",
+    "named": true
+  },
+  {
+    "type": "r_arrow",
     "named": true
   },
   {
@@ -11218,10 +11189,6 @@
     "named": false
   },
   {
-    "type": "⟶",
-    "named": false
-  },
-  {
     "type": "⟹",
     "named": false
   },
@@ -11251,10 +11218,6 @@
   },
   {
     "type": "〈",
-    "named": false
-  },
-  {
-    "type": "〉",
     "named": false
   }
 ]

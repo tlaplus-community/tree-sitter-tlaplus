@@ -78,6 +78,7 @@ module.exports = grammar({
     $.extramodular_text,    // Freeform text before/between/after modules
     $._block_comment_text,  // Text in block comments
     $._gt_op,               // >
+    $._ascii_geq_op,        // >=
     $.r_angle_bracket,      // >>
     $.r_angle_bracket_sub,  // >>_
     $._eq_op,               // =
@@ -85,7 +86,13 @@ module.exports = grammar({
     $._ascii_implies_op,    // =>
     $._ascii_eqlt_op,       // =<
     $._ascii_ldtt_op,       // =|
-    $.double_line,          // /=====*/ to end module
+    $.double_line,          // ====[=]*
+    $._dash,                // The - infix or prefix op
+    $._minus_minus_op,      // --
+    $._ascii_plus_arrow_op, // -+->
+    $._ascii_lstt_op,       // -|
+    $.r_arrow,              // ->
+    $.single_line,          // ----[-]*
     $._indent,              // Start of a junctlist
     $._newline,             // Separator between elements of a junctlist
     $._dedent               // End of a junctlist
@@ -163,9 +170,6 @@ module.exports = grammar({
       $.double_line
     ),
 
-    // Line of ---------- of length at least 4
-    single_line: $ => /-----*/,
-
     // Various syntactic elements and their unicode equivalents
     def_eq:           $ => choice($._ascii_def_eq, '≜'),
     set_in:           $ => choice('\\in', '∈'),
@@ -175,10 +179,8 @@ module.exports = grammar({
     temporal_forall:  $ => choice('\\AA'),
     temporal_exists:  $ => choice('\\EE'),
     all_map_to:       $ => choice('|->', '⟼'), 
-    maps_to:          $ => choice('->', '⟶'),
     l_angle_bracket:  $ => choice('<<', '〈'),
     case_box:         $ => choice('[]', '□'),
-    case_arrow:       $ => choice('->', '⟶'),
     bullet_conj:      $ => choice('/\\', '∧'),
     bullet_disj:      $ => choice('\\/', '∨'),
     colon:            $ => ':',
@@ -583,7 +585,7 @@ module.exports = grammar({
 
     // [Nat -> Nat]
     set_of_functions: $ => seq(
-      '[', $._expr, $.maps_to, $._expr, ']'
+      '[', $._expr, $.r_arrow, $._expr, ']'
     ),
 
     // [foo |-> 0, bar |-> 1]
@@ -663,10 +665,10 @@ module.exports = grammar({
     )),
 
     // p -> val
-    case_arm: $ => seq($._expr, $.case_arrow, $._expr),
+    case_arm: $ => seq($._expr, $.r_arrow, $._expr),
 
     // OTHER -> val
-    other_arm: $ => seq('OTHER', $.case_arrow, $._expr),
+    other_arm: $ => seq('OTHER', $.r_arrow, $._expr),
 
     // LET x == 5 IN 2*x
     let_in: $ => seq(
@@ -714,7 +716,7 @@ module.exports = grammar({
     union:            $ => 'UNION',
     powerset:         $ => 'SUBSET',
     domain:           $ => 'DOMAIN',
-    negative:         $ => '-',
+    negative:         $ => $._dash,
     enabled:          $ => 'ENABLED',
     unchanged:        $ => 'UNCHANGED',
     always:           $ => choice('[]', '□'),
@@ -745,7 +747,7 @@ module.exports = grammar({
 
     // Infix operator symbols and their unicode equivalents
     implies:          $ => choice($._ascii_implies_op, '⟹'),
-    plus_arrow:       $ => choice('-+->', '⇸'),
+    plus_arrow:       $ => choice($._ascii_plus_arrow_op, '⇸'),
     equiv:            $ => choice('\\equiv', '≡'),
     iff:              $ => choice('<=>', '⟺'),
     leads_to:         $ => choice('~>', '⇝'),
@@ -756,13 +758,13 @@ module.exports = grammar({
     eq:               $ => $._eq_op,
     neq:              $ => choice('/=', '#', '≠'),
     lt:               $ => '<',
-    gt:               $ => '>',
+    gt:               $ => $._gt_op,
     leq:              $ => choice('<=', $._ascii_eqlt_op, '\\leq', '≤'),
-    geq:              $ => choice('>=', '\\geq', '≥'),
+    geq:              $ => choice($._ascii_geq_op, '\\geq', '≥'),
     approx:           $ => choice('\\approx', '≈'),
     rs_ttile:         $ => choice('|-', '⊢'),
     rd_ttile:         $ => choice('|=', '⊨'),
-    ls_ttile:         $ => choice('-|', '⊣'),
+    ls_ttile:         $ => choice($._ascii_lstt_op, '⊣'),
     ld_ttile:         $ => choice($._ascii_ldtt_op, '⫤'),
     asymp:            $ => choice('\\asymp', '≍'),
     cong:             $ => choice('\\cong', '≅'),
@@ -802,8 +804,8 @@ module.exports = grammar({
     modmod:           $ => '%%',
     vert:             $ => '|',
     vertvert:         $ => choice('||', '‖'),
-    minus:            $ => '-',
-    minusminus:       $ => '--',
+    minus:            $ => $._dash,
+    minusminus:       $ => $._minus_minus_op,
     amp:              $ => '&',
     ampamp:           $ => '&&',
     odot:             $ => choice('\\odot', '(.)', '⊙'),

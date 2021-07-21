@@ -14,6 +14,7 @@ namespace {
     EXTRAMODULAR_TEXT,      // Freeform text between modules.
     BLOCK_COMMENT_TEXT,     // Text inside block comments.
     GT_OP,                  // The > infix operator.
+    ASCII_GEQ_OP,           // The >= infix operator.
     R_ANGLE_BRACKET,        // The >> or 〉 delimiter.
     R_ANGLE_BRACKET_SUB,    // The >>_ or 〉_ delimiter.
     EQ_OP,                  // The = infix operator.
@@ -21,7 +22,13 @@ namespace {
     ASCII_IMPLIES_OP,       // The => implies operator.
     ASCII_EQLT_OP,          // The =< equal-to-or-less-than operator.
     ASCII_LDTT_OP,          // The =| left-double turnstile operator.
-    DOUBLE_LINE,            // The /=====*/ token to end a module.
+    DOUBLE_LINE,            // The ====[=]* token to end a module.
+    DASH,                   // The - infix or prefix operator.
+    MINUS_MINUS_OP,         // The -- infix operator.
+    ASCII_PLUS_ARROW_OP,    // The -+-> infix operator.
+    ASCII_LSTT_OP,          // The -| infix operator.
+    R_ARROW,                // The -> construct.
+    SINGLE_LINE,            // The ----[-]* line separator token.
     INDENT,                 // Marks beginning of junction list.
     NEWLINE,                // Separates items of junction list.
     DEDENT                  // Marks end of junction list.
@@ -31,7 +38,6 @@ namespace {
   using column_index = int16_t;
 
   // All the tokens the external scanner cares about.
-  static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
   static const token_t CASE_ARROW_TOKEN = {'-','>'};
   static const token_t UNICODE_CASE_ARROW_TOKEN = {L'⟶'};
   static const token_t COMMENT_START_TOKEN = {'\\','*'};
@@ -88,15 +94,6 @@ namespace {
 
   // The actual mapping between tokens and their type/category.
   static const std::vector<TokenTypeMap> SCANNER_TOKEN_TYPE_MAPPING = {
-    TokenTypeMap(LAND_TOKEN, ScannerTokenType::LAND),
-    TokenTypeMap(UNICODE_LAND_TOKEN, ScannerTokenType::LAND),
-    TokenTypeMap(LOR_TOKEN, ScannerTokenType::LOR),
-    TokenTypeMap(UNICODE_LOR_TOKEN, ScannerTokenType::LOR),
-    TokenTypeMap(R_PARENTHESIS_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
-    TokenTypeMap(R_SQUARE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
-    TokenTypeMap(R_CURLY_BRACE_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
-    TokenTypeMap(R_ANGLE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
-    TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
     TokenTypeMap(CASE_ARROW_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
     TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, ScannerTokenType::RIGHT_DELIMITER),
     TokenTypeMap(COMMENT_START_TOKEN, ScannerTokenType::COMMENT),
@@ -258,7 +255,6 @@ namespace {
   enum class LexState {
     ERROR_RECOVERY,
     CONSUME_LEADING_SPACE,
-    FIRST_NONSPACE_CP,
     FORWARD_SLASH,
     BACKWARD_SLASH,
     LAND,
@@ -267,6 +263,7 @@ namespace {
     RIGHT_ANGLE_BRACKET,
     RIGHT_ANGLE_BRACKET_SUB,
     GT,
+    GEQ,
     EQ_ONE,
     EQ_TWO,
     EQ_THREE,
@@ -274,16 +271,26 @@ namespace {
     LEQ,
     IMPLIES,
     LDTT,
+    DASH_ONE,
+    DASH_TWO,
+    DASH_THREE,
+    DASH_GEQ_FOUR,
+    RIGHT_ARROW,
+    LSTT,
+    PLUS_ARROW_PREFIX_2,
+    PLUS_ARROW_PREFIX_3,
+    PLUS_ARROW,
   };
 
   bool lex(
     TSLexer* const lexer,
     const bool* const valid_symbols,
-    LexState state,
     const std::function<bool(column_index)>& handle_junct,
     const std::function<bool(column_index)>& handle_right_delimiter,
+    const std::function<bool(column_index)>& handle_terminator,
     const std::function<bool(column_index)>& handle_other
   ) {
+    LexState state = LexState::CONSUME_LEADING_SPACE;
     START_LEXER();
     eof = !has_next(lexer);
     column_index col;
@@ -291,8 +298,6 @@ namespace {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) return false;
         if (is_whitespace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
-        ADVANCE(LexState::FIRST_NONSPACE_CP);
-      case LexState::FIRST_NONSPACE_CP:
         col = lexer->get_column(lexer);
         lexer->mark_end(lexer);
         if ('/' == lookahead) ADVANCE(LexState::FORWARD_SLASH);
@@ -305,6 +310,7 @@ namespace {
         if (L'〉' == lookahead) ADVANCE(LexState::RIGHT_ANGLE_BRACKET);
         if ('>' == lookahead) ADVANCE(LexState::GT);
         if ('=' == lookahead) ADVANCE(LexState::EQ_ONE);
+        if ('-' == lookahead) ADVANCE(LexState::DASH_ONE);
         END_STATE();
       case LexState::FORWARD_SLASH:
         if ('\\' == lookahead) ADVANCE(LexState::LAND);
@@ -334,23 +340,28 @@ namespace {
       case LexState::GT:
         if ('>' == lookahead) ADVANCE(LexState::RIGHT_ANGLE_BRACKET);
         ACCEPT_TOKEN(GT_OP);
+        if ('=' == lookahead) ADVANCE(LexState::GEQ);
+        END_STATE();
+      case LexState::GEQ:
+        ACCEPT_TOKEN(ASCII_GEQ_OP);
         END_STATE();
       case LexState::EQ_ONE:
         if (handle_other(col)) return true;
-        ACCEPT_TOKEN(EQ_OP);
         if ('=' == lookahead) ADVANCE(LexState::EQ_TWO);
         if ('<' == lookahead) ADVANCE(LexState::LEQ);
         if ('>' == lookahead) ADVANCE(LexState::IMPLIES);
         if ('|' == lookahead) ADVANCE(LexState::LDTT);
+        ACCEPT_TOKEN(EQ_OP);
         END_STATE();
       case LexState::EQ_TWO:
-        ACCEPT_TOKEN(ASCII_DEF_EQ);
         if ('=' == lookahead) ADVANCE(LexState::EQ_THREE);
+        ACCEPT_TOKEN(ASCII_DEF_EQ);
         END_STATE();
       case LexState::EQ_THREE:
         if ('=' == lookahead) ADVANCE(LexState::EQ_GEQ_FOUR);
         END_STATE();
       case LexState::EQ_GEQ_FOUR:
+        if (handle_terminator(col)) return true;
         ACCEPT_TOKEN(DOUBLE_LINE);
         if ('=' == lookahead) ADVANCE(LexState::EQ_GEQ_FOUR);
         END_STATE();
@@ -362,6 +373,41 @@ namespace {
         END_STATE();
       case LexState::LDTT:
         ACCEPT_TOKEN(ASCII_LDTT_OP);
+        END_STATE();
+      case LexState::DASH_ONE:
+        if (handle_other(col)) return true;
+        if ('-' == lookahead) ADVANCE(LexState::DASH_TWO);
+        if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
+        if ('|' == lookahead) ADVANCE(LexState::LSTT);
+        if ('+' == lookahead) ADVANCE(LexState::PLUS_ARROW_PREFIX_2);
+        ACCEPT_TOKEN(DASH);
+        END_STATE();
+      case LexState::DASH_TWO:
+        if ('-' == lookahead) ADVANCE(LexState::DASH_THREE);
+        ACCEPT_TOKEN(MINUS_MINUS_OP);
+        END_STATE();
+      case LexState::DASH_THREE:
+        if ('-' == lookahead) ADVANCE(LexState::DASH_GEQ_FOUR);
+        END_STATE();
+      case LexState::DASH_GEQ_FOUR:
+        if (handle_terminator(col)) return true;
+        ACCEPT_TOKEN(SINGLE_LINE);
+        if ('-' == lookahead) ADVANCE(LexState::DASH_GEQ_FOUR);
+        END_STATE();
+      case LexState::RIGHT_ARROW:
+        ACCEPT_TOKEN(R_ARROW);
+        END_STATE();
+      case LexState::LSTT:
+        ACCEPT_TOKEN(ASCII_LSTT_OP);
+        END_STATE();
+      case LexState::PLUS_ARROW_PREFIX_2:
+        if ('-' == lookahead) ADVANCE(LexState::PLUS_ARROW_PREFIX_3);
+        END_STATE();
+      case LexState::PLUS_ARROW_PREFIX_3:
+        if ('>' == lookahead) ADVANCE(LexState::PLUS_ARROW);
+        END_STATE();
+      case LexState::PLUS_ARROW:
+        ACCEPT_TOKEN(ASCII_PLUS_ARROW_OP);
         END_STATE();
       default:
         return false;
@@ -951,6 +997,9 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
+      auto f = [](column_index c) { return false;};
+      return lex(lexer, valid_symbols, f, f, f, f);
+      /*
       consume_while(lexer, true, is_whitespace);
       lexer->mark_end(lexer);
       if (!has_next(lexer)) {
@@ -1013,6 +1062,7 @@ namespace {
         default:
           return false;
       }
+      */
     }
 
     /**
@@ -1040,21 +1090,18 @@ namespace {
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
       if (is_error_recovery) {
+        printf("ERROR RECOVERY\n");
         return is_in_jlist() && emit_dedent(lexer);
       } else if(valid_symbols[EXTRAMODULAR_TEXT]) {
+        printf("EXTRAMODULAR TEXT\n");
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
+        printf("BLOCK COMMENT TEXT\n");
         return scan_block_comment_text(lexer);
-      } else if (valid_symbols[EQ_OP]
-        || valid_symbols[ASCII_DEF_EQ]
-        || valid_symbols[DOUBLE_LINE]
-        || valid_symbols[INDENT]
-        || valid_symbols[NEWLINE]
-        || valid_symbols[DEDENT]
-      ) {
-        return scan_next_token(lexer, valid_symbols);
       } else {
-        return false;
+        printf("LEX\n");
+        auto f = [](column_index c) { return false;};
+        return lex(lexer, valid_symbols, f, f, f, f);
       }
     }
   };
