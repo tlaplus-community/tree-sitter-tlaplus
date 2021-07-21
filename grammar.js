@@ -959,10 +959,13 @@ module.exports = grammar({
     ),
 
     // PROOF BY z \in Nat
-    terminal_proof: $ => choice(
-      seq(optional('PROOF'), 'BY', optional('ONLY'), $.use_body),
-      'OBVIOUS',
-      'OMITTED'
+    terminal_proof: $ => seq(
+      optional("PROOF"),
+      choice(
+        seq('BY', optional('ONLY'), $.use_body),
+        'OBVIOUS',
+        'OMITTED'
+      )
     ),
 
     non_terminal_proof: $ => seq(

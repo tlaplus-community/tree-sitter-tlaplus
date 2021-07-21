@@ -28,8 +28,9 @@ PROOF
 -------------------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
+  (unit (theorem
     (identifier) (def_eq)
-    (proof_step_id (proof_step_level) (proof_step_name))
+    (bound_infix_op (bound_infix_op (number) (plus) (number)) (eq) (number))
+    (proof (terminal_proof))
   ))
 (double_line)))

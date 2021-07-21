@@ -6053,52 +6053,57 @@
       ]
     },
     "terminal_proof": {
-      "type": "CHOICE",
+      "type": "SEQ",
       "members": [
         {
-          "type": "SEQ",
+          "type": "CHOICE",
           "members": [
             {
-              "type": "CHOICE",
+              "type": "STRING",
+              "value": "PROOF"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
               "members": [
                 {
                   "type": "STRING",
-                  "value": "PROOF"
+                  "value": "BY"
                 },
                 {
-                  "type": "BLANK"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": "ONLY"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "use_body"
                 }
               ]
             },
             {
               "type": "STRING",
-              "value": "BY"
+              "value": "OBVIOUS"
             },
             {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "ONLY"
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            },
-            {
-              "type": "SYMBOL",
-              "name": "use_body"
+              "type": "STRING",
+              "value": "OMITTED"
             }
           ]
-        },
-        {
-          "type": "STRING",
-          "value": "OBVIOUS"
-        },
-        {
-          "type": "STRING",
-          "value": "OMITTED"
         }
       ]
     },
