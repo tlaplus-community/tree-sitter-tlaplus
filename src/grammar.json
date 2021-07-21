@@ -1577,7 +1577,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "nat_number"
+          "name": "child_id"
         },
         {
           "type": "SYMBOL",
@@ -1592,6 +1592,10 @@
           "name": "operator_args"
         }
       ]
+    },
+    "child_id": {
+      "type": "PATTERN",
+      "value": "\\d+"
     },
     "operator_args": {
       "type": "SEQ",
@@ -2014,43 +2018,43 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "nat_number"
+          "name": "_nat_number"
         },
         {
           "type": "SYMBOL",
-          "name": "real_number"
+          "name": "_real_number"
         },
         {
           "type": "SYMBOL",
-          "name": "binary_number"
+          "name": "_binary_number"
         },
         {
           "type": "SYMBOL",
-          "name": "octal_number"
+          "name": "_octal_number"
         },
         {
           "type": "SYMBOL",
-          "name": "hex_number"
+          "name": "_hex_number"
         }
       ]
     },
-    "nat_number": {
+    "_nat_number": {
       "type": "PATTERN",
       "value": "\\d+"
     },
-    "real_number": {
+    "_real_number": {
       "type": "PATTERN",
       "value": "\\d+\\.\\d+"
     },
-    "binary_number": {
+    "_binary_number": {
       "type": "PATTERN",
       "value": "(\\\\b|\\\\B)[0-1]+"
     },
-    "octal_number": {
+    "_octal_number": {
       "type": "PATTERN",
       "value": "(\\\\o|\\\\O)[0-7]+"
     },
-    "hex_number": {
+    "_hex_number": {
       "type": "PATTERN",
       "value": "(\\\\h|\\\\H)[0-9a-fA-F]+"
     },
@@ -6622,12 +6626,103 @@
       ]
     },
     "begin_proof_step_token": {
-      "type": "PATTERN",
-      "value": "<[\\d+|\\*|\\+]>[\\w|\\d]+\\.*"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<"
+        },
+        {
+          "type": "FIELD",
+          "name": "level",
+          "content": {
+            "type": "SYMBOL",
+            "name": "new_proof_step_level"
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": ">"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "new_proof_step_name"
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "\\.*"
+          }
+        }
+      ]
+    },
+    "new_proof_step_level": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "\\d+|\\+|\\*"
+      }
+    },
+    "new_proof_step_name": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[\\w|\\d]*"
+      }
     },
     "proof_step_id": {
-      "type": "PATTERN",
-      "value": "<[\\d+|\\*]>[\\w|\\d]+"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<"
+        },
+        {
+          "type": "FIELD",
+          "name": "level",
+          "content": {
+            "type": "SYMBOL",
+            "name": "proof_step_level"
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": ">"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "proof_step_name"
+          }
+        }
+      ]
+    },
+    "proof_step_level": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "\\d+|\\*"
+      }
+    },
+    "proof_step_name": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[\\w|\\d]+"
+      }
     }
   },
   "extras": [

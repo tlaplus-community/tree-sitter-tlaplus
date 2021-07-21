@@ -1,0 +1,35 @@
+===============================|||
+Proof Step ID in Expression
+===============================|||
+
+---- MODULE Test ----
+op == <1>a
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (proof_step_id (proof_step_level) (proof_step_name))
+  ))
+(double_line)))
+
+===============================|||
+Obvious Proof
+===============================|||
+
+---- MODULE Test ----
+THEOREM OnePlusOne == 1 + 1 = 2
+PROOF 
+  OBVIOUS
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (proof_step_id (proof_step_level) (proof_step_name))
+  ))
+(double_line)))

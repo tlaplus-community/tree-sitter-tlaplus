@@ -368,6 +368,32 @@
     "fields": {}
   },
   {
+    "type": "begin_proof_step_token",
+    "named": true,
+    "fields": {
+      "level": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "new_proof_step_level",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "new_proof_step_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "bigcirc",
     "named": true,
     "fields": {}
@@ -2253,6 +2279,11 @@
   },
   {
     "type": "cdot",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "child_id",
     "named": true,
     "fields": {}
   },
@@ -5396,6 +5427,11 @@
     "fields": {}
   },
   {
+    "type": "lt",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "maps_to",
     "named": true,
     "fields": {}
@@ -5711,33 +5747,7 @@
   {
     "type": "number",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "binary_number",
-          "named": true
-        },
-        {
-          "type": "hex_number",
-          "named": true
-        },
-        {
-          "type": "nat_number",
-          "named": true
-        },
-        {
-          "type": "octal_number",
-          "named": true
-        },
-        {
-          "type": "real_number",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
   },
   {
     "type": "odot",
@@ -6856,6 +6866,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "proof_step_id",
+    "named": true,
+    "fields": {
+      "level": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "proof_step_level",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "proof_step_name",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -8796,15 +8832,15 @@
           "named": true
         },
         {
+          "type": "child_id",
+          "named": true
+        },
+        {
           "type": "colon",
           "named": true
         },
         {
           "type": "langle_bracket",
-          "named": true
-        },
-        {
-          "type": "nat_number",
           "named": true
         },
         {
@@ -10230,6 +10266,10 @@
     "named": false
   },
   {
+    "type": "<",
+    "named": false
+  },
+  {
     "type": "<-",
     "named": false
   },
@@ -10267,6 +10307,10 @@
   },
   {
     "type": "=|",
+    "named": false
+  },
+  {
+    "type": ">",
     "named": false
   },
   {
@@ -10794,14 +10838,6 @@
     "named": true
   },
   {
-    "type": "begin_proof_step_token",
-    "named": true
-  },
-  {
-    "type": "binary_number",
-    "named": true
-  },
-  {
     "type": "comment",
     "named": true
   },
@@ -10834,15 +10870,7 @@
     "named": true
   },
   {
-    "type": "hex_number",
-    "named": true
-  },
-  {
     "type": "identifier",
-    "named": true
-  },
-  {
-    "type": "lt",
     "named": true
   },
   {
@@ -10874,11 +10902,11 @@
     "named": true
   },
   {
-    "type": "nat_number",
+    "type": "new_proof_step_level",
     "named": true
   },
   {
-    "type": "octal_number",
+    "type": "new_proof_step_name",
     "named": true
   },
   {
@@ -10906,11 +10934,11 @@
     "named": true
   },
   {
-    "type": "proof_step_id",
+    "type": "proof_step_level",
     "named": true
   },
   {
-    "type": "real_number",
+    "type": "proof_step_name",
     "named": true
   },
   {

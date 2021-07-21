@@ -364,11 +364,14 @@ module.exports = grammar({
     subexpr_tree_nav: $ => choice(
       $.langle_bracket,   // first parse node child
       $.rangle_bracket,   // second parse node child
-      $.nat_number,       // nth parse node child
+      $.child_id,         // nth parse node child
       $.colon,            // for recursive operators
       $.address,          // use unbound quantifier as lambda
       $.operator_args     // bind quantifier
     ),
+
+    // ...!2!3!...
+    child_id: $ => /\d+/,
 
     // ...!(a, b, c)!...
     operator_args: $ => seq(
@@ -466,15 +469,15 @@ module.exports = grammar({
 
     // Number literal encodings
     number: $ => choice(
-      $.nat_number,     $.real_number,
-      $.binary_number,  $.octal_number,   $.hex_number
+      $._nat_number,     $._real_number,
+      $._binary_number,  $._octal_number,   $._hex_number
     ),
 
-    nat_number: $ => /\d+/,
-    real_number: $ => /\d+\.\d+/,
-    binary_number: $ => /(\\b|\\B)[0-1]+/,
-    octal_number: $ => /(\\o|\\O)[0-7]+/,
-    hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
+    _nat_number: $ => /\d+/,
+    _real_number: $ => /\d+\.\d+/,
+    _binary_number: $ => /(\\b|\\B)[0-1]+/,
+    _octal_number: $ => /(\\o|\\O)[0-7]+/,
+    _hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
     string: $ => /"([^"]|\\")*"/,
@@ -1040,24 +1043,26 @@ module.exports = grammar({
 
     // <+>foo22..
     // Used when writing another proof step
-//    begin_proof_step_token: $ => seq(
-//      '<',
-//      field('level', token.immediate(/\d+|\+|\*/)),
-//      token.immediate('>'),
-//      field('name', token.immediate(/[\w|\d]*/)),
-//      token.immediate(/\.*/)
-//    ),
+    begin_proof_step_token: $ => seq(
+      '<',
+      field('level', $.new_proof_step_level),
+      token.immediate('>'),
+      field('name', $.new_proof_step_name),
+      token.immediate(/\.*/)
+    ),
 
-    begin_proof_step_token: $ => /<[\d+|\*|\+]>[\w|\d]+\.*/,
+    new_proof_step_level: $ => token.immediate(/\d+|\+|\*/),
+    new_proof_step_name: $ => token.immediate(/[\w|\d]*/),
 
-//    // Used when referring to a prior proof step
-//    proof_step_id: $ => seq(
-//      '<',
-//      field('level', token.immediate(/\d+|\*/)),
-//      token.immediate('>'),
-//      field('name', token.immediate(/[\w|\d]+/))
-//    ),
+    // Used when referring to a prior proof step
+    proof_step_id: $ => seq(
+      '<',
+      field('level', $.proof_step_level),
+      token.immediate('>'),
+      field('name', $.proof_step_name)
+    ),
 
-    proof_step_id: $ => /<[\d+|\*]>[\w|\d]+/
+    proof_step_level: $ => token.immediate(/\d+|\*/),
+    proof_step_name: $ => token.immediate(/[\w|\d]+/),
   }
 });

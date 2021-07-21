@@ -47,9 +47,9 @@ op ==
   (unit (operator_definition
     (identifier) (def_eq)
     (conj_list
-      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number))
       (comment)
-      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number))
     )
   ))
 (double_line)))
@@ -71,9 +71,9 @@ op ==
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number))
       (comment)
-      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number))
     )
   ))
 (double_line)))
@@ -129,9 +129,9 @@ comment
 (source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq) (bound_infix_op
-      (number (nat_number)) (plus)
+      (number) (plus)
       (block_comment)
-      (number (nat_number))
+      (number)
     )
   ))
 (double_line)))
@@ -230,9 +230,9 @@ op ==
   (unit (operator_definition
     (identifier) (def_eq)
     (conj_list
-      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number))
       (block_comment)
-      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number))
     )
   ))
 (double_line)))
@@ -254,9 +254,9 @@ op ==
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number))
       (block_comment)
-      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number))
     )
   ))
 (double_line)))
