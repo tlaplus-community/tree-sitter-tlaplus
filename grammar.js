@@ -114,10 +114,8 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate begin_proof_step_token  _expr  •
-    // begin_proof_step_token  …
-    // Could be <1>a QED or could be <1>a (proof continues)
-    [$.proof_step],
+    // Lookahead to disambiguate begin_proof_step_token assume_prove • '<'
+    [$.suffices_proof_step],
     // Lookahead to disambiguate begin_proof_step_token  'QED'  •
     // begin_proof_step_token  …
     // Proof can follow a QED statement; is this a grammar bug?
@@ -928,9 +926,9 @@ module.exports = grammar({
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
     assume_prove: $ => seq(
       'ASSUME',
-      commaList1(choice($._expr, $.new, $.inner_assume_prove)),
+      field('assumption', commaList1(choice($._expr, $.new, $.inner_assume_prove))),
       'PROVE',
-      $._expr
+      field('conclusion', $._expr)
     ),
 
     // triangle ∷ ASSUME x > y, y > z PROVE x > z
@@ -978,35 +976,45 @@ module.exports = grammar({
     proof_step: $ => seq(
       $.begin_proof_step_token,
       choice(
+        $.use_or_hide,
+        $.definition_proof_step,
+        $.instance,
+        $.have_proof_step,
+        $.witness_proof_step,
+        $.take_proof_step,
+        $.suffices_proof_step,
+        $.case_proof_step,
+        $.pick_proof_step
+      )
+    ),
+
+    definition_proof_step: $ => seq(
+      optional('DEFINE'),
+      repeat1(
         choice(
-          $.use_or_hide,
-          seq(
-            optional('DEFINE'),
-            repeat1(
-              choice(
-                $.operator_definition,
-                $.function_definition,
-                $.module_definition
-              )
-            )
-          ),
-          $.instance,
-          seq('HAVE', $._expr),
-          seq('WITNESS', commaList1($._expr)),
-          seq('TAKE', $.bound_or_identifier_list)
-        ),
-        seq(
-          choice(
-            seq(optional('SUFFICES'), choice($._expr, $.assume_prove)),
-            seq('CASE', $._expr),
-            seq('PICK', $.bound_or_identifier_list, ':', $._expr)
-          ),
-          optional($.proof)
+          $.operator_definition,
+          $.function_definition,
+          $.module_definition
         )
       )
     ),
 
-    bound_or_identifier_list: $ => choice(
+    have_proof_step: $ => seq('HAVE', $._expr),
+    witness_proof_step: $ => seq('WITNESS', commaList1($._expr)),
+    take_proof_step: $ => seq('TAKE', $._bound_or_identifier_list),
+    suffices_proof_step: $ => seq(
+      optional('SUFFICES'), choice($._expr, $.assume_prove), optional($.proof)
+    ),
+    case_proof_step: $ => seq('CASE', $._expr, optional($.proof)),
+    pick_proof_step: $ => seq(
+      'PICK', $._bound_or_identifier_list, ':', $._expr,
+      optional($.proof)
+    ),
+
+    // One of:
+    //   a, b, c, d
+    //   a \in P, b, c \in Q, d, e, f \in R
+    _bound_or_identifier_list: $ => choice(
       commaList1($.quantifier_bound),
       commaList1($.identifier)
     ),
