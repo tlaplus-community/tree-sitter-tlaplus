@@ -6744,10 +6744,10 @@
       "subexpr_prefix"
     ],
     [
-      "suffices_proof_step"
+      "qed_step"
     ],
     [
-      "qed_step"
+      "suffices_proof_step"
     ],
     [
       "case_proof_step"
