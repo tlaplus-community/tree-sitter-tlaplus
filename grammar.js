@@ -114,10 +114,9 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate begin_proof_step_token assume_prove • '<'
-    [$.suffices_proof_step],
     // Can be fixed by marking proof start/end with external scanner
     [$.qed_step],
+    [$.suffices_proof_step],
     [$.case_proof_step],
     [$.pick_proof_step]
   ],
