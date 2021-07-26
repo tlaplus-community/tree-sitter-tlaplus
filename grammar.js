@@ -20,7 +20,9 @@ function arity2(op, expr) {
 
 // An operator with 0 or more parameters.
 function arity0OrN(op, expr) {
-  return seq(op, optional(seq('(', commaList1(expr), ')')))
+  return seq(
+    field('name', op),
+    field('parameters', optional(seq('(', commaList1(expr), ')'))))
 }
 
 // An operator with 1 or more parameters.
@@ -105,21 +107,18 @@ module.exports = grammar({
     [$._expr, $.operator_definition],
     // Lookahead to disambiguate identifier  '('  identifier  •  ','  …
     // Could be op(a, b) == ... (decl'n) or op(a, b) (expression) or label
-    [$._expr, $.operator_declaration, $.label],
+    [$._expr, $._id_or_op_declaration, $.label],
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
     [$._expr, $.function_definition],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate begin_proof_step_token  _expr  •
-    // begin_proof_step_token  …
-    // Could be <1>a QED or could be <1>a (proof continues)
-    [$.proof_step],
-    // Lookahead to disambiguate begin_proof_step_token  'QED'  •
-    // begin_proof_step_token  …
-    // Proof can follow a QED statement; is this a grammar bug?
-    [$.qed_step]
+    // Can be fixed by marking proof start/end with external scanner
+    [$.qed_step],
+    [$.suffices_proof_step],
+    [$.case_proof_step],
+    [$.pick_proof_step]
   ],
 
   rules: {
@@ -146,16 +145,10 @@ module.exports = grammar({
     ),
 
     // Line of ---------- of length at least 4
-    single_line: $ => seq(
-      '----',
-      token.immediate(repeat(token.immediate('-')))
-    ),
+    single_line: $ => /-----*/,
 
     // Line of =========== of length at least 4
-    double_line: $ => seq(
-      '====',
-      token.immediate(repeat(token.immediate('=')))
-    ),
+    double_line: $ => /=====*/,
 
     // Various syntactic elements and their unicode equivalents
     def_eq:           $ => choice('==', '≜'),
@@ -211,7 +204,7 @@ module.exports = grammar({
     unit: $ => choice(
         $.variable_declaration,
         $.constant_declaration,
-        $.recursive_operator_declaration,
+        $.recursive_declaration,
         seq(optional("LOCAL"), $.operator_definition),
         seq(optional("LOCAL"), $.function_definition),
         seq(optional("LOCAL"), $.instance),
@@ -231,22 +224,29 @@ module.exports = grammar({
     // CONSTANTS C1, C2, C3
     constant_declaration: $ => seq(
         choice('CONSTANT', 'CONSTANTS'),
-        commaList1($.operator_declaration)
+        commaList1($._id_or_op_declaration)
     ),
 
     // RECURSIVE op(_, _)
-    recursive_operator_declaration: $ => seq(
-      'RECURSIVE', commaList1($.operator_declaration)
+    recursive_declaration: $ => seq(
+      'RECURSIVE', commaList1($._id_or_op_declaration)
     ),
 
     // Operator declaration (not definition)
     // Used, for example, when op accepts another op as parameter
     // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
-      arity0OrN($.identifier, $.placeholder),
+      arity1OrN($.identifier, $.placeholder),
       seq($.standalone_prefix_op_symbol, $.placeholder),
       seq($.placeholder, $.infix_op_symbol, $.placeholder),
       seq($.placeholder, $.postfix_op_symbol)
+    ),
+
+    // Either an identifier or an operator declaration
+    // Used to define parameters to operators during their definition
+    _id_or_op_declaration: $ => choice(
+      $.identifier,
+      $.operator_declaration
     ),
 
     // Operator definition
@@ -255,7 +255,7 @@ module.exports = grammar({
     // x ≜ 〈 1, 2, 3, 4, 5 〉
     operator_definition: $ => seq(
       choice(
-        arity0OrN($.identifier, $.operator_declaration),
+        arity0OrN($.identifier, $._id_or_op_declaration),
         seq($.standalone_prefix_op_symbol, $.identifier),
         seq($.identifier, $.infix_op_symbol, $.identifier),
         seq($.identifier, $.postfix_op_symbol)
@@ -317,11 +317,11 @@ module.exports = grammar({
         $.postfix_op_symbol
       ),
       $.gets,
-      $.op_or_expr
+      $._op_or_expr
     ),
 
     // Either an operator (op, +, *, LAMBDA, etc.) or an expression
-    op_or_expr: $ => choice(
+    _op_or_expr: $ => choice(
       $.standalone_prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol,
@@ -347,7 +347,7 @@ module.exports = grammar({
     ),
 
     // f(a, op, b)
-    bound_op: $ => arity1OrN($.identifier, $.op_or_expr),
+    bound_op: $ => arity1OrN($.identifier, $._op_or_expr),
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
@@ -361,15 +361,18 @@ module.exports = grammar({
     subexpr_tree_nav: $ => choice(
       $.langle_bracket,   // first parse node child
       $.rangle_bracket,   // second parse node child
-      $.nat_number,       // nth parse node child
+      $.child_id,         // nth parse node child
       $.colon,            // for recursive operators
       $.address,          // use unbound quantifier as lambda
       $.operator_args     // bind quantifier
     ),
 
+    // ...!2!3!...
+    child_id: $ => /\d+/,
+
     // ...!(a, b, c)!...
     operator_args: $ => seq(
-      '(', commaList1($.op_or_expr), ')'
+      '(', commaList1($._op_or_expr), ')'
     ),
 
     // LAMBDA a, b, c : a + b * c
@@ -379,7 +382,7 @@ module.exports = grammar({
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
-      arity0OrN($.identifier, $.operator_declaration),
+      arity0OrN($.identifier, $._id_or_op_declaration),
       $.def_eq,
       $.instance
     ),
@@ -463,15 +466,15 @@ module.exports = grammar({
 
     // Number literal encodings
     number: $ => choice(
-      $.nat_number,     $.real_number,
-      $.binary_number,  $.octal_number,   $.hex_number
+      $._nat_number,     $._real_number,
+      $._binary_number,  $._octal_number,   $._hex_number
     ),
 
-    nat_number: $ => /\d+/,
-    real_number: $ => /\d+\.\d+/,
-    binary_number: $ => /(\\b|\\B)[0-1]+/,
-    octal_number: $ => /(\\o|\\O)[0-7]+/,
-    hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
+    _nat_number: $ => /\d+/,
+    _real_number: $ => /\d+\.\d+/,
+    _binary_number: $ => /(\\b|\\B)[0-1]+/,
+    _octal_number: $ => /(\\o|\\O)[0-7]+/,
+    _hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
     string: $ => /"([^"]|\\")*"/,
@@ -656,16 +659,14 @@ module.exports = grammar({
     // LET x == 5 IN 2*x
     let_in: $ => seq(
       'LET',
-      repeat1(
-        choice(
-          $.operator_definition,
-          $.function_definition,
-          $.module_definition,
-          $.recursive_operator_declaration
-        )
-      ),
+      field('definitions', repeat1(choice(
+        $.operator_definition,
+        $.function_definition,
+        $.module_definition,
+        $.recursive_declaration
+      ))),
       'IN',
-      $._expr
+      field('expression', $._expr)
     ),
 
     // This makes use of the external scanner.
@@ -924,9 +925,9 @@ module.exports = grammar({
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
     assume_prove: $ => seq(
       'ASSUME',
-      commaList1(choice($._expr, $.new, $.inner_assume_prove)),
+      field('assumption', commaList1(choice($._expr, $.new, $.inner_assume_prove))),
       'PROVE',
-      $._expr
+      field('conclusion', $._expr)
     ),
 
     // triangle ∷ ASSUME x > y, y > z PROVE x > z
@@ -940,7 +941,7 @@ module.exports = grammar({
       oneOrBoth('NEW', $.level),
       choice(
         seq($.identifier, $.set_in, $._expr),
-        $.operator_declaration
+        $._id_or_op_declaration
       )
     ),
 
@@ -955,10 +956,13 @@ module.exports = grammar({
     ),
 
     // PROOF BY z \in Nat
-    terminal_proof: $ => choice(
-      seq(optional('PROOF'), 'BY', optional('ONLY'), $.use_body),
-      'OBVIOUS',
-      'OMITTED'
+    terminal_proof: $ => seq(
+      optional('PROOF'),
+      choice(
+        seq('BY', optional('ONLY'), $.use_body),
+        'OBVIOUS',
+        'OMITTED'
+      )
     ),
 
     non_terminal_proof: $ => seq(
@@ -971,35 +975,46 @@ module.exports = grammar({
     proof_step: $ => seq(
       $.begin_proof_step_token,
       choice(
+        $.use_or_hide,
+        $.definition_proof_step,
+        $.instance,
+        $.have_proof_step,
+        $.witness_proof_step,
+        $.take_proof_step,
+        $.suffices_proof_step,
+        $.case_proof_step,
+        $.pick_proof_step
+      )
+    ),
+
+    // Proof step defining a new unit symbol.
+    definition_proof_step: $ => seq(
+      optional('DEFINE'),
+      repeat1(
         choice(
-          $.use_or_hide,
-          seq(
-            optional('DEFINE'),
-            repeat1(
-              choice(
-                $.operator_definition,
-                $.function_definition,
-                $.module_definition
-              )
-            )
-          ),
-          $.instance,
-          seq('HAVE', $._expr),
-          seq('WITNESS', commaList1($._expr)),
-          seq('TAKE', $.bound_or_identifier_list)
-        ),
-        seq(
-          choice(
-            seq(optional('SUFFICES'), choice($._expr, $.assume_prove)),
-            seq('CASE', $._expr),
-            seq('PICK', $.bound_or_identifier_list, ':', $._expr)
-          ),
-          optional($.proof)
+          $.operator_definition,
+          $.function_definition,
+          $.module_definition
         )
       )
     ),
 
-    bound_or_identifier_list: $ => choice(
+    have_proof_step: $ => seq('HAVE', $._expr),
+    witness_proof_step: $ => seq('WITNESS', commaList1($._expr)),
+    take_proof_step: $ => seq('TAKE', $._bound_or_identifier_list),
+    suffices_proof_step: $ => seq(
+      optional('SUFFICES'), choice($._expr, $.assume_prove), optional($.proof)
+    ),
+    case_proof_step: $ => seq('CASE', $._expr, optional($.proof)),
+    pick_proof_step: $ => seq(
+      'PICK', $._bound_or_identifier_list, ':', $._expr,
+      optional($.proof)
+    ),
+
+    // One of:
+    //   a, b, c, d
+    //   a \in P, b, c \in Q, d, e, f \in R
+    _bound_or_identifier_list: $ => choice(
       commaList1($.quantifier_bound),
       commaList1($.identifier)
     ),
@@ -1032,31 +1047,16 @@ module.exports = grammar({
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
       commaList1(choice(
-        $.op_or_expr,
+        $._op_or_expr,
         seq('MODULE', $.identifier)
       ))
     ),
 
     // <+>foo22..
     // Used when writing another proof step
-//    begin_proof_step_token: $ => seq(
-//      '<',
-//      field('level', token.immediate(/\d+|\+|\*/)),
-//      token.immediate('>'),
-//      field('name', token.immediate(/[\w|\d]*/)),
-//      token.immediate(/\.*/)
-//    ),
+    begin_proof_step_token: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
 
-    begin_proof_step_token: $ => /<[\d+|\*|\+]>[\w|\d]+\.*/,
-
-//    // Used when referring to a prior proof step
-//    proof_step_id: $ => seq(
-//      '<',
-//      field('level', token.immediate(/\d+|\*/)),
-//      token.immediate('>'),
-//      field('name', token.immediate(/[\w|\d]+/))
-//    ),
-
-    proof_step_id: $ => /<[\d+|\*]>[\w|\d]+/
+    // Used when referring to a prior proof step
+    proof_step_id: $ => /<(\d+|\*)>[\w|\d]+/,
   }
 });

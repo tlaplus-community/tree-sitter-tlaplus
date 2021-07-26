@@ -31,6 +31,62 @@ op == \* This is a comment
 (double_line)))
 
 ====================|||
+Comment in Conjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+\* this should be ignored
+  /\ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number))
+      (comment)
+      (conj_item (bullet_conj) (number))
+    )
+  ))
+(double_line)))
+
+====================|||
+Comment in Disjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+\* this should be ignored
+  \/ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number))
+      (comment)
+      (disj_item (bullet_disj) (number))
+    )
+  ))
+(double_line)))
+
+
+
+
+
+
+
+
+
+====================|||
 Solitary Block Comment
 ====================|||
 
@@ -73,9 +129,9 @@ comment
 (source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
     (identifier) (def_eq) (bound_infix_op
-      (number (nat_number)) (plus)
+      (number) (plus)
       (block_comment)
-      (number (nat_number))
+      (number)
     )
   ))
 (double_line)))
@@ -156,3 +212,59 @@ Lookahead Block Comment
   )
   (block_comment)
 (double_line)))
+
+====================|||
+Block Comment in Conjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  /\ 1
+(* this should be ignored *)
+  /\ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number))
+      (block_comment)
+      (conj_item (bullet_conj) (number))
+    )
+  ))
+(double_line)))
+
+====================|||
+Block Comment in Disjlist
+====================|||
+
+---- MODULE Test ----
+op ==
+  \/ 1
+(* this should be ignored *)
+  \/ 2
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (disj_list
+      (disj_item (bullet_disj) (number))
+      (block_comment)
+      (disj_item (bullet_disj) (number))
+    )
+  ))
+(double_line)))
+
+
+
+
+
+
+
+

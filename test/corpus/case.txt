@@ -15,9 +15,9 @@ op ==
   (unit (operator_definition
     (identifier) (def_eq)
     (case
-      (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-      (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-      (case_box) (other_arm (case_arrow) (number (nat_number)))
+      (case_arm (number) (case_arrow) (number))
+      (case_box) (case_arm (number) (case_arrow) (number))
+      (case_box) (other_arm (case_arrow) (number))
     )
   ))
 (double_line)))
@@ -43,12 +43,12 @@ op ==
       (conj_item
         (bullet_conj)
         (case
-          (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (other_arm (case_arrow) (number (nat_number)))
+          (case_arm (number) (case_arrow) (number))
+          (case_box) (case_arm (number) (case_arrow) (number))
+          (case_box) (other_arm (case_arrow) (number))
         )
       )
-      (conj_item (bullet_conj) (number (nat_number)))
+      (conj_item (bullet_conj) (number))
     )
   ))
 (double_line)))
@@ -83,19 +83,19 @@ op ==
     (identifier) (def_eq)
     (case
       (case_arm
-        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
         (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
       )
       (case_box)
       (case_arm
-        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
         (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
       )
       (case_box)
       (other_arm (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number (nat_number))) (conj_item (bullet_conj) (number (nat_number))))
+        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
       )
     )
   ))
@@ -122,12 +122,12 @@ op ==
       (disj_item
         (bullet_disj)
         (case
-          (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (case_arm (number (nat_number)) (case_arrow) (number (nat_number)))
-          (case_box) (other_arm (case_arrow) (number (nat_number)))
+          (case_arm (number) (case_arrow) (number))
+          (case_box) (case_arm (number) (case_arrow) (number))
+          (case_box) (other_arm (case_arrow) (number))
         )
       )
-      (disj_item (bullet_disj) (number (nat_number)))
+      (disj_item (bullet_disj) (number))
     )
   ))
 (double_line)))
@@ -162,20 +162,96 @@ op ==
     (identifier) (def_eq)
     (case
       (case_arm
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
         (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
       )
       (case_box)
       (case_arm
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
         (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
       )
       (case_box)
       (other_arm (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number (nat_number))) (disj_item (bullet_disj) (number (nat_number))))
+        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
       )
+    )
+  ))
+(double_line)))
+
+===================|||
+CASE SANY GitHub Issue
+===================|||
+
+https://github.com/tlaplus/tlaplus/issues/487
+---- MODULE Test ----
+op ==
+  CASE A ->
+    /\ CASE B -> C
+       [] D -> E
+  [] F -> G
+
+op2 ==
+  CASE H ->
+    /\ CASE I -> J
+       [] OTHER -> K
+  [] L -> M
+
+op3 ==
+  CASE N ->
+    /\ CASE O -> P
+       [] Q -> R
+    /\ S
+  [] T -> U
+====
+
+-------------------|||
+
+(source_file (extramodular_text) (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (case
+      (case_arm (identifier) (case_arrow) (conj_list (conj_item (bullet_conj)
+        (case
+          (case_arm (identifier) (case_arrow) (identifier))
+          (case_box)
+          (case_arm (identifier) (case_arrow) (identifier))
+        )
+      )))
+      (case_box)
+      (case_arm (identifier) (case_arrow) (identifier))
+    )
+  ))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (case
+      (case_arm (identifier) (case_arrow) (conj_list (conj_item (bullet_conj)
+        (case
+          (case_arm (identifier) (case_arrow) (identifier))
+          (case_box)
+          (other_arm (case_arrow) (identifier))
+        )
+      )))
+      (case_box)
+      (case_arm (identifier) (case_arrow) (identifier))
+    )
+  ))
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (case
+      (case_arm (identifier) (case_arrow) (conj_list
+        (conj_item (bullet_conj)
+          (case
+            (case_arm (identifier) (case_arrow) (identifier))
+            (case_box)
+            (case_arm (identifier) (case_arrow) (identifier))
+          )
+        )
+        (conj_item (bullet_conj) (identifier))
+      ))
+      (case_box)
+      (case_arm (identifier) (case_arrow) (identifier))
     )
   ))
 (double_line)))
