@@ -116,10 +116,10 @@ module.exports = grammar({
     [$.subexpr_prefix],
     // Lookahead to disambiguate begin_proof_step_token assume_prove • '<'
     [$.suffices_proof_step],
-    // Lookahead to disambiguate begin_proof_step_token  'QED'  •
-    // begin_proof_step_token  …
-    // Proof can follow a QED statement; is this a grammar bug?
-    [$.qed_step]
+    // Can be fixed by marking proof start/end with external scanner
+    [$.qed_step],
+    [$.case_proof_step],
+    [$.pick_proof_step]
   ],
 
   rules: {
@@ -958,7 +958,7 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional("PROOF"),
+      optional('PROOF'),
       choice(
         seq('BY', optional('ONLY'), $.use_body),
         'OBVIOUS',
@@ -988,6 +988,7 @@ module.exports = grammar({
       )
     ),
 
+    // Proof step defining a new unit symbol.
     definition_proof_step: $ => seq(
       optional('DEFINE'),
       repeat1(
@@ -1054,26 +1055,9 @@ module.exports = grammar({
 
     // <+>foo22..
     // Used when writing another proof step
-    begin_proof_step_token: $ => seq(
-      '<',
-      field('level', $.new_proof_step_level),
-      token.immediate('>'),
-      field('name', $.new_proof_step_name),
-      token.immediate(/\.*/)
-    ),
-
-    new_proof_step_level: $ => token.immediate(/\d+|\+|\*/),
-    new_proof_step_name: $ => token.immediate(/[\w|\d]*/),
+    begin_proof_step_token: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
 
     // Used when referring to a prior proof step
-    proof_step_id: $ => seq(
-      '<',
-      field('level', $.proof_step_level),
-      token.immediate('>'),
-      field('name', $.proof_step_name)
-    ),
-
-    proof_step_level: $ => token.immediate(/\d+|\*/),
-    proof_step_name: $ => token.immediate(/[\w|\d]+/),
+    proof_step_id: $ => /<(\d+|\*)>[\w|\d]+/,
   }
 });

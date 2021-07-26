@@ -531,32 +531,6 @@
     "fields": {}
   },
   {
-    "type": "begin_proof_step_token",
-    "named": true,
-    "fields": {
-      "level": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "new_proof_step_level",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "new_proof_step_name",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "bigcirc",
     "named": true,
     "fields": {}
@@ -5924,11 +5898,6 @@
     "fields": {}
   },
   {
-    "type": "lt",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "maps_to",
     "named": true,
     "fields": {}
@@ -7386,32 +7355,6 @@
           "named": true
         }
       ]
-    }
-  },
-  {
-    "type": "proof_step_id",
-    "named": true,
-    "fields": {
-      "level": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "proof_step_level",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "proof_step_name",
-            "named": true
-          }
-        ]
-      }
     }
   },
   {
@@ -11139,10 +11082,6 @@
     "named": false
   },
   {
-    "type": "<",
-    "named": false
-  },
-  {
     "type": "<-",
     "named": false
   },
@@ -11180,10 +11119,6 @@
   },
   {
     "type": "=|",
-    "named": false
-  },
-  {
-    "type": ">",
     "named": false
   },
   {
@@ -11711,6 +11646,10 @@
     "named": true
   },
   {
+    "type": "begin_proof_step_token",
+    "named": true
+  },
+  {
     "type": "comment",
     "named": true
   },
@@ -11747,6 +11686,10 @@
     "named": true
   },
   {
+    "type": "lt",
+    "named": true
+  },
+  {
     "type": "map_from",
     "named": true
   },
@@ -11775,14 +11718,6 @@
     "named": true
   },
   {
-    "type": "new_proof_step_level",
-    "named": true
-  },
-  {
-    "type": "new_proof_step_name",
-    "named": true
-  },
-  {
     "type": "placeholder",
     "named": true
   },
@@ -11807,11 +11742,7 @@
     "named": true
   },
   {
-    "type": "proof_step_level",
-    "named": true
-  },
-  {
-    "type": "proof_step_name",
+    "type": "proof_step_id",
     "named": true
   },
   {

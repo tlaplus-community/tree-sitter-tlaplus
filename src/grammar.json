@@ -6676,103 +6676,12 @@
       ]
     },
     "begin_proof_step_token": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<"
-        },
-        {
-          "type": "FIELD",
-          "name": "level",
-          "content": {
-            "type": "SYMBOL",
-            "name": "new_proof_step_level"
-          }
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "STRING",
-            "value": ">"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "name",
-          "content": {
-            "type": "SYMBOL",
-            "name": "new_proof_step_name"
-          }
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "\\.*"
-          }
-        }
-      ]
-    },
-    "new_proof_step_level": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "\\d+|\\+|\\*"
-      }
-    },
-    "new_proof_step_name": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "[\\w|\\d]*"
-      }
+      "type": "PATTERN",
+      "value": "<(\\d+|\\+|\\*)>[\\w|\\d]*\\.*"
     },
     "proof_step_id": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<"
-        },
-        {
-          "type": "FIELD",
-          "name": "level",
-          "content": {
-            "type": "SYMBOL",
-            "name": "proof_step_level"
-          }
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "STRING",
-            "value": ">"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "name",
-          "content": {
-            "type": "SYMBOL",
-            "name": "proof_step_name"
-          }
-        }
-      ]
-    },
-    "proof_step_level": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "\\d+|\\*"
-      }
-    },
-    "proof_step_name": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "[\\w|\\d]+"
-      }
+      "type": "PATTERN",
+      "value": "<(\\d+|\\*)>[\\w|\\d]+"
     }
   },
   "extras": [
@@ -6839,6 +6748,12 @@
     ],
     [
       "qed_step"
+    ],
+    [
+      "case_proof_step"
+    ],
+    [
+      "pick_proof_step"
     ]
   ],
   "precedences": [],
