@@ -7563,6 +7563,11 @@
     "fields": {}
   },
   {
+    "type": "rangle_bracket_sub",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "rd_ttile",
     "named": true,
     "fields": {}
@@ -8867,7 +8872,7 @@
           "named": true
         },
         {
-          "type": "negative",
+          "type": "negative_dot",
           "named": true
         },
         {
@@ -9007,7 +9012,7 @@
           "named": true
         },
         {
-          "type": "rangle_bracket",
+          "type": "rangle_bracket_sub",
           "named": true
         },
         {
@@ -10402,6 +10407,10 @@
           "named": true
         },
         {
+          "type": "use_or_hide",
+          "named": true
+        },
+        {
           "type": "variable_declaration",
           "named": true
         }
@@ -11130,6 +11139,10 @@
     "named": false
   },
   {
+    "type": ">>_",
+    "named": false
+  },
+  {
     "type": "??",
     "named": false
   },
@@ -11486,6 +11499,10 @@
     "named": false
   },
   {
+    "type": "\\intersect",
+    "named": false
+  },
+  {
     "type": "\\land",
     "named": false
   },
@@ -11511,6 +11528,10 @@
   },
   {
     "type": "\\notin",
+    "named": false
+  },
+  {
+    "type": "\\o",
     "named": false
   },
   {
@@ -11610,6 +11631,10 @@
     "named": false
   },
   {
+    "type": "\\union",
+    "named": false
+  },
+  {
     "type": "\\uplus",
     "named": false
   },
@@ -11627,10 +11652,6 @@
   },
   {
     "type": "^+",
-    "named": false
-  },
-  {
-    "type": "_",
     "named": false
   },
   {
@@ -11715,6 +11736,10 @@
   },
   {
     "type": "mulmul",
+    "named": true
+  },
+  {
+    "type": "negative_dot",
     "named": true
   },
   {
@@ -12103,6 +12128,10 @@
   },
   {
     "type": "〉",
+    "named": false
+  },
+  {
+    "type": "〉_",
     "named": false
   }
 ]
