@@ -206,6 +206,7 @@ module.exports = grammar({
         $.variable_declaration,
         $.constant_declaration,
         $.recursive_declaration,
+        $.use_or_hide,
         seq(optional("LOCAL"), $.operator_definition),
         seq(optional("LOCAL"), $.function_definition),
         seq(optional("LOCAL"), $.instance),

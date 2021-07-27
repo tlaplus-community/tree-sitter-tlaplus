@@ -10407,6 +10407,10 @@
           "named": true
         },
         {
+          "type": "use_or_hide",
+          "named": true
+        },
+        {
           "type": "variable_declaration",
           "named": true
         }

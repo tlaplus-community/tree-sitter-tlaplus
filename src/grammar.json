@@ -634,6 +634,10 @@
           "name": "recursive_declaration"
         },
         {
+          "type": "SYMBOL",
+          "name": "use_or_hide"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
