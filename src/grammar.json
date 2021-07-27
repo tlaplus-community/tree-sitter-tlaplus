@@ -265,6 +265,19 @@
         }
       ]
     },
+    "rangle_bracket_sub": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": ">>_"
+        },
+        {
+          "type": "STRING",
+          "value": "〉_"
+        }
+      ]
+    },
     "case_box": {
       "type": "CHOICE",
       "members": [
@@ -2060,7 +2073,7 @@
     },
     "string": {
       "type": "PATTERN",
-      "value": "\"([^\"]|\\\\\")*\""
+      "value": "\"([^\"\\\\]|\\\\\\\\|\\\\\")*\""
     },
     "boolean": {
       "type": "CHOICE",
@@ -3017,14 +3030,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "rangle_bracket"
-        },
-        {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "STRING",
-            "value": "_"
-          }
+          "name": "rangle_bracket_sub"
         },
         {
           "type": "SYMBOL",
@@ -3373,6 +3379,10 @@
       "type": "STRING",
       "value": "-"
     },
+    "negative_dot": {
+      "type": "STRING",
+      "value": "-."
+    },
     "enabled": {
       "type": "STRING",
       "value": "ENABLED"
@@ -3452,20 +3462,8 @@
           "name": "_prefix_op_symbol_except_negative"
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "negative"
-            },
-            {
-              "type": "IMMEDIATE_TOKEN",
-              "content": {
-                "type": "STRING",
-                "value": "."
-              }
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "negative_dot"
         }
       ]
     },
@@ -4193,6 +4191,10 @@
         },
         {
           "type": "STRING",
+          "value": "\\intersect"
+        },
+        {
+          "type": "STRING",
           "value": "∩"
         }
       ]
@@ -4203,6 +4205,10 @@
         {
           "type": "STRING",
           "value": "\\cup"
+        },
+        {
+          "type": "STRING",
+          "value": "\\union"
         },
         {
           "type": "STRING",
@@ -4428,6 +4434,10 @@
     "circ": {
       "type": "CHOICE",
       "members": [
+        {
+          "type": "STRING",
+          "value": "\\o"
+        },
         {
           "type": "STRING",
           "value": "\\circ"

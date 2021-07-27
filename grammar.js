@@ -151,25 +151,26 @@ module.exports = grammar({
     double_line: $ => /=====*/,
 
     // Various syntactic elements and their unicode equivalents
-    def_eq:           $ => choice('==', '≜'),
-    set_in:           $ => choice('\\in', '∈'),
-    gets:             $ => choice('<-', '⟵'),
-    forall:           $ => choice('\\A', '\\forall', '∀'),
-    exists:           $ => choice('\\E', '\\exists', '∃'),
-    temporal_forall:  $ => choice('\\AA'),
-    temporal_exists:  $ => choice('\\EE'),
-    all_map_to:       $ => choice('|->', '⟼'), 
-    maps_to:          $ => choice('->', '⟶'),
-    langle_bracket:   $ => choice('<<', '〈'),
-    rangle_bracket:   $ => choice('>>', '〉'),
-    case_box:         $ => choice('[]', '□'),
-    case_arrow:       $ => choice('->', '⟶'),
-    bullet_conj:      $ => choice('/\\', '∧'),
-    bullet_disj:      $ => choice('\\/', '∨'),
-    colon:            $ => ':',
-    address:          $ => '@',
-    label_as:         $ => choice('::', '∷'),
-    placeholder:      $ => '_',
+    def_eq:             $ => choice('==', '≜'),
+    set_in:             $ => choice('\\in', '∈'),
+    gets:               $ => choice('<-', '⟵'),
+    forall:             $ => choice('\\A', '\\forall', '∀'),
+    exists:             $ => choice('\\E', '\\exists', '∃'),
+    temporal_forall:    $ => choice('\\AA'),
+    temporal_exists:    $ => choice('\\EE'),
+    all_map_to:         $ => choice('|->', '⟼'), 
+    maps_to:            $ => choice('->', '⟶'),
+    langle_bracket:     $ => choice('<<', '〈'),
+    rangle_bracket:     $ => choice('>>', '〉'),
+    rangle_bracket_sub: $ => choice('>>_', '〉_'),
+    case_box:           $ => choice('[]', '□'),
+    case_arrow:         $ => choice('->', '⟶'),
+    bullet_conj:        $ => choice('/\\', '∧'),
+    bullet_disj:        $ => choice('\\/', '∨'),
+    colon:              $ => ':',
+    address:            $ => '@',
+    label_as:           $ => choice('::', '∷'),
+    placeholder:        $ => '_',
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -477,7 +478,7 @@ module.exports = grammar({
     _hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
-    string: $ => /"([^"]|\\")*"/,
+    string: $ => /"([^"\\]|\\\\|\\")*"/,
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
@@ -621,7 +622,7 @@ module.exports = grammar({
     step_expr_no_stutter: $ => seq(
       $.langle_bracket,
       $._expr,
-      $.rangle_bracket, token.immediate('_'),
+      $.rangle_bracket_sub,
       $._subscript_expr
     ),
 
@@ -703,6 +704,7 @@ module.exports = grammar({
     powerset:         $ => 'SUBSET',
     domain:           $ => 'DOMAIN',
     negative:         $ => '-',
+    negative_dot:     $ => '-.',
     enabled:          $ => 'ENABLED',
     unchanged:        $ => 'UNCHANGED',
     always:           $ => choice('[]', '□'),
@@ -717,7 +719,7 @@ module.exports = grammar({
     // Negative is disambiguated from minus with a '.'
     standalone_prefix_op_symbol: $ => choice(
       $._prefix_op_symbol_except_negative,
-      seq($.negative, token.immediate('.'))
+      $.negative_dot
     ),
 
     // All bound prefix operators
@@ -778,8 +780,8 @@ module.exports = grammar({
     map_to:           $ => ':>',
     map_from:         $ => '<:',
     setminus:         $ => '\\',
-    cap:              $ => choice('\\cap', '∩'),
-    cup:              $ => choice('\\cup', '∪'),
+    cap:              $ => choice('\\cap', '\\intersect', '∩'),
+    cup:              $ => choice('\\cup', '\\union', '∪'),
     dots_2:           $ => choice('..', '‥'),
     dots_3:           $ => choice('...', '…'),
     plus:             $ => '+',
@@ -804,7 +806,7 @@ module.exports = grammar({
     bigcirc:          $ => choice('\\bigcirc', '◯'),
     bullet:           $ => choice('\\bullet', '●'),
     div:              $ => choice('\\div', '÷'),
-    circ:             $ => choice('\\circ', '∘'),
+    circ:             $ => choice('\\o', '\\circ', '∘'),
     star:             $ => choice('\\star', '⋆'),
     excl:             $ => choice('!!', '‼'),
     qq:               $ => choice('??', '⁇'),

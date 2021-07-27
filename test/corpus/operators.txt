@@ -1,0 +1,27 @@
+=============|||
+Odd Alternative Operators
+=============|||
+
+---- MODULE Test ----
+alt_leq == a =< b
+alt_cup == a \union b
+alt_cap == a \intersect b
+alt_circ == a \o b
+====
+
+--------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition (identifier) (def_eq)
+    (bound_infix_op (identifier) (leq) (identifier))
+  ))
+  (unit (operator_definition (identifier) (def_eq)
+    (bound_infix_op (identifier) (cup) (identifier))
+  ))
+  (unit (operator_definition (identifier) (def_eq)
+    (bound_infix_op (identifier) (cap) (identifier))
+  ))
+  (unit (operator_definition (identifier) (def_eq)
+    (bound_infix_op (identifier) (circ) (identifier))
+  ))
+(double_line)))

@@ -45,3 +45,23 @@ op == "加拿大"
     (identifier) (def_eq) (string)
   ))
 (double_line)))
+
+==================|||
+Escape Escape String
+==================|||
+
+---- MODULE Test ----
+op == <<"/\\", "\\/">>
+====
+
+------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition (identifier) (def_eq)
+    (tuple_literal (langle_bracket) (string) (string) (rangle_bracket))
+  ))
+(double_line)))
+
+
+
+
