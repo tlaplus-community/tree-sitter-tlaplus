@@ -177,59 +177,27 @@ namespace {
   }
 
   /**
-   * Consumes codepoints as long as they are the one given.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   * @param codepoint The codepoint to consume.
-   * @return The number of codepoints consumed.
-   **/
-  size_t consume_codepoint(TSLexer* const lexer, const int32_t codepoint) {
-    size_t consume_count = 0;
-    while (has_next(lexer) && is_next_codepoint(lexer, codepoint)) {
-      lexer->advance(lexer, true);
-      consume_count++;
-    }
-    
-    return consume_count;
-  }
-
-  /**
    * Consumes codepoints as long as they are whitespace.
    * 
    * @param lexer The tree-sitter lexing control structure.
    **/
   void consume_whitespace(TSLexer* const lexer) {
     while (has_next(lexer) && is_whitespace(next_codepoint(lexer))) {
-      lexer->advance(lexer, true);
+      skip(lexer);
     }
   }
 
   /**
-   * Checks whether the next token is the one given.
-   * A token is a sequence of codepoints.
-   * This function can change the state of the lexer.
-   * Keeps track of number of consumed codepoints.
+   * Consumes codepoints as long as they are the one given.
    * 
    * @param lexer The tree-sitter lexing control structure.
-   * @param token The token to check for.
-   * @param out_consumed_count Out parameter; number of codepoints consumed.
-   * @return Whether the next token is the one given.
-   */
-  bool is_next_token(
-    TSLexer* const lexer,
-    const token_t& token,
-    size_t& out_consumed_count
-  ) {
-    for (int32_t codepoint : token) {
-      if (!is_next_codepoint(lexer, codepoint)) {
-        return false;
-      }
-
+   * @param codepoint The codepoint to consume.
+   * @return The number of codepoints consumed.
+   **/
+  void consume_codepoint(TSLexer* const lexer, const int32_t codepoint) {
+    while (has_next(lexer) && is_next_codepoint(lexer, codepoint)) {
       advance(lexer);
-      out_consumed_count++;
     }
-
-    return true;
   }
 
   /**
@@ -242,8 +210,15 @@ namespace {
    * @return Whether the next token is the one given.
    */
   bool is_next_token(TSLexer* const lexer, const token_t& token) {
-    size_t consumed;
-    return is_next_token(lexer, token, consumed);
+    for (int32_t codepoint : token) {
+      if (!is_next_codepoint(lexer, codepoint)) {
+        return false;
+      }
+
+      advance(lexer);
+    }
+
+    return true;
   }
 
   /**
