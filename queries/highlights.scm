@@ -1,65 +1,103 @@
 ; highlights.scm
 
 ; Keywords
-"ACTION"        @keyword
-"ASSUME"        @keyword
-"ASSUMPTION"    @keyword
-"AXIOM"         @keyword
-"BY"            @keyword
-"CASE"          @keyword
-"CHOOSE"        @keyword
-"CONSTANT"      @keyword
-"CONSTANTS"     @keyword
-"COROLLARY"     @keyword
-"DEF"           @keyword
-"DEFINE"        @keyword
-"DEFS"          @keyword
-"DOMAIN"        @keyword
-"ELSE"          @keyword
-"ENABLED"       @keyword
-"EXCEPT"        @keyword
-"EXTENDS"       @keyword
-"HAVE"          @keyword
-"HIDE"          @keyword
-"IF"            @keyword
-"IN"            @keyword
-"INSTANCE"      @keyword
-"LAMBDA"        @keyword
-"LEMMA"         @keyword
-"LET"           @keyword
-"LOCAL"         @keyword
-"MODULE"        @keyword
-"NEW"           @keyword
-"OBVIOUS"       @keyword
-"OMITTED"       @keyword
-"ONLY"          @keyword
-"OTHER"         @keyword
-"PICK"          @keyword
-"PROOF"         @keyword
-"PROPOSITION"   @keyword
-"PROVE"         @keyword
-"QED"           @keyword
-"RECURSIVE"     @keyword
-"SF_"           @keyword
-"STATE"         @keyword
-"SUBSET"        @keyword
-"SUFFICES"      @keyword
-"TAKE"          @keyword
-"TEMPORAL"      @keyword
-"THEN"          @keyword
-"THEOREM"       @keyword
-"UNCHANGED"     @keyword
-"UNION"         @keyword
-"USE"           @keyword
-"VARIABLE"      @keyword
-"VARIABLES"     @keyword
-"WF_"           @keyword
-"WITH"          @keyword
-"WITNESS"       @keyword
+[
+  "ACTION"
+  "ASSUME"
+  "ASSUMPTION"
+  "AXIOM"
+  "BY"
+  "CASE"
+  "CHOOSE"
+  "CONSTANT"
+  "CONSTANTS"
+  "COROLLARY"
+  "DEF"
+  "DEFINE"
+  "DEFS"
+  "DOMAIN"
+  "ELSE"
+  "ENABLED"
+  "EXCEPT"
+  "EXTENDS"
+  "HAVE"
+  "HIDE"
+  "IF"
+  "IN"
+  "INSTANCE"
+  "LAMBDA"
+  "LEMMA"
+  "LET"
+  "LOCAL"
+  "MODULE"
+  "NEW"
+  "OBVIOUS"
+  "OMITTED"
+  "ONLY"
+  "OTHER"
+  "PICK"
+  "PROOF"
+  "PROPOSITION"
+  "PROVE"
+  "QED"
+  "RECURSIVE"
+  "SF_"
+  "STATE"
+  "SUBSET"
+  "SUFFICES"
+  "TAKE"
+  "TEMPORAL"
+  "THEN"
+  "THEOREM"
+  "UNCHANGED"
+  "UNION"
+  "USE"
+  "VARIABLE"
+  "VARIABLES"
+  "WF_"
+  "WITH"
+  "WITNESS"
+] @keyword
 
 ; Literals
 (number) @number
 (string) @string
-(boolean) @constant.builtin
+(boolean) @boolean
 (primitive_value_set) @type
+
+; Comments
+(comment) @comment
+(block_comment) @comment
+(single_line) @comment
+(double_line) @comment
+(extramodular_text) @text
+
+; Constants, variables, and operators
+(module name: (identifier) @namespace)
+(extends (identifier) @namespace)
+(variable_declaration (identifier) @variable.builtin)
+(constant_declaration (identifier) @constant)
+(bound_prefix_op symbol: (_) @keyword.operator)
+(bound_infix_op symbol: (_) @keyword.operator)
+(bound_postfix_op symbol: (_) @keyword.operator)
+(prev_func_val) @punctuation.special
+(bullet_conj) @punctuation.special
+(bullet_disj) @punctuation.special
+
+; Delimiters
+[
+  (langle_bracket)
+  (rangle_bracket)
+  (rangle_bracket_sub)
+  "{"
+  "}"
+  "["
+  "]"
+  "]_"
+  "("
+  ")"
+] @punctuation.bracket
+[
+  ","
+] @punctuation.delimiter
 
