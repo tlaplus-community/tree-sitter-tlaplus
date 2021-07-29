@@ -5,10 +5,10 @@ package-lock.json
 target
 .vscode
 .vs
-test/example/Test.tla
-parser.exp
-parser.lib
-parser.obj
-parser.so
-scanner.obj
+*.exp
+*.lib
+*.obj
+*.so
+*.obj
+*.wasm
 test/examples/Test.tla
