@@ -1,9 +1,6 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <vector>
-#include <set>
-#include <cstring>
-#include <functional>
 
 namespace {
 
@@ -180,26 +177,31 @@ namespace {
   }
 
   /**
-   * Consumes codepoints as long as the given condition function returns
-   * true, or lexer hits EOF.
+   * Consumes codepoints as long as they are the one given.
    * 
    * @param lexer The tree-sitter lexing control structure.
-   * @param is_whitespace Whether to mark consumed as whitespace.
-   * @param condition Function determining whether to continue consuming.
-   * @return Number of codepoints consumed.
+   * @param codepoint The codepoint to consume.
+   * @return The number of codepoints consumed.
    **/
-  size_t consume_while(
-    TSLexer* const lexer,
-    const bool is_whitespace,
-    const std::function<bool(int32_t)>& condition
-  ) {
+  size_t consume_codepoint(TSLexer* const lexer, const int32_t codepoint) {
     size_t consume_count = 0;
-    while (has_next(lexer) && condition(next_codepoint(lexer))) {
-      lexer->advance(lexer, is_whitespace);
+    while (has_next(lexer) && is_next_codepoint(lexer, codepoint)) {
+      lexer->advance(lexer, true);
       consume_count++;
     }
-
+    
     return consume_count;
+  }
+
+  /**
+   * Consumes codepoints as long as they are whitespace.
+   * 
+   * @param lexer The tree-sitter lexing control structure.
+   **/
+  void consume_whitespace(TSLexer* const lexer) {
+    while (has_next(lexer) && is_whitespace(next_codepoint(lexer))) {
+      lexer->advance(lexer, true);
+    }
   }
 
   /**
@@ -314,14 +316,14 @@ namespace {
    **/
   bool scan_extramodular_text(TSLexer* const lexer) {
     lexer->result_symbol = EXTRAMODULAR_TEXT;
-    consume_while(lexer, true, is_whitespace);
+    consume_whitespace(lexer);
     bool has_consumed_any = false;
     while (has_next(lexer)) {
       if (is_next_codepoint(lexer, '-')) {
         lexer->mark_end(lexer);
         if (is_next_token(lexer, SINGLE_LINE_TOKEN)) {
-          consume_while(lexer, false, [](int32_t cp) {return '-' == cp;});
-          consume_while(lexer, false, [](int32_t cp) {return ' ' == cp;});
+          consume_codepoint(lexer, '-');
+          consume_codepoint(lexer, ' ');
           if (is_next_token(lexer, MODULE_TOKEN)) {
             return has_consumed_any;
           } else {
@@ -403,7 +405,7 @@ namespace {
     TSLexer* const lexer,
     column_index& out_col
   ) {
-    consume_while(lexer, true, is_whitespace);
+    consume_whitespace(lexer);
     lexer->mark_end(lexer);
     out_col = lexer->get_column(lexer);
     return
