@@ -1,5 +1,6 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
+#include <cstring>
 #include <vector>
 
 namespace {
@@ -18,98 +19,10 @@ namespace {
   using token_t = std::vector<int32_t>;
 
   // All the tokens the external scanner cares about.
-  static const token_t LAND_TOKEN = {'/','\\'};
-  static const token_t UNICODE_LAND_TOKEN = {L'∧'};
-  static const token_t LOR_TOKEN = {'\\','/'};
-  static const token_t UNICODE_LOR_TOKEN = {L'∨'};
-  static const token_t R_PARENTHESIS_TOKEN = {')'};
-  static const token_t R_SQUARE_BRACKET_TOKEN = {']'};
-  static const token_t R_CURLY_BRACE_TOKEN = {'}'};
-  static const token_t R_ANGLE_BRACKET_TOKEN = {'>','>'};
-  static const token_t UNICODE_R_ANGLE_BRACKET_TOKEN = {L'〉'};
-  static const token_t CASE_ARROW_TOKEN = {'-','>'};
-  static const token_t UNICODE_CASE_ARROW_TOKEN = {L'⟶'};
-  static const token_t COMMENT_START_TOKEN = {'\\','*'};
   static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
   static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
   static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
-  static const token_t MODULE_END_TOKEN = {'=','=','=','='};
-  static const token_t ASSUME_TOKEN = {'A','S','S','U','M','E'};
-  static const token_t ASSUMPTION_TOKEN = {'A','S','S','U','M','P','T','I','O','N'};
-  static const token_t AXIOM_TOKEN = {'A','X','I','O','M'};
-  static const token_t CONSTANT_TOKEN = {'C','O','N','S','T','A','N','T'};
-  static const token_t CONSTANTS_TOKEN = {'C','O','N','S','T','A','N','T','S'};
-  static const token_t COROLLARY_TOKEN = {'C','O','R','O','L','L','A','R','Y'};
-  static const token_t ELSE_TOKEN = {'E','L','S','E'};
-  static const token_t IN_TOKEN = {'I','N'};
-  static const token_t INSTANCE_TOKEN = {'I','N','S','T','A','N','C','E'};
-  static const token_t LEMMA_TOKEN = {'L','E','M','M','A'};
-  static const token_t LOCAL_TOKEN = {'L','O','C','A','L'};
   static const token_t MODULE_TOKEN = {'M','O','D','U','L','E'};
-  static const token_t PROPOSITION_TOKEN = {'P','R','O','P','O','S','I','T','I','O','N'};
-  static const token_t RECURSIVE_TOKEN = {'R','E','C','U','R','S','I','V','E'};
-  static const token_t THEN_TOKEN = {'T','H','E','N'};
-  static const token_t THEOREM_TOKEN = {'T','H','E','O','R','E','M'};
-  static const token_t VARIABLE_TOKEN = {'V','A','R','I','A','B','L','E'};
-  static const token_t VARIABLES_TOKEN = {'V','A','R','I','A','B','L','E','S'};
-
-  /**
-   * Interesting token types for the purpose of parsing junctlists.
-   */
-  enum LookaheadTokenType {
-    LAND,             // /\ or ∧
-    LOR,              // \/ or ∨
-    RIGHT_DELIMITER,  // ), ], }, 〉, or >>
-    COMMENT,          // \*, (*, *)
-    UNIT,             // op == expr, etc.
-    MODULE_END,       // ====
-    END_OF_FILE,      // The end of the file.
-    OTHER             // Tokens not requiring special handling logic.
-  };
-
-  /**
-   * A type for representing association between tokens and their category.
-   */
-  struct TokenTypeMap {
-    const token_t& token;
-    LookaheadTokenType type;
-    TokenTypeMap(const token_t& tk, LookaheadTokenType tp)
-      : token(tk), type(tp) {}
-  };
-
-  // The actual mapping between tokens and their type/category.
-  static const std::vector<TokenTypeMap> LOOKAHEAD_TOKEN_TYPE_MAPPING = {
-    TokenTypeMap(LAND_TOKEN, LAND),
-    TokenTypeMap(UNICODE_LAND_TOKEN, LAND),
-    TokenTypeMap(LOR_TOKEN, LOR),
-    TokenTypeMap(UNICODE_LOR_TOKEN, LOR),
-    TokenTypeMap(R_PARENTHESIS_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_SQUARE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_CURLY_BRACE_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(UNICODE_R_ANGLE_BRACKET_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(CASE_ARROW_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(UNICODE_CASE_ARROW_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(COMMENT_START_TOKEN, COMMENT),
-    TokenTypeMap(BLOCK_COMMENT_START_TOKEN, COMMENT),
-    TokenTypeMap(SINGLE_LINE_TOKEN, UNIT),
-    TokenTypeMap(MODULE_END_TOKEN, MODULE_END),
-    TokenTypeMap(ASSUME_TOKEN, UNIT),
-    TokenTypeMap(ASSUMPTION_TOKEN, UNIT),
-    TokenTypeMap(AXIOM_TOKEN, UNIT),
-    TokenTypeMap(CONSTANT_TOKEN, UNIT),
-    TokenTypeMap(CONSTANTS_TOKEN, UNIT),
-    TokenTypeMap(COROLLARY_TOKEN, UNIT),
-    TokenTypeMap(ELSE_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(IN_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(LEMMA_TOKEN, UNIT),
-    TokenTypeMap(LOCAL_TOKEN, UNIT),
-    TokenTypeMap(PROPOSITION_TOKEN, UNIT),
-    TokenTypeMap(THEN_TOKEN, RIGHT_DELIMITER),
-    TokenTypeMap(THEOREM_TOKEN, UNIT),
-    TokenTypeMap(VARIABLE_TOKEN, UNIT),
-    TokenTypeMap(VARIABLES_TOKEN, UNIT)
-  };
 
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
@@ -177,6 +90,22 @@ namespace {
   }
 
   /**
+   * Checks whether the given codepoint could be used in an identifier,
+   * which consist of capital ASCII letters, lowercase ASCII letters,
+   * and underscores.
+   * 
+   * @param codepoint The codepoint to check.
+   * @return Whether the given codepoint could be used in an identifier.
+   **/
+  bool is_identifier_char(int32_t const codepoint) {
+    return
+      (48 <= codepoint && codepoint <= 57)      // 0-9
+      || (65 <= codepoint && codepoint <= 90)   // A-Z
+      || (97 <= codepoint && codepoint <= 122)  // a-z
+      || 95 == codepoint;                       // _
+  }
+
+  /**
    * Consumes codepoints as long as they are whitespace.
    * 
    * @param lexer The tree-sitter lexing control structure.
@@ -201,77 +130,27 @@ namespace {
   }
 
   /**
-   * Checks whether the next token is the one given.
-   * A token is a sequence of codepoints.
+   * Checks whether the next codepoint sequence is the one given.
    * This function can change the state of the lexer.
    * 
    * @param lexer The tree-sitter lexing control structure.
-   * @param token The token to check for.
-   * @return Whether the next token is the one given.
+   * @param token The codepoint sequence to check for.
+   * @return Whether the next codepoint sequence is the one given.
    */
-  bool is_next_token(TSLexer* const lexer, const token_t& token) {
-    for (int32_t codepoint : token) {
+  bool is_next_codepoint_sequence(
+    TSLexer* const lexer,
+    const token_t& codepoint_sequence
+  ) {
+    for (int i = 0; i < codepoint_sequence.size(); i++) {
+      int32_t codepoint = codepoint_sequence.at(i);
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
+      } else if (i + 1 < codepoint_sequence.size()) {
+        advance(lexer);
       }
-
-      advance(lexer);
     }
 
     return true;
-  }
-
-  /**
-   * Looks ahead at a list of tokens to see whether any match.
-   * Given multiple matches, returns type of longest.
-   * Works best with small (fewer than 100) number of possible tokens, as
-   * for simplicity complexity is |tokens| * max({|t| : t \in tokens}).
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   * @param tokens The list of tokens to check for, with types.
-   * @return Type of token matched, or Other if none matched.
-   **/
-  LookaheadTokenType token_lookahead(
-    TSLexer* const lexer,
-    const std::vector<TokenTypeMap>& tokens
-  ) {
-    bool any_undecided = true;
-    std::vector<bool> decided(tokens.size());
-    std::vector<int> matches;
-    for (
-      size_t lookahead = 0;
-      any_undecided && has_next(lexer);
-      lookahead++, advance(lexer)
-    ) {
-      any_undecided = false;
-      for (int i = 0; i < tokens.size(); i++) {
-        if (!decided.at(i)) {
-          const token_t& token = tokens.at(i).token;
-          if (is_next_codepoint(lexer, token.at(lookahead))) {
-            if (lookahead + 1 == token.size()) {
-              decided[i] = true;
-              matches.push_back(i);
-            } else {
-              any_undecided = true;
-            }
-          } else {
-            // Not a match
-            decided[i] = true;
-          }
-        }
-      }
-    }
-
-    // Pick longest match
-    size_t longest_match_length = 0;
-    LookaheadTokenType longest_match_type = OTHER;
-    for (int match : matches) {
-      if (tokens.at(match).token.size() > longest_match_length) {
-        longest_match_type = tokens.at(match).type;
-      }
-    }
-
-    return longest_match_type;
   }
 
   /**
@@ -296,10 +175,10 @@ namespace {
     while (has_next(lexer)) {
       if (is_next_codepoint(lexer, '-')) {
         lexer->mark_end(lexer);
-        if (is_next_token(lexer, SINGLE_LINE_TOKEN)) {
+        if (is_next_codepoint_sequence(lexer, SINGLE_LINE_TOKEN)) {
           consume_codepoint(lexer, '-');
           consume_codepoint(lexer, ' ');
-          if (is_next_token(lexer, MODULE_TOKEN)) {
+          if (is_next_codepoint_sequence(lexer, MODULE_TOKEN)) {
             return has_consumed_any;
           } else {
             has_consumed_any = true;
@@ -341,7 +220,7 @@ namespace {
       switch (next_codepoint(lexer)) {
         case '*': {
           lexer->mark_end(lexer);
-          if (is_next_token(lexer, BLOCK_COMMENT_END_TOKEN)) {
+          if (is_next_codepoint_sequence(lexer, BLOCK_COMMENT_END_TOKEN)) {
             return has_consumed_any;
           } else {
             has_consumed_any = true;
@@ -350,7 +229,7 @@ namespace {
         }
         case '(': {
           lexer->mark_end(lexer);
-          if (is_next_token(lexer, BLOCK_COMMENT_START_TOKEN)) {
+          if (is_next_codepoint_sequence(lexer, BLOCK_COMMENT_START_TOKEN)) {
             return has_consumed_any;
           } else {
             has_consumed_any = true;
@@ -368,28 +247,8 @@ namespace {
   }
 
   using column_index = int16_t;
-
-  /**
-   * Scans for & identifies the next token relevant to junctlists.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   * @param out_col Out parameter; the column of the identified token.
-   * @return The type of token identified.
-   */
-  LookaheadTokenType get_next_token(
-    TSLexer* const lexer,
-    column_index& out_col
-  ) {
-    consume_whitespace(lexer);
-    lexer->mark_end(lexer);
-    out_col = lexer->get_column(lexer);
-    return
-      !has_next(lexer)
-      ? END_OF_FILE
-      : token_lookahead(lexer, LOOKAHEAD_TOKEN_TYPE_MAPPING);
-  }
-
-  enum JunctType {
+  
+  enum class JunctType {
     CONJUNCTION,
     DISJUNCTION
   };
@@ -815,6 +674,291 @@ namespace {
         return false;
       }
     }
+    
+    #define MARK_THEN_ADVANCE(state_value)            \
+      {                                               \
+        lexer->mark_end(lexer);                       \
+        lexeme_start_col = lexer->get_column(lexer);  \
+        ADVANCE(state_value);                         \
+      }
+    
+    enum class LookaheadLexemeType {
+      LAND,
+      LOR,
+      RIGHT_DELIMITER,
+      COMMENT_START,
+      TERMINATOR,
+      OTHER
+    };
+
+    enum class LexState {
+      CONSUME_LEADING_SPACE,
+      FORWARD_SLASH,
+      BACKWARD_SLASH,
+      GT,
+      EQ,
+      DASH,
+      LAND,
+      LOR,
+      L_PAREN,
+      R_PAREN,
+      R_SQUARE_BRACKET,
+      R_CURLY_BRACE,
+      R_ANGLE_BRACKET,
+      RIGHT_ARROW,
+      COMMENT_START,
+      BLOCK_COMMENT_START,
+      SINGLE_LINE,
+      DOUBLE_LINE,
+      A,
+      ASSUM,
+      ASSUME,
+      ASSUMPTION,
+      AX,
+      AXIOM,
+      C,
+      CO,
+      CON,
+      COR,
+      CONSTANT,
+      CONSTANTS,
+      COROLLARY,
+      E,
+      ELSE,
+      I,
+      IN,
+      L,
+      LE,
+      LEMMA,
+      LO,
+      LOCAL,
+      P,
+      PROPOSITION,
+      T,
+      THE,
+      THEN,
+      THEOREM,
+      V,
+      VARIABLE,
+      VARIABLES,
+      OTHER
+    };
+    
+    LookaheadLexemeType lex_lookahead_only_juncts(
+      TSLexer* const lexer,
+      column_index& lexeme_start_col
+    ) {
+      LexState state = LexState::CONSUME_LEADING_SPACE;
+      START_LEXER();
+      eof = !has_next(lexer);
+      switch (state) {
+        case LexState::CONSUME_LEADING_SPACE:
+          if (eof) return LookaheadLexemeType::TERMINATOR;
+          if ( ' '  == lookahead
+            || 't'  == lookahead
+            || '\r' == lookahead
+            || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
+          if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
+          if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
+          if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
+          if (L'∨' == lookahead) MARK_THEN_ADVANCE(LexState::LOR);
+          MARK_THEN_ADVANCE(LexState::OTHER);
+        case LexState::FORWARD_SLASH:
+          if ('\\' == lookahead) ADVANCE(LexState::LAND);
+          return LookaheadLexemeType::OTHER;
+        case LexState::BACKWARD_SLASH:
+          if ('/' == lookahead) ADVANCE(LexState::LOR);
+          return LookaheadLexemeType::OTHER;
+        case LexState::LAND:
+          return LookaheadLexemeType::LAND;
+        case LexState::LOR:
+          return LookaheadLexemeType::LOR;
+        default:
+          return LookaheadLexemeType::OTHER;
+      }
+    }
+
+    LookaheadLexemeType lex_lookahead(
+      TSLexer* const lexer,
+      column_index& lexeme_start_col
+    ) {
+      LexState state = LexState::CONSUME_LEADING_SPACE;
+      START_LEXER();
+      eof = !has_next(lexer);
+      switch (state) {
+        case LexState::CONSUME_LEADING_SPACE:
+          if (eof) return LookaheadLexemeType::TERMINATOR;
+          if ( ' '  == lookahead
+            || 't'  == lookahead
+            || '\r' == lookahead
+            || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
+          if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
+          if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
+          if ('>' == lookahead) MARK_THEN_ADVANCE(LexState::GT);
+          if ('=' == lookahead) MARK_THEN_ADVANCE(LexState::EQ);
+          if ('-' == lookahead) MARK_THEN_ADVANCE(LexState::DASH);
+          if ('(' == lookahead) MARK_THEN_ADVANCE(LexState::L_PAREN);
+          if (')' == lookahead) MARK_THEN_ADVANCE(LexState::R_PAREN);
+          if (']' == lookahead) MARK_THEN_ADVANCE(LexState::R_SQUARE_BRACKET);
+          if ('}' == lookahead) MARK_THEN_ADVANCE(LexState::R_CURLY_BRACE);
+          if ('A' == lookahead) MARK_THEN_ADVANCE(LexState::A);
+          if ('C' == lookahead) MARK_THEN_ADVANCE(LexState::C);
+          if ('E' == lookahead) MARK_THEN_ADVANCE(LexState::E);
+          if ('I' == lookahead) MARK_THEN_ADVANCE(LexState::I);
+          if ('L' == lookahead) MARK_THEN_ADVANCE(LexState::L);
+          if ('P' == lookahead) MARK_THEN_ADVANCE(LexState::P);
+          if ('T' == lookahead) MARK_THEN_ADVANCE(LexState::T);
+          if ('V' == lookahead) MARK_THEN_ADVANCE(LexState::V);
+          if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
+          if (L'∨' == lookahead) MARK_THEN_ADVANCE(LexState::LOR);
+          if (L'〉' == lookahead) MARK_THEN_ADVANCE(LexState::R_ANGLE_BRACKET);
+          if (L'⟶' == lookahead) MARK_THEN_ADVANCE(LexState::RIGHT_ARROW);
+          MARK_THEN_ADVANCE(LexState::OTHER);
+        case LexState::FORWARD_SLASH:
+          if ('\\' == lookahead) ADVANCE(LexState::LAND);
+          return LookaheadLexemeType::OTHER;
+        case LexState::BACKWARD_SLASH:
+          if ('/' == lookahead) ADVANCE(LexState::LOR);
+          if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
+          return LookaheadLexemeType::OTHER;
+        case LexState::GT:
+          if ('>' == lookahead) ADVANCE(LexState::R_ANGLE_BRACKET);
+          return LookaheadLexemeType::OTHER;
+        case LexState::EQ:
+          if (is_next_codepoint_sequence(lexer, {'=', '=', '='})) ADVANCE(LexState::DOUBLE_LINE);
+          return LookaheadLexemeType::OTHER;
+        case LexState::DASH:
+          if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
+          if (is_next_codepoint_sequence(lexer, {'-', '-', '-'})) ADVANCE(LexState::SINGLE_LINE);
+          return LookaheadLexemeType::OTHER;
+        case LexState::LAND:
+          return LookaheadLexemeType::LAND;
+        case LexState::LOR:
+          return LookaheadLexemeType::LOR;
+        case LexState::L_PAREN:
+          if ('*' == lookahead) ADVANCE(LexState::BLOCK_COMMENT_START);
+          return LookaheadLexemeType::OTHER;
+        case LexState::R_PAREN:
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::R_SQUARE_BRACKET:
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::R_CURLY_BRACE:
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::R_ANGLE_BRACKET:
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::RIGHT_ARROW:
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::COMMENT_START:
+          return LookaheadLexemeType::COMMENT_START;
+        case LexState::BLOCK_COMMENT_START:
+          return LookaheadLexemeType::COMMENT_START;
+        case LexState::SINGLE_LINE:
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::DOUBLE_LINE:
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::A:
+          if ('X' == lookahead) ADVANCE(LexState::AX);
+          if (is_next_codepoint_sequence(lexer, {'S','S','U','M'})) ADVANCE(LexState::ASSUM);
+          return LookaheadLexemeType::OTHER;
+        case LexState::ASSUM:
+          if ('E' == lookahead) ADVANCE(LexState::ASSUME);
+          if (is_next_codepoint_sequence(lexer, {'P','T','I','O','N'})) ADVANCE(LexState::ASSUMPTION);
+          return LookaheadLexemeType::OTHER;
+        case LexState::ASSUME:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::ASSUMPTION:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::AX:
+          if (is_next_codepoint_sequence(lexer, {'I','O','M'})) ADVANCE(LexState::AXIOM);
+          return LookaheadLexemeType::OTHER;
+        case LexState::AXIOM:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::C:
+          if ('O' == lookahead) ADVANCE(LexState::CO);
+          return LookaheadLexemeType::OTHER;
+        case LexState::CO:
+          if ('N' == lookahead) ADVANCE(LexState::CON);
+          if ('R' == lookahead) ADVANCE(LexState::COR);
+          return LookaheadLexemeType::OTHER;
+        case LexState::CON:
+          if (is_next_codepoint_sequence(lexer, {'S','T','A','N','T'})) ADVANCE(LexState::CONSTANT);
+          return LookaheadLexemeType::OTHER;
+        case LexState::CONSTANT:
+          if ('S' == lookahead) ADVANCE(LexState::CONSTANTS);
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::CONSTANTS:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::COR:
+          if (is_next_codepoint_sequence(lexer, {'O','L','L','A','R','Y'})) ADVANCE(LexState::COROLLARY);
+          return LookaheadLexemeType::OTHER;
+        case LexState::E:
+          if (is_next_codepoint_sequence(lexer, {'L','S','E'})) ADVANCE(LexState::ELSE);
+          return LookaheadLexemeType::OTHER;
+        case LexState::ELSE:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::I:
+          if ('N' == lookahead) ADVANCE(LexState::IN);
+          return LookaheadLexemeType::OTHER;
+        case LexState::IN:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::L:
+          if ('E' == lookahead) ADVANCE(LexState::LE);
+          if ('O' == lookahead) ADVANCE(LexState::LO);
+          return LookaheadLexemeType::OTHER;
+        case LexState::LE:
+          if (is_next_codepoint_sequence(lexer, {'M','M','A'})) ADVANCE(LexState::LEMMA);
+          return LookaheadLexemeType::OTHER;
+        case LexState::LEMMA:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::LO:
+          if (is_next_codepoint_sequence(lexer, {'C','A','L'})) ADVANCE(LexState::LOCAL);
+          return LookaheadLexemeType::OTHER;
+        case LexState::LOCAL:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::P:
+          if (is_next_codepoint_sequence(lexer, {'R','O','P','O','S','I','T','I','O','N'})) ADVANCE(LexState::PROPOSITION);
+          return LookaheadLexemeType::OTHER;
+        case LexState::PROPOSITION:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::T:
+          if (is_next_codepoint_sequence(lexer, {'H','E'})) ADVANCE(LexState::THE);
+          return LookaheadLexemeType::OTHER;
+        case LexState::THE:
+          if ('N' == lookahead) ADVANCE(LexState::THEN);
+          if (is_next_codepoint_sequence(lexer, {'O','R','E','M'})) ADVANCE(LexState::THEOREM);
+          return LookaheadLexemeType::OTHER;
+        case LexState::THEN:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::RIGHT_DELIMITER;
+        case LexState::THEOREM:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::V:
+          if (is_next_codepoint_sequence(lexer, {'A','R','I','A','B','L','E'})) ADVANCE(LexState::VARIABLE);
+          return LookaheadLexemeType::OTHER;
+        case LexState::VARIABLE:
+          if ('S' == lookahead) ADVANCE(LexState::VARIABLES);
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::VARIABLES:
+          if (is_identifier_char(lookahead)) return LookaheadLexemeType::OTHER;
+          return LookaheadLexemeType::TERMINATOR;
+        case LexState::OTHER:
+          return LookaheadLexemeType::OTHER;
+        default:
+          return LookaheadLexemeType::OTHER;
+      }
+    }
 
     /**
      * INDENT tokens are emitted prior to the first junct in a list
@@ -848,25 +992,32 @@ namespace {
         || valid_symbols[DEDENT]
       ) {
         column_index col;
-        switch (get_next_token(lexer, col)) {
-          case LAND:
-            return handle_junct_token(lexer, valid_symbols, CONJUNCTION, col);
-          case LOR:
-            return handle_junct_token(lexer, valid_symbols, DISJUNCTION, col);
-          case RIGHT_DELIMITER:
-            return handle_right_delimiter_token(lexer, valid_symbols, col);
-          case COMMENT:
-            return false;
-          case UNIT:
-            return handle_terminator_token(lexer, valid_symbols);
-          case MODULE_END:
-            return handle_terminator_token(lexer, valid_symbols);
-          case END_OF_FILE:
-            return handle_terminator_token(lexer, valid_symbols);
-          case OTHER:
-            return handle_other_token(lexer, valid_symbols, col);
-          default:
-            return false;
+        if (!is_in_jlist()) {
+          switch(lex_lookahead_only_juncts(lexer, col)) {
+            case LookaheadLexemeType::LAND:
+              return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
+            case LookaheadLexemeType::LOR:
+              return handle_junct_token(lexer, valid_symbols, JunctType::DISJUNCTION, col);
+            default:
+              return false;
+          }
+        } else {
+          switch (lex_lookahead(lexer, col)) {
+            case LookaheadLexemeType::LAND:
+              return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
+            case LookaheadLexemeType::LOR:
+              return handle_junct_token(lexer, valid_symbols, JunctType::DISJUNCTION, col);
+            case LookaheadLexemeType::RIGHT_DELIMITER:
+              return handle_right_delimiter_token(lexer, valid_symbols, col);
+            case LookaheadLexemeType::COMMENT_START:
+              return false;
+            case LookaheadLexemeType::TERMINATOR:
+              return handle_terminator_token(lexer, valid_symbols);
+            case LookaheadLexemeType::OTHER:
+              return handle_other_token(lexer, valid_symbols, col);
+            default:
+              return false;
+          }
         }
       } else {
         return false;
