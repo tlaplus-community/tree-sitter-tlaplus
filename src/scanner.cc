@@ -16,14 +16,6 @@ namespace {
     DEDENT              // Marks end of junction list.
   };
 
-  using token_t = std::vector<int32_t>;
-
-  // All the tokens the external scanner cares about.
-  static const token_t BLOCK_COMMENT_START_TOKEN = {'(','*'};
-  static const token_t BLOCK_COMMENT_END_TOKEN = {'*',')'};
-  static const token_t SINGLE_LINE_TOKEN = {'-','-','-','-'};
-  static const token_t MODULE_TOKEN = {'M','O','D','U','L','E'};
-
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
    * 
@@ -139,7 +131,7 @@ namespace {
    */
   bool is_next_codepoint_sequence(
     TSLexer* const lexer,
-    const token_t& codepoint_sequence
+    const std::vector<int32_t>& codepoint_sequence
   ) {
     for (int i = 0; i < codepoint_sequence.size(); i++) {
       int32_t codepoint = codepoint_sequence.at(i);
@@ -152,6 +144,9 @@ namespace {
 
     return true;
   }
+
+  static const std::vector<int32_t> SINGLE_LINE_TOKEN = {'-','-','-','-'};
+  static const std::vector<int32_t> MODULE_TOKEN = {'M','O','D','U','L','E'};
 
   /**
    * Scans for extramodular text, the freeform text that can be present
@@ -195,6 +190,9 @@ namespace {
     lexer->mark_end(lexer);
     return has_consumed_any;
   }
+
+  static const std::vector<int32_t> BLOCK_COMMENT_START_TOKEN = {'(','*'};
+  static const std::vector<int32_t> BLOCK_COMMENT_END_TOKEN = {'*',')'};
 
   /**
    * Scans for block comment text. This is any text except the block
@@ -435,12 +433,12 @@ namespace {
         END_LEX_STATE();
       case LexState::EQ:
         ACCEPT_LEXEME(Lexeme::EQ);
-        if (is_next_codepoint_sequence(lexer, {'=', '=', '='})) ADVANCE(LexState::DOUBLE_LINE);
+        if (is_next_codepoint_sequence(lexer, {'=','=','='})) ADVANCE(LexState::DOUBLE_LINE);
         END_LEX_STATE();
       case LexState::DASH:
         ACCEPT_LEXEME(Lexeme::DASH);
         if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
-        if (is_next_codepoint_sequence(lexer, {'-', '-', '-'})) ADVANCE(LexState::SINGLE_LINE);
+        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(LexState::SINGLE_LINE);
         END_LEX_STATE();
       case LexState::LAND:
         ACCEPT_LEXEME(Lexeme::LAND);
@@ -624,6 +622,55 @@ namespace {
         END_LEX_STATE();
     }
   }
+  
+  enum class Token {
+    LAND,
+    LOR,
+    RIGHT_DELIMITER,
+    COMMENT_START,
+    TERMINATOR,
+    OTHER
+  };
+
+  Token tokenize_lexeme(Lexeme lexeme) {
+    switch (lexeme) {
+      case Lexeme::FORWARD_SLASH: return Token::OTHER;
+      case Lexeme::BACKWARD_SLASH: return Token::OTHER;
+      case Lexeme::GT: return Token::OTHER;
+      case Lexeme::EQ: return Token::OTHER;
+      case Lexeme::DASH: return Token::OTHER;
+      case Lexeme::LAND: return Token::LAND;
+      case Lexeme::LOR: return Token::LOR;
+      case Lexeme::L_PAREN: return Token::OTHER;
+      case Lexeme::R_PAREN: return Token::RIGHT_DELIMITER;
+      case Lexeme::R_SQUARE_BRACKET: return Token::RIGHT_DELIMITER;
+      case Lexeme::R_CURLY_BRACE: return Token::RIGHT_DELIMITER;
+      case Lexeme::R_ANGLE_BRACKET: return Token::RIGHT_DELIMITER;
+      case Lexeme::RIGHT_ARROW: return Token::RIGHT_DELIMITER;
+      case Lexeme::COMMENT_START: return Token::COMMENT_START;
+      case Lexeme::BLOCK_COMMENT_START: return Token::COMMENT_START;
+      case Lexeme::SINGLE_LINE: return Token::TERMINATOR;
+      case Lexeme::DOUBLE_LINE: return Token::TERMINATOR;
+      case Lexeme::ASSUME: return Token::TERMINATOR;
+      case Lexeme::ASSUMPTION: return Token::TERMINATOR;
+      case Lexeme::AXIOM: return Token::TERMINATOR;
+      case Lexeme::CONSTANT: return Token::TERMINATOR;
+      case Lexeme::CONSTANTS: return Token::TERMINATOR;
+      case Lexeme::COROLLARY: return Token::TERMINATOR;
+      case Lexeme::ELSE: return Token::RIGHT_DELIMITER;
+      case Lexeme::IN: return Token::RIGHT_DELIMITER;
+      case Lexeme::LEMMA: return Token::TERMINATOR;
+      case Lexeme::LOCAL: return Token::TERMINATOR;
+      case Lexeme::PROPOSITION: return Token::TERMINATOR;
+      case Lexeme::THEN: return Token::RIGHT_DELIMITER;
+      case Lexeme::THEOREM: return Token::TERMINATOR;
+      case Lexeme::VARIABLE: return Token::TERMINATOR;
+      case Lexeme::VARIABLES: return Token::TERMINATOR;
+      case Lexeme::IDENTIFIER: return Token::OTHER;
+      case Lexeme::OTHER: return Token::OTHER;
+      case Lexeme::END_OF_FILE: return Token::TERMINATOR;
+    }
+  }
     
   enum class JunctType {
     CONJUNCTION,
@@ -780,8 +827,7 @@ namespace {
      * @return Whether the given jlist type matches the current jlist.
      */
     bool current_jlist_type_is(JunctType const type) {
-      return this->jlists.empty()
-        ? false : type == this->jlists.back().type;
+      return is_in_jlist() && type == this->jlists.back().type;
     }
 
     /**
@@ -1000,7 +1046,8 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
-      return is_in_jlist() && emit_dedent(lexer);
+      return is_in_jlist()
+        && emit_dedent(lexer);
     }
 
     /**
@@ -1032,60 +1079,10 @@ namespace {
         && emit_dedent(lexer);
     }
     
-    enum class Token {
-      LAND,
-      LOR,
-      RIGHT_DELIMITER,
-      COMMENT_START,
-      TERMINATOR,
-      OTHER
-    };
-
     Token token_lookahead(
       TSLexer* const lexer,
       column_index& lexeme_start_col
     ) {
-      Lexeme lookahead =
-        is_in_jlist()
-        ? lex_lookahead(lexer, lexeme_start_col)
-        : lex_lookahead_only_juncts(lexer, lexeme_start_col);
-      switch (lookahead) {
-        case Lexeme::FORWARD_SLASH: return Token::OTHER;
-        case Lexeme::BACKWARD_SLASH: return Token::OTHER;
-        case Lexeme::GT: return Token::OTHER;
-        case Lexeme::EQ: return Token::OTHER;
-        case Lexeme::DASH: return Token::OTHER;
-        case Lexeme::LAND: return Token::LAND;
-        case Lexeme::LOR: return Token::LOR;
-        case Lexeme::L_PAREN: return Token::OTHER;
-        case Lexeme::R_PAREN: return Token::RIGHT_DELIMITER;
-        case Lexeme::R_SQUARE_BRACKET: return Token::RIGHT_DELIMITER;
-        case Lexeme::R_CURLY_BRACE: return Token::RIGHT_DELIMITER;
-        case Lexeme::R_ANGLE_BRACKET: return Token::RIGHT_DELIMITER;
-        case Lexeme::RIGHT_ARROW: return Token::RIGHT_DELIMITER;
-        case Lexeme::COMMENT_START: return Token::COMMENT_START;
-        case Lexeme::BLOCK_COMMENT_START: return Token::COMMENT_START;
-        case Lexeme::SINGLE_LINE: return Token::TERMINATOR;
-        case Lexeme::DOUBLE_LINE: return Token::TERMINATOR;
-        case Lexeme::ASSUME: return Token::TERMINATOR;
-        case Lexeme::ASSUMPTION: return Token::TERMINATOR;
-        case Lexeme::AXIOM: return Token::TERMINATOR;
-        case Lexeme::CONSTANT: return Token::TERMINATOR;
-        case Lexeme::CONSTANTS: return Token::TERMINATOR;
-        case Lexeme::COROLLARY: return Token::TERMINATOR;
-        case Lexeme::ELSE: return Token::RIGHT_DELIMITER;
-        case Lexeme::IN: return Token::RIGHT_DELIMITER;
-        case Lexeme::LEMMA: return Token::TERMINATOR;
-        case Lexeme::LOCAL: return Token::TERMINATOR;
-        case Lexeme::PROPOSITION: return Token::TERMINATOR;
-        case Lexeme::THEN: return Token::RIGHT_DELIMITER;
-        case Lexeme::THEOREM: return Token::TERMINATOR;
-        case Lexeme::VARIABLE: return Token::TERMINATOR;
-        case Lexeme::VARIABLES: return Token::TERMINATOR;
-        case Lexeme::IDENTIFIER: return Token::OTHER;
-        case Lexeme::OTHER: return Token::OTHER;
-        case Lexeme::END_OF_FILE: return Token::TERMINATOR;
-      }
     }
 
     /**
@@ -1118,7 +1115,10 @@ namespace {
         || valid_symbols[DEDENT]
       ) {
         column_index col;
-        switch (token_lookahead(lexer, col)) {
+        Lexeme lookahead = is_in_jlist()
+          ? lex_lookahead(lexer, col)
+          : lex_lookahead_only_juncts(lexer, col);
+        switch (tokenize_lexeme(lookahead)) {
           case Token::LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
           case Token::LOR:
