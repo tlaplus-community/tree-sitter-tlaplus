@@ -512,14 +512,12 @@ namespace {
           /**
            * This is another entry in the jlist.
            */
-          assert(valid_symbols[NEWLINE]);
           return emit_newline(lexer);
         } else {
           /** 
            * Disjunct in alignment with conjunct list or vice-versa; treat
            * this as an infix operator by terminating the current list.
            */
-          assert(valid_symbols[DEDENT]);
           return emit_dedent(lexer);
         }
       } else {
@@ -527,7 +525,6 @@ namespace {
          * Junct found prior to the alignment column of the current jlist.
          * This marks the end of the jlist.
          */
-        assert(valid_symbols[DEDENT]);
         return emit_dedent(lexer);
       }
     }
@@ -626,12 +623,7 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
-      if (is_in_jlist()) {
-        assert(valid_symbols[DEDENT]);
-        return emit_dedent(lexer);
-      } {
-        return false;
-      }
+      return is_in_jlist() && emit_dedent(lexer);
     }
 
     /**
@@ -664,7 +656,6 @@ namespace {
          * Found a token prior to the jlist's start column; this means
          * the current jlist has ended, so emit a DEDENT token.
          */
-        assert(valid_symbols[DEDENT]);
         return emit_dedent(lexer);
       } else {
         /**
@@ -981,11 +972,9 @@ namespace {
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
-      if (is_error_recovery) {
-        return false;
-      } else if(valid_symbols[EXTRAMODULAR_TEXT]) {
+      if(!is_error_recovery && valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
-      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
+      } else if (!is_error_recovery && valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
       } else if (valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
