@@ -95,7 +95,7 @@ LOCAL IsFirstDeriv(df, f) ==
         /\\ \\A r \\in DOMAIN f : 
               \\A e \\in PosReal :
                  \\E d \\in PosReal : 
-                    \\A s \\in Nbhd(r,d) \ {r} :
+                    \\A s \\in Nbhd(r,d) \\ {r} :
                         (f[s] - f[r])/(s - r) \\in Nbhd(df[r], e)
 
 LOCAL IsDeriv(n, df, f) == 
