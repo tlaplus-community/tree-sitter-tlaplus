@@ -11,4 +11,5 @@ target
 *.so
 *.obj
 *.wasm
-test/examples/Test.tla
+Test.tla
+debug.txt
