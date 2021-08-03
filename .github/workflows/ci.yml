@@ -23,6 +23,12 @@ jobs:
           submodules: recursive
       - name: Install node
         uses: actions/setup-node@v2
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v10
+        with:
+          version: 2.0.16
+      - name: Verify Emscripten install
+        run: emcc -v
       - name: Build
         run: npm install
       - name: Generate
