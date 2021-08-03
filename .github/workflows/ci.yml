@@ -23,28 +23,8 @@ jobs:
           submodules: recursive
       - name: Install node
         uses: actions/setup-node@v2
-      - name: Install Emscripten
-        uses: mymindstorm/setup-emsdk@v10
-        with:
-          version: 2.0.16
-      - name: Verify Emscripten install
-        run: emcc -v
       - name: Build
         run: npm install
-      - name: Generate
-        run: node_modules/.bin/tree-sitter generate
-      - name: Renormalize line endings
-        shell: bash
-        run: git add --renormalize .
-      - name: List changes
-        shell: bash
-        run: git status
-        # Command from https://stackoverflow.com/a/62768943/2852699
-      - name: Check grammar/code sync
-        shell: bash
-        run: |
-          diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
-          exit $diff_count
       - name: Unit Tests
         run: node_modules/.bin/tree-sitter test
       - name: Corpus Tests
@@ -59,3 +39,26 @@ jobs:
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
+      - name: Generate parser code
+        run: node_modules/.bin/tree-sitter generate
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v10
+        with:
+          version: 2.0.16
+      - name: Generate parser WASM
+        run: node_modules/.bin/tree-sitter build-wasm
+      - name: Move parser WASM
+        shell: bash
+        run: mv tree-sitter-tlaplus.wasm ./docs/js/tree-sitter-tlaplus.wasm
+      - name: Renormalize line endings
+        shell: bash
+        run: git add --renormalize .
+      - name: List changes
+        shell: bash
+        run: git status
+        # Command from https://stackoverflow.com/a/62768943/2852699
+      - name: Check grammar/code sync
+        shell: bash
+        run: |
+          diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
+          exit $diff_count
