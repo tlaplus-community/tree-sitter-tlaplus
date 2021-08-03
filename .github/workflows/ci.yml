@@ -25,8 +25,37 @@ jobs:
         uses: actions/setup-node@v2
       - name: Build
         run: npm install
-      - name: Generate
+      - name: Unit Tests
+        run: node_modules/.bin/tree-sitter test
+      - name: Corpus Tests
+        shell: pwsh
+        run: |
+          node_modules/.bin/tree-sitter init-config
+          $specs = Get-ChildItem `
+            -Path .\test\examples\external\specifications `
+            -Filter "*.tla" `
+            -Exclude "Reals.tla","Naturals.tla" `
+            -Recurse
+          Push-Location .\test\examples\external\specifications
+          $specs | Resolve-Path -Relative
+          Pop-Location
+          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
+          $failures
+          exit $failures.length
+      - name: Generate parser code
         run: node_modules/.bin/tree-sitter generate
+      - name: Install Emscripten
+        if: runner.os == 'Windows'
+        uses: mymindstorm/setup-emsdk@v10
+        with:
+          version: 2.0.16
+      - name: Generate parser WASM
+        if: runner.os == 'Windows'
+        run: node_modules/.bin/tree-sitter build-wasm
+      - name: Move parser WASM
+        if: runner.os == 'Windows'
+        shell: bash
+        run: mv tree-sitter-tlaplus.wasm ./docs/js/tree-sitter-tlaplus.wasm
       - name: Renormalize line endings
         shell: bash
         run: git add --renormalize .
@@ -39,17 +68,3 @@ jobs:
         run: |
           diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
           exit $diff_count
-      - name: Unit Tests
-        run: node_modules/.bin/tree-sitter test
-      - name: Corpus Tests
-        shell: pwsh
-        run: |
-          node_modules/.bin/tree-sitter init-config
-          $specs = Get-ChildItem `
-            -Path .\test\examples\external\specifications `
-            -Filter "*.tla" `
-            -Exclude "Reals.tla","Naturals.tla" `
-            -Recurse
-          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
-          $failures
-          exit $failures.length
