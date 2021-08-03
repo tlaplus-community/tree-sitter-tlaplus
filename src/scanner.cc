@@ -345,7 +345,7 @@ namespace {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
         if ( ' '  == lookahead
-          || 't'  == lookahead
+          || '\t'  == lookahead
           || '\r' == lookahead
           || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
@@ -392,7 +392,7 @@ namespace {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
         if ( ' '  == lookahead
-          || 't'  == lookahead
+          || '\t'  == lookahead
           || '\r' == lookahead
           || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
@@ -669,6 +669,7 @@ namespace {
       case Lexeme::IDENTIFIER: return Token::OTHER;
       case Lexeme::OTHER: return Token::OTHER;
       case Lexeme::END_OF_FILE: return Token::TERMINATOR;
+      default: return Token::OTHER;
     }
   }
     
