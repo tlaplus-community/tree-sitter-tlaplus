@@ -333,7 +333,7 @@ module.exports = grammar({
 
     // foo!bar!baz!
     subexpr_prefix: $ => seq(
-      choice($.subexpr_component, $.proof_step_id), '!',
+      choice($.subexpr_component, $.proof_step_ref), '!',
       repeat(seq(choice($.subexpr_component, $.subexpr_tree_nav), '!'))
     ),
 
@@ -402,7 +402,7 @@ module.exports = grammar({
       $.parentheses,
       $.label,
       $.subexpression,
-      $.proof_step_id,
+      $.proof_step_ref,
       $.identifier,
       $.bound_op,
       $.bound_nonfix_op,
@@ -922,7 +922,7 @@ module.exports = grammar({
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
       optional(seq($.identifier, $.def_eq)),
       choice($._expr, $.assume_prove),
-      optional($.proof)
+      optional($._proof)
     ),
 
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
@@ -953,7 +953,7 @@ module.exports = grammar({
       'CONSTANT', 'VARIABLE', 'STATE', 'ACTION', 'TEMPORAL'
     ),
 
-    proof: $ => choice(
+    _proof: $ => choice(
       $.terminal_proof,
       $.non_terminal_proof
     ),
@@ -976,7 +976,7 @@ module.exports = grammar({
 
     // A single step in a proof. Can be many things!
     proof_step: $ => seq(
-      $.begin_proof_step_token,
+      $.proof_step_id,
       choice(
         $.use_or_hide,
         $.definition_proof_step,
@@ -1006,12 +1006,12 @@ module.exports = grammar({
     witness_proof_step: $ => seq('WITNESS', commaList1($._expr)),
     take_proof_step: $ => seq('TAKE', $._bound_or_identifier_list),
     suffices_proof_step: $ => seq(
-      optional('SUFFICES'), choice($._expr, $.assume_prove), optional($.proof)
+      optional('SUFFICES'), choice($._expr, $.assume_prove), optional($._proof)
     ),
-    case_proof_step: $ => seq('CASE', $._expr, optional($.proof)),
+    case_proof_step: $ => seq('CASE', $._expr, optional($._proof)),
     pick_proof_step: $ => seq(
       'PICK', $._bound_or_identifier_list, ':', $._expr,
-      optional($.proof)
+      optional($._proof)
     ),
 
     // One of:
@@ -1024,9 +1024,9 @@ module.exports = grammar({
 
     // <*> QED
     qed_step: $ => seq(
-      $.begin_proof_step_token,
+      $.proof_step_id,
       'QED',
-      optional($.proof)
+      optional($._proof)
     ),
 
     use_or_hide: $ => seq(
@@ -1057,9 +1057,9 @@ module.exports = grammar({
 
     // <+>foo22..
     // Used when writing another proof step
-    begin_proof_step_token: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
+    proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
 
     // Used when referring to a prior proof step
-    proof_step_id: $ => /<(\d+|\*)>[\w|\d]+/,
+    proof_step_ref: $ => /<(\d+|\*)>[\w|\d]+/,
   }
 });

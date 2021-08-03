@@ -1386,7 +1386,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "proof_step_id"
+              "name": "proof_step_ref"
             }
           ]
         },
@@ -1803,7 +1803,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "proof_step_id"
+          "name": "proof_step_ref"
         },
         {
           "type": "SYMBOL",
@@ -5864,7 +5864,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "proof"
+              "name": "_proof"
             },
             {
               "type": "BLANK"
@@ -6061,7 +6061,7 @@
         }
       ]
     },
-    "proof": {
+    "_proof": {
       "type": "CHOICE",
       "members": [
         {
@@ -6162,7 +6162,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "begin_proof_step_token"
+          "name": "proof_step_id"
         },
         {
           "type": "CHOICE",
@@ -6337,7 +6337,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "proof"
+              "name": "_proof"
             },
             {
               "type": "BLANK"
@@ -6362,7 +6362,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "proof"
+              "name": "_proof"
             },
             {
               "type": "BLANK"
@@ -6395,7 +6395,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "proof"
+              "name": "_proof"
             },
             {
               "type": "BLANK"
@@ -6464,7 +6464,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "begin_proof_step_token"
+          "name": "proof_step_id"
         },
         {
           "type": "STRING",
@@ -6475,7 +6475,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "proof"
+              "name": "_proof"
             },
             {
               "type": "BLANK"
@@ -6689,11 +6689,11 @@
         }
       ]
     },
-    "begin_proof_step_token": {
+    "proof_step_id": {
       "type": "PATTERN",
       "value": "<(\\d+|\\+|\\*)>[\\w|\\d]*\\.*"
     },
-    "proof_step_id": {
+    "proof_step_ref": {
       "type": "PATTERN",
       "value": "<(\\d+|\\*)>[\\w|\\d]+"
     }
