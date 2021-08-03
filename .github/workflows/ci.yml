@@ -25,6 +25,8 @@ jobs:
         uses: actions/setup-node@v2
       - name: Build
         run: npm install
+      - name: Initialize tree-sitter config
+        run: tree-sitter init-config
       - name: Corpus Tests
         shell: pwsh
         run: |
@@ -33,6 +35,7 @@ jobs:
             -Filter "*.tla" `
             -Exclude "Reals.tla","Naturals.tla" `
             -Recurse
+          $specs.count
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
