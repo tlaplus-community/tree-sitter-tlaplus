@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Install node
         uses: actions/setup-node@v2
       - name: Build
@@ -37,5 +39,17 @@ jobs:
         run: |
           diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
           exit $diff_count
-      - name: Test
+      - name: Unit Tests
         run: node_modules/.bin/tree-sitter test
+      - name: Corpus Tests
+        shell: pwsh
+        run: |
+          node_modules/.bin/tree-sitter init-config
+          $specs = Get-ChildItem `
+            -Path .\test\examples\external\specifications `
+            -Filter "*.tla" `
+            -Exclude "Reals.tla","Naturals.tla" `
+            -Recurse
+          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
+          $failures
+          exit $failures.length

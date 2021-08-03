@@ -133,7 +133,7 @@ namespace {
     TSLexer* const lexer,
     const std::vector<int32_t>& codepoint_sequence
   ) {
-    for (int i = 0; i < codepoint_sequence.size(); i++) {
+    for (size_t i = 0; i < codepoint_sequence.size(); i++) {
       int32_t codepoint = codepoint_sequence.at(i);
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
@@ -345,7 +345,7 @@ namespace {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
         if ( ' '  == lookahead
-          || 't'  == lookahead
+          || '\t'  == lookahead
           || '\r' == lookahead
           || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
@@ -392,7 +392,7 @@ namespace {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
         if ( ' '  == lookahead
-          || 't'  == lookahead
+          || '\t'  == lookahead
           || '\r' == lookahead
           || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
@@ -669,6 +669,7 @@ namespace {
       case Lexeme::IDENTIFIER: return Token::OTHER;
       case Lexeme::OTHER: return Token::OTHER;
       case Lexeme::END_OF_FILE: return Token::TERMINATOR;
+      default: return Token::OTHER;
     }
   }
     
@@ -1079,12 +1080,6 @@ namespace {
         && emit_dedent(lexer);
     }
     
-    Token token_lookahead(
-      TSLexer* const lexer,
-      column_index& lexeme_start_col
-    ) {
-    }
-
     /**
      * INDENT tokens are emitted prior to the first junct in a list
      * NEWLINE tokens are emitted between list juncts
