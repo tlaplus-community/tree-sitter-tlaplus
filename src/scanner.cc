@@ -133,7 +133,7 @@ namespace {
     TSLexer* const lexer,
     const std::vector<int32_t>& codepoint_sequence
   ) {
-    for (int i = 0; i < codepoint_sequence.size(); i++) {
+    for (size_t i = 0; i < codepoint_sequence.size(); i++) {
       int32_t codepoint = codepoint_sequence.at(i);
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
@@ -1080,12 +1080,6 @@ namespace {
         && emit_dedent(lexer);
     }
     
-    Token token_lookahead(
-      TSLexer* const lexer,
-      column_index& lexeme_start_col
-    ) {
-    }
-
     /**
      * INDENT tokens are emitted prior to the first junct in a list
      * NEWLINE tokens are emitted between list juncts

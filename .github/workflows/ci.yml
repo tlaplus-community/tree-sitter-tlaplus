@@ -25,20 +25,6 @@ jobs:
         uses: actions/setup-node@v2
       - name: Build
         run: npm install
-      - name: Initialize tree-sitter config
-        run: node_modules/.bin/tree-sitter init-config
-      - name: Corpus Tests
-        shell: pwsh
-        run: |
-          $specs = Get-ChildItem `
-            -Path .\test\examples\external\specifications `
-            -Filter "*.tla" `
-            -Exclude "Reals.tla","Naturals.tla" `
-            -Recurse
-          $specs.count
-          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
-          $failures
-          exit $failures.length
       - name: Generate
         run: node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
@@ -55,3 +41,15 @@ jobs:
           exit $diff_count
       - name: Unit Tests
         run: node_modules/.bin/tree-sitter test
+      - name: Corpus Tests
+        shell: pwsh
+        run: |
+          node_modules/.bin/tree-sitter init-config
+          $specs = Get-ChildItem `
+            -Path .\test\examples\external\specifications `
+            -Filter "*.tla" `
+            -Exclude "Reals.tla","Naturals.tla" `
+            -Recurse
+          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
+          $failures
+          exit $failures.length
