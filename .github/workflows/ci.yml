@@ -36,7 +36,7 @@ jobs:
             -Filter "*.tla" `
             -Exclude "Reals.tla","Naturals.tla" `
             -Recurse
-          $specs
+          $specs.FullName
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
