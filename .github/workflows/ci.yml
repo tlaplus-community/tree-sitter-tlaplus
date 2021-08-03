@@ -26,7 +26,7 @@ jobs:
       - name: Build
         run: npm install
       - name: Initialize tree-sitter config
-        run: tree-sitter init-config
+        run: node_modules/.bin/tree-sitter init-config
       - name: Corpus Tests
         shell: pwsh
         run: |
