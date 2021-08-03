@@ -36,7 +36,9 @@ jobs:
             -Filter "*.tla" `
             -Exclude "Reals.tla","Naturals.tla" `
             -Recurse
-          $specs.FullName
+          Push-Location .\test\examples\external\specifications
+          $specs | Resolve-Path -Relative
+          Pop-Location
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
