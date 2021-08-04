@@ -13,7 +13,8 @@ namespace {
     BLOCK_COMMENT_TEXT, // Text inside block comments.
     INDENT,             // Marks beginning of junction list.
     NEWLINE,            // Separates items of junction list.
-    DEDENT              // Marks end of junction list.
+    DEDENT,             // Marks end of junction list.
+    BEGIN_PROOF_STEP    // Marks the beginning of a proof step.
   };
 
   /**
@@ -82,6 +83,25 @@ namespace {
   }
 
   /**
+   * Checks wwhether the given codepoint is an ASCII digit, 0-9.
+   *
+   * @param codepoint The codepoint to check.
+   * @return Whether the given codepoint is a digit.
+   **/
+  bool is_digit(int32_t const codepoint) {
+    return (48 <= codepoint && codepoint <= 57);
+  }
+
+  bool is_letter(int32_t const codepoint) {
+    return (65 <= codepoint && codepoint <= 90) // A-Z
+      || (97 <= codepoint && codepoint <= 122); // a-z
+  }
+
+  bool is_underscore(int32_t const codepoint) {
+    return 95 == codepoint;
+  }
+
+  /**
    * Checks whether the given codepoint could be used in an identifier,
    * which consist of capital ASCII letters, lowercase ASCII letters,
    * and underscores.
@@ -91,10 +111,9 @@ namespace {
    **/
   bool is_identifier_char(int32_t const codepoint) {
     return
-      (48 <= codepoint && codepoint <= 57)      // 0-9
-      || (65 <= codepoint && codepoint <= 90)   // A-Z
-      || (97 <= codepoint && codepoint <= 122)  // a-z
-      || 95 == codepoint;                       // _
+      is_digit(codepoint)
+      || is_letter(codepoint)
+      || is_underscore(codepoint);
   }
 
   /**
@@ -296,6 +315,7 @@ namespace {
     THEOREM,
     VARIABLE,
     VARIABLES,
+    PROOF_STEP_ID,
     IDENTIFIER,
     OTHER,
     END_OF_FILE
@@ -305,6 +325,7 @@ namespace {
     CONSUME_LEADING_SPACE,
     FORWARD_SLASH,
     BACKWARD_SLASH,
+    LT,
     GT,
     EQ,
     DASH,
@@ -329,6 +350,11 @@ namespace {
     T, THE, THEN, THEOREM,
     V, VARIABLE, VARIABLES,
     IDENTIFIER,
+    PROOF_LEVEL_NUMBER,
+    PROOF_LEVEL_STAR,
+    PROOF_LEVEL_PLUS,
+    PROOF_NAME,
+    PROOF_ID,
     OTHER,
     END_OF_FILE
   };
@@ -352,6 +378,7 @@ namespace {
         if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
         if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
         if (L'∨' == lookahead) MARK_THEN_ADVANCE(LexState::LOR);
+        if ('<' == lookahead) MARK_THEN_ADVANCE(LexState::LT);
         MARK_THEN_ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::FORWARD_SLASH:
@@ -362,11 +389,40 @@ namespace {
         ACCEPT_LEXEME(Lexeme::BACKWARD_SLASH);
         if ('/' == lookahead) ADVANCE(LexState::LOR);
         END_LEX_STATE();
+      case LexState::LT:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+        if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
+        if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
       case LexState::LAND:
         ACCEPT_LEXEME(Lexeme::LAND);
         END_LEX_STATE();
       case LexState::LOR:
         ACCEPT_LEXEME(Lexeme::LOR);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_NUMBER:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_STAR:
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_PLUS:
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_NAME:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_NAME);
+        if (is_letter(lookahead)) ADVANCE(LexState::PROOF_NAME);
+        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
+        END_LEX_STATE();
+      case LexState::PROOF_ID:
+        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
         END_LEX_STATE();
       case LexState::END_OF_FILE:
         ACCEPT_LEXEME(Lexeme::END_OF_FILE);
@@ -629,6 +685,7 @@ namespace {
     RIGHT_DELIMITER,
     COMMENT_START,
     TERMINATOR,
+    PROOF_STEP_ID,
     OTHER
   };
 
@@ -666,6 +723,7 @@ namespace {
       case Lexeme::THEOREM: return Token::TERMINATOR;
       case Lexeme::VARIABLE: return Token::TERMINATOR;
       case Lexeme::VARIABLES: return Token::TERMINATOR;
+      case Lexeme::PROOF_STEP_ID: return Token::PROOF_STEP_ID;
       case Lexeme::IDENTIFIER: return Token::OTHER;
       case Lexeme::OTHER: return Token::OTHER;
       case Lexeme::END_OF_FILE: return Token::TERMINATOR;
@@ -1026,8 +1084,7 @@ namespace {
      */
     bool handle_right_delimiter_token(
       TSLexer* const lexer,
-      const bool* const valid_symbols,
-      column_index const next
+      const bool* const valid_symbols
     ) {
       return is_in_jlist()
         && valid_symbols[DEDENT]
@@ -1049,6 +1106,18 @@ namespace {
     ) {
       return is_in_jlist()
         && emit_dedent(lexer);
+    }
+    
+    bool handle_proof_step_id_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      if (valid_symbols[BEGIN_PROOF_STEP]) {
+        lexer->result_symbol = BEGIN_PROOF_STEP;
+        return true;
+      } else {
+        return handle_right_delimiter_token(lexer, valid_symbols);
+      }
     }
 
     /**
@@ -1108,6 +1177,7 @@ namespace {
       } else if (valid_symbols[INDENT]
         || valid_symbols[NEWLINE]
         || valid_symbols[DEDENT]
+        || valid_symbols[BEGIN_PROOF_STEP]
       ) {
         column_index col;
         Lexeme lookahead = is_in_jlist()
@@ -1119,11 +1189,13 @@ namespace {
           case Token::LOR:
             return handle_junct_token(lexer, valid_symbols, JunctType::DISJUNCTION, col);
           case Token::RIGHT_DELIMITER:
-            return handle_right_delimiter_token(lexer, valid_symbols, col);
+            return handle_right_delimiter_token(lexer, valid_symbols);
           case Token::COMMENT_START:
             return false;
           case Token::TERMINATOR:
             return handle_terminator_token(lexer, valid_symbols);
+          case Token::PROOF_STEP_ID:
+            return handle_proof_step_id_token(lexer, valid_symbols);
           case Token::OTHER:
             return handle_other_token(lexer, valid_symbols, col);
           default:

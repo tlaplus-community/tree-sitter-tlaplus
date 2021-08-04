@@ -6217,6 +6217,10 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "_begin_proof_step"
+        },
+        {
+          "type": "SYMBOL",
           "name": "proof_step_id"
         },
         {
@@ -6517,6 +6521,10 @@
     "qed_step": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_begin_proof_step"
+        },
         {
           "type": "SYMBOL",
           "name": "proof_step_id"
@@ -6904,42 +6912,6 @@
       "subexpr_prefix"
     ],
     [
-      "suffices_proof_step",
-      "bound_infix_op"
-    ],
-    [
-      "case_proof_step",
-      "bound_infix_op"
-    ],
-    [
-      "have_proof_step",
-      "bound_infix_op"
-    ],
-    [
-      "witness_proof_step",
-      "bound_infix_op"
-    ],
-    [
-      "pick_proof_step",
-      "bound_infix_op"
-    ],
-    [
-      "assume_prove",
-      "bound_infix_op"
-    ],
-    [
-      "use_body_expr",
-      "bound_infix_op"
-    ],
-    [
-      "_op_or_expr",
-      "bound_infix_op"
-    ],
-    [
-      "quantifier_bound",
-      "bound_infix_op"
-    ],
-    [
       "qed_step"
     ],
     [
@@ -7048,6 +7020,10 @@
     {
       "type": "SYMBOL",
       "name": "_dedent"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_begin_proof_step"
     }
   ],
   "inline": [],

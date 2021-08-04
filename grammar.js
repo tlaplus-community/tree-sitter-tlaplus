@@ -72,7 +72,8 @@ module.exports = grammar({
     $._block_comment_text,
     $._indent,
     $._newline,
-    $._dedent
+    $._dedent,
+    $._begin_proof_step
   ],
 
   extras: $ => [
@@ -132,6 +133,7 @@ module.exports = grammar({
     // Lookahead to disambiguate proof_step_id  _expr  •  '<'  …
     // Could be lt operator or start of another proof step
     // Can be fixed by marking proof start/end with external scanner
+    /*
     [$.suffices_proof_step, $.bound_infix_op],
     [$.case_proof_step, $.bound_infix_op],
     [$.have_proof_step, $.bound_infix_op],
@@ -141,6 +143,7 @@ module.exports = grammar({
     [$.use_body_expr, $.bound_infix_op],
     [$._op_or_expr, $.bound_infix_op],
     [$.quantifier_bound, $.bound_infix_op],
+      */
     // See https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/24
     [$.qed_step],
     [$.suffices_proof_step],
@@ -1001,6 +1004,7 @@ module.exports = grammar({
 
     // A single step in a proof. Can be many things!
     proof_step: $ => seq(
+      $._begin_proof_step,
       $.proof_step_id,
       choice(
         $.use_or_hide,
@@ -1049,6 +1053,7 @@ module.exports = grammar({
 
     // <*> QED
     qed_step: $ => seq(
+      $._begin_proof_step,
       $.proof_step_id,
       'QED',
       optional($._proof)
