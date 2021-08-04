@@ -130,20 +130,8 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate proof_step_id  _expr  •  '<'  …
-    // Could be lt operator or start of another proof step
-    // Can be fixed by marking proof start/end with external scanner
-    /*
-    [$.suffices_proof_step, $.bound_infix_op],
-    [$.case_proof_step, $.bound_infix_op],
-    [$.have_proof_step, $.bound_infix_op],
-    [$.witness_proof_step, $.bound_infix_op],
-    [$.pick_proof_step, $.bound_infix_op],
-    [$.assume_prove, $.bound_infix_op],
-    [$.use_body_expr, $.bound_infix_op],
-    [$._op_or_expr, $.bound_infix_op],
-    [$.quantifier_bound, $.bound_infix_op],
-      */
+    // Lookahead to disambiguate nested proofs.
+    // Can be fixed by marking proof start/end with external scanner.
     // See https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/24
     [$.qed_step],
     [$.suffices_proof_step],
@@ -285,7 +273,7 @@ module.exports = grammar({
     // max(a, b) == IF a > b THEN a ELSE b
     // a \prec b == a.val < b.val
     // x ≜ 〈 1, 2, 3, 4, 5 〉
-    operator_definition: $ => prec('0-0', seq(
+    operator_definition: $ => seq(
       choice(
         arity0OrN($.identifier, $._id_or_op_declaration),
         seq($.standalone_prefix_op_symbol, $.identifier),
@@ -294,15 +282,15 @@ module.exports = grammar({
       ),
       $.def_eq,
       $._expr
-    )),
+    ),
 
     // f[x \in Nat] == 2*x
-    function_definition: $ => prec('0-0', seq(
+    function_definition: $ => seq(
       $.identifier,
       '[', commaList1($.quantifier_bound), ']',
       $.def_eq,
       $._expr
-    )),
+    ),
 
     // x, y, z \in S
     // <<x, y, z>> \in S \X T \X P
@@ -408,9 +396,9 @@ module.exports = grammar({
     ),
 
     // LAMBDA a, b, c : a + b * c
-    lambda: $ => prec('0-0', seq(
+    lambda: $ => seq(
       'LAMBDA', commaList1($.identifier), ':', $._expr
-    )),
+    ),
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(

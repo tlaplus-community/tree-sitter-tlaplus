@@ -359,83 +359,6 @@ namespace {
     END_OF_FILE
   };
   
-  Lexeme lex_lookahead_only_juncts(
-    TSLexer* const lexer,
-    column_index& lexeme_start_col
-  ) {
-    LexState state = LexState::CONSUME_LEADING_SPACE;
-    Lexeme result_lexeme = Lexeme::OTHER;
-    START_LEXER();
-    eof = !has_next(lexer);
-    switch (state) {
-      case LexState::CONSUME_LEADING_SPACE:
-        if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
-        if ( ' '  == lookahead
-          || '\t'  == lookahead
-          || '\r' == lookahead
-          || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
-        if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
-        if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
-        if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
-        if (L'∨' == lookahead) MARK_THEN_ADVANCE(LexState::LOR);
-        if ('<' == lookahead) MARK_THEN_ADVANCE(LexState::LT);
-        MARK_THEN_ADVANCE(LexState::OTHER);
-        END_LEX_STATE();
-      case LexState::FORWARD_SLASH:
-        ACCEPT_LEXEME(Lexeme::FORWARD_SLASH);
-        if ('\\' == lookahead) ADVANCE(LexState::LAND);
-        END_LEX_STATE();
-      case LexState::BACKWARD_SLASH:
-        ACCEPT_LEXEME(Lexeme::BACKWARD_SLASH);
-        if ('/' == lookahead) ADVANCE(LexState::LOR);
-        END_LEX_STATE();
-      case LexState::LT:
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
-        if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
-        if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
-        ADVANCE(LexState::OTHER);
-        END_LEX_STATE();
-      case LexState::LAND:
-        ACCEPT_LEXEME(Lexeme::LAND);
-        END_LEX_STATE();
-      case LexState::LOR:
-        ACCEPT_LEXEME(Lexeme::LOR);
-        END_LEX_STATE();
-      case LexState::PROOF_LEVEL_NUMBER:
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
-        END_LEX_STATE();
-      case LexState::PROOF_LEVEL_STAR:
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
-        END_LEX_STATE();
-      case LexState::PROOF_LEVEL_PLUS:
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
-        END_LEX_STATE();
-      case LexState::PROOF_NAME:
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_NAME);
-        if (is_letter(lookahead)) ADVANCE(LexState::PROOF_NAME);
-        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        END_LEX_STATE();
-      case LexState::PROOF_ID:
-        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        END_LEX_STATE();
-      case LexState::END_OF_FILE:
-        ACCEPT_LEXEME(Lexeme::END_OF_FILE);
-        END_LEX_STATE();
-      case LexState::OTHER:
-        ACCEPT_LEXEME(Lexeme::OTHER);
-        END_LEX_STATE();
-      default:
-        ACCEPT_LEXEME(Lexeme::OTHER);
-        END_LEX_STATE();
-    }
-  }
-
   Lexeme lex_lookahead(
     TSLexer* const lexer,
     column_index& lexeme_start_col
@@ -453,6 +376,7 @@ namespace {
           || '\n' == lookahead) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
         if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
+        if ('<' == lookahead) MARK_THEN_ADVANCE(LexState::LT);
         if ('>' == lookahead) MARK_THEN_ADVANCE(LexState::GT);
         if ('=' == lookahead) MARK_THEN_ADVANCE(LexState::EQ);
         if ('-' == lookahead) MARK_THEN_ADVANCE(LexState::DASH);
@@ -482,6 +406,12 @@ namespace {
         ACCEPT_LEXEME(Lexeme::BACKWARD_SLASH);
         if ('/' == lookahead) ADVANCE(LexState::LOR);
         if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
+        END_LEX_STATE();
+      case LexState::LT:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+        if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
+        if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
+        ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::GT:
         ACCEPT_LEXEME(Lexeme::GT);
@@ -663,6 +593,29 @@ namespace {
       case LexState::VARIABLES:
         ACCEPT_LEXEME(Lexeme::VARIABLES);
         if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_NUMBER:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_STAR:
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_LEVEL_PLUS:
+        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
+        ADVANCE(LexState::OTHER);
+        END_LEX_STATE();
+      case LexState::PROOF_NAME:
+        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_NAME);
+        if (is_letter(lookahead)) ADVANCE(LexState::PROOF_NAME);
+        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
+        END_LEX_STATE();
+      case LexState::PROOF_ID:
+        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
         END_LEX_STATE();
       case LexState::IDENTIFIER:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
@@ -1180,10 +1133,7 @@ namespace {
         || valid_symbols[BEGIN_PROOF_STEP]
       ) {
         column_index col;
-        Lexeme lookahead = is_in_jlist()
-          ? lex_lookahead(lexer, col)
-          : lex_lookahead_only_juncts(lexer, col);
-        switch (tokenize_lexeme(lookahead)) {
+        switch (tokenize_lexeme(lex_lookahead(lexer, col))) {
           case Token::LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
           case Token::LOR:
