@@ -581,7 +581,7 @@ op5 ==
       (conj_item (bullet_conj) (number))
     )
   ))
-  (unit (assumption (identifier)))
+  (unit (assumption (identifier_ref)))
   (unit (operator_definition
     (identifier) (def_eq)
     (conj_list

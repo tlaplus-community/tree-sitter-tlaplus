@@ -581,7 +581,7 @@ op5 ==
       (disj_item (bullet_disj) (number))
     )
   ))
-  (unit (assumption (identifier)))
+  (unit (assumption (identifier_ref)))
   (unit (operator_definition
     (identifier) (def_eq)
     (disj_list

@@ -101,7 +101,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -145,7 +145,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -267,7 +267,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -303,7 +303,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -439,6 +439,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -471,7 +475,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -623,7 +627,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -659,7 +663,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -781,7 +785,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -817,7 +821,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -1299,7 +1303,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -1343,7 +1347,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -1410,7 +1414,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           }
         ]
@@ -1496,7 +1500,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -1544,7 +1548,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -1676,7 +1680,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -1712,7 +1716,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -1850,7 +1854,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -1886,7 +1890,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -2070,7 +2074,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -2106,7 +2110,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -2295,7 +2299,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -2331,7 +2335,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -2468,7 +2472,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -2481,6 +2485,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "non_terminal_proof",
           "named": true
         },
         {
@@ -2504,11 +2512,7 @@
           "named": true
         },
         {
-          "type": "proof",
-          "named": true
-        },
-        {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -2549,6 +2553,10 @@
         },
         {
           "type": "subexpression",
+          "named": true
+        },
+        {
+          "type": "terminal_proof",
           "named": true
         },
         {
@@ -2649,6 +2657,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -2681,7 +2693,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -2835,7 +2847,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -2871,7 +2883,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3069,7 +3081,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -3105,7 +3117,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3296,6 +3308,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -3328,7 +3344,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3480,7 +3496,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -3516,7 +3532,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3643,7 +3659,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -3679,7 +3695,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3819,6 +3835,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -3851,7 +3871,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -3982,7 +4002,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -4018,7 +4038,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -4149,7 +4169,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -4185,7 +4205,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -4331,7 +4351,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -4367,7 +4387,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -4494,7 +4514,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -4530,7 +4550,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -4652,7 +4672,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -4688,7 +4708,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -4810,7 +4830,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -4846,7 +4866,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -5399,7 +5419,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -5439,7 +5459,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -5575,6 +5595,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -5607,7 +5631,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -5781,7 +5805,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -5817,7 +5841,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -5894,6 +5918,11 @@
   },
   {
     "type": "ls_ttile",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "lt",
     "named": true,
     "fields": {}
   },
@@ -6088,6 +6117,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -6128,7 +6161,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -6298,7 +6331,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -6346,7 +6379,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -6582,6 +6615,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -6622,7 +6659,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -6767,7 +6804,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -6803,7 +6840,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -6935,7 +6972,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -6971,7 +7008,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -7102,6 +7139,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -7111,6 +7152,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "non_terminal_proof",
           "named": true
         },
         {
@@ -7134,11 +7179,7 @@
           "named": true
         },
         {
-          "type": "proof",
-          "named": true
-        },
-        {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -7183,6 +7224,10 @@
         },
         {
           "type": "subexpression",
+          "named": true
+        },
+        {
+          "type": "terminal_proof",
           "named": true
         },
         {
@@ -7260,7 +7305,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           }
         ]
@@ -7288,25 +7333,6 @@
     "fields": {}
   },
   {
-    "type": "proof",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "proof_step",
     "named": true,
     "fields": {},
@@ -7314,10 +7340,6 @@
       "multiple": true,
       "required": true,
       "types": [
-        {
-          "type": "begin_proof_step_token",
-          "named": true
-        },
         {
           "type": "case_proof_step",
           "named": true
@@ -7336,6 +7358,10 @@
         },
         {
           "type": "pick_proof_step",
+          "named": true
+        },
+        {
+          "type": "proof_step_id",
           "named": true
         },
         {
@@ -7358,6 +7384,44 @@
     }
   },
   {
+    "type": "proof_step_id",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "level",
+          "named": true
+        },
+        {
+          "type": "name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "proof_step_ref",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "level",
+          "named": true
+        },
+        {
+          "type": "name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "propto",
     "named": true,
     "fields": {}
@@ -7371,11 +7435,15 @@
       "required": true,
       "types": [
         {
-          "type": "begin_proof_step_token",
+          "type": "non_terminal_proof",
           "named": true
         },
         {
-          "type": "proof",
+          "type": "proof_step_id",
+          "named": true
+        },
+        {
+          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -7463,6 +7531,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -7495,7 +7567,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -7653,6 +7725,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -7685,7 +7761,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -7816,6 +7892,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -7848,7 +7928,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -7999,7 +8079,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -8035,7 +8115,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -8192,7 +8272,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -8228,7 +8308,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -8356,7 +8436,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -8396,7 +8476,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -8527,6 +8607,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -8559,7 +8643,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -8700,6 +8784,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -8732,7 +8820,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -8968,7 +9056,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -9008,7 +9096,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9139,7 +9227,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -9175,7 +9263,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9246,7 +9334,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -9273,7 +9361,7 @@
       "required": true,
       "types": [
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9432,6 +9520,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -9476,7 +9568,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9621,7 +9713,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -9634,6 +9726,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "non_terminal_proof",
           "named": true
         },
         {
@@ -9657,11 +9753,7 @@
           "named": true
         },
         {
-          "type": "proof",
-          "named": true
-        },
-        {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9702,6 +9794,10 @@
         },
         {
           "type": "subexpression",
+          "named": true
+        },
+        {
+          "type": "terminal_proof",
           "named": true
         },
         {
@@ -9859,6 +9955,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -9868,6 +9968,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "non_terminal_proof",
           "named": true
         },
         {
@@ -9891,11 +9995,7 @@
           "named": true
         },
         {
-          "type": "proof",
-          "named": true
-        },
-        {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -9936,6 +10036,10 @@
         },
         {
           "type": "subexpression",
+          "named": true
+        },
+        {
+          "type": "terminal_proof",
           "named": true
         },
         {
@@ -10027,7 +10131,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -10067,7 +10171,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -10221,7 +10325,7 @@
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           },
           {
@@ -10257,7 +10361,7 @@
             "named": true
           },
           {
-            "type": "proof_step_id",
+            "type": "proof_step_ref",
             "named": true
           },
           {
@@ -10518,6 +10622,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -10562,7 +10670,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -10697,6 +10805,10 @@
           "named": true
         },
         {
+          "type": "identifier_ref",
+          "named": true
+        },
+        {
           "type": "if_then_else",
           "named": true
         },
@@ -10729,7 +10841,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -10891,7 +11003,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -10927,7 +11039,7 @@
           "named": true
         },
         {
-          "type": "proof_step_id",
+          "type": "proof_step_ref",
           "named": true
         },
         {
@@ -11091,6 +11203,10 @@
     "named": false
   },
   {
+    "type": "<",
+    "named": false
+  },
+  {
     "type": "<-",
     "named": false
   },
@@ -11128,6 +11244,10 @@
   },
   {
     "type": "=|",
+    "named": false
+  },
+  {
+    "type": ">",
     "named": false
   },
   {
@@ -11667,10 +11787,6 @@
     "named": true
   },
   {
-    "type": "begin_proof_step_token",
-    "named": true
-  },
-  {
     "type": "comment",
     "named": true
   },
@@ -11707,7 +11823,7 @@
     "named": true
   },
   {
-    "type": "lt",
+    "type": "identifier_ref",
     "named": true
   },
   {
@@ -11739,6 +11855,10 @@
     "named": true
   },
   {
+    "type": "name",
+    "named": true
+  },
+  {
     "type": "negative_dot",
     "named": true
   },
@@ -11764,10 +11884,6 @@
   },
   {
     "type": "prime",
-    "named": true
-  },
-  {
-    "type": "proof_step_id",
     "named": true
   },
   {

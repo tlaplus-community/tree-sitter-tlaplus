@@ -12,7 +12,7 @@ op == SUBSET x
   (unit (operator_definition
     (identifier) (def_eq)
     (bound_prefix_op
-      (powerset) (identifier)
+      (powerset) (identifier_ref)
     )
   ))
 (double_line)))
