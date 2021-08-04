@@ -1081,7 +1081,7 @@ module.exports = grammar({
       alias(token.immediate(/\d+|\+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]*/), $.name),
-      token.immediate(/\.*/)
+      repeat(token.immediate('.'))
     )),
 
     // Used when referring to a prior proof step

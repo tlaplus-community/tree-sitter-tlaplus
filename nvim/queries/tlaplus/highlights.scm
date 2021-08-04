@@ -59,6 +59,15 @@
   "WITNESS"
 ] @keyword
 
+[
+  (forall)
+  (exists)
+  (temporal_forall)
+  (temporal_exists)
+  (set_in)
+  (def_eq)
+] @keyword.function
+
 ; Literals
 (number) @number
 (string) @string
@@ -84,6 +93,10 @@
 (prev_func_val) @punctuation.special
 (bullet_conj) @punctuation.special
 (bullet_disj) @punctuation.special
+(proof_step_id (level) @number)
+(proof_step_id (name) @symbol)
+(proof_step_ref (level) @number)
+(proof_step_ref (name) @symbol)
 
 ; Delimiters
 [
@@ -101,5 +114,8 @@
 [
   ","
   ":"
+  "<"
+  ">"
+  "."
 ] @punctuation.delimiter
 

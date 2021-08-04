@@ -6782,10 +6782,13 @@
             "value": "name"
           },
           {
-            "type": "IMMEDIATE_TOKEN",
+            "type": "REPEAT",
             "content": {
-              "type": "PATTERN",
-              "value": "\\.*"
+              "type": "IMMEDIATE_TOKEN",
+              "content": {
+                "type": "STRING",
+                "value": "."
+              }
             }
           }
         ]
