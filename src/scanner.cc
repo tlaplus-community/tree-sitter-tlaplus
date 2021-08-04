@@ -413,7 +413,7 @@ namespace {
         if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
         END_LEX_STATE();
       case LexState::LT:
-        proof_step_id_level.push_back(static_cast<char>(lookahead));
+        proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
         if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
@@ -627,7 +627,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_NUMBER:
         if (is_digit(lookahead)) {
-          proof_step_id_level.push_back(static_cast<char>(lookahead));
+          proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
           ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         }
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
@@ -1104,6 +1104,7 @@ namespace {
     ) {
       if (valid_symbols[BEGIN_PROOF_STEP]) {
         lexer->result_symbol = BEGIN_PROOF_STEP;
+        /*
         if ('*' == proof_step_id_level.at(0)) {
           printf("LEVEL *\n");
         } else if ('+' == proof_step_id_level.at(0)) {
@@ -1112,6 +1113,7 @@ namespace {
           int level = std::atoi(proof_step_id_level.data());
           printf("LEVEL %d\n", level);
         }
+        */
         return true;
       } else {
         return handle_right_delimiter_token(lexer, valid_symbols);
