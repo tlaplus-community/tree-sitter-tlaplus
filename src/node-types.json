@@ -5922,6 +5922,11 @@
     "fields": {}
   },
   {
+    "type": "lt",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "maps_to",
     "named": true,
     "fields": {}
@@ -7373,6 +7378,44 @@
         },
         {
           "type": "witness_proof_step",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "proof_step_id",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "level",
+          "named": true
+        },
+        {
+          "type": "name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "proof_step_ref",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "level",
+          "named": true
+        },
+        {
+          "type": "name",
           "named": true
         }
       ]
@@ -11160,6 +11203,10 @@
     "named": false
   },
   {
+    "type": "<",
+    "named": false
+  },
+  {
     "type": "<-",
     "named": false
   },
@@ -11197,6 +11244,10 @@
   },
   {
     "type": "=|",
+    "named": false
+  },
+  {
+    "type": ">",
     "named": false
   },
   {
@@ -11776,10 +11827,6 @@
     "named": true
   },
   {
-    "type": "lt",
-    "named": true
-  },
-  {
     "type": "map_from",
     "named": true
   },
@@ -11808,6 +11855,10 @@
     "named": true
   },
   {
+    "type": "name",
+    "named": true
+  },
+  {
     "type": "negative_dot",
     "named": true
   },
@@ -11833,14 +11884,6 @@
   },
   {
     "type": "prime",
-    "named": true
-  },
-  {
-    "type": "proof_step_id",
-    "named": true
-  },
-  {
-    "type": "proof_step_ref",
     "named": true
   },
   {

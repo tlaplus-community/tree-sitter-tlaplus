@@ -10,7 +10,7 @@ op == <1>a
 
 (source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
-    (identifier) (def_eq) (proof_step_ref)
+    (identifier) (def_eq) (proof_step_ref (level) (name))
   ))
 (double_line)))
 
@@ -133,14 +133,14 @@ PROOF
       (bound_op (identifier_ref) (identifier_ref))
     )
     (non_terminal_proof
-      (proof_step (proof_step_id)
+      (proof_step (proof_step_id (level) (name))
         (suffices_proof_step
           (bound_infix_op (bound_op (identifier_ref) (number)) (land) (bound_op (identifier_ref) (number)))
           (terminal_proof (use_body (use_body_def (identifier_ref))))
         )
       )
-      (qed_step (proof_step_id)
-        (terminal_proof (use_body (use_body_expr (proof_step_ref))))
+      (qed_step (proof_step_id (level) (name))
+        (terminal_proof (use_body (use_body_expr (proof_step_ref (level) (name)))))
       )
     )
   ))

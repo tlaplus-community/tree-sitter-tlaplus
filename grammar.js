@@ -80,10 +80,25 @@ module.exports = grammar({
     $.comment,
     $.block_comment
   ],
+  
+  // Prefix, infix, and postfix operator precedence categories, defined
+  // on p271 of Specifying Systems. Precedences defined in this way are
+  // defined only in relation to each other, not to every other rule.
+  // See https://github.com/tree-sitter/tree-sitter/pull/939
+  precedences: $ => [
+    [
+      '17-17',  '16-16',  '15-15',  '14-14',  '13-13',  '12-12',  '11-11',
+      '10-10',  '9-9',    '8-8',    '7-7',    '6-6',    '5-5',    '4-4',
+      '3-3',    '2-2',    '1-1',    '0-0'
+    ],
+  ],
 
   conflicts: $ => [
     // Lookahead to disambiguate '-'  •  '('  …
     [$.minus, $.negative],
+    // Lookahead to disambiguate lnot • '('  …
+    // Could be nonfix prefix op or prefix op applied to expr in parentheses.
+    [$.bound_prefix_op, $.standalone_prefix_op_symbol],
     // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
     // Could be SF_op(x)(e) or could be SF_id(e)
     [$.bound_op, $._subscript_expr],
@@ -114,7 +129,19 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
+    // Lookahead to disambiguate proof_step_id  _expr  •  '<'  …
+    // Could be lt operator or start of another proof step
     // Can be fixed by marking proof start/end with external scanner
+    [$.suffices_proof_step, $.bound_infix_op],
+    [$.case_proof_step, $.bound_infix_op],
+    [$.have_proof_step, $.bound_infix_op],
+    [$.witness_proof_step, $.bound_infix_op],
+    [$.pick_proof_step, $.bound_infix_op],
+    [$.assume_prove, $.bound_infix_op],
+    [$.use_body_expr, $.bound_infix_op],
+    [$._op_or_expr, $.bound_infix_op],
+    [$.quantifier_bound, $.bound_infix_op],
+    // See https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/24
     [$.qed_step],
     [$.suffices_proof_step],
     [$.case_proof_step],
@@ -255,7 +282,7 @@ module.exports = grammar({
     // max(a, b) == IF a > b THEN a ELSE b
     // a \prec b == a.val < b.val
     // x ≜ 〈 1, 2, 3, 4, 5 〉
-    operator_definition: $ => seq(
+    operator_definition: $ => prec('0-0', seq(
       choice(
         arity0OrN($.identifier, $._id_or_op_declaration),
         seq($.standalone_prefix_op_symbol, $.identifier),
@@ -264,15 +291,15 @@ module.exports = grammar({
       ),
       $.def_eq,
       $._expr
-    ),
+    )),
 
     // f[x \in Nat] == 2*x
-    function_definition: $ => seq(
+    function_definition: $ => prec('0-0', seq(
       $.identifier,
       '[', commaList1($.quantifier_bound), ']',
       $.def_eq,
       $._expr
-    ),
+    )),
 
     // x, y, z \in S
     // <<x, y, z>> \in S \X T \X P
@@ -378,9 +405,9 @@ module.exports = grammar({
     ),
 
     // LAMBDA a, b, c : a + b * c
-    lambda: $ => seq(
+    lambda: $ => prec('0-0', seq(
       'LAMBDA', commaList1($.identifier), ':', $._expr
-    ),
+    )),
 
     // M == INSTANCE ModuleName
     module_definition: $ => seq(
@@ -495,11 +522,11 @@ module.exports = grammar({
 
     // Label for less-fragile addressing of subexpressions
     // lbl(a, b) :: e
-    label: $ => seq(
+    label: $ => prec('0-0', seq(
       arity0OrN($.identifier, $.identifier),
       $.label_as,
       $._expr
-    ),
+    )),
 
     // Address subexpressions through syntax tree navigation
     // op!+!<<!@
@@ -512,31 +539,31 @@ module.exports = grammar({
     parentheses: $ => seq('(', $._expr, ')'),
 
     // \A x \in Nat : P(x)
-    bounded_quantification: $ => seq(
+    bounded_quantification: $ => prec('0-0', seq(
       field('quantifier', choice($.forall, $.exists)),
       field('bound', commaList1($.quantifier_bound)),
       ':',
       field('expression', $._expr)
-    ),
+    )),
 
     // \EE x : P(x)
-    unbounded_quantification: $ => seq(
+    unbounded_quantification: $ => prec('0-0', seq(
       field('quantifier', choice(
         $.forall, $.exists, $.temporal_forall, $.temporal_exists
       )),
       field('identifier', commaList1($.identifier)),
       ':',
       field('expression', $._expr)
-    ),
+    )),
 
     // CHOOSE r \in Real : r >= 0
-    choose: $ => seq(
+    choose: $ => prec('0-0', seq(
       'CHOOSE',
       choice($.identifier, $.tuple_of_identifiers),
       optional(seq($.set_in, $._expr)),
       ':',
       $._expr
-    ),
+    )),
 
     // {1, 2, 3, 4, 5}
     finite_set_literal: $ => seq('{', commaList($._expr), '}'),
@@ -562,7 +589,7 @@ module.exports = grammar({
     ),
 
     // f[5]
-    function_evaluation: $ => prec(16, seq(
+    function_evaluation: $ => prec('16-16', seq(
       $._expr, '[', commaList1($._expr), ']'
     )),
 
@@ -587,7 +614,7 @@ module.exports = grammar({
     ),
 
     // r.val
-    record_value: $ => prec.left(17, seq($._expr, '.', $.identifier)),
+    record_value: $ => prec.left('17-17', seq($._expr, '.', $.identifier)),
 
     // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
     except: $ => seq(
@@ -633,11 +660,11 @@ module.exports = grammar({
     ),
 
     // IF a > b THEN a ELSE b
-    if_then_else: $ => seq(
+    if_then_else: $ => prec('0-0', seq(
       'IF', field('if', $._expr),
       'THEN', field('then', $._expr),
       'ELSE', field('else', $._expr)
-    ),
+    )),
 
     // CASE x = 1 -> "1" [] x = 2 -> "2" [] OTHER -> "3"
     // This exhibits dangling else parsing ambiguity; consider
@@ -653,13 +680,13 @@ module.exports = grammar({
     )),
 
     // p -> val
-    case_arm: $ => seq($._expr, $.case_arrow, $._expr),
+    case_arm: $ => prec('0-0', seq($._expr, $.case_arrow, $._expr)),
 
     // OTHER -> val
-    other_arm: $ => seq('OTHER', $.case_arrow, $._expr),
+    other_arm: $ => prec('0-0', seq('OTHER', $.case_arrow, $._expr)),
 
     // LET x == 5 IN 2*x
-    let_in: $ => seq(
+    let_in: $ => prec('0-0', seq(
       'LET',
       field('definitions', repeat1(choice(
         $.operator_definition,
@@ -669,7 +696,7 @@ module.exports = grammar({
       ))),
       'IN',
       field('expression', $._expr)
-    ),
+    )),
 
     // This makes use of the external scanner.
     // /\ x
@@ -699,7 +726,7 @@ module.exports = grammar({
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
     /************************************************************************/
 
-    // Prefix operator symbols and their unicode equivalents
+    // Prefix operator symbols and their unicode equivalents.
     lnot:             $ => choice('\\lnot', '\\neg', '~', '¬'),
     union:            $ => 'UNION',
     powerset:         $ => 'SUBSET',
@@ -711,30 +738,27 @@ module.exports = grammar({
     always:           $ => choice('[]', '□'),
     eventually:       $ => choice('<>', '⋄'),
 
-    _prefix_op_symbol_except_negative: $ => choice(
-      $.lnot,     $.union,      $.powerset,   $.domain,
-      $.enabled,  $.unchanged,  $.always,     $.eventually
-    ),
-
-    // Use rule when using ops as higher-order constructs
+    // Use rule when using ops as higher-order constructs.
     // Negative is disambiguated from minus with a '.'
     standalone_prefix_op_symbol: $ => choice(
-      $._prefix_op_symbol_except_negative,
+      $.lnot,     $.union,      $.powerset,   $.domain,
+      $.enabled,  $.unchanged,  $.always,     $.eventually,
       $.negative_dot
     ),
 
-    // All bound prefix operators
-    // Prefix operators are given highest value in precedence range
+    // All bound prefix operators.
+    // Prefix operators are given highest value in precedence range.
+    // Precedence defined on p271 of Specifying Systems.
     bound_prefix_op: $ => choice(
-      prefixOpPrec(4,   $._expr,  $.lnot),
-      prefixOpPrec(8,   $._expr, choice($.union, $.powerset)),
-      prefixOpPrec(9,   $._expr, $.domain),
-      prefixOpPrec(12,  $._expr, $.negative),
-      prefixOpPrec(15,  $._expr, choice(
+      prefixOpPrec('4-4',   $._expr,  $.lnot),
+      prefixOpPrec('8-8',   $._expr, choice($.union, $.powerset)),
+      prefixOpPrec('9-9',   $._expr, $.domain),
+      prefixOpPrec('12-12', $._expr, $.negative),
+      prefixOpPrec('15-15', $._expr, choice(
         $.enabled, $.unchanged, $.always, $.eventually))
     ),
 
-    // Infix operator symbols and their unicode equivalents
+    // Infix operator symbols and their unicode equivalents.
     implies:          $ => choice('=>', '⟹'),
     plus_arrow:       $ => choice('-+->', '⇸'),
     equiv:            $ => choice('\\equiv', '≡'),
@@ -823,7 +847,7 @@ module.exports = grammar({
     pow:              $ => '^',
     powpow:           $ => '^^',
 
-    // All infix operator symbols
+    // All infix operator symbols.
     infix_op_symbol: $ => choice(
       $.implies,      $.plus_arrow,     $.equiv,        $.iff,
       $.leads_to,     $.land,           $.lor,          $.assign,
@@ -848,18 +872,18 @@ module.exports = grammar({
       $.powpow,
     ),
 
-    // Infix operators are given highest value in precedence range for parsing
-    // Infix operators are all marked as left-associative for parsing purposes
+    // Infix operators are given highest value in precedence range for parsing.
+    // Infix operators are all marked as left-associative for parsing purposes.
     // Operator precedence range & associativity conflicts must be enforced
-    // on semantic level
+    // on semantic level. Precedence defined on p271 of Specifying Systems.
     bound_infix_op: $ => choice(
-      infixOpPrec(1, $._expr, choice(
-        $.implies, $.plus_arrow)),
-      infixOpPrec(2, $._expr, choice(
-        $.equiv, $.iff, $.leads_to)),
-      infixOpPrec(3, $._expr, choice(
+      infixOpPrec('1-1',  $._expr,
+        $.implies),
+      infixOpPrec('2-2',    $._expr, choice(
+        $.plus_arrow, $.equiv, $.iff, $.leads_to)),
+      infixOpPrec('3-3',    $._expr, choice(
         $.land, $.lor)),
-      infixOpPrec(5, $._expr, choice(
+      infixOpPrec('5-5',    $._expr, choice(
         $.assign,     $.bnf_rule, $.eq,       $.neq,      $.lt,
         $.gt,         $.leq,      $.geq,      $.approx,   $.rs_ttile,
         $.rd_ttile,   $.ls_ttile, $.ld_ttile, $.asymp,    $.cong,
@@ -867,43 +891,44 @@ module.exports = grammar({
         $.prec,       $.succ,     $.preceq,   $.succeq,   $.propto,
         $.sim,        $.simeq,    $.sqsubset, $.sqsupset, $.sqsubseteq,
         $.sqsupseteq, $.subset,   $.supset,   $.subseteq, $.supseteq)),
-      infixOpPrec(6, $._expr,
+      infixOpPrec('6-6',    $._expr,
         $.compose),
-      infixOpPrec(7, $._expr, choice(
+      infixOpPrec('7-7',    $._expr, choice(
         $.map_to, $.map_from)),
-      infixOpPrec(8, $._expr, choice(
+      infixOpPrec('8-8',    $._expr, choice(
         $.setminus, $.cap, $.cup)),
-      infixOpPrec(9, $._expr, choice(
+      infixOpPrec('9-9',    $._expr, choice(
         $.dots_2, $.dots_3)),
-      infixOpPrec(10, $._expr, choice(
+      infixOpPrec('10-10',  $._expr, choice(
         $.plus, $.plusplus, $.oplus)),
-      infixOpPrec(11, $._expr, choice(
+      infixOpPrec('11-11',  $._expr, choice(
         $.ominus,   $.mod,    $.modmod,     $.vert,
         $.vertvert, $.minus,  $.minusminus)),
-      infixOpPrec(13, $._expr, choice(
+      infixOpPrec('13-13',  $._expr, choice(
         $.amp,      $.ampamp, $.odot,     $.oslash,     $.otimes,
         $.mul,      $.mulmul, $.slash,    $.slashslash, $.bigcirc,
         $.bullet,   $.div,    $.circ,     $.star,       $.excl,
         $.hashhash, $.dol,    $.doldol,   $.qq,         $.sqcap,
         $.sqcup,    $.uplus,  $.times)),
-      infixOpPrec(14, $._expr, choice(
+      infixOpPrec('14-14',  $._expr, choice(
         $.wr, $.cdot, $.pow, $.powpow)),
     ),
 
-    // Postfix operator symbols and their unicode equivalents
+    // Postfix operator symbols and their unicode equivalents.
     sup_plus:         $ => choice('^+', '⁺'),
     asterisk:         $ => '^*',
     sup_hash:         $ => '^#',
     prime:            $ => '\'',
 
-    // All postfix operator symbols
+    // All postfix operator symbols.
     postfix_op_symbol: $ => choice(
       $.sup_plus, $.asterisk, $.sup_hash, $.prime
     ),
 
-    // All bound postfix operators
+    // All bound postfix operators.
+    // Precedence defined on p271 of Specifying Systems.
     bound_postfix_op: $ => choice(
-      postfixOpPrec(15, $._expr, $.postfix_op_symbol)
+      postfixOpPrec('15-15', $._expr, $.postfix_op_symbol)
     ),
 
     /************************************************************************/
@@ -1057,9 +1082,22 @@ module.exports = grammar({
 
     // <+>foo22..
     // Used when writing another proof step
-    proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
+    // proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
+    proof_step_id: $ => prec.dynamic(1, seq(
+      '<',
+      alias(token.immediate(/\d+|\+|\*/), $.level),
+      token.immediate('>'),
+      alias(token.immediate(/[\w|\d]*/), $.name),
+      token.immediate(/\.*/)
+    )),
 
     // Used when referring to a prior proof step
-    proof_step_ref: $ => /<(\d+|\*)>[\w|\d]+/,
+    // proof_step_ref: $ => /<(\d+|\*)>[\w|\d]+/,
+    proof_step_ref: $ => prec.dynamic(1, seq(
+      '<',
+      alias(token.immediate(/\d+|\*/), $.level),
+      token.immediate('>'),
+      alias(token.immediate(/[\w|\d]+/), $.name),
+    )),
   }
 });
