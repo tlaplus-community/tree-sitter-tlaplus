@@ -1,6 +1,7 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <cstring>
+#include <climits>
 #include <vector>
 
 namespace {
@@ -83,7 +84,7 @@ namespace {
   }
 
   /**
-   * Checks wwhether the given codepoint is an ASCII digit, 0-9.
+   * Checks whether the given codepoint is an ASCII digit, 0-9.
    *
    * @param codepoint The codepoint to check.
    * @return Whether the given codepoint is a digit.
@@ -92,11 +93,23 @@ namespace {
     return (48 <= codepoint && codepoint <= 57);
   }
 
+  /**
+   * Checks whether the given codepoint is an ASCII letter, a-z or A-Z.
+   *
+   * @param codepoint The codepoint to check.
+   * @return Whether the given codepoint is a letter.
+   **/
   bool is_letter(int32_t const codepoint) {
     return (65 <= codepoint && codepoint <= 90) // A-Z
       || (97 <= codepoint && codepoint <= 122); // a-z
   }
 
+  /**
+   * Checks whether the given codepoint is an underscore, _.
+   *
+   * @param codepoint The codepoint to check.
+   * @return Whether the given codepoint is an underscore.
+   **/
   bool is_underscore(int32_t const codepoint) {
     return 95 == codepoint;
   }
@@ -265,6 +278,12 @@ namespace {
 
   using column_index = int16_t;
   
+  /**
+   * Macro; marks the end of the token, then advances the lexer and
+   * changes the lexer state to the given value.
+   * 
+   * @param state_value The new lexer state.
+   **/
   #define MARK_THEN_ADVANCE(state_value)            \
     {                                               \
       lexer->mark_end(lexer);                       \
@@ -272,16 +291,27 @@ namespace {
       ADVANCE(state_value);                         \
     }
 
+  /**
+   * Macro; marks the given lexeme as accepted.
+   * 
+   * @param lexeme The lexeme to mark as accepted.
+   **/
   #define ACCEPT_LEXEME(lexeme)       \
     {                                 \
       result_lexeme = lexeme;         \
     }
   
+  /**
+   * Macro; ends a lexer state by returning any accepted lexeme.
+   **/
   #define END_LEX_STATE()   \
     {                       \
       return result_lexeme; \
     }
   
+  /**
+   * Lexemes recognized by this lexer.
+   **/
   enum class Lexeme {
     FORWARD_SLASH,
     BACKWARD_SLASH,
@@ -323,6 +353,9 @@ namespace {
     END_OF_FILE
   };
 
+  /**
+   * Possible states for the lexer to enter.
+   **/
   enum class LexState {
     CONSUME_LEADING_SPACE,
     FORWARD_SLASH,
@@ -362,6 +395,16 @@ namespace {
     END_OF_FILE
   };
   
+  /**
+   * Looks ahead to identify the next lexeme. Consumes all leading
+   * whitespace. Out parameters include column of first non-whitespace
+   * codepoint and the level of the proof step ID lexeme if encountered.
+   *
+   * @param lexer The tree-sitter lexing control structure.
+   * @param lexeme_start_col The starting column of the first lexeme. 
+   * @param proof_step_id_level The level of the proof step ID.
+   * @return The lexeme encountered.
+   **/
   Lexeme lex_lookahead(
     TSLexer* const lexer,
     column_index& lexeme_start_col,
@@ -666,6 +709,9 @@ namespace {
     }
   }
   
+  /**
+   * Tokens recognized by this scanner.
+   **/
   enum class Token {
     LAND,
     LOR,
@@ -676,6 +722,12 @@ namespace {
     OTHER
   };
 
+  /**
+   * Maps the given lexeme to a token.
+   *
+   * @param lexeme The lexeme to map to a token.
+   * @return The token corresponding to the given lexeme.
+   **/
   Token tokenize_lexeme(Lexeme lexeme) {
     switch (lexeme) {
       case Lexeme::FORWARD_SLASH: return Token::OTHER;
@@ -720,11 +772,17 @@ namespace {
     }
   }
     
+  /**
+   * Possible types of junction list.
+   **/
   enum class JunctType {
     CONJUNCTION,
     DISJUNCTION
   };
 
+  /**
+   * Represents a junction list.
+   **/
   struct JunctList {
     JunctType type;
     column_index alignment_column;
@@ -936,7 +994,7 @@ namespace {
      *    -> this is an item of the current jlist; emit NEWLINE token
      * 4. The junct is equal to the cpos of the current jlist, and is
      *    a DIFFERENT junct type (conjunction vs. disjunction)
-     *    -> 
+     *    -> this is an infix operator that also ends the current list
      * 5. The junct is prior to the cpos of the current jlist
      *    -> this ends the current jlist, emit DEDENT token
      * 
@@ -1070,6 +1128,10 @@ namespace {
      *    /\ D
      * 
      * This should simply be detected as an error at the semantic level.
+     *
+     * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
+     * @return Whether a jlist-relevant token should be emitted.
      */
     bool handle_right_delimiter_token(
       TSLexer* const lexer,
@@ -1088,6 +1150,10 @@ namespace {
      * 2. End-of-module token (====)
      * 3. End-of-file (this shouldn't happen but we will end the jlist to
      *    improve error reporting since the end-of-module token is missing)
+     *
+     * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
+     * @return Whether a jlist-relevant token should be emitted.
      */
     bool handle_terminator_token(
       TSLexer* const lexer,
@@ -1097,9 +1163,30 @@ namespace {
         && emit_dedent(lexer);
     }
     
+    /**
+     * Handle encountering a new proof step ID. This probably marks the
+     * beginning of a new proof step, but could also be a reference to a
+     * prior proof step as part of an expression. There are also various
+     * interactions between the proof step ID and jlists. Cases:
+     * 1. A proof step token is expected
+     *    -> This is a new proof step, emit BEGIN_PROOF_STEP token
+     * 2. A proof step token is *not* expected, and a DEDENT token *is*
+     *    -> This is the beginning of a proof step but there is an open
+     *       jlist which must first be closed; emit a DEDENT token.
+     * 3. A proof step token is not expected, and neither is a DEDENT
+     *    -> This is a proof step reference, so treat as other token.
+     *       P => <1>b
+     *           ^ tree-sitter will only look for INDENT here
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
+     * @param next The column position of the encountered token.
+     * @return Whether a token should be emitted.
+     **/
     bool handle_proof_step_id_token(
       TSLexer* const lexer,
       const bool* const valid_symbols,
+      column_index next,
       std::vector<char>& proof_step_id_level
     ) {
       if (valid_symbols[BEGIN_PROOF_STEP]) {
@@ -1116,7 +1203,11 @@ namespace {
         */
         return true;
       } else {
-        return handle_right_delimiter_token(lexer, valid_symbols);
+        if (valid_symbols[DEDENT]) {
+          return handle_terminator_token(lexer, valid_symbols);
+        } else {
+          return handle_other_token(lexer, valid_symbols, next);
+        }
       }
     }
 
@@ -1136,7 +1227,7 @@ namespace {
      *   so emit no token.
      * 
      * @param lexer The tree-sitter lexing control structure.
-     * @param next The column position of the token encountered.
+     * @param next The column position of the encountered token.
      * @return Whether a jlist-relevant token should be emitted.
      */
     bool handle_other_token(
@@ -1193,7 +1284,7 @@ namespace {
           case Token::TERMINATOR:
             return handle_terminator_token(lexer, valid_symbols);
           case Token::PROOF_STEP_ID:
-            return handle_proof_step_id_token(lexer, valid_symbols, proof_step_id_level);
+            return handle_proof_step_id_token(lexer, valid_symbols, col, proof_step_id_level);
           case Token::OTHER:
             return handle_other_token(lexer, valid_symbols, col);
           default:
