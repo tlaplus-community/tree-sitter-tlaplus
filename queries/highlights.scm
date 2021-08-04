@@ -68,18 +68,19 @@
 ; Comments
 (comment) @comment
 (block_comment) @comment
-(single_line) @comment
-(double_line) @comment
+(unit (single_line) @comment)
 (extramodular_text) @text
 
 ; Constants, variables, and operators
 (module name: (identifier) @namespace)
 (extends (identifier) @namespace)
-(variable_declaration (identifier) @variable.builtin)
+(instance (identifier) @namespace)
+(module_definition (identifier) @namespace)
+(variable_declaration (identifier) @variable)
 (constant_declaration (identifier) @constant)
-(bound_prefix_op symbol: (_) @keyword.operator)
-(bound_infix_op symbol: (_) @keyword.operator)
-(bound_postfix_op symbol: (_) @keyword.operator)
+(bound_prefix_op symbol: (_) @operator)
+(bound_infix_op symbol: (_) @operator)
+(bound_postfix_op symbol: (_) @operator)
 (prev_func_val) @punctuation.special
 (bullet_conj) @punctuation.special
 (bullet_disj) @punctuation.special
@@ -99,5 +100,6 @@
 ] @punctuation.bracket
 [
   ","
+  ":"
 ] @punctuation.delimiter
 
