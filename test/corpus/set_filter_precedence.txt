@@ -13,10 +13,10 @@ def == {x \in S : x \in T}
     (identifier) (def_eq)
     (set_filter
       (single_quantifier_bound
-        (identifier) (set_in) (identifier)
+        (identifier) (set_in) (identifier_ref)
       )
       (bound_infix_op
-        (identifier) (in) (identifier)
+        (identifier_ref) (in) (identifier_ref)
       )
     )
   ))

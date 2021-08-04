@@ -340,7 +340,7 @@ module.exports = grammar({
     // Subexpression component referencing a previously-defined symbol
     // Can either bind parameters to the op or leave them unbound
     subexpr_component: $ => choice(
-      $.identifier,
+      alias($.identifier, $.identifier_ref),
       $.bound_op,
       $.bound_nonfix_op,
       $.standalone_prefix_op_symbol,
@@ -349,7 +349,7 @@ module.exports = grammar({
     ),
 
     // f(a, op, b)
-    bound_op: $ => arity1OrN($.identifier, $._op_or_expr),
+    bound_op: $ => arity1OrN(alias($.identifier, $.identifier_ref), $._op_or_expr),
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
@@ -403,7 +403,7 @@ module.exports = grammar({
       $.label,
       $.subexpression,
       $.proof_step_ref,
-      $.identifier,
+      alias($.identifier, $.identifier_ref),
       $.bound_op,
       $.bound_nonfix_op,
       $.prefixed_op,
@@ -438,7 +438,7 @@ module.exports = grammar({
     // Expressions allowed in subscripts; must be enclosed in delimiters
     // Used in WF_expr, <><<f>>_expr, etc.
     _subscript_expr: $ => choice(
-      $.identifier,
+      alias($.identifier, $.identifier_ref),
       $.bound_op,
       $.bound_nonfix_op,
       $.prefixed_op,
@@ -460,7 +460,7 @@ module.exports = grammar({
     prefixed_op: $ => seq(
       field('prefix', $.subexpr_prefix),
       field('op', choice(
-        $.identifier,
+        alias($.identifier, $.identifier_ref),
         $.bound_op,
         $.bound_nonfix_op
       ))

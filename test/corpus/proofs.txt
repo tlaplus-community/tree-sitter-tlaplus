@@ -10,7 +10,7 @@ op == <1>a
 
 (source_file (module (single_line) (identifier) (single_line)
   (unit (operator_definition
-    (identifier) (def_eq) (proof_step_id)
+    (identifier) (def_eq) (proof_step_ref)
   ))
 (double_line)))
 
@@ -29,7 +29,7 @@ OBVIOUS
   (unit (theorem
     (identifier) (def_eq)
     (bound_infix_op (bound_infix_op (number) (plus) (number)) (eq) (number))
-    (proof (terminal_proof))
+    (terminal_proof)
   ))
 (double_line)))
 
@@ -55,12 +55,12 @@ PROOF OMITTED
       (new (identifier) (set_in) (primitive_value_set))
       (new (identifier) (set_in) (primitive_value_set))
       (bound_infix_op
-        (bound_infix_op (identifier) (plus) (identifier))
+        (bound_infix_op (identifier_ref) (plus) (identifier_ref))
         (eq)
-        (bound_infix_op (identifier) (plus) (identifier))
+        (bound_infix_op (identifier_ref) (plus) (identifier_ref))
       )
     )
-    (proof (terminal_proof))
+    (terminal_proof)
   ))
 (double_line)))
 
@@ -89,13 +89,13 @@ PROOF BY DEF >
       (new (identifier) (set_in) (primitive_value_set))
       (new (identifier) (set_in) (primitive_value_set))
       (new (identifier) (set_in) (primitive_value_set))
-      (bound_infix_op (identifier) (gt) (identifier))
-      (bound_infix_op (identifier) (gt) (identifier))
-      (bound_infix_op (identifier) (gt) (identifier))
+      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
+      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
+      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
     )
-    (proof (terminal_proof (use_body
+    (terminal_proof (use_body
       (use_body_def (infix_op_symbol (gt)))
-    )))
+    ))
   ))
 (double_line)))
 
@@ -122,29 +122,25 @@ PROOF
     (identifier) (identifier) (def_eq)
     (bounded_quantification
       (exists)
-      (quantifier_bound (identifier) (set_in) (bound_infix_op (number) (dots_2) (identifier)))
-      (bound_infix_op (bound_infix_op (identifier) (mul) (identifier)) (eq) (identifier))
+      (quantifier_bound (identifier) (set_in) (bound_infix_op (number) (dots_2) (identifier_ref)))
+      (bound_infix_op (bound_infix_op (identifier_ref) (mul) (identifier_ref)) (eq) (identifier_ref))
     )
   ))
   (unit (theorem
     (identifier) (def_eq)
     (assume_prove
       (new (identifier) (set_in) (finite_set_literal (number) (number)))
-      (bound_op (identifier) (identifier))
+      (bound_op (identifier_ref) (identifier_ref))
     )
-    (proof
-      (non_terminal_proof
-        (proof_step
-          (begin_proof_step_token)
-          (suffices_proof_step
-            (bound_infix_op (bound_op (identifier) (number)) (land) (bound_op (identifier) (number)))
-            (proof (terminal_proof (use_body (use_body_def (identifier)))))
-          )
+    (non_terminal_proof
+      (proof_step (proof_step_id)
+        (suffices_proof_step
+          (bound_infix_op (bound_op (identifier_ref) (number)) (land) (bound_op (identifier_ref) (number)))
+          (terminal_proof (use_body (use_body_def (identifier_ref))))
         )
-        (qed_step
-          (begin_proof_step_token)
-          (proof (terminal_proof (use_body (use_body_expr (proof_step_id)))))
-        )
+      )
+      (qed_step (proof_step_id)
+        (terminal_proof (use_body (use_body_expr (proof_step_ref))))
       )
     )
   ))
