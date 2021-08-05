@@ -124,3 +124,271 @@ PROOF <1>a QED
     )
   ))
 (double_line)))
+
+===============================|||
+Proof with Variety of Step Types
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+<1>a. op == 1
+<1>b. DEFINE op2 == 2
+<1>c. HAVE 3
+<1>d. WITNESS 2, 3
+<1>e. TAKE a, b, c
+<1>f. 4
+<1>g. SUFFICES 5
+<1>h. CASE 6
+<1>i. PICK a, b, c : 7
+<1>j. HIDE 8
+<1>k. USE ONLY 9
+<1>l. INSTANCE M
+<1>m. QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (number))))
+      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (number))))
+      (proof_step (proof_step_id (level) (name)) (have_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (witness_proof_step (number) (number)))
+      (proof_step (proof_step_id (level) (name)) (take_proof_step (identifier) (identifier) (identifier)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (case_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (pick_proof_step (identifier) (identifier) (identifier) (number)))
+      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
+      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
+      (proof_step (proof_step_id (level) (name)) (instance (identifier)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+===============================|||
+Proof with Star Steps
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+<*> 1
+<0> 2
+<*> 3
+<0> 4
+<*> 5
+<0> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+===============================|||
+Proof with Plus Step
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+<+> 1
+<0> 2
+<*> 3
+<0> 4
+<*> 5
+<0> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+===============================|||
+Nested Proof
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+PROOF
+<*> 1
+<0> 2
+  <+> 3
+  <1> 4
+  <*> QED
+<0> 5
+<*> 6
+<0> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (qed_step (proof_step_id (level) (name)))
+      )))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+===============================|||
+Nested Proof Off QED
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+PROOF
+<*> 1
+  PROOF
+  <+> 2
+  <1> QED
+    PROOF
+    <*> 3
+      <1000> 4
+      <*> QED
+    <2> QED
+<0> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (qed_step (proof_step_id (level) (name)) (non_terminal_proof
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+            (qed_step (proof_step_id (level) (name)))
+          )))
+          (qed_step (proof_step_id (level) (name)))
+        ))
+      )))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+
+===============================|||
+Proof with Nested Terminal Proof
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+PROOF
+<*> 1
+  <+> 2
+  <1> QED
+    PROOF BY P
+<*> 3
+  <+> 4
+  <1> QED
+    OBVIOUS
+<*> 5
+  <+> 6
+  <1> QED
+    PROOF OMITTED
+<*> 7
+<0> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr (identifier_ref)))))
+      )))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (qed_step (proof_step_id (level) (name)) (terminal_proof))
+      )))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (qed_step (proof_step_id (level) (name)) (terminal_proof))
+      )))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+
+===============================|||
+Implicit Nested Proof Levels
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+<*> 1
+  <+> 2
+    <+> 3
+      <+> 4
+      <*> QED
+    <*> QED
+  <*> 5
+    <+> 6
+    <*> QED
+  <*> QED
+<*> 7
+<*> QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
+    (non_terminal_proof
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+            (qed_step (proof_step_id (level) (name)))
+          )))
+          (qed_step (proof_step_id (level) (name)))
+        )))
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+          (qed_step (proof_step_id (level) (name)))
+        )))
+        (qed_step (proof_step_id (level) (name)))
+      )))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (qed_step (proof_step_id (level) (name)))
+    )
+  ))
+(double_line)))
+

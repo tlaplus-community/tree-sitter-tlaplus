@@ -77,6 +77,8 @@ module.exports = grammar({
     $._begin_proof_step,
     $._proof_keyword,
     $._by_keyword,
+    $._obvious_keyword,
+    $._omitted_keyword,
     $._qed_keyword,
     $.error_sentinel
   ],
@@ -977,8 +979,8 @@ module.exports = grammar({
       optional(seq($._proof_keyword, 'PROOF')),
       choice(
         seq($._by_keyword, 'BY', optional('ONLY'), $.use_body),
-        'OBVIOUS',
-        'OMITTED'
+        seq($._obvious_keyword, 'OBVIOUS'),
+        seq($._omitted_keyword, 'OMITTED')
       )
     ),
 
@@ -993,15 +995,15 @@ module.exports = grammar({
     proof_step: $ => seq(
       $.proof_step_id,
       choice(
-        $.use_or_hide,
         $.definition_proof_step,
-        $.instance,
         $.have_proof_step,
         $.witness_proof_step,
         $.take_proof_step,
         $.suffices_proof_step,
         $.case_proof_step,
-        $.pick_proof_step
+        $.pick_proof_step,
+        $.use_or_hide,
+        $.instance
       )
     ),
 

@@ -6174,12 +6174,30 @@
               ]
             },
             {
-              "type": "STRING",
-              "value": "OBVIOUS"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_obvious_keyword"
+                },
+                {
+                  "type": "STRING",
+                  "value": "OBVIOUS"
+                }
+              ]
             },
             {
-              "type": "STRING",
-              "value": "OMITTED"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_omitted_keyword"
+                },
+                {
+                  "type": "STRING",
+                  "value": "OMITTED"
+                }
+              ]
             }
           ]
         }
@@ -6238,15 +6256,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "use_or_hide"
-            },
-            {
-              "type": "SYMBOL",
               "name": "definition_proof_step"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "instance"
             },
             {
               "type": "SYMBOL",
@@ -6271,6 +6281,14 @@
             {
               "type": "SYMBOL",
               "name": "pick_proof_step"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "use_or_hide"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "instance"
             }
           ]
         }
@@ -7026,6 +7044,14 @@
     {
       "type": "SYMBOL",
       "name": "_by_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_obvious_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_omitted_keyword"
     },
     {
       "type": "SYMBOL",
