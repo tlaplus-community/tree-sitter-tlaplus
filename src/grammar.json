@@ -6176,6 +6176,10 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "SYMBOL",
+          "name": "_begin_proof"
+        },
+        {
           "type": "CHOICE",
           "members": [
             {
@@ -6203,10 +6207,6 @@
     "proof_step": {
       "type": "SEQ",
       "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_begin_proof_step"
-        },
         {
           "type": "SYMBOL",
           "name": "proof_step_id"
@@ -6511,10 +6511,6 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_begin_proof_step"
-        },
-        {
-          "type": "SYMBOL",
           "name": "proof_step_id"
         },
         {
@@ -6747,8 +6743,15 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "STRING",
-            "value": "<"
+            "type": "SYMBOL",
+            "name": "_begin_proof_step"
+          },
+          {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "STRING",
+              "value": "<"
+            }
           },
           {
             "type": "ALIAS",
@@ -6901,18 +6904,6 @@
     ],
     [
       "subexpr_prefix"
-    ],
-    [
-      "qed_step"
-    ],
-    [
-      "suffices_proof_step"
-    ],
-    [
-      "case_proof_step"
-    ],
-    [
-      "pick_proof_step"
     ]
   ],
   "precedences": [
@@ -7011,6 +7002,10 @@
     {
       "type": "SYMBOL",
       "name": "_dedent"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_begin_proof"
     },
     {
       "type": "SYMBOL",

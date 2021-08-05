@@ -73,6 +73,7 @@ module.exports = grammar({
     $._indent,
     $._newline,
     $._dedent,
+    $._begin_proof,
     $._begin_proof_step
   ],
 
@@ -130,13 +131,6 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate nested proofs.
-    // Can be fixed by marking proof start/end with external scanner.
-    // See https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/24
-    [$.qed_step],
-    [$.suffices_proof_step],
-    [$.case_proof_step],
-    [$.pick_proof_step]
   ],
 
   rules: {
@@ -985,6 +979,7 @@ module.exports = grammar({
     ),
 
     non_terminal_proof: $ => seq(
+      $._begin_proof,
       optional('PROOF'),
       repeat($.proof_step),
       $.qed_step
@@ -992,7 +987,6 @@ module.exports = grammar({
 
     // A single step in a proof. Can be many things!
     proof_step: $ => seq(
-      $._begin_proof_step,
       $.proof_step_id,
       choice(
         $.use_or_hide,
@@ -1041,7 +1035,6 @@ module.exports = grammar({
 
     // <*> QED
     qed_step: $ => seq(
-      $._begin_proof_step,
       $.proof_step_id,
       'QED',
       optional($._proof)
@@ -1077,7 +1070,8 @@ module.exports = grammar({
     // Used when writing another proof step
     // proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
     proof_step_id: $ => prec.dynamic(1, seq(
-      '<',
+      $._begin_proof_step,
+      token.immediate('<'),
       alias(token.immediate(/\d+|\+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]*/), $.name),
