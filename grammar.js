@@ -74,7 +74,11 @@ module.exports = grammar({
     $._newline,
     $._dedent,
     $._begin_proof,
-    $._begin_proof_step
+    $._begin_proof_step,
+    $._proof_keyword,
+    $._by_keyword,
+    $._qed_keyword,
+    $.error_sentinel
   ],
 
   extras: $ => [
@@ -970,17 +974,17 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional('PROOF'),
+      optional(seq($._proof_keyword, 'PROOF')),
       choice(
-        seq('BY', optional('ONLY'), $.use_body),
+        seq($._by_keyword, 'BY', optional('ONLY'), $.use_body),
         'OBVIOUS',
         'OMITTED'
       )
     ),
 
     non_terminal_proof: $ => seq(
+      optional(seq($._proof_keyword, 'PROOF')),
       $._begin_proof,
-      optional('PROOF'),
       repeat($.proof_step),
       $.qed_step
     ),
@@ -1036,6 +1040,7 @@ module.exports = grammar({
     // <*> QED
     qed_step: $ => seq(
       $.proof_step_id,
+      $._qed_keyword,
       'QED',
       optional($._proof)
     ),
@@ -1050,21 +1055,16 @@ module.exports = grammar({
 
     use_body: $ => oneOrBoth($.use_body_expr, $.use_body_def),
 
-    use_body_expr: $ => commaList1(
-      choice(
-        $._expr,
-        seq('MODULE', $.identifier)
-      )
-    ),
-
-    // DEFS foo, MODULE bar, baz
+    // P, MODULE Naturals, Q, MODULE Integers
+    use_body_expr: $ => commaList1(choice($._expr, $.module_ref)),
+    
+    // DEFS >, R, MODULE Reals, =
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
-      commaList1(choice(
-        $._op_or_expr,
-        seq('MODULE', $.identifier)
-      ))
+      commaList1(choice($._op_or_expr, $.module_ref))
     ),
+
+    module_ref: $ => seq('MODULE', alias($.identifier, $.identifier_ref)),
 
     // <+>foo22..
     // Used when writing another proof step

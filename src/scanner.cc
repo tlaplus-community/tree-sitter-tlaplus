@@ -16,7 +16,11 @@ namespace {
     NEWLINE,            // Separates items of junction list.
     DEDENT,             // Marks end of junction list.
     BEGIN_PROOF,        // Marks the beginning of an entire proof.
-    BEGIN_PROOF_STEP    // Marks the beginning of a proof step.
+    BEGIN_PROOF_STEP,   // Marks the beginning of a proof step.
+    PROOF_KEYWORD,      // The PROOF keyword.
+    BY_KEYWORD,         // The BY keyword.
+    QED_KEYWORD,        // The QED keyword.
+    ERROR_SENTINEL      // If valid, tree-sitter is in error recovery.
   };
 
   using column_index = int16_t;
@@ -286,30 +290,30 @@ namespace {
     NUMBERED
   };
   
-  struct ProofTokenSequence {
-    bool has_proof_keyword;
-    bool is_qed_step;
+  struct ProofStepId {
     ProofStepIdType type;
     proof_level level;
     
-    ProofTokenSequence() {
-      has_proof_keyword = false;
-      is_qed_step = false;
-      type = ProofStepIdType::NUMBERED;
+    ProofStepId(std::vector<char>& raw_level) {
       level = -1;
-    }
-    
-    void set_proof_level(std::vector<char>& raw_level) {
-      type = ProofStepIdType::NUMBERED;
-      level = std::atoi(raw_level.data());
+      if ('*' == raw_level.at(0)) {
+        type = ProofStepIdType::STAR;
+      } else if ('+' == raw_level.at(0)) {
+        type = ProofStepIdType::PLUS;
+      } else {
+        type = ProofStepIdType::NUMBERED;
+        level = std::atoi(raw_level.data());
+      }
     }
     
     void print() {
-      printf("PROOF TOKEN SEQUENCE\n");
-      printf("TYPE: %d\n", type);
-      printf("LEVEL: %d\n", level);
-      printf("PROOF KEYWORD: %s\n", has_proof_keyword ? "true" : "false");
-      printf("QED STEP: %s\n", is_qed_step ? "true" : "false");
+      printf("|PROOF STEP ID|\n");
+      printf("  TYPE:  %s\n",
+        ProofStepIdType::STAR == type
+        ? "*" : ProofStepIdType::PLUS == type
+        ? "+" : "Numbered"
+      );
+      printf("  LEVEL: %d\n", level);
     }
   };
 
@@ -378,6 +382,7 @@ namespace {
     LOCAL_KEYWORD,
     PROOF_KEYWORD,
     PROPOSITION_KEYWORD,
+    QED_KEYWORD,
     THEN_KEYWORD,
     THEOREM_KEYWORD,
     VARIABLE_KEYWORD,
@@ -418,18 +423,15 @@ namespace {
     I, IN,
     L, LE, LEMMA, LO, LOCAL,
     P, PRO, PROO, PROOF, PROP, PROPOSITION,
+    Q, QED,
     T, THE, THEN, THEOREM,
     V, VARIABLE, VARIABLES,
     IDENTIFIER,
-    PROOF_KEYWORD_WHITESPACE,
-    PROOF_KEYWORD_LT,
     PROOF_LEVEL_NUMBER,
     PROOF_LEVEL_STAR,
     PROOF_LEVEL_PLUS,
     PROOF_NAME,
     PROOF_ID,
-    PROOF_ID_WHITESPACE,
-    PROOF_ID_THEN_QED,
     OTHER,
     END_OF_FILE
   };
@@ -447,9 +449,8 @@ namespace {
   Lexeme lex_lookahead(
     TSLexer* const lexer,
     column_index& lexeme_start_col,
-    ProofTokenSequence& proof_token_sequence
+    std::vector<char>& proof_step_id_level
   ) {
-    std::vector<char> proof_step_id_level;
     LexState state = LexState::CONSUME_LEADING_SPACE;
     Lexeme result_lexeme = Lexeme::OTHER;
     START_LEXER();
@@ -475,6 +476,7 @@ namespace {
         if ('I' == lookahead) MARK_THEN_ADVANCE(LexState::I);
         if ('L' == lookahead) MARK_THEN_ADVANCE(LexState::L);
         if ('P' == lookahead) MARK_THEN_ADVANCE(LexState::P);
+        if ('Q' == lookahead) MARK_THEN_ADVANCE(LexState::Q);
         if ('T' == lookahead) MARK_THEN_ADVANCE(LexState::T);
         if ('V' == lookahead) MARK_THEN_ADVANCE(LexState::V);
         if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
@@ -665,21 +667,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROOF:
         ACCEPT_LEXEME(Lexeme::PROOF_KEYWORD);
-        if (is_whitespace(lookahead)) ADVANCE(LexState::PROOF_KEYWORD_WHITESPACE);
         if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
-        END_LEX_STATE();
-      case LexState::PROOF_KEYWORD_WHITESPACE:
-        ACCEPT_LEXEME(Lexeme::PROOF_KEYWORD);
-        proof_token_sequence.has_proof_keyword = true;
-        if (is_whitespace(lookahead)) ADVANCE(LexState::PROOF_KEYWORD_WHITESPACE);
-        if ('<' == lookahead) ADVANCE(LexState::PROOF_KEYWORD_LT);
-        END_LEX_STATE();
-      case LexState::PROOF_KEYWORD_LT:
-        proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
-        if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
-        if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
-        ACCEPT_LEXEME(Lexeme::PROOF_KEYWORD);
         END_LEX_STATE();
       case LexState::PROP:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
@@ -687,6 +675,14 @@ namespace {
         END_LEX_STATE();
       case LexState::PROPOSITION:
         ACCEPT_LEXEME(Lexeme::PROPOSITION_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+        END_LEX_STATE();
+      case LexState::Q:
+        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, {'E','D'})) ADVANCE(LexState::QED);
+        END_LEX_STATE();
+      case LexState::QED:
+        ACCEPT_LEXEME(Lexeme::QED_KEYWORD);
         if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
         END_LEX_STATE();
       case LexState::T:
@@ -724,17 +720,14 @@ namespace {
           proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
           ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         }
-        proof_token_sequence.set_proof_level(proof_step_id_level);
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
         ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_STAR:
-        proof_token_sequence.type = ProofStepIdType::STAR;
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
         ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_PLUS:
-        proof_token_sequence.type = ProofStepIdType::PLUS;
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
         ADVANCE(LexState::OTHER);
         END_LEX_STATE();
@@ -743,20 +736,10 @@ namespace {
         if (is_digit(lookahead)) ADVANCE(LexState::PROOF_NAME);
         if (is_letter(lookahead)) ADVANCE(LexState::PROOF_NAME);
         if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
-        if (is_whitespace(lookahead)) ADVANCE(LexState::PROOF_ID_WHITESPACE);
         END_LEX_STATE();
       case LexState::PROOF_ID:
         ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
         if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
-        END_LEX_STATE();
-      case LexState::PROOF_ID_WHITESPACE:
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        if (is_whitespace(lookahead)) ADVANCE(LexState::PROOF_ID_WHITESPACE);
-        if (is_next_codepoint_sequence(lexer, {'Q','E','D'})) ADVANCE(LexState::PROOF_ID_THEN_QED);
-        END_LEX_STATE();
-      case LexState::PROOF_ID_THEN_QED:
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        proof_token_sequence.is_qed_step = true;
         END_LEX_STATE();
       case LexState::IDENTIFIER:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
@@ -783,6 +766,9 @@ namespace {
     COMMENT_START,
     TERMINATOR,
     PROOF_STEP_ID,
+    PROOF_KEYWORD,
+    BY_KEYWORD,
+    QED_KEYWORD,
     OTHER
   };
 
@@ -814,7 +800,7 @@ namespace {
       case Lexeme::ASSUME_KEYWORD: return Token::TERMINATOR;
       case Lexeme::ASSUMPTION_KEYWORD: return Token::TERMINATOR;
       case Lexeme::AXIOM_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::BY_KEYWORD: return Token::TERMINATOR;
+      case Lexeme::BY_KEYWORD: return Token::BY_KEYWORD;
       case Lexeme::CONSTANT_KEYWORD: return Token::TERMINATOR;
       case Lexeme::CONSTANTS_KEYWORD: return Token::TERMINATOR;
       case Lexeme::COROLLARY_KEYWORD: return Token::TERMINATOR;
@@ -822,13 +808,14 @@ namespace {
       case Lexeme::IN_KEYWORD: return Token::RIGHT_DELIMITER;
       case Lexeme::LEMMA_KEYWORD: return Token::TERMINATOR;
       case Lexeme::LOCAL_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::PROOF_KEYWORD: return Token::TERMINATOR;
+      case Lexeme::PROOF_KEYWORD: return Token::PROOF_KEYWORD;
       case Lexeme::PROPOSITION_KEYWORD: return Token::TERMINATOR;
       case Lexeme::THEN_KEYWORD: return Token::RIGHT_DELIMITER;
       case Lexeme::THEOREM_KEYWORD: return Token::TERMINATOR;
       case Lexeme::VARIABLE_KEYWORD: return Token::TERMINATOR;
       case Lexeme::VARIABLES_KEYWORD: return Token::TERMINATOR;
       case Lexeme::PROOF_STEP_ID: return Token::PROOF_STEP_ID;
+      case Lexeme::QED_KEYWORD: return Token::QED_KEYWORD;
       case Lexeme::IDENTIFIER: return Token::OTHER;
       case Lexeme::OTHER: return Token::OTHER;
       case Lexeme::END_OF_FILE: return Token::TERMINATOR;
@@ -905,20 +892,18 @@ namespace {
    * A stateful scanner used to parse junction lists.
    */
   struct Scanner {
-    /**
-     * The nested junction lists at the current lexer position.
-     */
+
+    //The nested junction lists at the current lexer position.
     std::vector<JunctList> jlists;
 
-    /**
-     * The nested proofs at the current lexer position.
-     **/
+    // The nested proofs at the current lexer position.
     std::vector<proof_level> proofs;
-    
-    /**
-     * The level of the last proof.
-     **/
+
+    // The level of the last proof.
     proof_level last_proof_level;
+
+    // Whether we have seen a PROOF token.
+    bool have_seen_proof_keyword;
 
     /**
      * Initializes a new instance of the Scanner object.
@@ -967,6 +952,11 @@ namespace {
       memcpy(&buffer[offset], &last_proof_level, copied);
       offset += copied;
       byte_count += copied;
+      
+      copied = sizeof(uint8_t);
+      buffer[offset] = static_cast<uint8_t>(have_seen_proof_keyword);
+      offset += copied;
+      byte_count += copied;
 
       return byte_count;
     }
@@ -984,6 +974,7 @@ namespace {
       jlists.clear();
       proofs.clear();
       last_proof_level = -1;
+      have_seen_proof_keyword = false;
 
       if (length > 0) {
         size_t offset = 0;
@@ -1009,6 +1000,10 @@ namespace {
         
         copied = sizeof(proof_level);
         memcpy(&last_proof_level, &buffer[offset], copied);
+        offset += copied;
+        
+        copied = sizeof(uint8_t);
+        have_seen_proof_keyword = static_cast<bool>(buffer[offset] & 1);
         offset += copied;
  
         assert(offset == length);
@@ -1087,18 +1082,6 @@ namespace {
       return true;
     }
     
-    bool emit_begin_proof(TSLexer* const lexer, proof_level level) {
-      lexer->result_symbol = BEGIN_PROOF;
-      proofs.push_back(level);
-      last_proof_level = level;
-      return true;
-    }
-    
-    bool emit_begin_proof_step(TSLexer* const lexer) {
-      lexer->result_symbol = BEGIN_PROOF_STEP;
-      return true;
-    }
-
     /**
      * Jlists are identified with the column position (cpos) of the first
      * junct token in the list, and the junction type. For a given junct
@@ -1284,6 +1267,52 @@ namespace {
     }
     
     /**
+     * Non-junct tokens could possibly indicate the end of a jlist. Rules:
+     * - If the token cpos is leq to the current jlist cpos, the jlist
+     *   has ended; emit a DEDENT token (possibly multiple); example:
+     *      IF  /\ P
+     *          /\ Q
+     *      THEN R
+     *      ELSE S
+     * - Otherwise the token is treated as part of the expression in that
+     *   junct; for example:
+     *      /\ IF e THEN P
+     *              ELSE Q
+     *      /\ R
+     *   so emit no token.
+     * 
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the encountered token.
+     * @return Whether a jlist-relevant token should be emitted.
+     */
+    bool handle_other_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols,
+      column_index const next
+    ) {
+      return is_in_jlist()
+        && next <= get_current_jlist_column_index()
+        && emit_dedent(lexer);
+    }
+    
+    bool emit_begin_proof(TSLexer* const lexer, proof_level level) {
+      lexer->result_symbol = BEGIN_PROOF;
+      proofs.push_back(level);
+      last_proof_level = level;
+      have_seen_proof_keyword = false;
+      return true;
+    }
+    
+    bool emit_begin_proof_step(TSLexer* const lexer) {
+      lexer->result_symbol = BEGIN_PROOF_STEP;
+      return true;
+    }
+    
+    proof_level get_current_proof_level() {
+      return proofs.empty() ? -1 : proofs.back();
+    }
+
+    /**
      * Handle encountering a new proof step ID. This probably marks the
      * beginning of a new proof step, but could also be a reference to a
      * prior proof step as part of an expression. There are also various
@@ -1340,21 +1369,20 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols,
       column_index next,
-      ProofTokenSequence& proof_token_sequence
+      std::vector<char>& proof_step_id_level
     ) {
-      proof_token_sequence.print();
-      assert(proof_token_sequence.has_proof_keyword ? valid_symbols[BEGIN_PROOF] : true);
+      ProofStepId proof_step_id_token(proof_step_id_level);
+      proof_step_id_token.print();
       if (valid_symbols[BEGIN_PROOF] || valid_symbols[BEGIN_PROOF_STEP]) {
-        printf("REACHED\n");
         proof_level next_proof_level = -1;
-        switch (proof_token_sequence.type) {
+        switch (proof_step_id_token.type) {
           case ProofStepIdType::STAR:
             /**
              * <*> can start a new proof only at the very first level,
              * or directly following a PROOF keyword.
              */
             next_proof_level =
-              proofs.empty() || proof_token_sequence.has_proof_keyword
+              proofs.empty() || have_seen_proof_keyword
               ? last_proof_level + 1
               : last_proof_level;
             break;
@@ -1371,32 +1399,33 @@ namespace {
               : last_proof_level;
             break;
           case ProofStepIdType::NUMBERED:
-            next_proof_level = proof_token_sequence.level;
+            next_proof_level = proof_step_id_token.level;
             break;
           default:
             return false;
         }
         
-        printf("NEXT PROOF LEVEL %d\n", next_proof_level);
-        // If we have a PROOF token, always emit BEGIN_PROOF
-        // Is this superfluous and coverd by next > current?
-        if (proof_token_sequence.has_proof_keyword) {
-          return emit_begin_proof(lexer, next_proof_level);
-        }
-
         const proof_level current_proof_level =
           proofs.empty() ? -1 : proofs.back();
+        printf("Current,Next Proof Levels: (%d, %d)\n", current_proof_level, next_proof_level);
+        
         if (next_proof_level > current_proof_level) {
           return emit_begin_proof(lexer, next_proof_level);
         } else if (next_proof_level == current_proof_level) {
-          if (proof_token_sequence.is_qed_step) {
-            last_proof_level = current_proof_level;
-            proofs.pop_back();
+          if (have_seen_proof_keyword) {
+            // This has been declared a new proof using the PROOF keyword
+            // but does not have a level greater than the old; thus we've
+            // detected a syntax error.
+            // TODO: handle this.
+            return false;
+          } else {
+            return emit_begin_proof_step(lexer);
           }
-
-          return emit_begin_proof_step(lexer);
         } else {
-          assert(false);
+          // The next proof level is lower than the current. This is
+          // invalid syntax.
+          // TODO: handle this.
+          return false;
         }
       } else {
         if (valid_symbols[DEDENT]) {
@@ -1409,33 +1438,42 @@ namespace {
       }
     }
 
-    /**
-     * Non-junct tokens could possibly indicate the end of a jlist. Rules:
-     * - If the token cpos is leq to the current jlist cpos, the jlist
-     *   has ended; emit a DEDENT token (possibly multiple); example:
-     *      IF  /\ P
-     *          /\ Q
-     *      THEN R
-     *      ELSE S
-     * - Otherwise the token is treated as part of the expression in that
-     *   junct; for example:
-     *      /\ IF e THEN P
-     *              ELSE Q
-     *      /\ R
-     *   so emit no token.
-     * 
-     * @param lexer The tree-sitter lexing control structure.
-     * @param next The column position of the encountered token.
-     * @return Whether a jlist-relevant token should be emitted.
-     */
-    bool handle_other_token(
+    bool handle_proof_keyword_token(
       TSLexer* const lexer,
-      const bool* const valid_symbols,
-      column_index const next
+      const bool* const valid_symbols
     ) {
-      return is_in_jlist()
-        && next <= get_current_jlist_column_index()
-        && emit_dedent(lexer);
+      if (valid_symbols[PROOF_KEYWORD]) {
+        have_seen_proof_keyword = true;
+        lexer->result_symbol = PROOF_KEYWORD;
+        return true;
+      } else {
+        return handle_terminator_token(lexer, valid_symbols);
+      }
+    }
+    
+    bool handle_by_keyword_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      if (valid_symbols[BY_KEYWORD]) {
+        have_seen_proof_keyword = false;
+        lexer->result_symbol = BY_KEYWORD;
+      } else {
+        return handle_terminator_token(lexer, valid_symbols);
+      }
+    }
+    
+    bool handle_qed_keyword_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      if (valid_symbols[QED_KEYWORD]) {
+        last_proof_level = get_current_proof_level();
+        proofs.pop_back();
+        lexer->result_symbol = QED_KEYWORD;
+      } else {
+        return false;
+      }
     }
     
     /**
@@ -1449,13 +1487,11 @@ namespace {
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
       // Tree-sitter calls the scanner with every symbol marked valid
-      // when it enters error recovery mode.
-      const bool is_error_recovery =
-        valid_symbols[EXTRAMODULAR_TEXT]
-        && valid_symbols[BLOCK_COMMENT_TEXT]
-        && valid_symbols[INDENT]
-        && valid_symbols[NEWLINE]
-        && valid_symbols[DEDENT];
+      // when it enters error recovery mode. Rather than checking the
+      // validity of every token, we put an unused external token called
+      // ERROR_SENTINEL last in the list of external tokens; if it is
+      // marked valid, so must the rest of them.
+      const bool is_error_recovery = valid_symbols[ERROR_SENTINEL];
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
@@ -1463,15 +1499,10 @@ namespace {
         return scan_extramodular_text(lexer);
       } else if (!is_error_recovery && valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
-      } else if (valid_symbols[INDENT]
-        || valid_symbols[NEWLINE]
-        || valid_symbols[DEDENT]
-        || valid_symbols[BEGIN_PROOF]
-        || valid_symbols[BEGIN_PROOF_STEP]
-      ) {
+      } else {
         column_index col;
-        ProofTokenSequence proof_token_sequence;
-        switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_token_sequence))) {
+        std::vector<char> proof_token_id_level;
+        switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_token_id_level))) {
           case Token::LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
           case Token::LOR:
@@ -1483,14 +1514,18 @@ namespace {
           case Token::TERMINATOR:
             return handle_terminator_token(lexer, valid_symbols);
           case Token::PROOF_STEP_ID:
-            return handle_proof_step_id_token(lexer, valid_symbols, col, proof_token_sequence);
+            return handle_proof_step_id_token(lexer, valid_symbols, col, proof_token_id_level);
+          case Token::PROOF_KEYWORD:
+            return handle_proof_keyword_token(lexer, valid_symbols);
+          case Token::BY_KEYWORD:
+            return handle_by_keyword_token(lexer, valid_symbols);
+          case Token::QED_KEYWORD:
+            return handle_qed_keyword_token(lexer, valid_symbols);
           case Token::OTHER:
             return handle_other_token(lexer, valid_symbols, col);
           default:
             return false;
         }
-      } else {
-        return false;
       }
     }
   };

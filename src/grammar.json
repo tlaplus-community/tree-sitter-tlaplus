@@ -6124,8 +6124,17 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "STRING",
-              "value": "PROOF"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_proof_keyword"
+                },
+                {
+                  "type": "STRING",
+                  "value": "PROOF"
+                }
+              ]
             },
             {
               "type": "BLANK"
@@ -6138,6 +6147,10 @@
             {
               "type": "SEQ",
               "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_by_keyword"
+                },
                 {
                   "type": "STRING",
                   "value": "BY"
@@ -6176,20 +6189,29 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_begin_proof"
-        },
-        {
           "type": "CHOICE",
           "members": [
             {
-              "type": "STRING",
-              "value": "PROOF"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_proof_keyword"
+                },
+                {
+                  "type": "STRING",
+                  "value": "PROOF"
+                }
+              ]
             },
             {
               "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_begin_proof"
         },
         {
           "type": "REPEAT",
@@ -6514,6 +6536,10 @@
           "name": "proof_step_id"
         },
         {
+          "type": "SYMBOL",
+          "name": "_qed_keyword"
+        },
+        {
           "type": "STRING",
           "value": "QED"
         },
@@ -6607,17 +6633,8 @@
               "name": "_expr"
             },
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "MODULE"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "identifier"
-                }
-              ]
+              "type": "SYMBOL",
+              "name": "module_ref"
             }
           ]
         },
@@ -6638,17 +6655,8 @@
                     "name": "_expr"
                   },
                   {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "STRING",
-                        "value": "MODULE"
-                      },
-                      {
-                        "type": "SYMBOL",
-                        "name": "identifier"
-                      }
-                    ]
+                    "type": "SYMBOL",
+                    "name": "module_ref"
                   }
                 ]
               }
@@ -6684,17 +6692,8 @@
                   "name": "_op_or_expr"
                 },
                 {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": "MODULE"
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "identifier"
-                    }
-                  ]
+                  "type": "SYMBOL",
+                  "name": "module_ref"
                 }
               ]
             },
@@ -6715,17 +6714,8 @@
                         "name": "_op_or_expr"
                       },
                       {
-                        "type": "SEQ",
-                        "members": [
-                          {
-                            "type": "STRING",
-                            "value": "MODULE"
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "identifier"
-                          }
-                        ]
+                        "type": "SYMBOL",
+                        "name": "module_ref"
                       }
                     ]
                   }
@@ -6733,6 +6723,24 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "module_ref": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "MODULE"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          "named": true,
+          "value": "identifier_ref"
         }
       ]
     },
@@ -7010,6 +7018,22 @@
     {
       "type": "SYMBOL",
       "name": "_begin_proof_step"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_proof_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_by_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_qed_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "error_sentinel"
     }
   ],
   "inline": [],

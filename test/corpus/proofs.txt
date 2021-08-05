@@ -15,84 +15,52 @@ op == <1>a
 (double_line)))
 
 ===============================|||
-Prove 1 + 1 = 2
+Obvious Proof
 ===============================|||
 
 ---- MODULE Test ----
-THEOREM OnePlusOne == 1 + 1 = 2
+THEOREM TRUE
 OBVIOUS
 ====
 
 -------------------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem
-    (identifier) (def_eq)
-    (bound_infix_op (bound_infix_op (number) (plus) (number)) (eq) (number))
+  (unit (theorem (boolean)
     (terminal_proof)
   ))
 (double_line)))
 
 ===============================|||
-Prove Addition is Commutative
+Omitted Proof
 ===============================|||
 
 ---- MODULE Test ----
-THEOREM Commutative ==
-  ASSUME
-    NEW x \in Nat,
-    NEW y \in Nat
-    PROVE x + y = y + x
+THEOREM TRUE
 PROOF OMITTED
 ====
 
 -------------------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (new (identifier) (set_in) (primitive_value_set))
-      (new (identifier) (set_in) (primitive_value_set))
-      (bound_infix_op
-        (bound_infix_op (identifier_ref) (plus) (identifier_ref))
-        (eq)
-        (bound_infix_op (identifier_ref) (plus) (identifier_ref))
-      )
-    )
+  (unit (theorem (boolean)
     (terminal_proof)
   ))
 (double_line)))
 
 ===============================|||
-Prove > is Transitive
+Proof by Definition
 ===============================|||
 
 ---- MODULE Test ----
-THEOREM Transitive ==
-  ASSUME
-    NEW X \in Nat,
-    NEW Y \in Nat,
-    NEW Z \in Nat,
-    X > Y,
-    Y > Z
-    PROVE X > Z
+THEOREM TRUE
 PROOF BY DEF >
 ====
 
 -------------------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (new (identifier) (set_in) (primitive_value_set))
-      (new (identifier) (set_in) (primitive_value_set))
-      (new (identifier) (set_in) (primitive_value_set))
-      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
-      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
-      (bound_infix_op (identifier_ref) (gt) (identifier_ref))
-    )
+  (unit (theorem (boolean)
     (terminal_proof (use_body
       (use_body_def (infix_op_symbol (gt)))
     ))
@@ -100,48 +68,59 @@ PROOF BY DEF >
 (double_line)))
 
 ===============================|||
-Prove 4 and 9 Have Square Roots
+Proof by Multiple Definitions
 ===============================|||
 
 ---- MODULE Test ----
-HasSqrt(Y) == \E k \in 1..Y : k * k = Y
-
-THEOREM TheseHaveSqrt ==
-  ASSUME
-    NEW X \in {4, 9}
-  PROVE HasSqrt(X)
-PROOF
-  <1>1 HasSqrt(4) /\ HasSqrt(9) BY DEF HasSqrt
-  <1>2 QED BY <1>1
+THEOREM TRUE
+PROOF BY ONLY
+  P,
+  MODULE Naturals,
+  Q,
+  MODULE Integers
+  DEFS
+    >,
+    R,
+    MODULE Reals,
+    =
 ====
 
 -------------------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (identifier) (def_eq)
-    (bounded_quantification
-      (exists)
-      (quantifier_bound (identifier) (set_in) (bound_infix_op (number) (dots_2) (identifier_ref)))
-      (bound_infix_op (bound_infix_op (identifier_ref) (mul) (identifier_ref)) (eq) (identifier_ref))
-    )
+  (unit (theorem (boolean)
+    (terminal_proof (use_body
+      (use_body_expr
+        (identifier_ref)
+        (module_ref (identifier_ref))
+        (identifier_ref)
+        (module_ref (identifier_ref))
+      )
+      (use_body_def
+        (infix_op_symbol (gt))
+        (identifier_ref)
+        (module_ref (identifier_ref))
+        (infix_op_symbol (eq))
+      )
+    ))
   ))
-  (unit (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (new (identifier) (set_in) (finite_set_literal (number) (number)))
-      (bound_op (identifier_ref) (identifier_ref))
-    )
+(double_line)))
+
+===============================|||
+Proof by QED
+===============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+PROOF <1>a QED
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name))
-        (suffices_proof_step
-          (bound_infix_op (bound_op (identifier_ref) (number)) (land) (bound_op (identifier_ref) (number)))
-          (terminal_proof (use_body (use_body_def (identifier_ref))))
-        )
-      )
-      (qed_step (proof_step_id (level) (name))
-        (terminal_proof (use_body (use_body_expr (proof_step_ref (level) (name)))))
-      )
+      (qed_step (proof_step_id (level) (name)))
     )
   ))
 (double_line)))
