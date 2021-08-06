@@ -73,7 +73,14 @@ module.exports = grammar({
     $._indent,
     $._newline,
     $._dedent,
-    $._begin_proof_step
+    $._begin_proof,
+    $._begin_proof_step,
+    $.proof_keyword,
+    $.by_keyword,
+    $.obvious_keyword,
+    $.omitted_keyword,
+    $.qed_keyword,
+    $.error_sentinel
   ],
 
   extras: $ => [
@@ -130,13 +137,6 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
-    // Lookahead to disambiguate nested proofs.
-    // Can be fixed by marking proof start/end with external scanner.
-    // See https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/24
-    [$.qed_step],
-    [$.suffices_proof_step],
-    [$.case_proof_step],
-    [$.pick_proof_step]
   ],
 
   rules: {
@@ -976,16 +976,17 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional('PROOF'),
+      optional(alias($.proof_keyword, 'PROOF')),
       choice(
-        seq('BY', optional('ONLY'), $.use_body),
-        'OBVIOUS',
-        'OMITTED'
+        seq(alias($.by_keyword, 'BY'), optional('ONLY'), $.use_body),
+        alias($.obvious_keyword, 'OBVIOUS'),
+        alias($.omitted_keyword, 'OMITTED')
       )
     ),
 
     non_terminal_proof: $ => seq(
-      optional('PROOF'),
+      optional(alias($.proof_keyword, 'PROOF')),
+      $._begin_proof,
       repeat($.proof_step),
       $.qed_step
     ),
@@ -995,15 +996,15 @@ module.exports = grammar({
       $._begin_proof_step,
       $.proof_step_id,
       choice(
-        $.use_or_hide,
         $.definition_proof_step,
-        $.instance,
         $.have_proof_step,
         $.witness_proof_step,
         $.take_proof_step,
         $.suffices_proof_step,
         $.case_proof_step,
-        $.pick_proof_step
+        $.pick_proof_step,
+        $.use_or_hide,
+        $.instance
       )
     ),
 
@@ -1043,7 +1044,7 @@ module.exports = grammar({
     qed_step: $ => seq(
       $._begin_proof_step,
       $.proof_step_id,
-      'QED',
+      alias($.qed_keyword, 'QED'),
       optional($._proof)
     ),
 
@@ -1057,21 +1058,16 @@ module.exports = grammar({
 
     use_body: $ => oneOrBoth($.use_body_expr, $.use_body_def),
 
-    use_body_expr: $ => commaList1(
-      choice(
-        $._expr,
-        seq('MODULE', $.identifier)
-      )
-    ),
-
-    // DEFS foo, MODULE bar, baz
+    // P, MODULE Naturals, Q, MODULE Integers
+    use_body_expr: $ => commaList1(choice($._expr, $.module_ref)),
+    
+    // DEFS >, R, MODULE Reals, =
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
-      commaList1(choice(
-        $._op_or_expr,
-        seq('MODULE', $.identifier)
-      ))
+      commaList1(choice($._op_or_expr, $.module_ref))
     ),
+
+    module_ref: $ => seq('MODULE', alias($.identifier, $.identifier_ref)),
 
     // <+>foo22..
     // Used when writing another proof step

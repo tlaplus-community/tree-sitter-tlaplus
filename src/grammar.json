@@ -6124,7 +6124,12 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "STRING",
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "proof_keyword"
+              },
+              "named": false,
               "value": "PROOF"
             },
             {
@@ -6139,7 +6144,12 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "STRING",
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "by_keyword"
+                  },
+                  "named": false,
                   "value": "BY"
                 },
                 {
@@ -6161,11 +6171,21 @@
               ]
             },
             {
-              "type": "STRING",
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "obvious_keyword"
+              },
+              "named": false,
               "value": "OBVIOUS"
             },
             {
-              "type": "STRING",
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "omitted_keyword"
+              },
+              "named": false,
               "value": "OMITTED"
             }
           ]
@@ -6179,13 +6199,22 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "STRING",
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "proof_keyword"
+              },
+              "named": false,
               "value": "PROOF"
             },
             {
               "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_begin_proof"
         },
         {
           "type": "REPEAT",
@@ -6216,15 +6245,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "use_or_hide"
-            },
-            {
-              "type": "SYMBOL",
               "name": "definition_proof_step"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "instance"
             },
             {
               "type": "SYMBOL",
@@ -6249,6 +6270,14 @@
             {
               "type": "SYMBOL",
               "name": "pick_proof_step"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "use_or_hide"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "instance"
             }
           ]
         }
@@ -6518,7 +6547,12 @@
           "name": "proof_step_id"
         },
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "qed_keyword"
+          },
+          "named": false,
           "value": "QED"
         },
         {
@@ -6611,17 +6645,8 @@
               "name": "_expr"
             },
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "MODULE"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "identifier"
-                }
-              ]
+              "type": "SYMBOL",
+              "name": "module_ref"
             }
           ]
         },
@@ -6642,17 +6667,8 @@
                     "name": "_expr"
                   },
                   {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "STRING",
-                        "value": "MODULE"
-                      },
-                      {
-                        "type": "SYMBOL",
-                        "name": "identifier"
-                      }
-                    ]
+                    "type": "SYMBOL",
+                    "name": "module_ref"
                   }
                 ]
               }
@@ -6688,17 +6704,8 @@
                   "name": "_op_or_expr"
                 },
                 {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": "MODULE"
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "identifier"
-                    }
-                  ]
+                  "type": "SYMBOL",
+                  "name": "module_ref"
                 }
               ]
             },
@@ -6719,17 +6726,8 @@
                         "name": "_op_or_expr"
                       },
                       {
-                        "type": "SEQ",
-                        "members": [
-                          {
-                            "type": "STRING",
-                            "value": "MODULE"
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "identifier"
-                          }
-                        ]
+                        "type": "SYMBOL",
+                        "name": "module_ref"
                       }
                     ]
                   }
@@ -6737,6 +6735,24 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "module_ref": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "MODULE"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          "named": true,
+          "value": "identifier_ref"
         }
       ]
     },
@@ -6901,18 +6917,6 @@
     ],
     [
       "subexpr_prefix"
-    ],
-    [
-      "qed_step"
-    ],
-    [
-      "suffices_proof_step"
-    ],
-    [
-      "case_proof_step"
-    ],
-    [
-      "pick_proof_step"
     ]
   ],
   "precedences": [
@@ -7014,7 +7018,35 @@
     },
     {
       "type": "SYMBOL",
+      "name": "_begin_proof"
+    },
+    {
+      "type": "SYMBOL",
       "name": "_begin_proof_step"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "proof_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "by_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "obvious_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "omitted_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "qed_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "error_sentinel"
     }
   ],
   "inline": [],

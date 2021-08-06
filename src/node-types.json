@@ -6031,6 +6031,21 @@
     }
   },
   {
+    "type": "module_ref",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier_ref",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "negative",
     "named": true,
     "fields": {}
@@ -10618,10 +10633,6 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "identifier_ref",
           "named": true
         },
@@ -10643,6 +10654,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "module_ref",
           "named": true
         },
         {
@@ -10801,10 +10816,6 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "identifier_ref",
           "named": true
         },
@@ -10818,6 +10829,10 @@
         },
         {
           "type": "let_in",
+          "named": true
+        },
+        {
+          "type": "module_ref",
           "named": true
         },
         {
