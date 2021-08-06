@@ -938,7 +938,7 @@ namespace {
       memcpy(&buffer[offset], &jlist_depth, copied);
       offset += copied;
       byte_count += copied;
-      for (size_t i = 0; i < jlist_depth; i++) {
+      for (nest_address i = 0; i < jlist_depth; i++) {
         copied = jlists[i].serialize(&buffer[offset]);
         offset += copied;
         byte_count += copied;
@@ -991,7 +991,7 @@ namespace {
         memcpy(&jlist_depth, &buffer[offset], copied);
         jlists.resize(jlist_depth);
         offset += copied;
-        for (size_t i = 0; i < jlist_depth; i++) {
+        for (nest_address i = 0; i < jlist_depth; i++) {
           assert(offset < length);
           copied = jlists[i].deserialize(&buffer[offset], length - offset);
           offset += copied;
@@ -1089,7 +1089,7 @@ namespace {
       this->jlists.pop_back();
       return true;
     }
-    
+
     /**
      * Jlists are identified with the column position (cpos) of the first
      * junct token in the list, and the junction type. For a given junct
