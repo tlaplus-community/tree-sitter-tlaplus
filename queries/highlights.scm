@@ -71,6 +71,7 @@
   (case_box)
   (case_arrow)
   (address)
+  (label_as)
 ] @keyword
 
 ; Literals
@@ -86,9 +87,21 @@
 ; Constants, variables, and operators
 (constant_declaration (identifier) @constant)
 (variable_declaration (identifier) @variable.builtin)
-(bound_prefix_op symbol: (_) @operator)
-(bound_infix_op symbol: (_) @operator)
-(bound_postfix_op symbol: (_) @operator)
+(operator_definition name: (_) @operator)
+(module_definition name: (identifier) @operator)
+(function_definition name: (identifier) @function)
+(bound_prefix_op symbol: (_) @function.builtin)
+(bound_infix_op symbol: (_) @function.builtin)
+(bound_postfix_op symbol: (_) @function.builtin)
+
+; Parameters
+(operator_definition parameter: (identifier) @variable.parameter)
+(operator_definition (operator_declaration name: (_) @variable.parameter))
+(module_definition parameter: (identifier) @variable.parameter)
+(module_definition (operator_declaration name: (_) @variable.parameter))
+(function_definition (quantifier_bound (identifier) @variable.parameter))
+(function_definition (quantifier_bound (tuple_of_identifiers (identifier) @variable.parameter)))
+(lambda (identifier) @variable.parameter)
 
 ; Delimiters
 [
@@ -102,10 +115,18 @@
   "]_"
   "("
   ")"
+  "<"
+  ">"
 ] @punctuation.bracket
 [
   ","
   ":"
+  "."
+  "!"
   (bullet_conj)
   (bullet_disj)
 ] @punctuation.delimiter
+
+; Proofs
+(proof_step_id (level) @property)
+(proof_step_id (name) @attribute)

@@ -22,14 +22,14 @@ function arity2(op, expr) {
 function arity0OrN(op, expr) {
   return seq(
     field('name', op),
-    field('parameters', optional(seq('(', commaList1(expr), ')'))))
+    field('parameter', optional(seq('(', commaList1(expr), ')'))))
 }
 
 // An operator with 1 or more parameters.
 function arity1OrN(op, expr) {
   return seq(
     field('name', op),
-    field('parameters', seq('(', commaList1(expr), ')'))
+    seq('(', commaList1(expr), ')')
   )
 }
 
@@ -225,10 +225,10 @@ module.exports = grammar({
         $.constant_declaration,
         $.recursive_declaration,
         $.use_or_hide,
-        seq(optional("LOCAL"), $.operator_definition),
-        seq(optional("LOCAL"), $.function_definition),
-        seq(optional("LOCAL"), $.instance),
-        seq(optional("LOCAL"), $.module_definition),
+        seq(optional('LOCAL'), $.operator_definition),
+        seq(optional('LOCAL'), $.function_definition),
+        seq(optional('LOCAL'), $.instance),
+        seq(optional('LOCAL'), $.module_definition),
         $.assumption,
         $.theorem,
         $.module,
@@ -257,9 +257,9 @@ module.exports = grammar({
     // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
       arity1OrN($.identifier, $.placeholder),
-      seq($.standalone_prefix_op_symbol, $.placeholder),
-      seq($.placeholder, $.infix_op_symbol, $.placeholder),
-      seq($.placeholder, $.postfix_op_symbol)
+      seq(field('name', $.standalone_prefix_op_symbol), $.placeholder),
+      seq($.placeholder, field('name', $.infix_op_symbol), $.placeholder),
+      seq($.placeholder, field('name', $.postfix_op_symbol))
     ),
 
     // Either an identifier or an operator declaration
@@ -276,20 +276,30 @@ module.exports = grammar({
     operator_definition: $ => seq(
       choice(
         arity0OrN($.identifier, $._id_or_op_declaration),
-        seq($.standalone_prefix_op_symbol, $.identifier),
-        seq($.identifier, $.infix_op_symbol, $.identifier),
-        seq($.identifier, $.postfix_op_symbol)
+        seq(
+          field('name', $.standalone_prefix_op_symbol),
+          field('parameter', $.identifier)
+        ),
+        seq(
+          field('parameter', $.identifier),
+          field('name', $.infix_op_symbol),
+          field('parameter', $.identifier)
+        ),
+        seq(
+          field('parameter', $.identifier),
+          field('name', $.postfix_op_symbol)
+        )
       ),
       $.def_eq,
-      $._expr
+      field('definition', $._expr)
     ),
 
     // f[x \in Nat] == 2*x
     function_definition: $ => seq(
-      $.identifier,
+      field('name', $.identifier),
       '[', commaList1($.quantifier_bound), ']',
       $.def_eq,
-      $._expr
+      field('definition', $._expr)
     ),
 
     // x, y, z \in S
@@ -300,7 +310,7 @@ module.exports = grammar({
         $.tuple_of_identifiers
       ),
       $.set_in,
-      $._expr
+      field('set', $._expr)
     ),
 
     // x \in S
@@ -404,7 +414,7 @@ module.exports = grammar({
     module_definition: $ => seq(
       arity0OrN($.identifier, $._id_or_op_declaration),
       $.def_eq,
-      $.instance
+      field('definition', $.instance)
     ),
 
     /************************************************************************/
