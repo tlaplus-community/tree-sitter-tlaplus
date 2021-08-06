@@ -75,11 +75,11 @@ module.exports = grammar({
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
-    $._proof_keyword,
-    $._by_keyword,
-    $._obvious_keyword,
-    $._omitted_keyword,
-    $._qed_keyword,
+    $.proof_keyword,
+    $.by_keyword,
+    $.obvious_keyword,
+    $.omitted_keyword,
+    $.qed_keyword,
     $.error_sentinel
   ],
 
@@ -976,16 +976,16 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional(seq($._proof_keyword, 'PROOF')),
+      optional(alias($.proof_keyword, 'PROOF')),
       choice(
-        seq($._by_keyword, 'BY', optional('ONLY'), $.use_body),
-        seq($._obvious_keyword, 'OBVIOUS'),
-        seq($._omitted_keyword, 'OMITTED')
+        seq(alias($.by_keyword, 'BY'), optional('ONLY'), $.use_body),
+        alias($.obvious_keyword, 'OBVIOUS'),
+        alias($.omitted_keyword, 'OMITTED')
       )
     ),
 
     non_terminal_proof: $ => seq(
-      optional(seq($._proof_keyword, 'PROOF')),
+      optional(alias($.proof_keyword, 'PROOF')),
       $._begin_proof,
       repeat($.proof_step),
       $.qed_step
@@ -993,6 +993,7 @@ module.exports = grammar({
 
     // A single step in a proof. Can be many things!
     proof_step: $ => seq(
+      $._begin_proof_step,
       $.proof_step_id,
       choice(
         $.definition_proof_step,
@@ -1041,9 +1042,9 @@ module.exports = grammar({
 
     // <*> QED
     qed_step: $ => seq(
+      $._begin_proof_step,
       $.proof_step_id,
-      $._qed_keyword,
-      'QED',
+      alias($.qed_keyword, 'QED'),
       optional($._proof)
     ),
 
@@ -1072,8 +1073,7 @@ module.exports = grammar({
     // Used when writing another proof step
     // proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
     proof_step_id: $ => prec.dynamic(1, seq(
-      $._begin_proof_step,
-      token.immediate('<'),
+      '<',
       alias(token.immediate(/\d+|\+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]*/), $.name),

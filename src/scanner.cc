@@ -1,9 +1,9 @@
 ﻿#include <tree_sitter/parser.h>
 #include <cassert>
 #include <climits>
-#include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <string>
 
 namespace {
 
@@ -311,7 +311,7 @@ namespace {
      * 
      * @param raw_level The unparsed contents of the <...> lexeme.
      */
-    ProofStepId(std::vector<char>& raw_level) {
+    ProofStepId(const std::string& raw_level) {
       level = -1;
       if ('*' == raw_level.at(0)) {
         type = ProofStepIdType::STAR;
@@ -319,8 +319,7 @@ namespace {
         type = ProofStepIdType::PLUS;
       } else {
         type = ProofStepIdType::NUMBERED;
-        raw_level.push_back(0); // Null termination
-        level = std::atoi(raw_level.data());
+        level = std::stoi(raw_level);
       }
     }
     
@@ -470,7 +469,7 @@ namespace {
   Lexeme lex_lookahead(
     TSLexer* const lexer,
     column_index& lexeme_start_col,
-    std::vector<char>& proof_step_id_level
+    std::string& proof_step_id_level
   ) {
     LexState state = LexState::CONSUME_LEADING_SPACE;
     Lexeme result_lexeme = Lexeme::OTHER;
@@ -517,7 +516,7 @@ namespace {
         if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
         END_LEX_STATE();
       case LexState::LT:
-        proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
+        proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
         if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
@@ -760,7 +759,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_NUMBER:
         if (is_digit(lookahead)) {
-          proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
+          proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
           ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         }
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
@@ -1339,12 +1338,21 @@ namespace {
     }
     
     /**
+     * Gets whether we are currently in a proof.
+     *
+     * @return Whether we are currently in a proof.
+     */
+    bool is_in_proof() const {
+      return !proofs.empty();
+    }
+    
+    /**
      * Gets the current proof level; -1 if none.
      * 
      * @return The current proof level.
      */
     proof_level get_current_proof_level() const {
-      return proofs.empty() ? -1 : proofs.back();
+      return is_in_proof() ? proofs.back() : -1;
     }
 
     /**
@@ -1427,8 +1435,8 @@ namespace {
     bool handle_proof_step_id_token(
       TSLexer* const lexer,
       const bool* const valid_symbols,
-      column_index next,
-      std::vector<char>& proof_step_id_level
+      column_index const next,
+      const std::string& proof_step_id_level
     ) {
       ProofStepId proof_step_id_token(proof_step_id_level);
       //proof_step_id_token.print();
@@ -1442,7 +1450,7 @@ namespace {
              * or directly following a PROOF keyword.
              */
             next_proof_level =
-              proofs.empty() || have_seen_proof_keyword
+              !is_in_proof() || have_seen_proof_keyword
               ? last_proof_level + 1
               : current_proof_level;
             break;
@@ -1511,6 +1519,7 @@ namespace {
       if (valid_symbols[PROOF_KEYWORD]) {
         have_seen_proof_keyword = true;
         lexer->result_symbol = PROOF_KEYWORD;
+        lexer->mark_end(lexer);
         return true;
       } else {
         return handle_terminator_token(lexer, valid_symbols);
@@ -1525,17 +1534,18 @@ namespace {
      * 
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
+     * @param keyword_type The specific keyword being handled.
      * @return Whether a token should be emitted.
      */
     bool handle_terminal_proof_keyword_token(
       TSLexer* const lexer,
-      const bool* const valid_symbols
+      const bool* const valid_symbols,
+      TokenType keyword_type
     ) {
-      if (valid_symbols[BY_KEYWORD]
-        || valid_symbols[OBVIOUS_KEYWORD]
-        || valid_symbols[OMITTED_KEYWORD]
-      ) {
+      if (valid_symbols[keyword_type]) {
         have_seen_proof_keyword = false;
+        lexer->result_symbol = keyword_type;
+        lexer->mark_end(lexer);
         return true;
       } else {
         return handle_terminator_token(lexer, valid_symbols);
@@ -1560,6 +1570,7 @@ namespace {
       last_proof_level = get_current_proof_level();
       proofs.pop_back();
       lexer->result_symbol = QED_KEYWORD;
+      lexer->mark_end(lexer);
       return true;
     }
     
@@ -1582,13 +1593,17 @@ namespace {
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
-      if(!is_error_recovery && valid_symbols[EXTRAMODULAR_TEXT]) {
+      if (is_error_recovery) {
+        return false;
+      }
+
+      if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
-      } else if (!is_error_recovery && valid_symbols[BLOCK_COMMENT_TEXT]) {
+      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
       } else {
         column_index col;
-        std::vector<char> proof_step_id_level;
+        std::string proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
           case Token::LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
@@ -1605,14 +1620,11 @@ namespace {
           case Token::PROOF_KEYWORD:
             return handle_proof_keyword_token(lexer, valid_symbols);
           case Token::BY_KEYWORD:
-            lexer->result_symbol = BY_KEYWORD;
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols);
+            return handle_terminal_proof_keyword_token(lexer, valid_symbols, BY_KEYWORD);
           case Token::OBVIOUS_KEYWORD:
-            lexer->result_symbol = OBVIOUS_KEYWORD;
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols);
+            return handle_terminal_proof_keyword_token(lexer, valid_symbols, OBVIOUS_KEYWORD);
           case Token::OMITTED_KEYWORD:
-            lexer->result_symbol = OMITTED_KEYWORD;
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols);
+            return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
           case Token::QED_KEYWORD:
             return handle_qed_keyword_token(lexer, valid_symbols);
           case Token::OTHER:

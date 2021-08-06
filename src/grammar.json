@@ -6124,17 +6124,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_proof_keyword"
-                },
-                {
-                  "type": "STRING",
-                  "value": "PROOF"
-                }
-              ]
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "proof_keyword"
+              },
+              "named": false,
+              "value": "PROOF"
             },
             {
               "type": "BLANK"
@@ -6148,11 +6144,12 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "_by_keyword"
-                },
-                {
-                  "type": "STRING",
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "by_keyword"
+                  },
+                  "named": false,
                   "value": "BY"
                 },
                 {
@@ -6174,30 +6171,22 @@
               ]
             },
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_obvious_keyword"
-                },
-                {
-                  "type": "STRING",
-                  "value": "OBVIOUS"
-                }
-              ]
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "obvious_keyword"
+              },
+              "named": false,
+              "value": "OBVIOUS"
             },
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_omitted_keyword"
-                },
-                {
-                  "type": "STRING",
-                  "value": "OMITTED"
-                }
-              ]
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "omitted_keyword"
+              },
+              "named": false,
+              "value": "OMITTED"
             }
           ]
         }
@@ -6210,17 +6199,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_proof_keyword"
-                },
-                {
-                  "type": "STRING",
-                  "value": "PROOF"
-                }
-              ]
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "proof_keyword"
+              },
+              "named": false,
+              "value": "PROOF"
             },
             {
               "type": "BLANK"
@@ -6247,6 +6232,10 @@
     "proof_step": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_begin_proof_step"
+        },
         {
           "type": "SYMBOL",
           "name": "proof_step_id"
@@ -6551,14 +6540,19 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "proof_step_id"
+          "name": "_begin_proof_step"
         },
         {
           "type": "SYMBOL",
-          "name": "_qed_keyword"
+          "name": "proof_step_id"
         },
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "qed_keyword"
+          },
+          "named": false,
           "value": "QED"
         },
         {
@@ -6769,15 +6763,8 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "_begin_proof_step"
-          },
-          {
-            "type": "IMMEDIATE_TOKEN",
-            "content": {
-              "type": "STRING",
-              "value": "<"
-            }
+            "type": "STRING",
+            "value": "<"
           },
           {
             "type": "ALIAS",
@@ -7039,23 +7026,23 @@
     },
     {
       "type": "SYMBOL",
-      "name": "_proof_keyword"
+      "name": "proof_keyword"
     },
     {
       "type": "SYMBOL",
-      "name": "_by_keyword"
+      "name": "by_keyword"
     },
     {
       "type": "SYMBOL",
-      "name": "_obvious_keyword"
+      "name": "obvious_keyword"
     },
     {
       "type": "SYMBOL",
-      "name": "_omitted_keyword"
+      "name": "omitted_keyword"
     },
     {
       "type": "SYMBOL",
-      "name": "_qed_keyword"
+      "name": "qed_keyword"
     },
     {
       "type": "SYMBOL",
