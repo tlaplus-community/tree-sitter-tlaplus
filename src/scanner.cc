@@ -2,6 +2,7 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
+#include <cwctype>
 #include <vector>
 #include <string>
 
@@ -99,37 +100,6 @@ namespace {
   }
 
   /**
-   * Checks whether the given codepoint is an ASCII digit, 0-9.
-   *
-   * @param codepoint The codepoint to check.
-   * @return Whether the given codepoint is a digit.
-   */
-  bool is_digit(int32_t const codepoint) {
-    return (48 <= codepoint && codepoint <= 57);
-  }
-
-  /**
-   * Checks whether the given codepoint is an ASCII letter, a-z or A-Z.
-   *
-   * @param codepoint The codepoint to check.
-   * @return Whether the given codepoint is a letter.
-   */
-  bool is_letter(int32_t const codepoint) {
-    return (65 <= codepoint && codepoint <= 90) // A-Z
-      || (97 <= codepoint && codepoint <= 122); // a-z
-  }
-
-  /**
-   * Checks whether the given codepoint is an underscore, _.
-   *
-   * @param codepoint The codepoint to check.
-   * @return Whether the given codepoint is an underscore.
-   */
-  bool is_underscore(int32_t const codepoint) {
-    return 95 == codepoint;
-  }
-
-  /**
    * Checks whether the given codepoint could be used in an identifier,
    * which consist of capital ASCII letters, lowercase ASCII letters,
    * and underscores.
@@ -138,10 +108,7 @@ namespace {
    * @return Whether the given codepoint could be used in an identifier.
    */
   bool is_identifier_char(int32_t const codepoint) {
-    return
-      is_digit(codepoint)
-      || is_letter(codepoint)
-      || is_underscore(codepoint);
+    return iswalnum(codepoint) || ('_' == codepoint);
   }
 
   /**
@@ -517,7 +484,7 @@ namespace {
         END_LEX_STATE();
       case LexState::LT:
         proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+        if (iswdigit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
         ADVANCE(LexState::OTHER);
@@ -758,7 +725,7 @@ namespace {
         if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_NUMBER:
-        if (is_digit(lookahead)) {
+        if (iswdigit(lookahead)) {
           proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
           ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         }
@@ -775,8 +742,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROOF_NAME:
         ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        if (is_digit(lookahead)) ADVANCE(LexState::PROOF_NAME);
-        if (is_letter(lookahead)) ADVANCE(LexState::PROOF_NAME);
+        if (iswalnum(lookahead)) ADVANCE(LexState::PROOF_NAME);
         if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
         END_LEX_STATE();
       case LexState::PROOF_ID:
