@@ -4,7 +4,6 @@
 #include <cstring>
 #include <cwctype>
 #include <vector>
-#include <string>
 
 namespace {
 
@@ -21,8 +20,7 @@ namespace {
     BY_KEYWORD,         // The BY keyword.
     OBVIOUS_KEYWORD,    // The OBVIOUS keyword.
     OMITTED_KEYWORD,    // The OMITTED keyword.
-    QED_KEYWORD,        // The QED keyword.
-    ERROR_SENTINEL      // If valid, tree-sitter is in error recovery.
+    QED_KEYWORD         // The QED keyword.
   };
 
   // Datatype used to record length of nested proofs & jlists.
@@ -87,19 +85,6 @@ namespace {
   }
 
   /**
-   * Checks whether the given codepoint is whitespace.
-   * 
-   * @param codepoint The codepoint to check.
-   * @return Whether the given codepoint is whitespace.
-   */
-  bool is_whitespace(int32_t const codepoint) {
-    return codepoint == ' '
-      || codepoint == '\t'
-      || codepoint == '\n'
-      || codepoint == '\r';
-  }
-
-  /**
    * Checks whether the given codepoint could be used in an identifier,
    * which consist of capital ASCII letters, lowercase ASCII letters,
    * and underscores.
@@ -117,7 +102,7 @@ namespace {
    * @param lexer The tree-sitter lexing control structure.
    */
   void consume_whitespace(TSLexer* const lexer) {
-    while (has_next(lexer) && is_whitespace(next_codepoint(lexer))) {
+    while (has_next(lexer) && iswspace(next_codepoint(lexer))) {
       skip(lexer);
     }
   }
@@ -278,7 +263,7 @@ namespace {
      * 
      * @param raw_level The unparsed contents of the <...> lexeme.
      */
-    ProofStepId(const std::string& raw_level) {
+    ProofStepId(const std::vector<char>& raw_level) {
       level = -1;
       if ('*' == raw_level.at(0)) {
         type = ProofStepIdType::STAR;
@@ -286,23 +271,20 @@ namespace {
         type = ProofStepIdType::PLUS;
       } else {
         type = ProofStepIdType::NUMBERED;
-        level = std::stoi(raw_level);
+        // We can't use std::stoi because it isn't included in the emcc
+        // build so will cause errors; thus we roll our own. raw_level
+        // should also be a std::string but that isn't included either.
+        // level = std::stoi(raw_level);
+        level = 0;
+        int32_t multiplier = 1;
+        for (int32_t i = raw_level.size()-1; i >= 0; i--) {
+          int8_t digit_value = raw_level.at(i) - 48;
+          level += digit_value * multiplier;
+          multiplier *= 10;
+        }
+
       }
     }
-    
-    /*
-    void print() {
-      printf("|PROOF STEP ID|\n");
-      printf("  TYPE:  %s\n",
-        ProofStepIdType::STAR == type
-        ? "*" : ProofStepIdType::PLUS == type
-        ? "+" : "Numbered"
-      );
-      if (ProofStepIdType::NUMBERED == type) {
-        printf("  LEVEL: %d\n", level);
-      }
-    }
-    */
   };
 
   /**
@@ -436,7 +418,7 @@ namespace {
   Lexeme lex_lookahead(
     TSLexer* const lexer,
     column_index& lexeme_start_col,
-    std::string& proof_step_id_level
+    std::vector<char>& proof_step_id_level
   ) {
     LexState state = LexState::CONSUME_LEADING_SPACE;
     Lexeme result_lexeme = Lexeme::OTHER;
@@ -445,7 +427,7 @@ namespace {
     switch (state) {
       case LexState::CONSUME_LEADING_SPACE:
         if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
-        if (is_whitespace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
+        if (iswspace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
         if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
         if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
         if ('<' == lookahead) MARK_THEN_ADVANCE(LexState::LT);
@@ -483,7 +465,7 @@ namespace {
         if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
         END_LEX_STATE();
       case LexState::LT:
-        proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
+        proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
         if (iswdigit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
@@ -726,7 +708,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROOF_LEVEL_NUMBER:
         if (iswdigit(lookahead)) {
-          proof_step_id_level += static_cast<char>(lookahead & CHAR_MAX);
+          proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
           ADVANCE(LexState::PROOF_LEVEL_NUMBER);
         }
         if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
@@ -1402,10 +1384,9 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols,
       column_index const next,
-      const std::string& proof_step_id_level
+      const std::vector<char>& proof_step_id_level
     ) {
       ProofStepId proof_step_id_token(proof_step_id_level);
-      //proof_step_id_token.print();
       if (valid_symbols[BEGIN_PROOF] || valid_symbols[BEGIN_PROOF_STEP]) {
         proof_level next_proof_level = -1;
         const proof_level current_proof_level = get_current_proof_level();
@@ -1439,7 +1420,6 @@ namespace {
             return false;
         }
 
-        //printf("Current,Next Proof Levels: (%d, %d)\n", current_proof_level, next_proof_level);
         if (next_proof_level > current_proof_level) {
           return emit_begin_proof(lexer, next_proof_level);
         } else if (next_proof_level == current_proof_level) {
@@ -1550,12 +1530,20 @@ namespace {
      * @return Whether a token was encountered.
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
-      // Tree-sitter calls the scanner with every symbol marked valid
-      // when it enters error recovery mode. Rather than checking the
-      // validity of every token, we put an unused external token called
-      // ERROR_SENTINEL last in the list of external tokens; if it is
-      // marked valid, so must the rest of them.
-      const bool is_error_recovery = valid_symbols[ERROR_SENTINEL];
+      // All symbols are marked as valid during error recovery.
+      const bool is_error_recovery =
+        valid_symbols[EXTRAMODULAR_TEXT]
+        && valid_symbols[BLOCK_COMMENT_TEXT]
+        && valid_symbols[INDENT]
+        && valid_symbols[NEWLINE]
+        && valid_symbols[DEDENT]
+        && valid_symbols[BEGIN_PROOF]
+        && valid_symbols[BEGIN_PROOF_STEP]
+        && valid_symbols[PROOF_KEYWORD]
+        && valid_symbols[BY_KEYWORD]
+        && valid_symbols[OBVIOUS_KEYWORD]
+        && valid_symbols[OMITTED_KEYWORD]
+        && valid_symbols[QED_KEYWORD];
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
@@ -1567,9 +1555,20 @@ namespace {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
-      } else {
+      } else if (
+        valid_symbols[INDENT]
+        || valid_symbols[NEWLINE]
+        || valid_symbols[DEDENT]
+        || valid_symbols[BEGIN_PROOF]
+        || valid_symbols[BEGIN_PROOF_STEP]
+        || valid_symbols[PROOF_KEYWORD]
+        || valid_symbols[BY_KEYWORD]
+        || valid_symbols[OBVIOUS_KEYWORD]
+        || valid_symbols[OMITTED_KEYWORD]
+        || valid_symbols[QED_KEYWORD]
+      ) {
         column_index col;
-        std::string proof_step_id_level;
+        std::vector<char> proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
           case Token::LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
@@ -1598,6 +1597,8 @@ namespace {
           default:
             return false;
         }
+      } else {
+        return false;
       }
     }
   };
