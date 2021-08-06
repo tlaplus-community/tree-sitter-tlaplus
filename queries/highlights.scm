@@ -1,4 +1,6 @@
 ; highlights.scm
+; Default capture names for tree-sitter highlight found here:
+; https://github.com/tree-sitter/tree-sitter/blob/59cd1c3962d5b39e07bff3d5e5449c8b78e7cf61/cli/src/highlight.rs#L150-L172
 
 ; Keywords
 [
@@ -57,33 +59,36 @@
   "WF_"
   "WITH"
   "WITNESS"
+  (def_eq)
+  (set_in)
+  (gets)
+  (forall)
+  (exists)
+  (temporal_forall)
+  (temporal_exists)
+  (all_map_to)
+  (maps_to)
+  (case_box)
+  (case_arrow)
+  (address)
 ] @keyword
 
 ; Literals
 (number) @number
 (string) @string
-(boolean) @boolean
 (primitive_value_set) @type
 
 ; Comments
 (comment) @comment
 (block_comment) @comment
 (unit (single_line) @comment)
-(extramodular_text) @text
 
 ; Constants, variables, and operators
-(module name: (identifier) @namespace)
-(extends (identifier) @namespace)
-(instance (identifier) @namespace)
-(module_definition (identifier) @namespace)
-(variable_declaration (identifier) @variable)
 (constant_declaration (identifier) @constant)
+(variable_declaration (identifier) @variable.builtin)
 (bound_prefix_op symbol: (_) @operator)
 (bound_infix_op symbol: (_) @operator)
 (bound_postfix_op symbol: (_) @operator)
-(prev_func_val) @punctuation.special
-(bullet_conj) @punctuation.special
-(bullet_disj) @punctuation.special
 
 ; Delimiters
 [
@@ -101,5 +106,6 @@
 [
   ","
   ":"
+  (bullet_conj)
+  (bullet_disj)
 ] @punctuation.delimiter
-
