@@ -2173,16 +2173,6 @@
     "fields": {}
   },
   {
-    "type": "bullet_conj",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "bullet_disj",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "cap",
     "named": true,
     "fields": {}
@@ -3405,7 +3395,7 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         }
       ]
@@ -5304,7 +5294,7 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "identifier_ref",
           "named": true
         },
         {
@@ -5911,6 +5901,33 @@
     "type": "lnot",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "local_definition",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "function_definition",
+          "named": true
+        },
+        {
+          "type": "instance",
+          "named": true
+        },
+        {
+          "type": "module_definition",
+          "named": true
+        },
+        {
+          "type": "operator_definition",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "lor",
@@ -9525,10 +9542,6 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "identifier_ref",
           "named": true
         },
@@ -10493,6 +10506,10 @@
         },
         {
           "type": "instance",
+          "named": true
+        },
+        {
+          "type": "local_definition",
           "named": true
         },
         {
@@ -11793,6 +11810,14 @@
   },
   {
     "type": "asterisk",
+    "named": true
+  },
+  {
+    "type": "bullet_conj",
+    "named": true
+  },
+  {
+    "type": "bullet_disj",
     "named": true
   },
   {

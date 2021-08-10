@@ -13,3 +13,40 @@ op == f(10)
     definition: (bound_op name: (identifier_ref) (number))
   ))
 (double_line)))
+
+===============================|||
+INSTANCE With Jlist Substitutions
+===============================|||
+
+---- MODULE Test ----
+INSTANCE M WITH
+  A <- /\ 1,
+  B <- /\ 2,
+  C <- /\ \/ 3
+          \/ 4,
+  D <- \/ 5
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (instance (identifier_ref)
+    (substitution (identifier_ref) (gets)
+      (conj_list (conj_item (bullet_conj) (number)))
+    )
+    (substitution (identifier_ref) (gets)
+      (conj_list (conj_item (bullet_conj) (number)))
+    )
+    (substitution (identifier_ref) (gets)
+      (conj_list (conj_item (bullet_conj)
+        (disj_list
+          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (number))
+        )
+      ))
+    )
+    (substitution (identifier_ref) (gets)
+      (disj_list (disj_item (bullet_disj) (number)))
+    )
+  ))
+(double_line)))

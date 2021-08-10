@@ -71,7 +71,8 @@ module.exports = grammar({
     $.extramodular_text,
     $._block_comment_text,
     $._indent,
-    $._newline,
+    $.bullet_conj,
+    $.bullet_disj,
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
@@ -183,8 +184,6 @@ module.exports = grammar({
     rangle_bracket_sub: $ => choice('>>_', '〉_'),
     case_box:           $ => choice('[]', '□'),
     case_arrow:         $ => choice('->', '⟶'),
-    bullet_conj:        $ => choice('/\\', '∧'),
-    bullet_disj:        $ => choice('\\/', '∨'),
     colon:              $ => ':',
     address:            $ => '@',
     label_as:           $ => choice('::', '∷'),
@@ -217,22 +216,31 @@ module.exports = grammar({
     identifier: $ => /\w*[A-Za-z]\w*/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
-    extends: $ => seq('EXTENDS', commaList1($.identifier)),
+    extends: $ => seq(
+      'EXTENDS', commaList1(alias($.identifier, $.identifier_ref))
+    ),
 
     // A module-level definition
     unit: $ => choice(
-        $.variable_declaration,
-        $.constant_declaration,
-        $.recursive_declaration,
-        $.use_or_hide,
-        seq(optional('LOCAL'), $.operator_definition),
-        seq(optional('LOCAL'), $.function_definition),
-        seq(optional('LOCAL'), $.instance),
-        seq(optional('LOCAL'), $.module_definition),
-        $.assumption,
-        $.theorem,
-        $.module,
-        $.single_line
+      $.variable_declaration,
+      $.constant_declaration,
+      $.recursive_declaration,
+      $.use_or_hide,
+      $.local_definition,
+      $._definition,
+      $.assumption,
+      $.theorem,
+      $.module,
+      $.single_line
+    ),
+    
+    local_definition: $ => seq('LOCAL', $._definition),
+
+    _definition: $ => choice(
+      $.operator_definition,
+      $.function_definition,
+      $.instance,
+      $.module_definition,
     ),
 
     // VARIABLES v1, v2, v3
@@ -334,14 +342,14 @@ module.exports = grammar({
     // INSTANCE ModuleName WITH x <- y, w <- z
     instance: $ => seq(
       'INSTANCE',
-      $.identifier,
+      alias($.identifier, $.identifier_ref),
       optional(seq('WITH', commaList1($.substitution)))
     ),
 
     // x <- y, w <- z
     substitution: $ => seq(
       choice(
-        $.identifier,
+        alias($.identifier, $.identifier_ref),
         $.standalone_prefix_op_symbol,
         $.infix_op_symbol,
         $.postfix_op_symbol
@@ -703,8 +711,8 @@ module.exports = grammar({
     // /\ x
     // /\ y
     conj_list: $ => seq(
-      $._indent, $.conj_item,
-      repeat(seq($._newline, $.conj_item)),
+      $._indent,
+      repeat1($.conj_item),
       $._dedent
     ),
 
@@ -715,8 +723,8 @@ module.exports = grammar({
     // \/ x
     // \/ y
     disj_list: $ => seq(
-      $._indent, $.disj_item,
-      repeat(seq($._newline, $.disj_item)),
+      $._indent,
+      repeat1($.disj_item),
       $._dedent
     ),
 
@@ -1082,21 +1090,21 @@ module.exports = grammar({
     // <+>foo22..
     // Used when writing another proof step
     // proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
-    proof_step_id: $ => prec.dynamic(1, seq(
+    proof_step_id: $ => seq(
       '<',
       alias(token.immediate(/\d+|\+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]*/), $.name),
-      repeat(token.immediate('.'))
-    )),
+      token.immediate(/\.*/)
+    ),
 
     // Used when referring to a prior proof step
     // proof_step_ref: $ => /<(\d+|\*)>[\w|\d]+/,
-    proof_step_ref: $ => prec.dynamic(1, seq(
+    proof_step_ref: $ => seq(
       '<',
       alias(token.immediate(/\d+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]+/), $.name),
-    )),
+    ),
   }
 });

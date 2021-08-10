@@ -131,19 +131,19 @@ Proof with Variety of Step Types
 
 ---- MODULE Test ----
 THEOREM TRUE
-<1>a. op == 1
-<1>b. DEFINE op2 == 2
-<1>c. HAVE 3
-<1>d. WITNESS 2, 3
-<1>e. TAKE a, b, c
-<1>f. 4
-<1>g. SUFFICES 5
-<1>h. CASE 6
-<1>i. PICK a, b, c : 7
-<1>j. HIDE 8
-<1>k. USE ONLY 9
-<1>l. INSTANCE M
-<1>m. QED
+<1>a..... op == 1
+<1>b..... DEFINE op2 == 2
+<1>c..... HAVE 3
+<1>d..... WITNESS 2, 3
+<1>e..... TAKE a, b, c
+<1>f..... 4
+<1>g..... SUFFICES 5
+<1>h..... CASE 6
+<1>i..... PICK a, b, c : 7
+<1>j..... HIDE 8
+<1>k..... USE ONLY 9
+<1>l..... INSTANCE M
+<1>m..... QED
 ====
 
 -------------------------------|||
@@ -162,7 +162,7 @@ THEOREM TRUE
       (proof_step (proof_step_id (level) (name)) (pick_proof_step (identifier) (identifier) (identifier) (number)))
       (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
       (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
-      (proof_step (proof_step_id (level) (name)) (instance (identifier)))
+      (proof_step (proof_step_id (level) (name)) (instance (identifier_ref)))
       (qed_step (proof_step_id (level) (name)))
     )
   ))
