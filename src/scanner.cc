@@ -12,7 +12,8 @@ namespace {
     EXTRAMODULAR_TEXT,  // Freeform text between modules.
     BLOCK_COMMENT_TEXT, // Text inside block comments.
     INDENT,             // Marks beginning of junction list.
-    NEWLINE,            // Separates items of junction list.
+    BULLET_CONJ,        // New item of a conjunction list.
+    BULLET_DISJ,        // New item of a disjunction list.
     DEDENT,             // Marks end of junction list.
     BEGIN_PROOF,        // Marks the beginning of an entire proof.
     BEGIN_PROOF_STEP,   // Marks the beginning of a proof step.
@@ -325,6 +326,7 @@ namespace {
     GT,
     EQ,
     DASH,
+    COMMA,
     LAND,
     LOR,
     L_PAREN,
@@ -372,6 +374,7 @@ namespace {
     GT,
     EQ,
     DASH,
+    COMMA,
     LAND,
     LOR,
     L_PAREN,
@@ -434,6 +437,7 @@ namespace {
         if ('>' == lookahead) MARK_THEN_ADVANCE(LexState::GT);
         if ('=' == lookahead) MARK_THEN_ADVANCE(LexState::EQ);
         if ('-' == lookahead) MARK_THEN_ADVANCE(LexState::DASH);
+        if (',' == lookahead) MARK_THEN_ADVANCE(LexState::COMMA);
         if ('(' == lookahead) MARK_THEN_ADVANCE(LexState::L_PAREN);
         if (')' == lookahead) MARK_THEN_ADVANCE(LexState::R_PAREN);
         if (']' == lookahead) MARK_THEN_ADVANCE(LexState::R_SQUARE_BRACKET);
@@ -483,6 +487,9 @@ namespace {
         ACCEPT_LEXEME(Lexeme::DASH);
         if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
         if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(LexState::SINGLE_LINE);
+        END_LEX_STATE();
+      case LexState::COMMA:
+        ACCEPT_LEXEME(Lexeme::COMMA);
         END_LEX_STATE();
       case LexState::LAND:
         ACCEPT_LEXEME(Lexeme::LAND);
@@ -775,6 +782,7 @@ namespace {
       case Lexeme::GT: return Token::OTHER;
       case Lexeme::EQ: return Token::OTHER;
       case Lexeme::DASH: return Token::OTHER;
+      case Lexeme::COMMA: return Token::RIGHT_DELIMITER;
       case Lexeme::LAND: return Token::LAND;
       case Lexeme::LOR: return Token::LOR;
       case Lexeme::L_PAREN: return Token::OTHER;
@@ -1049,14 +1057,26 @@ namespace {
     }
 
     /**
-     * Emits a NEWLINE token, marking the start of a new entry in the
-     * current jlist.
+     * Emits a BULLET_CONJ or BULLET_DISJ token, marking the start of a
+     * new item in the current jlist.
      *
      * @param lexer The tree-sitter lexing control structure.
-     * @return Whether a NEWLINE token was emitted.
+     * @param type The type of junction token to emit.
+     * @return Whether a BULLET token was emitted.
      */
-    bool emit_newline(TSLexer* const lexer) {
-      lexer->result_symbol = NEWLINE;
+    bool emit_bullet(TSLexer* const lexer, const JunctType type) {
+      switch (type) {
+        case JunctType::CONJUNCTION:
+          lexer->result_symbol = BULLET_CONJ;
+          break;
+        case JunctType::DISJUNCTION:
+          lexer->result_symbol = BULLET_DISJ;
+          break;
+        default:
+          return false;
+      }
+      
+      lexer->mark_end(lexer);
       return true;
     }
 
@@ -1084,7 +1104,7 @@ namespace {
      *    -> this is an infix junct operator; emit nothing
      * 3. The junct is equal to the cpos of the current jlist, and is
      *    the same junct type (conjunction or disjunction)
-     *    -> this is an item of the current jlist; emit NEWLINE token
+     *    -> this is an item of the current jlist; emit BULLET token
      * 4. The junct is equal to the cpos of the current jlist, and is
      *    a DIFFERENT junct type (conjunction vs. disjunction)
      *    -> this is an infix operator that also ends the current list
@@ -1115,14 +1135,14 @@ namespace {
            * This is an infix junction symbol. Tree-sitter will only look for
            * a new jlist at the start of an expression rule; infix operators
            * occur when joining two expression rules together, so tree-sitter
-           * is only looking for either NEWLINE or DEDENT rules. Examples:
+           * is only looking for either BULLET or DEDENT rules. Examples:
            * 
            *   /\ a /\ b
            *       ^ tree-sitter will NEVER look for an INDENT here
            * 
            *   /\ a
            *   /\ b
-           *  ^ tree-sitter WILL look for a NEWLINE here
+           *  ^ tree-sitter WILL look for a BULLET here
            * 
            *   /\ /\ a
            *     ^ tree-sitter WILL look for an INDENT here
@@ -1134,7 +1154,7 @@ namespace {
           /**
            * This is another entry in the jlist.
            */
-          return emit_newline(lexer);
+          return emit_bullet(lexer, next_type);
         } else {
           /** 
            * Disjunct in alignment with conjunct list or vice-versa; treat
@@ -1170,12 +1190,12 @@ namespace {
      * 
      *    /\ ( a + b )
      *              ^ tree-sitter will never look for an INDENT,
-     *                NEWLINE, or DEDENT token here; it is only
+     *                BULLET, or DEDENT token here; it is only
      *                looking for another infix operator or the
      *                right-delimiter.
      * 
      *    ( /\ a + b )
-     *              ^ tree-sitter WILL look for an INDENT, NEWLINE, or
+     *              ^ tree-sitter WILL look for an INDENT, BULLET, or
      *                DEDENT token here in addition to looking for an
      *                infix operator; it also wants to see a DEDENT
      *                token before seeing the right delimiter, although
@@ -1521,9 +1541,7 @@ namespace {
     }
     
     /**
-     * INDENT tokens are emitted prior to the first junct in a list
-     * NEWLINE tokens are emitted between list juncts
-     * DEDENT tokens are emitted after the final junct in a list
+     * Scans for various possible external tokens.
      * 
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1535,7 +1553,8 @@ namespace {
         valid_symbols[EXTRAMODULAR_TEXT]
         && valid_symbols[BLOCK_COMMENT_TEXT]
         && valid_symbols[INDENT]
-        && valid_symbols[NEWLINE]
+        && valid_symbols[BULLET_CONJ]
+        && valid_symbols[BULLET_DISJ]
         && valid_symbols[DEDENT]
         && valid_symbols[BEGIN_PROOF]
         && valid_symbols[BEGIN_PROOF_STEP]
@@ -1557,7 +1576,8 @@ namespace {
         return scan_block_comment_text(lexer);
       } else if (
         valid_symbols[INDENT]
-        || valid_symbols[NEWLINE]
+        || valid_symbols[BULLET_CONJ]
+        || valid_symbols[BULLET_DISJ]
         || valid_symbols[DEDENT]
         || valid_symbols[BEGIN_PROOF]
         || valid_symbols[BEGIN_PROOF_STEP]

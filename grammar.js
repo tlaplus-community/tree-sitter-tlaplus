@@ -22,14 +22,14 @@ function arity2(op, expr) {
 function arity0OrN(op, expr) {
   return seq(
     field('name', op),
-    field('parameters', optional(seq('(', commaList1(expr), ')'))))
+    field('parameter', optional(seq('(', commaList1(expr), ')'))))
 }
 
 // An operator with 1 or more parameters.
 function arity1OrN(op, expr) {
   return seq(
     field('name', op),
-    field('parameters', seq('(', commaList1(expr), ')'))
+    seq('(', commaList1(expr), ')')
   )
 }
 
@@ -71,7 +71,8 @@ module.exports = grammar({
     $.extramodular_text,
     $._block_comment_text,
     $._indent,
-    $._newline,
+    $.bullet_conj,
+    $.bullet_disj,
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
@@ -183,8 +184,6 @@ module.exports = grammar({
     rangle_bracket_sub: $ => choice('>>_', '〉_'),
     case_box:           $ => choice('[]', '□'),
     case_arrow:         $ => choice('->', '⟶'),
-    bullet_conj:        $ => choice('/\\', '∧'),
-    bullet_disj:        $ => choice('\\/', '∨'),
     colon:              $ => ':',
     address:            $ => '@',
     label_as:           $ => choice('::', '∷'),
@@ -217,22 +216,31 @@ module.exports = grammar({
     identifier: $ => /\w*[A-Za-z]\w*/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
-    extends: $ => seq('EXTENDS', commaList1($.identifier)),
+    extends: $ => seq(
+      'EXTENDS', commaList1(alias($.identifier, $.identifier_ref))
+    ),
 
     // A module-level definition
     unit: $ => choice(
-        $.variable_declaration,
-        $.constant_declaration,
-        $.recursive_declaration,
-        $.use_or_hide,
-        seq(optional("LOCAL"), $.operator_definition),
-        seq(optional("LOCAL"), $.function_definition),
-        seq(optional("LOCAL"), $.instance),
-        seq(optional("LOCAL"), $.module_definition),
-        $.assumption,
-        $.theorem,
-        $.module,
-        $.single_line
+      $.variable_declaration,
+      $.constant_declaration,
+      $.recursive_declaration,
+      $.use_or_hide,
+      $.local_definition,
+      $._definition,
+      $.assumption,
+      $.theorem,
+      $.module,
+      $.single_line
+    ),
+    
+    local_definition: $ => seq('LOCAL', $._definition),
+
+    _definition: $ => choice(
+      $.operator_definition,
+      $.function_definition,
+      $.instance,
+      $.module_definition,
     ),
 
     // VARIABLES v1, v2, v3
@@ -257,9 +265,9 @@ module.exports = grammar({
     // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
       arity1OrN($.identifier, $.placeholder),
-      seq($.standalone_prefix_op_symbol, $.placeholder),
-      seq($.placeholder, $.infix_op_symbol, $.placeholder),
-      seq($.placeholder, $.postfix_op_symbol)
+      seq(field('name', $.standalone_prefix_op_symbol), $.placeholder),
+      seq($.placeholder, field('name', $.infix_op_symbol), $.placeholder),
+      seq($.placeholder, field('name', $.postfix_op_symbol))
     ),
 
     // Either an identifier or an operator declaration
@@ -276,20 +284,30 @@ module.exports = grammar({
     operator_definition: $ => seq(
       choice(
         arity0OrN($.identifier, $._id_or_op_declaration),
-        seq($.standalone_prefix_op_symbol, $.identifier),
-        seq($.identifier, $.infix_op_symbol, $.identifier),
-        seq($.identifier, $.postfix_op_symbol)
+        seq(
+          field('name', $.standalone_prefix_op_symbol),
+          field('parameter', $.identifier)
+        ),
+        seq(
+          field('parameter', $.identifier),
+          field('name', $.infix_op_symbol),
+          field('parameter', $.identifier)
+        ),
+        seq(
+          field('parameter', $.identifier),
+          field('name', $.postfix_op_symbol)
+        )
       ),
       $.def_eq,
-      $._expr
+      field('definition', $._expr)
     ),
 
     // f[x \in Nat] == 2*x
     function_definition: $ => seq(
-      $.identifier,
+      field('name', $.identifier),
       '[', commaList1($.quantifier_bound), ']',
       $.def_eq,
-      $._expr
+      field('definition', $._expr)
     ),
 
     // x, y, z \in S
@@ -300,7 +318,7 @@ module.exports = grammar({
         $.tuple_of_identifiers
       ),
       $.set_in,
-      $._expr
+      field('set', $._expr)
     ),
 
     // x \in S
@@ -324,14 +342,14 @@ module.exports = grammar({
     // INSTANCE ModuleName WITH x <- y, w <- z
     instance: $ => seq(
       'INSTANCE',
-      $.identifier,
+      alias($.identifier, $.identifier_ref),
       optional(seq('WITH', commaList1($.substitution)))
     ),
 
     // x <- y, w <- z
     substitution: $ => seq(
       choice(
-        $.identifier,
+        alias($.identifier, $.identifier_ref),
         $.standalone_prefix_op_symbol,
         $.infix_op_symbol,
         $.postfix_op_symbol
@@ -404,7 +422,7 @@ module.exports = grammar({
     module_definition: $ => seq(
       arity0OrN($.identifier, $._id_or_op_declaration),
       $.def_eq,
-      $.instance
+      field('definition', $.instance)
     ),
 
     /************************************************************************/
@@ -693,8 +711,8 @@ module.exports = grammar({
     // /\ x
     // /\ y
     conj_list: $ => seq(
-      $._indent, $.conj_item,
-      repeat(seq($._newline, $.conj_item)),
+      $._indent,
+      repeat1($.conj_item),
       $._dedent
     ),
 
@@ -705,8 +723,8 @@ module.exports = grammar({
     // \/ x
     // \/ y
     disj_list: $ => seq(
-      $._indent, $.disj_item,
-      repeat(seq($._newline, $.disj_item)),
+      $._indent,
+      repeat1($.disj_item),
       $._dedent
     ),
 
@@ -1072,21 +1090,21 @@ module.exports = grammar({
     // <+>foo22..
     // Used when writing another proof step
     // proof_step_id: $ => /<(\d+|\+|\*)>[\w|\d]*\.*/,
-    proof_step_id: $ => prec.dynamic(1, seq(
+    proof_step_id: $ => seq(
       '<',
       alias(token.immediate(/\d+|\+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]*/), $.name),
-      repeat(token.immediate('.'))
-    )),
+      token.immediate(/\.*/)
+    ),
 
     // Used when referring to a prior proof step
     // proof_step_ref: $ => /<(\d+|\*)>[\w|\d]+/,
-    proof_step_ref: $ => prec.dynamic(1, seq(
+    proof_step_ref: $ => seq(
       '<',
       alias(token.immediate(/\d+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]+/), $.name),
-    )),
+    ),
   }
 });

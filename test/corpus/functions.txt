@@ -1,0 +1,33 @@
+===============================|||
+Jlist Inside Function Evaluation
+===============================|||
+
+---- MODULE Test ----
+op ==
+    /\ 1
+    /\ f[
+        \/ 2
+        \/ 3,
+        /\ 4
+       ]
+====
+
+-------------------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (operator_definition
+    (identifier) (def_eq)
+    (conj_list
+      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj)
+        (function_evaluation (identifier_ref)
+          (disj_list
+            (disj_item (bullet_disj) (number))
+            (disj_item (bullet_disj) (number))
+          )
+          (conj_list (conj_item (bullet_conj) (number)))
+        )
+      )
+    )
+  ))
+(double_line)))

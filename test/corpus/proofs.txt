@@ -131,19 +131,19 @@ Proof with Variety of Step Types
 
 ---- MODULE Test ----
 THEOREM TRUE
-<1>a. op == 1
-<1>b. DEFINE op2 == 2
-<1>c. HAVE 3
-<1>d. WITNESS 2, 3
-<1>e. TAKE a, b, c
-<1>f. 4
-<1>g. SUFFICES 5
-<1>h. CASE 6
-<1>i. PICK a, b, c : 7
-<1>j. HIDE 8
-<1>k. USE ONLY 9
-<1>l. INSTANCE M
-<1>m. QED
+<1>a..... op == 1
+<1>b..... DEFINE op2 == 2
+<1>c..... HAVE 3
+<1>d..... WITNESS 2, 3
+<1>e..... TAKE a, b, c
+<1>f..... 4
+<1>g..... SUFFICES 5
+<1>h..... CASE 6
+<1>i..... PICK a, b, c : 7
+<1>j..... HIDE 8
+<1>k..... USE ONLY 9
+<1>l..... INSTANCE M
+<1>m..... QED
 ====
 
 -------------------------------|||
@@ -162,7 +162,7 @@ THEOREM TRUE
       (proof_step (proof_step_id (level) (name)) (pick_proof_step (identifier) (identifier) (identifier) (number)))
       (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
       (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
-      (proof_step (proof_step_id (level) (name)) (instance (identifier)))
+      (proof_step (proof_step_id (level) (name)) (instance (identifier_ref)))
       (qed_step (proof_step_id (level) (name)))
     )
   ))
@@ -392,3 +392,74 @@ THEOREM TRUE
   ))
 (double_line)))
 
+==============================|||
+Proof Containing Jlist
+==============================|||
+
+---- MODULE Test ----
+THEOREM TRUE
+<*>a1a...
+  /\ 1
+  /\ \/ 2
+   <+>b2b... WITNESS
+     \/ 3
+     \/ /\ 4,
+     /\ \/ 5
+     /\ 6
+   <*>c3c... QED BY
+     /\ 7
+     /\ \/ 8,
+     \/ /\ 9
+     \/ 10
+<*>d4d... QED BY
+  \/ 11
+  \/ /\ 12,
+  /\ \/ 13
+  /\ 14
+====
+
+------------------------------|||
+
+
+(source_file (module (single_line) (identifier) (single_line)
+  (unit (theorem (boolean) (non_terminal_proof
+    (proof_step (proof_step_id (level) (name)) (suffices_proof_step
+      (conj_list
+        (conj_item (bullet_conj) (number))
+        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+      )
+      (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (witness_proof_step
+          (disj_list
+            (disj_item (bullet_disj) (number))
+            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
+          )
+          (conj_list
+            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+            (conj_item (bullet_conj) (number))
+          )
+        ))
+        (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr
+          (conj_list
+            (conj_item (bullet_conj) (number))
+            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+          )
+          (disj_list
+            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
+            (disj_item (bullet_disj) (number))
+          )
+        ))))
+      )
+    ))
+    (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr
+      (disj_list
+        (disj_item (bullet_disj) (number))
+        (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
+      )
+      (conj_list
+        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+        (conj_item (bullet_conj) (number))
+      )
+    ))))
+  )))
+(double_line)))

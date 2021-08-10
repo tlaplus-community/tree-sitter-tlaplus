@@ -107,7 +107,7 @@ op ==
       (conj_item
         (bullet_conj)
         (let_in
-          (module_definition (identifier) (def_eq) (instance (identifier)))
+          (module_definition (identifier) (def_eq) (instance (identifier_ref)))
           (identifier_ref)
         )
       )
@@ -221,7 +221,7 @@ op ==
       (disj_item
         (bullet_disj)
         (let_in
-          (module_definition (identifier) (def_eq) (instance (identifier)))
+          (module_definition (identifier) (def_eq) (instance (identifier_ref)))
           (identifier_ref)
         )
       )

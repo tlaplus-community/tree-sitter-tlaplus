@@ -1,4 +1,6 @@
 ; highlights.scm
+; Default capture names for tree-sitter highlight found here:
+; https://github.com/tree-sitter/tree-sitter/blob/59cd1c3962d5b39e07bff3d5e5449c8b78e7cf61/cli/src/highlight.rs#L150-L172
 
 ; Keywords
 [
@@ -57,33 +59,49 @@
   "WF_"
   "WITH"
   "WITNESS"
+  (def_eq)
+  (set_in)
+  (gets)
+  (forall)
+  (exists)
+  (temporal_forall)
+  (temporal_exists)
+  (all_map_to)
+  (maps_to)
+  (case_box)
+  (case_arrow)
+  (address)
+  (label_as)
 ] @keyword
 
 ; Literals
 (number) @number
 (string) @string
-(boolean) @boolean
 (primitive_value_set) @type
 
 ; Comments
 (comment) @comment
 (block_comment) @comment
 (unit (single_line) @comment)
-(extramodular_text) @text
 
 ; Constants, variables, and operators
-(module name: (identifier) @namespace)
-(extends (identifier) @namespace)
-(instance (identifier) @namespace)
-(module_definition (identifier) @namespace)
-(variable_declaration (identifier) @variable)
 (constant_declaration (identifier) @constant)
-(bound_prefix_op symbol: (_) @operator)
-(bound_infix_op symbol: (_) @operator)
-(bound_postfix_op symbol: (_) @operator)
-(prev_func_val) @punctuation.special
-(bullet_conj) @punctuation.special
-(bullet_disj) @punctuation.special
+(variable_declaration (identifier) @variable.builtin)
+(operator_definition name: (_) @operator)
+(module_definition name: (identifier) @operator)
+(function_definition name: (identifier) @function)
+(bound_prefix_op symbol: (_) @function.builtin)
+(bound_infix_op symbol: (_) @function.builtin)
+(bound_postfix_op symbol: (_) @function.builtin)
+
+; Parameters
+(operator_definition parameter: (identifier) @variable.parameter)
+(operator_definition (operator_declaration name: (_) @variable.parameter))
+(module_definition parameter: (identifier) @variable.parameter)
+(module_definition (operator_declaration name: (_) @variable.parameter))
+(function_definition (quantifier_bound (identifier) @variable.parameter))
+(function_definition (quantifier_bound (tuple_of_identifiers (identifier) @variable.parameter)))
+(lambda (identifier) @variable.parameter)
 
 ; Delimiters
 [
@@ -97,9 +115,18 @@
   "]_"
   "("
   ")"
+  "<"
+  ">"
 ] @punctuation.bracket
 [
   ","
   ":"
+  "."
+  "!"
+  (bullet_conj)
+  (bullet_disj)
 ] @punctuation.delimiter
 
+; Proofs
+(proof_step_id (level) @property)
+(proof_step_id (name) @attribute)

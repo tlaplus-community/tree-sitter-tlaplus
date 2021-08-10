@@ -82,8 +82,8 @@
 
 ; Constants, variables, and operators
 (module name: (identifier) @namespace)
-(extends (identifier) @namespace)
-(instance (identifier) @namespace)
+(extends (identifier_ref) @namespace)
+(instance (identifier_ref) @namespace)
 (module_definition (identifier) @namespace)
 (variable_declaration (identifier) @variable)
 (constant_declaration (identifier) @constant)
@@ -116,6 +116,5 @@
   ":"
   "<"
   ">"
-  "."
 ] @punctuation.delimiter
 
