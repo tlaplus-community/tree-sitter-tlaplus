@@ -7,22 +7,26 @@ on:
       - v*
 
 jobs:
-  rust-crate:
-    name: Node Module - Build/Test/Publish
+  node-module:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Install node
         uses: actions/setup-node@v2
-      - name: Build
-        run: npm install
-      - name: Test
-        run: node_modules/.bin/tree-sitter test
       - name: Publish
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+  rust-crate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+      - name: Cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
   

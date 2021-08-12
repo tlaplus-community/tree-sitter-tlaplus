@@ -90,3 +90,14 @@ jobs:
         with:
           name: node-module
           path: tlaplus-tree-sitter-tlaplus-*.tgz
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+      - name: Cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: Cargo publish
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --dry-run
