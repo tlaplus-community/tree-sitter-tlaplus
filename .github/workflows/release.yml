@@ -1,10 +1,7 @@
 name: Release
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - v*
+  release:
+    types: [created]
 
 jobs:
   node-module-npmjs:
@@ -19,7 +16,7 @@ jobs:
       - name: Build
         run: npm install
       - name: Publish
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
@@ -35,7 +32,7 @@ jobs:
       - name: Build
         run: npm install
       - name: Publish
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.GPR_AUTH_TOKEN}}
 
