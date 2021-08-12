@@ -1,6 +1,6 @@
 {
-  "name": "tree-sitter-tlaplus",
-  "version": "0.0.1",
+  "name": "@tlaplus/tree-sitter-tlaplus",
+  "version": "0.1.0",
   "description": "A tree-sitter grammar for TLA+",
   "main": "bindings/node",
   "scripts": {
@@ -13,7 +13,8 @@
   "keywords": [
     "TLA+",
     "tree-sitter",
-    "grammar"
+    "grammar",
+    "parser"
   ],
   "author": "Andrew Helwer",
   "license": "MIT",

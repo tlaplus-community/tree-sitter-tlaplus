@@ -1,12 +1,14 @@
 [package]
 name = "tree-sitter-tlaplus"
-description = "tlaplus grammar for the tree-sitter parsing library"
-version = "0.0.1"
-keywords = ["incremental", "parsing", "tlaplus"]
-categories = ["parsing", "text-editors"]
-repository = "https://github.com/tree-sitter/tree-sitter-javascript"
-edition = "2018"
+description = "A tree-sitter grammar for TLA+"
+version = "0.1.0"
+authors = ["Andrew Helwer"]
 license = "MIT"
+readme = "README.md"
+keywords = ["tlaplus", "tree-sitter", "grammar", "parser"]
+categories = ["parsing", "text-editors"]
+repository = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
+edition = "2018"
 
 build = "bindings/rust/build.rs"
 include = [
@@ -14,13 +16,14 @@ include = [
   "grammar.js",
   "queries/*",
   "src/*",
+  "./LICENSE.md"
 ]
 
 [lib]
 path = "bindings/rust/lib.rs"
 
 [dependencies]
-tree-sitter = "0.17"
+tree-sitter = "0.19.5"
 
 [build-dependencies]
 cc = "1.0"

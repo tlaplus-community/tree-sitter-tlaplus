@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Install node
+      - name: Install Node.js
         uses: actions/setup-node@v2
       - name: Build
         run: npm install
@@ -42,23 +42,30 @@ jobs:
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
+  check-generated-files:
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+      - name: Build
+        run: npm install
       - name: Generate parser code
         run: node_modules/.bin/tree-sitter generate
+      - name: Renormalize line endings
+        shell: bash
+        run: git add --renormalize .
       - name: Install Emscripten
-        if: runner.os == 'Windows'
         uses: mymindstorm/setup-emsdk@v10
         with:
           version: 2.0.16
       - name: Generate parser WASM
-        if: runner.os == 'Windows'
         run: node_modules/.bin/tree-sitter build-wasm
       - name: Move parser WASM
-        if: runner.os == 'Windows'
         shell: bash
         run: mv tree-sitter-tlaplus.wasm ./docs/js/tree-sitter-tlaplus.wasm
-      - name: Renormalize line endings
-        shell: bash
-        run: git add --renormalize .
       - name: List changes
         shell: bash
         run: git status

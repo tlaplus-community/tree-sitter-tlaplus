@@ -1,7 +1,7 @@
 Cargo.lock
 node_modules
+examples/*/node_modules
 build
-package-lock.json
 target
 .vscode
 .vs
@@ -13,3 +13,4 @@ target
 *.wasm
 Test.tla
 debug.txt
+package-lock.json
