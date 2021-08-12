@@ -5,4 +5,4 @@ edition = "2018"
 
 [dependencies]
 tree-sitter = "0.19.5"
-tree-sitter-tlaplus = { path = "../../target/package/tree-sitter-tlaplus-0.1.0" }
+tree-sitter-tlaplus = "0.1.0"

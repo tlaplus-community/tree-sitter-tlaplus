@@ -8,7 +8,6 @@ fn main() {
         f(x) == x
         ===="#;
     let tree = parser.parse(source_code, None).unwrap();
-    println!("{:#?}", tree);
-    tree.get_root();
+    println!("{}", tree.root_node().to_sexp());
 }
 
