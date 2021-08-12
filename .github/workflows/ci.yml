@@ -92,6 +92,8 @@ jobs:
           path: tlaplus-tree-sitter-tlaplus-*.tgz
       - name: Install Rust
         uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Cargo check
         uses: actions-rs/cargo@v1
         with:
