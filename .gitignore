@@ -12,3 +12,4 @@ target
 *.wasm
 Test.tla
 debug.txt
+package-lock.json
