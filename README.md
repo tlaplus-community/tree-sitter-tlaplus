@@ -10,8 +10,9 @@ You can take the parser for a spin at https://tlaplus-community.github.io/tree-s
 
 ## Use
 There are a number of avenues available for consuming & using the parser:
- * Use this grammar's [node module](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus) in conjunction with the tree-sitter [node.js bindings](https://www.npmjs.com/package/tree-sitter); see the [typescript example](examples/typescript).
- * Use this grammar's [rust crate](https://crates.io/crates/tree-sitter-tlaplus) in conjunction with the tree-sitter [rust bindings](https://crates.io/crates/tree-sitter); see the [rust example](examples/rust).
+ * Use this grammar's [Node.js module](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus) in conjunction with the tree-sitter [Node.js bindings](https://www.npmjs.com/package/tree-sitter); see the [TypeScript example](examples/typescript).
+ * Use this grammar's [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) in conjunction with the tree-sitter [Rust bindings](https://crates.io/crates/tree-sitter); see the [Rust example](examples/rust).
+ * Clone this repo then consume it with the [Python bindings](https://pypi.org/project/tree-sitter/); see the [Python example](examples/python).
  * Use the [tree-sitter CLI](https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md) to directly parse or highlight files from the command line (this is mostly used for development & testing).
 
 ## Build & Test

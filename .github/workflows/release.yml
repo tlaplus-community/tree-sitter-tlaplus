@@ -12,8 +12,10 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
-      - name: Install node
+      - name: Install Node.js
         uses: actions/setup-node@v2
+      - name: Build
+        run: npm install
       - name: Publish
         run: npm publish
         env:
@@ -23,12 +25,17 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
-      - name: Install latest nightly
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Cargo check
+      - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: check
+      - name: Publish
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{secrets.CRATES_AUTH_TOKEN}}
   
