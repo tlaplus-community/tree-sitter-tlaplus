@@ -7,19 +7,38 @@ on:
       - v*
 
 jobs:
-  node-module:
+  node-module-npmjs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
       - name: Install Node.js
         uses: actions/setup-node@v2
+        with:
+          registry-url: https://registry.npmjs.org/
       - name: Build
         run: npm install
       - name: Publish
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
+  node-module-gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          registry-url: https://npm.pkg.github.com/
+      - name: Build
+        run: npm install
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GPR_AUTH_TOKEN}}
+
   rust-crate:
     runs-on: ubuntu-latest
     steps:
@@ -38,4 +57,3 @@ jobs:
         with:
           command: publish
           args: --token ${{secrets.CRATES_AUTH_TOKEN}}
-  
