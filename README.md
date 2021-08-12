@@ -1,11 +1,18 @@
 # tree-sitter-tlaplus
+[![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
 
 ## Overview
-This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for [TLA+](https://en.wikipedia.org/wiki/TLA%2B), a formal specification language.
-Tree-sitter is an incremental error-tolerant parser generator primarily aimed at language tooling such as highlighting, code folding, symbol finding, and other tasks requiring knowledge of the syntax tree.
+This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for [TLA+](https://en.wikipedia.org/wiki/TLA%2B), the formal specification language.
+Tree-sitter is an incremental error-tolerant parser generator primarily aimed at language tooling such as highlighting, code folding, symbol finding, and other tasks making use of its fully-featured syntax tree query API.
 This grammar is intended to function gracefully while parsing a source file mid-edit, when the syntax isn't fully correct.
 It is also fast enough to re-parse the file on every keystroke.
 You can take the parser for a spin at https://tlaplus-community.github.io/tree-sitter-tlaplus/
+
+## Use
+There are a number of avenues available for consuming & using the parser:
+ * Use this grammar's [node module](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus) in conjunction with the tree-sitter [node.js bindings](https://www.npmjs.com/package/tree-sitter); see the [typescript example](examples/typescript).
+ * Use this grammar's [rust crate](https://crates.io/crates/tree-sitter-tlaplus) in conjunction with the tree-sitter [rust bindings](https://crates.io/crates/tree-sitter); see the [rust example](examples/rust).
+ * Use the [tree-sitter CLI](https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md) to directly parse or highlight files from the command line (this is mostly used for development & testing).
 
 ## Build & Test
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)

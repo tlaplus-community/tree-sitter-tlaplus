@@ -1,0 +1,28 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+jobs:
+  rust-crate:
+    name: Node Module - Build/Test/Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install node
+        uses: actions/setup-node@v2
+      - name: Build
+        run: npm install
+      - name: Test
+        run: node_modules/.bin/tree-sitter test
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+  
