@@ -1,5 +1,7 @@
 # tree-sitter-tlaplus
 [![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@tlaplus/tree-sitter-tlaplus.svg)](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus)
+[![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
 
 ## Overview
 This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for [TLA+](https://en.wikipedia.org/wiki/TLA%2B), the formal specification language.
