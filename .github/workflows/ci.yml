@@ -45,6 +45,7 @@ jobs:
   check-generated-files:
     needs: build-and-test
     runs-on: windows-latest
+    steps:
       - name: Clone repo
         uses: actions/checkout@v2
       - name: Install node
