@@ -12,10 +12,11 @@ edition = "2018"
 
 build = "bindings/rust/build.rs"
 include = [
-  "bindings/rust",
+  "bindings/rust/*",
   "grammar.js",
-  "queries",
-  "src",
+  "queries/*",
+  "src/*",
+  "./LICENSE.md"
 ]
 
 [lib]
