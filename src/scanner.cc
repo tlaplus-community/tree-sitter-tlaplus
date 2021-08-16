@@ -32,7 +32,7 @@
   }
 
 /**
- * Goes to the lexer state without consuming any codepoints.
+ * Macro; goes to the lexer state without consuming any codepoints.
  * 
  * @param state_value The new lexer state.
  */
@@ -53,15 +53,15 @@
   }
 
 /**
- * Macro; first marks the current codepoint as the end of the token,
- * then marks the given token as accepted.
+ * Macro; marks the given token as accepted without also marking the
+ * current position as its end.
  * 
  * @param token The token to mark as accepted.
  */
-#define MARK_ACCEPT_TOKEN(token)  \
-  {                               \
-    lexer->mark_end(lexer);       \
-    ACCEPT_TOKEN(token);          \
+#define ACCEPT_LOOKAHEAD_TOKEN(token)     \
+  {                                       \
+    result = true;                        \
+    lexer->result_symbol = token;         \
   }
 
 /**
@@ -212,9 +212,15 @@ namespace {
     return true;
   }
 
-  static const std::vector<int32_t> SINGLE_LINE_TOKEN = {'-','-','-','-'};
-  static const std::vector<int32_t> MODULE_TOKEN = {'M','O','D','U','L','E'};
-
+  // Possible states for the extramodular text lexer to enter.
+  enum class EMTLexState {
+    CONSUME,
+    DASH,
+    SINGLE_LINE,
+    MODULE,
+    END_OF_FILE
+  };
+  
   /**
    * Scans for extramodular text, the freeform text that can be present
    * outside of TLA+ modules. This function skips any leading whitespace
@@ -231,43 +237,35 @@ namespace {
    * @return Whether any extramodular text was detected.
    */
   bool scan_extramodular_text(TSLexer* const lexer) {
-    lexer->result_symbol = EXTRAMODULAR_TEXT;
-    consume_whitespace(lexer);
     bool has_consumed_any = false;
-    while (has_next(lexer)) {
-      if (is_next_codepoint(lexer, '-')) {
-        lexer->mark_end(lexer);
-        if (is_next_codepoint_sequence(lexer, SINGLE_LINE_TOKEN)) {
-          consume_codepoint(lexer, '-');
-          consume_codepoint(lexer, ' ');
-          if (is_next_codepoint_sequence(lexer, MODULE_TOKEN)) {
-            return has_consumed_any;
-          } else {
-            has_consumed_any = true;
-          }
-        } else {
-          has_consumed_any = true;
-        }
-      } else {
-        advance(lexer);
-        has_consumed_any = true;
-      }
-    }
-
-    lexer->mark_end(lexer);
-    return has_consumed_any;
-  }
-  
-  enum class EMTLexState {
-    CONSUME,
-  };
-  
-  bool scan_extramodular_text_2(TSLexer* const lexer) {
     EMTLexState state = EMTLexState::CONSUME;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
       case EMTLexState::CONSUME:
+        if (eof) ADVANCE(EMTLexState::END_OF_FILE);
+        if (iswspace(lookahead)) ADVANCE(EMTLexState::CONSUME);
+        if ('-' == lookahead) MARK_THEN_ADVANCE(EMTLexState::DASH);
+        has_consumed_any = true;
+        ADVANCE(EMTLexState::CONSUME);
+        END_STATE();
+      case EMTLexState::DASH:
+        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(EMTLexState::SINGLE_LINE);
+        has_consumed_any = true;
+        GO_TO_STATE(EMTLexState::CONSUME);
+        END_STATE();
+      case EMTLexState::SINGLE_LINE:
+        consume_codepoint(lexer, '-');
+        consume_codepoint(lexer, ' ');
+        if (is_next_codepoint_sequence(lexer, {'M','O','D','U','L','E'})) ADVANCE(EMTLexState::MODULE);
+        has_consumed_any = true;
+        GO_TO_STATE(EMTLexState::CONSUME);
+        END_STATE();
+      case EMTLexState::MODULE:
+        if (has_consumed_any) ACCEPT_LOOKAHEAD_TOKEN(EXTRAMODULAR_TEXT);
+        END_STATE();
+      case EMTLexState::END_OF_FILE:
+        if (has_consumed_any) ACCEPT_TOKEN(EXTRAMODULAR_TEXT);
         END_STATE();
       default:
         return false;
@@ -336,7 +334,7 @@ namespace {
           nest_level--;
           GO_TO_STATE(CLexState::CONSUME);
         } else {
-          MARK_ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
+          ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
           if (iswspace(lookahead)) ADVANCE(CLexState::LOOKAHEAD);
           if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
         }
@@ -349,7 +347,7 @@ namespace {
         if ('*' == lookahead) ADVANCE(CLexState::CONSUME);
         END_STATE();
       case CLexState::END_OF_FILE:
-        MARK_ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
+        ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
         END_STATE();
       default:
         return false;
