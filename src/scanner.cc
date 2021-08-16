@@ -5,6 +5,73 @@
 #include <cwctype>
 #include <vector>
 
+/**
+ * Macro; marks the end of the token then advances the lexer and changes
+ * the lexer state to the given value.
+ * 
+ * @param state_value The new lexer state.
+ */
+#define MARK_THEN_ADVANCE(state_value)            \
+  {                                               \
+    lexer->mark_end(lexer);                       \
+    ADVANCE(state_value);                         \
+  }
+
+/**
+ * Macro; marks the end of the token, records the current column
+ * position then advances the lexer and changes the lexer state to the
+ * given value.
+ * 
+ * @param state_value The new lexer state.
+ */
+#define MARK_COL_THEN_ADVANCE(state_value)        \
+  {                                               \
+    lexer->mark_end(lexer);                       \
+    lexeme_start_col = lexer->get_column(lexer);  \
+    ADVANCE(state_value);                         \
+  }
+
+/**
+ * Goes to the lexer state without consuming any codepoints.
+ * 
+ * @param state_value The new lexer state.
+ */
+#define GO_TO_STATE(state_value)  \
+  {                               \
+    state = state_value;          \
+    goto start;                   \
+  }
+
+/**
+ * Macro; marks the given lexeme as accepted.
+ * 
+ * @param lexeme The lexeme to mark as accepted.
+ */
+#define ACCEPT_LEXEME(lexeme)       \
+  {                                 \
+    result_lexeme = lexeme;         \
+  }
+
+/**
+ * Macro; first marks the current codepoint as the end of the token,
+ * then marks the given token as accepted.
+ * 
+ * @param token The token to mark as accepted.
+ */
+#define MARK_ACCEPT_TOKEN(token)  \
+  {                               \
+    lexer->mark_end(lexer);       \
+    ACCEPT_TOKEN(token);          \
+  }
+
+/**
+ * Macro; ends a lexer state by returning any accepted lexeme.
+ */
+#define END_LEX_STATE()   \
+  {                       \
+    return result_lexeme; \
+  }
+
 namespace {
 
   // Tokens emitted by this external scanner.
@@ -190,58 +257,103 @@ namespace {
     lexer->mark_end(lexer);
     return has_consumed_any;
   }
+  
+  enum class EMTLexState {
+    CONSUME,
+  };
+  
+  bool scan_extramodular_text_2(TSLexer* const lexer) {
+    EMTLexState state = EMTLexState::CONSUME;
+    START_LEXER();
+    eof = !has_next(lexer);
+    switch (state) {
+      case EMTLexState::CONSUME:
+        END_STATE();
+      default:
+        return false;
+    }
+  }
 
-  static const std::vector<int32_t> BLOCK_COMMENT_START_TOKEN = {'(','*'};
-  static const std::vector<int32_t> BLOCK_COMMENT_END_TOKEN = {'*',')'};
-
+  // Possible states for the comment lexer to enter.
+  enum class CLexState {
+    CONSUME,
+    ASTERISK,
+    L_PAREN,
+    LEFT_COMMENT_DELIMITER,
+    RIGHT_COMMENT_DELIMITER,
+    LOOKAHEAD,
+    LOOKAHEAD_L_PAREN,
+    END_OF_FILE
+  };
+  
   /**
-   * Scans for block comment text. This is any text except the block
-   * comment start & end tokens, (* and *). This function will consume
-   * everything up to (but not including) those tokens, until it hits
-   * the end of the file. It is important that this function only returns
-   * true if it has consumed at least 1 character, as otherwise the parser
-   * enters an infinite loop. It is also important that the function not
-   * consume the block comment start & end tokens themselves, which is why
-   * this is in an external scanner rather than a regex in the grammar
-   * itself.
+   * Scans for block comment text. This scanner function supports nested
+   * block comments, so (* text (* text *) text *) will all be parsed as
+   * a single block comment. Also, multiple block comments separated
+   * only by whitespace will be parsed as a single block comment for
+   * convenience; for example, the following is a single comment:
    * 
-   * For more info, see:
-   * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
+   *   (***********************)
+   *   (* text text text text *)
+   *   (* text text text text *)
+   *   (* text text text text *)
+   *   (***********************)
    * 
+   * A block comment will also be emitted if EOF is reached.
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @return Whether any block comment text was detected.
    */
   bool scan_block_comment_text(TSLexer* const lexer) {
-    lexer->result_symbol = BLOCK_COMMENT_TEXT;
-    bool has_consumed_any = false;
-    while (has_next(lexer)) {
-      switch (next_codepoint(lexer)) {
-        case '*': {
-          lexer->mark_end(lexer);
-          if (is_next_codepoint_sequence(lexer, BLOCK_COMMENT_END_TOKEN)) {
-            return has_consumed_any;
-          } else {
-            has_consumed_any = true;
-            break;
-          }
+    uint32_t nest_level = 0;
+    CLexState state = CLexState::CONSUME;
+    START_LEXER();
+    eof = !has_next(lexer);
+    switch (state) {
+      case CLexState::CONSUME:
+        if (eof) ADVANCE(CLexState::END_OF_FILE);
+        if ('*' == lookahead) ADVANCE(CLexState::ASTERISK);
+        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
+        ADVANCE(CLexState::CONSUME);
+        END_STATE();
+      case CLexState::ASTERISK:
+        if ('*' == lookahead) ADVANCE(CLexState::ASTERISK);
+        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
+        if (')' == lookahead) ADVANCE(CLexState::RIGHT_COMMENT_DELIMITER);
+        ADVANCE(CLexState::CONSUME);
+        END_STATE();
+      case CLexState::L_PAREN:
+        if ('*' == lookahead) {ADVANCE(CLexState::LEFT_COMMENT_DELIMITER);}
+        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
+        ADVANCE(CLexState::CONSUME);
+        END_STATE();
+      case CLexState::LEFT_COMMENT_DELIMITER:
+        nest_level++;
+        GO_TO_STATE(CLexState::CONSUME);
+        END_STATE();
+      case CLexState::RIGHT_COMMENT_DELIMITER:
+        if (nest_level > 0) {
+          nest_level--;
+          GO_TO_STATE(CLexState::CONSUME);
+        } else {
+          MARK_ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
+          if (iswspace(lookahead)) ADVANCE(CLexState::LOOKAHEAD);
+          if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
         }
-        case '(': {
-          lexer->mark_end(lexer);
-          if (is_next_codepoint_sequence(lexer, BLOCK_COMMENT_START_TOKEN)) {
-            return has_consumed_any;
-          } else {
-            has_consumed_any = true;
-            break;
-          }
-        }
-        default:
-          advance(lexer);
-          has_consumed_any = true;
-      }
+        END_STATE();
+      case CLexState::LOOKAHEAD:
+        if (iswspace(lookahead)) ADVANCE(CLexState::LOOKAHEAD);
+        if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
+        END_STATE();
+      case CLexState::LOOKAHEAD_L_PAREN:
+        if ('*' == lookahead) ADVANCE(CLexState::CONSUME);
+        END_STATE();
+      case CLexState::END_OF_FILE:
+        MARK_ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
+        END_STATE();
+      default:
+        return false;
     }
-
-    lexer->mark_end(lexer);
-    return has_consumed_any;
   }
   
   // Types of proof step IDs.
@@ -278,8 +390,9 @@ namespace {
         // level = std::stoi(raw_level);
         level = 0;
         int32_t multiplier = 1;
-        for (int32_t i = raw_level.size()-1; i >= 0; i--) {
-          int8_t digit_value = raw_level.at(i) - 48;
+        for (size_t i = 0; i < raw_level.size(); i++) {
+          const size_t index = raw_level.size() - i - 1;
+          int8_t digit_value = raw_level.at(index) - 48;
           level += digit_value * multiplier;
           multiplier *= 10;
         }
@@ -288,37 +401,6 @@ namespace {
     }
   };
 
-  /**
-   * Macro; marks the end of the token, then advances the lexer and
-   * changes the lexer state to the given value.
-   * 
-   * @param state_value The new lexer state.
-   */
-  #define MARK_THEN_ADVANCE(state_value)            \
-    {                                               \
-      lexer->mark_end(lexer);                       \
-      lexeme_start_col = lexer->get_column(lexer);  \
-      ADVANCE(state_value);                         \
-    }
-
-  /**
-   * Macro; marks the given lexeme as accepted.
-   * 
-   * @param lexeme The lexeme to mark as accepted.
-   */
-  #define ACCEPT_LEXEME(lexeme)       \
-    {                                 \
-      result_lexeme = lexeme;         \
-    }
-  
-  /**
-   * Macro; ends a lexer state by returning any accepted lexeme.
-   */
-  #define END_LEX_STATE()   \
-    {                       \
-      return result_lexeme; \
-    }
-  
   // Lexemes recognized by this lexer.
   enum class Lexeme {
     FORWARD_SLASH,
@@ -429,35 +511,35 @@ namespace {
     eof = !has_next(lexer);
     switch (state) {
       case LexState::CONSUME_LEADING_SPACE:
-        if (eof) MARK_THEN_ADVANCE(LexState::END_OF_FILE);
+        if (eof) MARK_COL_THEN_ADVANCE(LexState::END_OF_FILE);
         if (iswspace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
-        if ('/' == lookahead) MARK_THEN_ADVANCE(LexState::FORWARD_SLASH);
-        if ('\\' == lookahead) MARK_THEN_ADVANCE(LexState::BACKWARD_SLASH);
-        if ('<' == lookahead) MARK_THEN_ADVANCE(LexState::LT);
-        if ('>' == lookahead) MARK_THEN_ADVANCE(LexState::GT);
-        if ('=' == lookahead) MARK_THEN_ADVANCE(LexState::EQ);
-        if ('-' == lookahead) MARK_THEN_ADVANCE(LexState::DASH);
-        if (',' == lookahead) MARK_THEN_ADVANCE(LexState::COMMA);
-        if ('(' == lookahead) MARK_THEN_ADVANCE(LexState::L_PAREN);
-        if (')' == lookahead) MARK_THEN_ADVANCE(LexState::R_PAREN);
-        if (']' == lookahead) MARK_THEN_ADVANCE(LexState::R_SQUARE_BRACKET);
-        if ('}' == lookahead) MARK_THEN_ADVANCE(LexState::R_CURLY_BRACE);
-        if ('A' == lookahead) MARK_THEN_ADVANCE(LexState::A);
-        if ('B' == lookahead) MARK_THEN_ADVANCE(LexState::B);
-        if ('C' == lookahead) MARK_THEN_ADVANCE(LexState::C);
-        if ('E' == lookahead) MARK_THEN_ADVANCE(LexState::E);
-        if ('I' == lookahead) MARK_THEN_ADVANCE(LexState::I);
-        if ('L' == lookahead) MARK_THEN_ADVANCE(LexState::L);
-        if ('O' == lookahead) MARK_THEN_ADVANCE(LexState::O);
-        if ('P' == lookahead) MARK_THEN_ADVANCE(LexState::P);
-        if ('Q' == lookahead) MARK_THEN_ADVANCE(LexState::Q);
-        if ('T' == lookahead) MARK_THEN_ADVANCE(LexState::T);
-        if ('V' == lookahead) MARK_THEN_ADVANCE(LexState::V);
-        if (L'∧' == lookahead) MARK_THEN_ADVANCE(LexState::LAND);
-        if (L'∨' == lookahead) MARK_THEN_ADVANCE(LexState::LOR);
-        if (L'〉' == lookahead) MARK_THEN_ADVANCE(LexState::R_ANGLE_BRACKET);
-        if (L'⟶' == lookahead) MARK_THEN_ADVANCE(LexState::RIGHT_ARROW);
-        MARK_THEN_ADVANCE(LexState::OTHER);
+        if ('/' == lookahead) MARK_COL_THEN_ADVANCE(LexState::FORWARD_SLASH);
+        if ('\\' == lookahead) MARK_COL_THEN_ADVANCE(LexState::BACKWARD_SLASH);
+        if ('<' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LT);
+        if ('>' == lookahead) MARK_COL_THEN_ADVANCE(LexState::GT);
+        if ('=' == lookahead) MARK_COL_THEN_ADVANCE(LexState::EQ);
+        if ('-' == lookahead) MARK_COL_THEN_ADVANCE(LexState::DASH);
+        if (',' == lookahead) MARK_COL_THEN_ADVANCE(LexState::COMMA);
+        if ('(' == lookahead) MARK_COL_THEN_ADVANCE(LexState::L_PAREN);
+        if (')' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_PAREN);
+        if (']' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_SQUARE_BRACKET);
+        if ('}' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_CURLY_BRACE);
+        if ('A' == lookahead) MARK_COL_THEN_ADVANCE(LexState::A);
+        if ('B' == lookahead) MARK_COL_THEN_ADVANCE(LexState::B);
+        if ('C' == lookahead) MARK_COL_THEN_ADVANCE(LexState::C);
+        if ('E' == lookahead) MARK_COL_THEN_ADVANCE(LexState::E);
+        if ('I' == lookahead) MARK_COL_THEN_ADVANCE(LexState::I);
+        if ('L' == lookahead) MARK_COL_THEN_ADVANCE(LexState::L);
+        if ('O' == lookahead) MARK_COL_THEN_ADVANCE(LexState::O);
+        if ('P' == lookahead) MARK_COL_THEN_ADVANCE(LexState::P);
+        if ('Q' == lookahead) MARK_COL_THEN_ADVANCE(LexState::Q);
+        if ('T' == lookahead) MARK_COL_THEN_ADVANCE(LexState::T);
+        if ('V' == lookahead) MARK_COL_THEN_ADVANCE(LexState::V);
+        if (L'∧' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LAND);
+        if (L'∨' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LOR);
+        if (L'〉' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_ANGLE_BRACKET);
+        if (L'⟶' == lookahead) MARK_COL_THEN_ADVANCE(LexState::RIGHT_ARROW);
+        MARK_COL_THEN_ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::FORWARD_SLASH:
         ACCEPT_LEXEME(Lexeme::FORWARD_SLASH);
@@ -846,9 +928,9 @@ namespace {
     }
 
     unsigned serialize(char* buffer) {
-      size_t offset = 0;
-      size_t byte_count = 0;
-      size_t copied = 0;
+      unsigned offset = 0;
+      unsigned byte_count = 0;
+      unsigned copied = 0;
 
       // Serialize junction type
       copied = sizeof(uint8_t);
@@ -868,9 +950,9 @@ namespace {
     unsigned deserialize(const char* const buffer, unsigned const length) {
       assert(length > 0);
 
-      size_t byte_count = 0;
-      size_t offset = 0;
-      size_t copied = 0;
+      unsigned byte_count = 0;
+      unsigned offset = 0;
+      unsigned copied = 0;
 
       // Deserialize junction type
       copied = sizeof(uint8_t);
@@ -919,9 +1001,9 @@ namespace {
      * @return Number of bytes written into the buffer.
      */
     unsigned serialize(char* const buffer) {
-      size_t offset = 0;
-      size_t byte_count = 0;
-      size_t copied = 0;
+      unsigned offset = 0;
+      unsigned byte_count = 0;
+      unsigned copied = 0;
 
       const nest_address jlist_depth = static_cast<nest_address>(jlists.size());
       copied = sizeof(nest_address);
@@ -973,8 +1055,8 @@ namespace {
       have_seen_proof_keyword = false;
 
       if (length > 0) {
-        size_t offset = 0;
-        size_t copied = 0;
+        unsigned offset = 0;
+        unsigned copied = 0;
 
         nest_address jlist_depth = 0;
         copied = sizeof(nest_address);

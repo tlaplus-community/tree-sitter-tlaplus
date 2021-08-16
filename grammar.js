@@ -151,9 +151,7 @@ module.exports = grammar({
 
     // (* this is a (* nestable *) multi-line (* comment *) *)
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
-    block_comment: $ => seq(
-      '(*', repeat($._block_comment_text), '*)'
-    ),
+    block_comment: $ => seq('(*', $._block_comment_text),
 
     // Top-level module declaration
     module: $ => seq(

@@ -78,14 +78,6 @@ op ==
   ))
 (double_line)))
 
-
-
-
-
-
-
-
-
 ====================|||
 Solitary Block Comment
 ====================|||
@@ -155,9 +147,7 @@ comment
 --------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (block_comment
-    (block_comment)
-  )
+  (block_comment)
 (double_line)))
 
 ====================|||
@@ -181,13 +171,7 @@ comment
 --------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (block_comment
-    (block_comment
-      (block_comment)
-      (block_comment)
-    )
-    (block_comment)
-  )
+  (block_comment)
 (double_line)))
 
 ====================|||
@@ -205,11 +189,6 @@ Lookahead Block Comment
 --------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
-  (block_comment)
-  (block_comment
-    (block_comment)
-    (block_comment)
-  )
   (block_comment)
 (double_line)))
 
@@ -261,10 +240,70 @@ op ==
   ))
 (double_line)))
 
+====================|||
+Fancy Block Comment
+====================|||
 
+---- MODULE Test ----
+(************************************)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit. In  *)
+(* ultricies odio tellus, sed       *)
+(* interdum metus vulputate nec.    *)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit.     *)
+(************************************)
+====
 
+--------------------|||
 
+(source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
+(double_line)))
 
+====================|||
+Multiple Fancy Block Comments
+====================|||
 
+---- MODULE Test ----
+(************************************)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit. In  *)
+(* ultricies odio tellus, sed       *)
+(* interdum metus vulputate nec.    *)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit.     *)
+(************************************)
+op == x
+(************************************)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit. In  *)
+(* ultricies odio tellus, sed       *)
+(* interdum metus vulputate nec.    *)
+(* Lorem ipsum dolor sit amet,      *)
+(* consectetur adipiscing elit.     *)
+(************************************)
+====
 
+--------------------|||
 
+(source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
+  (unit (operator_definition (identifier) (def_eq) (identifier_ref)))
+  (block_comment)
+(double_line)))
+
+====================|||
+Sequential Nested Block Comments
+====================|||
+
+---- MODULE Test ----
+(* text *)    (* text (* text *)*)(* text *)
+(* text *)
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
+(double_line)))
