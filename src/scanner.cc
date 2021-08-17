@@ -6,32 +6,6 @@
 #include <vector>
 
 /**
- * Macro; marks the end of the token then advances the lexer and changes
- * the lexer state to the given value.
- * 
- * @param state_value The new lexer state.
- */
-#define MARK_THEN_ADVANCE(state_value)            \
-  {                                               \
-    lexer->mark_end(lexer);                       \
-    ADVANCE(state_value);                         \
-  }
-
-/**
- * Macro; marks the end of the token, records the current column
- * position then advances the lexer and changes the lexer state to the
- * given value.
- * 
- * @param state_value The new lexer state.
- */
-#define MARK_COL_THEN_ADVANCE(state_value)        \
-  {                                               \
-    lexer->mark_end(lexer);                       \
-    lexeme_start_col = lexer->get_column(lexer);  \
-    ADVANCE(state_value);                         \
-  }
-
-/**
  * Macro; goes to the lexer state without consuming any codepoints.
  * 
  * @param state_value The new lexer state.
@@ -244,8 +218,10 @@ namespace {
     switch (state) {
       case EMTLexState::CONSUME:
         if (eof) ADVANCE(EMTLexState::END_OF_FILE);
-        if (iswspace(lookahead)) ADVANCE(EMTLexState::CONSUME);
-        if ('-' == lookahead) MARK_THEN_ADVANCE(EMTLexState::DASH);
+        if (iswspace(lookahead) && !has_consumed_any) SKIP(EMTLexState::CONSUME);
+        if (iswspace(lookahead) && has_consumed_any) ADVANCE(EMTLexState::CONSUME);
+        lexer->mark_end(lexer);
+        if ('-' == lookahead) ADVANCE(EMTLexState::DASH);
         has_consumed_any = true;
         ADVANCE(EMTLexState::CONSUME);
         END_STATE();
@@ -280,6 +256,7 @@ namespace {
     LEFT_COMMENT_DELIMITER,
     RIGHT_COMMENT_DELIMITER,
     LOOKAHEAD,
+    LOOKAHEAD_NEWLINE,
     LOOKAHEAD_L_PAREN,
     END_OF_FILE
   };
@@ -288,12 +265,23 @@ namespace {
    * Scans for block comment text. This scanner function supports nested
    * block comments, so (* text (* text *) text *) will all be parsed as
    * a single block comment. Also, multiple block comments separated
-   * only by whitespace will be parsed as a single block comment for
-   * convenience; for example, the following is a single comment:
+   * only by spaces, tabs, or a single newline will be parsed as a single
+   * block comment for convenience; for example, the following is a
+   * single comment:
    * 
    *   (***********************)
    *   (* text text text text *)
    *   (* text text text text *)
+   *   (* text text text text *)
+   *   (***********************)
+   * 
+   * Although the following constitutes two separate block comments:
+   * 
+   *   (***********************)
+   *   (* text text text text *)
+   *   (***********************)
+   * 
+   *   (***********************)
    *   (* text text text text *)
    *   (***********************)
    * 
@@ -340,7 +328,15 @@ namespace {
         }
         END_STATE();
       case CLexState::LOOKAHEAD:
-        if (iswspace(lookahead)) ADVANCE(CLexState::LOOKAHEAD);
+        if (' ' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
+        if ('\t' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
+        if ('\r' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
+        if ('\n' == lookahead) ADVANCE(CLexState::LOOKAHEAD_NEWLINE);
+        if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
+        END_STATE();
+      case CLexState::LOOKAHEAD_NEWLINE:
+        if (' ' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
+        if ('\t' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
         if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
         END_STATE();
       case CLexState::LOOKAHEAD_L_PAREN:
@@ -509,35 +505,37 @@ namespace {
     eof = !has_next(lexer);
     switch (state) {
       case LexState::CONSUME_LEADING_SPACE:
-        if (eof) MARK_COL_THEN_ADVANCE(LexState::END_OF_FILE);
         if (iswspace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
-        if ('/' == lookahead) MARK_COL_THEN_ADVANCE(LexState::FORWARD_SLASH);
-        if ('\\' == lookahead) MARK_COL_THEN_ADVANCE(LexState::BACKWARD_SLASH);
-        if ('<' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LT);
-        if ('>' == lookahead) MARK_COL_THEN_ADVANCE(LexState::GT);
-        if ('=' == lookahead) MARK_COL_THEN_ADVANCE(LexState::EQ);
-        if ('-' == lookahead) MARK_COL_THEN_ADVANCE(LexState::DASH);
-        if (',' == lookahead) MARK_COL_THEN_ADVANCE(LexState::COMMA);
-        if ('(' == lookahead) MARK_COL_THEN_ADVANCE(LexState::L_PAREN);
-        if (')' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_PAREN);
-        if (']' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_SQUARE_BRACKET);
-        if ('}' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_CURLY_BRACE);
-        if ('A' == lookahead) MARK_COL_THEN_ADVANCE(LexState::A);
-        if ('B' == lookahead) MARK_COL_THEN_ADVANCE(LexState::B);
-        if ('C' == lookahead) MARK_COL_THEN_ADVANCE(LexState::C);
-        if ('E' == lookahead) MARK_COL_THEN_ADVANCE(LexState::E);
-        if ('I' == lookahead) MARK_COL_THEN_ADVANCE(LexState::I);
-        if ('L' == lookahead) MARK_COL_THEN_ADVANCE(LexState::L);
-        if ('O' == lookahead) MARK_COL_THEN_ADVANCE(LexState::O);
-        if ('P' == lookahead) MARK_COL_THEN_ADVANCE(LexState::P);
-        if ('Q' == lookahead) MARK_COL_THEN_ADVANCE(LexState::Q);
-        if ('T' == lookahead) MARK_COL_THEN_ADVANCE(LexState::T);
-        if ('V' == lookahead) MARK_COL_THEN_ADVANCE(LexState::V);
-        if (L'∧' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LAND);
-        if (L'∨' == lookahead) MARK_COL_THEN_ADVANCE(LexState::LOR);
-        if (L'〉' == lookahead) MARK_COL_THEN_ADVANCE(LexState::R_ANGLE_BRACKET);
-        if (L'⟶' == lookahead) MARK_COL_THEN_ADVANCE(LexState::RIGHT_ARROW);
-        MARK_COL_THEN_ADVANCE(LexState::OTHER);
+        lexeme_start_col = lexer->get_column(lexer);
+        lexer->mark_end(lexer);
+        if (eof) ADVANCE(LexState::END_OF_FILE);
+        if ('/' == lookahead) ADVANCE(LexState::FORWARD_SLASH);
+        if ('\\' == lookahead) ADVANCE(LexState::BACKWARD_SLASH);
+        if ('<' == lookahead) ADVANCE(LexState::LT);
+        if ('>' == lookahead) ADVANCE(LexState::GT);
+        if ('=' == lookahead) ADVANCE(LexState::EQ);
+        if ('-' == lookahead) ADVANCE(LexState::DASH);
+        if (',' == lookahead) ADVANCE(LexState::COMMA);
+        if ('(' == lookahead) ADVANCE(LexState::L_PAREN);
+        if (')' == lookahead) ADVANCE(LexState::R_PAREN);
+        if (']' == lookahead) ADVANCE(LexState::R_SQUARE_BRACKET);
+        if ('}' == lookahead) ADVANCE(LexState::R_CURLY_BRACE);
+        if ('A' == lookahead) ADVANCE(LexState::A);
+        if ('B' == lookahead) ADVANCE(LexState::B);
+        if ('C' == lookahead) ADVANCE(LexState::C);
+        if ('E' == lookahead) ADVANCE(LexState::E);
+        if ('I' == lookahead) ADVANCE(LexState::I);
+        if ('L' == lookahead) ADVANCE(LexState::L);
+        if ('O' == lookahead) ADVANCE(LexState::O);
+        if ('P' == lookahead) ADVANCE(LexState::P);
+        if ('Q' == lookahead) ADVANCE(LexState::Q);
+        if ('T' == lookahead) ADVANCE(LexState::T);
+        if ('V' == lookahead) ADVANCE(LexState::V);
+        if (L'∧' == lookahead) ADVANCE(LexState::LAND);
+        if (L'∨' == lookahead) ADVANCE(LexState::LOR);
+        if (L'〉' == lookahead) ADVANCE(LexState::R_ANGLE_BRACKET);
+        if (L'⟶' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
+        ADVANCE(LexState::OTHER);
         END_LEX_STATE();
       case LexState::FORWARD_SLASH:
         ACCEPT_LEXEME(Lexeme::FORWARD_SLASH);

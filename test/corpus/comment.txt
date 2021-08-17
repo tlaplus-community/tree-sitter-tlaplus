@@ -266,23 +266,23 @@ Multiple Fancy Block Comments
 ====================|||
 
 ---- MODULE Test ----
-(************************************)
-(* Lorem ipsum dolor sit amet,      *)
-(* consectetur adipiscing elit. In  *)
-(* ultricies odio tellus, sed       *)
-(* interdum metus vulputate nec.    *)
-(* Lorem ipsum dolor sit amet,      *)
-(* consectetur adipiscing elit.     *)
-(************************************)
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
 op == x
-(************************************)
-(* Lorem ipsum dolor sit amet,      *)
-(* consectetur adipiscing elit. In  *)
-(* ultricies odio tellus, sed       *)
-(* interdum metus vulputate nec.    *)
-(* Lorem ipsum dolor sit amet,      *)
-(* consectetur adipiscing elit.     *)
-(************************************)
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
 ====
 
 --------------------|||
@@ -305,5 +305,65 @@ Sequential Nested Block Comments
 --------------------|||
 
 (source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
+(double_line)))
+
+====================|||
+Block Comments Separated By Single Line
+====================|||
+
+---- MODULE Test ----
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
+(double_line)))
+
+====================|||
+Block Comments Separated By Two Lines
+====================|||
+
+---- MODULE Test ----
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
+
+  (************************************)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit. In  *)
+  (* ultricies odio tellus, sed       *)
+  (* interdum metus vulputate nec.    *)
+  (* Lorem ipsum dolor sit amet,      *)
+  (* consectetur adipiscing elit.     *)
+  (************************************)
+====
+
+--------------------|||
+
+(source_file (module (single_line) (identifier) (single_line)
+  (block_comment)
   (block_comment)
 (double_line)))
