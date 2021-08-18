@@ -84,15 +84,6 @@ namespace {
   }
 
   /**
-   * Advances the scanner while marking the codepoint as whitespace.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   */
-  void skip(TSLexer* const lexer) {
-    lexer->advance(lexer, true);
-  }
-
-  /**
    * Gets the next codepoint in the string.
    * 
    * @param lexer The tree-sitter lexing control structure.
@@ -161,13 +152,14 @@ namespace {
    */
   bool is_next_codepoint_sequence(
     TSLexer* const lexer,
-    const std::vector<int32_t>& codepoint_sequence
+    const char codepoint_sequence[]
   ) {
-    for (size_t i = 0; i < codepoint_sequence.size(); i++) {
-      int32_t codepoint = codepoint_sequence.at(i);
+    size_t sequence_length = strlen(codepoint_sequence);
+    for (size_t i = 0; i < sequence_length; i++) {
+      int32_t codepoint = codepoint_sequence[i];
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
-      } else if (i + 1 < codepoint_sequence.size()) {
+      } else if (i + 1 < sequence_length) {
         advance(lexer);
       }
     }
@@ -217,14 +209,14 @@ namespace {
         ADVANCE(EMTLexState::CONSUME);
         END_STATE();
       case EMTLexState::DASH:
-        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(EMTLexState::SINGLE_LINE);
+        if (is_next_codepoint_sequence(lexer, "---")) ADVANCE(EMTLexState::SINGLE_LINE);
         has_consumed_any = true;
         GO_TO_STATE(EMTLexState::CONSUME);
         END_STATE();
       case EMTLexState::SINGLE_LINE:
         consume_codepoint(lexer, '-');
         consume_codepoint(lexer, ' ');
-        if (is_next_codepoint_sequence(lexer, {'M','O','D','U','L','E'})) ADVANCE(EMTLexState::MODULE);
+        if (is_next_codepoint_sequence(lexer, "MODULE")) ADVANCE(EMTLexState::MODULE);
         has_consumed_any = true;
         GO_TO_STATE(EMTLexState::CONSUME);
         END_STATE();
@@ -556,12 +548,12 @@ namespace {
         END_LEX_STATE();
       case LexState::EQ:
         ACCEPT_LEXEME(Lexeme::EQ);
-        if (is_next_codepoint_sequence(lexer, {'=','=','='})) ADVANCE(LexState::DOUBLE_LINE);
+        if (is_next_codepoint_sequence(lexer, "===")) ADVANCE(LexState::DOUBLE_LINE);
         END_LEX_STATE();
       case LexState::DASH:
         ACCEPT_LEXEME(Lexeme::DASH);
         if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
-        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(LexState::SINGLE_LINE);
+        if (is_next_codepoint_sequence(lexer, "---")) ADVANCE(LexState::SINGLE_LINE);
         END_LEX_STATE();
       case LexState::COMMA:
         ACCEPT_LEXEME(Lexeme::COMMA);
@@ -606,12 +598,12 @@ namespace {
       case LexState::A:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
         if ('X' == lookahead) ADVANCE(LexState::AX);
-        if (is_next_codepoint_sequence(lexer, {'S','S','U','M'})) ADVANCE(LexState::ASSUM);
+        if (is_next_codepoint_sequence(lexer, "SSUM")) ADVANCE(LexState::ASSUM);
         END_LEX_STATE();
       case LexState::ASSUM:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
         if ('E' == lookahead) ADVANCE(LexState::ASSUME);
-        if (is_next_codepoint_sequence(lexer, {'P','T','I','O','N'})) ADVANCE(LexState::ASSUMPTION);
+        if (is_next_codepoint_sequence(lexer, "PTION")) ADVANCE(LexState::ASSUMPTION);
         END_LEX_STATE();
       case LexState::ASSUME:
         ACCEPT_LEXEME(Lexeme::ASSUME_KEYWORD);
@@ -623,7 +615,7 @@ namespace {
         END_LEX_STATE();
       case LexState::AX:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'I','O','M'})) ADVANCE(LexState::AXIOM);
+        if (is_next_codepoint_sequence(lexer, "IOM")) ADVANCE(LexState::AXIOM);
         END_LEX_STATE();
       case LexState::AXIOM:
         ACCEPT_LEXEME(Lexeme::AXIOM_KEYWORD);
@@ -648,7 +640,7 @@ namespace {
         END_LEX_STATE();
       case LexState::CON:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'S','T','A','N','T'})) ADVANCE(LexState::CONSTANT);
+        if (is_next_codepoint_sequence(lexer, "STANT")) ADVANCE(LexState::CONSTANT);
         END_LEX_STATE();
       case LexState::CONSTANT:
         ACCEPT_LEXEME(Lexeme::CONSTANT_KEYWORD);
@@ -661,7 +653,7 @@ namespace {
         END_LEX_STATE();
       case LexState::COR:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'O','L','L','A','R','Y'})) ADVANCE(LexState::COROLLARY);
+        if (is_next_codepoint_sequence(lexer, "OLLARY")) ADVANCE(LexState::COROLLARY);
         END_LEX_STATE();
       case LexState::COROLLARY:
         ACCEPT_LEXEME(Lexeme::COROLLARY_KEYWORD);
@@ -669,7 +661,7 @@ namespace {
         END_LEX_STATE();
       case LexState::E:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'L','S','E'})) ADVANCE(LexState::ELSE);
+        if (is_next_codepoint_sequence(lexer, "LSE")) ADVANCE(LexState::ELSE);
         END_LEX_STATE();
       case LexState::ELSE:
         ACCEPT_LEXEME(Lexeme::ELSE_KEYWORD);
@@ -690,7 +682,7 @@ namespace {
         END_LEX_STATE();
       case LexState::LE:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'M','M','A'})) ADVANCE(LexState::LEMMA);
+        if (is_next_codepoint_sequence(lexer, "MMA")) ADVANCE(LexState::LEMMA);
         END_LEX_STATE();
       case LexState::LEMMA:
         ACCEPT_LEXEME(Lexeme::LEMMA_KEYWORD);
@@ -698,7 +690,7 @@ namespace {
         END_LEX_STATE();
       case LexState::LO:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'C','A','L'})) ADVANCE(LexState::LOCAL);
+        if (is_next_codepoint_sequence(lexer, "CAL")) ADVANCE(LexState::LOCAL);
         END_LEX_STATE();
       case LexState::LOCAL:
         ACCEPT_LEXEME(Lexeme::LOCAL_KEYWORD);
@@ -711,7 +703,7 @@ namespace {
         END_LEX_STATE();
       case LexState::OB:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'V','I','O','U','S'})) ADVANCE(LexState::OBVIOUS);
+        if (is_next_codepoint_sequence(lexer, "VIOUS")) ADVANCE(LexState::OBVIOUS);
         END_LEX_STATE();
       case LexState::OBVIOUS:
         ACCEPT_LEXEME(Lexeme::OBVIOUS_KEYWORD);
@@ -719,7 +711,7 @@ namespace {
         END_LEX_STATE();
       case LexState::OM:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'I','T','T','E','D'})) ADVANCE(LexState::OMITTED);
+        if (is_next_codepoint_sequence(lexer, "ITTED")) ADVANCE(LexState::OMITTED);
         END_LEX_STATE();
       case LexState::OMITTED:
         ACCEPT_LEXEME(Lexeme::OMITTED_KEYWORD);
@@ -727,7 +719,7 @@ namespace {
         END_LEX_STATE();
       case LexState::P:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'R','O'})) ADVANCE(LexState::PRO);
+        if (is_next_codepoint_sequence(lexer, "RO")) ADVANCE(LexState::PRO);
         END_LEX_STATE();
       case LexState::PRO:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
@@ -744,7 +736,7 @@ namespace {
         END_LEX_STATE();
       case LexState::PROP:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'O','S','I','T','I','O','N'})) ADVANCE(LexState::PROPOSITION);
+        if (is_next_codepoint_sequence(lexer, "OSITION")) ADVANCE(LexState::PROPOSITION);
         END_LEX_STATE();
       case LexState::PROPOSITION:
         ACCEPT_LEXEME(Lexeme::PROPOSITION_KEYWORD);
@@ -752,7 +744,7 @@ namespace {
         END_LEX_STATE();
       case LexState::Q:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'E','D'})) ADVANCE(LexState::QED);
+        if (is_next_codepoint_sequence(lexer, "ED")) ADVANCE(LexState::QED);
         END_LEX_STATE();
       case LexState::QED:
         ACCEPT_LEXEME(Lexeme::QED_KEYWORD);
@@ -760,12 +752,12 @@ namespace {
         END_LEX_STATE();
       case LexState::T:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'H','E'})) ADVANCE(LexState::THE);
+        if (is_next_codepoint_sequence(lexer, "HE")) ADVANCE(LexState::THE);
         END_LEX_STATE();
       case LexState::THE:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
         if ('N' == lookahead) ADVANCE(LexState::THEN);
-        if (is_next_codepoint_sequence(lexer, {'O','R','E','M'})) ADVANCE(LexState::THEOREM);
+        if (is_next_codepoint_sequence(lexer, "OREM")) ADVANCE(LexState::THEOREM);
         END_LEX_STATE();
       case LexState::THEN:
         ACCEPT_LEXEME(Lexeme::THEN_KEYWORD);
@@ -777,7 +769,7 @@ namespace {
         END_LEX_STATE();
       case LexState::V:
         ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'A','R','I','A','B','L','E'})) ADVANCE(LexState::VARIABLE);
+        if (is_next_codepoint_sequence(lexer, "ARIABLE")) ADVANCE(LexState::VARIABLE);
         END_LEX_STATE();
       case LexState::VARIABLE:
         ACCEPT_LEXEME(Lexeme::VARIABLE_KEYWORD);
