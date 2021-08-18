@@ -139,17 +139,6 @@ namespace {
   }
 
   /**
-   * Consumes codepoints as long as they are whitespace.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   */
-  void consume_whitespace(TSLexer* const lexer) {
-    while (has_next(lexer) && iswspace(next_codepoint(lexer))) {
-      skip(lexer);
-    }
-  }
-
-  /**
    * Consumes codepoints as long as they are the one given.
    * 
    * @param lexer The tree-sitter lexing control structure.
@@ -192,7 +181,9 @@ namespace {
     DASH,
     SINGLE_LINE,
     MODULE,
-    END_OF_FILE
+    BLANK_BEFORE_MODULE,
+    END_OF_FILE,
+    BLANK_BEFORE_END_OF_FILE
   };
   
   /**
@@ -238,13 +229,19 @@ namespace {
         GO_TO_STATE(EMTLexState::CONSUME);
         END_STATE();
       case EMTLexState::MODULE:
-        if (has_consumed_any) ACCEPT_LOOKAHEAD_TOKEN(EXTRAMODULAR_TEXT);
+        if (!has_consumed_any) GO_TO_STATE(EMTLexState::BLANK_BEFORE_MODULE);
+        ACCEPT_LOOKAHEAD_TOKEN(EXTRAMODULAR_TEXT);
+        END_STATE();
+      case EMTLexState::BLANK_BEFORE_MODULE:
         END_STATE();
       case EMTLexState::END_OF_FILE:
-        if (has_consumed_any) ACCEPT_TOKEN(EXTRAMODULAR_TEXT);
+        if (!has_consumed_any) GO_TO_STATE(EMTLexState::BLANK_BEFORE_END_OF_FILE);
+        ACCEPT_TOKEN(EXTRAMODULAR_TEXT);
+        END_STATE();
+      case EMTLexState::BLANK_BEFORE_END_OF_FILE:
         END_STATE();
       default:
-        return false;
+        END_STATE();
     }
   }
 
@@ -346,7 +343,7 @@ namespace {
         ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
         END_STATE();
       default:
-        return false;
+        END_STATE();
     }
   }
   
