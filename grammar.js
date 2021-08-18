@@ -81,7 +81,7 @@ module.exports = grammar({
     $.obvious_keyword,
     $.omitted_keyword,
     $.qed_keyword,
-    $.error_sentinel
+    $._error_sentinel
   ],
 
   extras: $ => [

@@ -59,10 +59,8 @@ jobs:
         with:
           version: 2.0.16
       - name: Generate parser WASM
-        run: node_modules/.bin/tree-sitter build-wasm
-      - name: Move parser WASM
-        shell: bash
-        run: mv tree-sitter-tlaplus.wasm ./docs/js/tree-sitter-tlaplus.wasm
+        working-directory: docs/js
+        run: ../../node_modules/.bin/tree-sitter build-wasm ../..
       - name: List changes
         shell: bash
         run: git status
