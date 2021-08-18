@@ -10,4 +10,4 @@ f(x) == x
 ====
 `;
 const tree : Parser.Tree = parser.parse(source);
-console.log(tree.rootNode.toString())
+console.log(tree.rootNode.toString());

@@ -323,7 +323,7 @@ namespace {
           GO_TO_STATE(CLexState::CONSUME);
         } else {
           ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-          if (iswspace(lookahead)) ADVANCE(CLexState::LOOKAHEAD);
+          if (iswspace(lookahead)) GO_TO_STATE(CLexState::LOOKAHEAD);
           if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
         }
         END_STATE();

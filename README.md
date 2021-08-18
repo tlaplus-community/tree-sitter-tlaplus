@@ -36,6 +36,7 @@ There are a number of avenues available for consuming & using the parser in a pr
  * Use this grammar's [Node.js module](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus) in conjunction with the tree-sitter [Node.js bindings](https://www.npmjs.com/package/tree-sitter); see the [TypeScript example](examples/typescript).
  * Use this grammar's [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) in conjunction with the tree-sitter [Rust bindings](https://crates.io/crates/tree-sitter); see the [Rust example](examples/rust).
  * Add this repo as a submodule then consume it with the [Python bindings](https://pypi.org/project/tree-sitter/); see the [Python example](examples/python).
+ * Use this grammar as a WASM file with the [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter) module; see the code for [the playground](docs) as an example.
  * Use the [tree-sitter CLI](https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md) to directly parse or highlight files from the command line (this is mostly used for development & testing).
 
 ## The Playground
