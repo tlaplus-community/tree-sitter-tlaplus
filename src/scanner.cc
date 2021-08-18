@@ -62,7 +62,8 @@ namespace {
     BY_KEYWORD,         // The BY keyword.
     OBVIOUS_KEYWORD,    // The OBVIOUS keyword.
     OMITTED_KEYWORD,    // The OMITTED keyword.
-    QED_KEYWORD         // The QED keyword.
+    QED_KEYWORD,        // The QED keyword.
+    ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
   // Datatype used to record length of nested proofs & jlists.
@@ -81,15 +82,6 @@ namespace {
    */
   void advance(TSLexer* const lexer) {
     lexer->advance(lexer, false);
-  }
-
-  /**
-   * Advances the scanner while marking the codepoint as whitespace.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   */
-  void skip(TSLexer* const lexer) {
-    lexer->advance(lexer, true);
   }
 
   /**
@@ -161,13 +153,14 @@ namespace {
    */
   bool is_next_codepoint_sequence(
     TSLexer* const lexer,
-    const std::vector<int32_t>& codepoint_sequence
+    const char codepoint_sequence[]
   ) {
-    for (size_t i = 0; i < codepoint_sequence.size(); i++) {
-      int32_t codepoint = codepoint_sequence.at(i);
+    size_t sequence_length = strlen(codepoint_sequence);
+    for (size_t i = 0; i < sequence_length; i++) {
+      int32_t codepoint = codepoint_sequence[i];
       if (!is_next_codepoint(lexer, codepoint)) {
         return false;
-      } else if (i + 1 < codepoint_sequence.size()) {
+      } else if (i + 1 < sequence_length) {
         advance(lexer);
       }
     }
@@ -176,14 +169,14 @@ namespace {
   }
 
   // Possible states for the extramodular text lexer to enter.
-  enum class EMTLexState {
-    CONSUME,
-    DASH,
-    SINGLE_LINE,
-    MODULE,
-    BLANK_BEFORE_MODULE,
-    END_OF_FILE,
-    BLANK_BEFORE_END_OF_FILE
+  enum EMTLexState {
+    EMTLexState_CONSUME,
+    EMTLexState_DASH,
+    EMTLexState_SINGLE_LINE,
+    EMTLexState_MODULE,
+    EMTLexState_BLANK_BEFORE_MODULE,
+    EMTLexState_END_OF_FILE,
+    EMTLexState_BLANK_BEFORE_END_OF_FILE
   };
   
   /**
@@ -203,42 +196,42 @@ namespace {
    */
   bool scan_extramodular_text(TSLexer* const lexer) {
     bool has_consumed_any = false;
-    EMTLexState state = EMTLexState::CONSUME;
+    EMTLexState state = EMTLexState_CONSUME;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
-      case EMTLexState::CONSUME:
-        if (eof) ADVANCE(EMTLexState::END_OF_FILE);
-        if (iswspace(lookahead) && !has_consumed_any) SKIP(EMTLexState::CONSUME);
-        if (iswspace(lookahead) && has_consumed_any) ADVANCE(EMTLexState::CONSUME);
+      case EMTLexState_CONSUME:
+        if (eof) ADVANCE(EMTLexState_END_OF_FILE);
+        if (iswspace(lookahead) && !has_consumed_any) SKIP(EMTLexState_CONSUME);
+        if (iswspace(lookahead) && has_consumed_any) ADVANCE(EMTLexState_CONSUME);
         lexer->mark_end(lexer);
-        if ('-' == lookahead) ADVANCE(EMTLexState::DASH);
+        if ('-' == lookahead) ADVANCE(EMTLexState_DASH);
         has_consumed_any = true;
-        ADVANCE(EMTLexState::CONSUME);
+        ADVANCE(EMTLexState_CONSUME);
         END_STATE();
-      case EMTLexState::DASH:
-        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(EMTLexState::SINGLE_LINE);
+      case EMTLexState_DASH:
+        if (is_next_codepoint_sequence(lexer, "---")) ADVANCE(EMTLexState_SINGLE_LINE);
         has_consumed_any = true;
-        GO_TO_STATE(EMTLexState::CONSUME);
+        GO_TO_STATE(EMTLexState_CONSUME);
         END_STATE();
-      case EMTLexState::SINGLE_LINE:
+      case EMTLexState_SINGLE_LINE:
         consume_codepoint(lexer, '-');
         consume_codepoint(lexer, ' ');
-        if (is_next_codepoint_sequence(lexer, {'M','O','D','U','L','E'})) ADVANCE(EMTLexState::MODULE);
+        if (is_next_codepoint_sequence(lexer, "MODULE")) ADVANCE(EMTLexState_MODULE);
         has_consumed_any = true;
-        GO_TO_STATE(EMTLexState::CONSUME);
+        GO_TO_STATE(EMTLexState_CONSUME);
         END_STATE();
-      case EMTLexState::MODULE:
-        if (!has_consumed_any) GO_TO_STATE(EMTLexState::BLANK_BEFORE_MODULE);
+      case EMTLexState_MODULE:
+        if (!has_consumed_any) GO_TO_STATE(EMTLexState_BLANK_BEFORE_MODULE);
         ACCEPT_LOOKAHEAD_TOKEN(EXTRAMODULAR_TEXT);
         END_STATE();
-      case EMTLexState::BLANK_BEFORE_MODULE:
+      case EMTLexState_BLANK_BEFORE_MODULE:
         END_STATE();
-      case EMTLexState::END_OF_FILE:
-        if (!has_consumed_any) GO_TO_STATE(EMTLexState::BLANK_BEFORE_END_OF_FILE);
+      case EMTLexState_END_OF_FILE:
+        if (!has_consumed_any) GO_TO_STATE(EMTLexState_BLANK_BEFORE_END_OF_FILE);
         ACCEPT_TOKEN(EXTRAMODULAR_TEXT);
         END_STATE();
-      case EMTLexState::BLANK_BEFORE_END_OF_FILE:
+      case EMTLexState_BLANK_BEFORE_END_OF_FILE:
         END_STATE();
       default:
         END_STATE();
@@ -246,16 +239,16 @@ namespace {
   }
 
   // Possible states for the comment lexer to enter.
-  enum class CLexState {
-    CONSUME,
-    ASTERISK,
-    L_PAREN,
-    LEFT_COMMENT_DELIMITER,
-    RIGHT_COMMENT_DELIMITER,
-    LOOKAHEAD,
-    LOOKAHEAD_NEWLINE,
-    LOOKAHEAD_L_PAREN,
-    END_OF_FILE
+  enum CLexState {
+    CLexState_CONSUME,
+    CLexState_ASTERISK,
+    CLexState_L_PAREN,
+    CLexState_LEFT_COMMENT_DELIMITER,
+    CLexState_RIGHT_COMMENT_DELIMITER,
+    CLexState_LOOKAHEAD,
+    CLexState_LOOKAHEAD_NEWLINE,
+    CLexState_LOOKAHEAD_L_PAREN,
+    CLexState_END_OF_FILE
   };
   
   /**
@@ -289,57 +282,57 @@ namespace {
    */
   bool scan_block_comment_text(TSLexer* const lexer) {
     uint32_t nest_level = 0;
-    CLexState state = CLexState::CONSUME;
+    CLexState state = CLexState_CONSUME;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
-      case CLexState::CONSUME:
-        if (eof) ADVANCE(CLexState::END_OF_FILE);
-        if ('*' == lookahead) ADVANCE(CLexState::ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
-        ADVANCE(CLexState::CONSUME);
+      case CLexState_CONSUME:
+        if (eof) ADVANCE(CLexState_END_OF_FILE);
+        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
+        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
+        ADVANCE(CLexState_CONSUME);
         END_STATE();
-      case CLexState::ASTERISK:
-        if ('*' == lookahead) ADVANCE(CLexState::ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
-        if (')' == lookahead) ADVANCE(CLexState::RIGHT_COMMENT_DELIMITER);
-        ADVANCE(CLexState::CONSUME);
+      case CLexState_ASTERISK:
+        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
+        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
+        if (')' == lookahead) ADVANCE(CLexState_RIGHT_COMMENT_DELIMITER);
+        ADVANCE(CLexState_CONSUME);
         END_STATE();
-      case CLexState::L_PAREN:
-        if ('*' == lookahead) {ADVANCE(CLexState::LEFT_COMMENT_DELIMITER);}
-        if ('(' == lookahead) ADVANCE(CLexState::L_PAREN);
-        ADVANCE(CLexState::CONSUME);
+      case CLexState_L_PAREN:
+        if ('*' == lookahead) {ADVANCE(CLexState_LEFT_COMMENT_DELIMITER);}
+        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
+        ADVANCE(CLexState_CONSUME);
         END_STATE();
-      case CLexState::LEFT_COMMENT_DELIMITER:
+      case CLexState_LEFT_COMMENT_DELIMITER:
         nest_level++;
-        GO_TO_STATE(CLexState::CONSUME);
+        GO_TO_STATE(CLexState_CONSUME);
         END_STATE();
-      case CLexState::RIGHT_COMMENT_DELIMITER:
+      case CLexState_RIGHT_COMMENT_DELIMITER:
         if (nest_level > 0) {
           nest_level--;
-          GO_TO_STATE(CLexState::CONSUME);
+          GO_TO_STATE(CLexState_CONSUME);
         } else {
           ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-          if (iswspace(lookahead)) GO_TO_STATE(CLexState::LOOKAHEAD);
-          if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
+          if (iswspace(lookahead)) GO_TO_STATE(CLexState_LOOKAHEAD);
+          if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
         }
         END_STATE();
-      case CLexState::LOOKAHEAD:
-        if (' ' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
-        if ('\r' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
-        if ('\n' == lookahead) ADVANCE(CLexState::LOOKAHEAD_NEWLINE);
-        if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
+      case CLexState_LOOKAHEAD:
+        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
+        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
+        if ('\r' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
+        if ('\n' == lookahead) ADVANCE(CLexState_LOOKAHEAD_NEWLINE);
+        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
         END_STATE();
-      case CLexState::LOOKAHEAD_NEWLINE:
-        if (' ' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState::LOOKAHEAD);
-        if ('(' == lookahead) ADVANCE(CLexState::LOOKAHEAD_L_PAREN);
+      case CLexState_LOOKAHEAD_NEWLINE:
+        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
+        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
+        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
         END_STATE();
-      case CLexState::LOOKAHEAD_L_PAREN:
-        if ('*' == lookahead) ADVANCE(CLexState::CONSUME);
+      case CLexState_LOOKAHEAD_L_PAREN:
+        if ('*' == lookahead) ADVANCE(CLexState_CONSUME);
         END_STATE();
-      case CLexState::END_OF_FILE:
+      case CLexState_END_OF_FILE:
         ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
         END_STATE();
       default:
@@ -348,10 +341,10 @@ namespace {
   }
   
   // Types of proof step IDs.
-  enum class ProofStepIdType {
-    STAR,     // <*>
-    PLUS,     // <+>
-    NUMBERED  // <1234>
+  enum ProofStepIdType {
+    ProofStepIdType_STAR,     // <*>
+    ProofStepIdType_PLUS,     // <+>
+    ProofStepIdType_NUMBERED  // <1234>
   };
   
   // Data about a proof step ID.
@@ -370,11 +363,11 @@ namespace {
     ProofStepId(const std::vector<char>& raw_level) {
       level = -1;
       if ('*' == raw_level.at(0)) {
-        type = ProofStepIdType::STAR;
+        type = ProofStepIdType_STAR;
       } else if ('+' == raw_level.at(0)) {
-        type = ProofStepIdType::PLUS;
+        type = ProofStepIdType_PLUS;
       } else {
-        type = ProofStepIdType::NUMBERED;
+        type = ProofStepIdType_NUMBERED;
         // We can't use std::stoi because it isn't included in the emcc
         // build so will cause errors; thus we roll our own. raw_level
         // should also be a std::string but that isn't included either.
@@ -393,92 +386,92 @@ namespace {
   };
 
   // Lexemes recognized by this lexer.
-  enum class Lexeme {
-    FORWARD_SLASH,
-    BACKWARD_SLASH,
-    GT,
-    EQ,
-    DASH,
-    COMMA,
-    LAND,
-    LOR,
-    L_PAREN,
-    R_PAREN,
-    R_SQUARE_BRACKET,
-    R_CURLY_BRACE,
-    R_ANGLE_BRACKET,
-    RIGHT_ARROW,
-    COMMENT_START,
-    BLOCK_COMMENT_START,
-    SINGLE_LINE,
-    DOUBLE_LINE,
-    ASSUME_KEYWORD,
-    ASSUMPTION_KEYWORD,
-    AXIOM_KEYWORD,
-    BY_KEYWORD,
-    CONSTANT_KEYWORD,
-    CONSTANTS_KEYWORD,
-    COROLLARY_KEYWORD,
-    ELSE_KEYWORD,
-    IN_KEYWORD,
-    LEMMA_KEYWORD,
-    LOCAL_KEYWORD,
-    OBVIOUS_KEYWORD,
-    OMITTED_KEYWORD,
-    PROOF_KEYWORD,
-    PROPOSITION_KEYWORD,
-    QED_KEYWORD,
-    THEN_KEYWORD,
-    THEOREM_KEYWORD,
-    VARIABLE_KEYWORD,
-    VARIABLES_KEYWORD,
-    PROOF_STEP_ID,
-    IDENTIFIER,
-    OTHER,
-    END_OF_FILE
+  enum Lexeme {
+    Lexeme_FORWARD_SLASH,
+    Lexeme_BACKWARD_SLASH,
+    Lexeme_GT,
+    Lexeme_EQ,
+    Lexeme_DASH,
+    Lexeme_COMMA,
+    Lexeme_LAND,
+    Lexeme_LOR,
+    Lexeme_L_PAREN,
+    Lexeme_R_PAREN,
+    Lexeme_R_SQUARE_BRACKET,
+    Lexeme_R_CURLY_BRACE,
+    Lexeme_R_ANGLE_BRACKET,
+    Lexeme_RIGHT_ARROW,
+    Lexeme_COMMENT_START,
+    Lexeme_BLOCK_COMMENT_START,
+    Lexeme_SINGLE_LINE,
+    Lexeme_DOUBLE_LINE,
+    Lexeme_ASSUME_KEYWORD,
+    Lexeme_ASSUMPTION_KEYWORD,
+    Lexeme_AXIOM_KEYWORD,
+    Lexeme_BY_KEYWORD,
+    Lexeme_CONSTANT_KEYWORD,
+    Lexeme_CONSTANTS_KEYWORD,
+    Lexeme_COROLLARY_KEYWORD,
+    Lexeme_ELSE_KEYWORD,
+    Lexeme_IN_KEYWORD,
+    Lexeme_LEMMA_KEYWORD,
+    Lexeme_LOCAL_KEYWORD,
+    Lexeme_OBVIOUS_KEYWORD,
+    Lexeme_OMITTED_KEYWORD,
+    Lexeme_PROOF_KEYWORD,
+    Lexeme_PROPOSITION_KEYWORD,
+    Lexeme_QED_KEYWORD,
+    Lexeme_THEN_KEYWORD,
+    Lexeme_THEOREM_KEYWORD,
+    Lexeme_VARIABLE_KEYWORD,
+    Lexeme_VARIABLES_KEYWORD,
+    Lexeme_PROOF_STEP_ID,
+    Lexeme_IDENTIFIER,
+    Lexeme_OTHER,
+    Lexeme_END_OF_FILE
   };
 
   // Possible states for the lexer to enter.
-  enum class LexState {
-    CONSUME_LEADING_SPACE,
-    FORWARD_SLASH,
-    BACKWARD_SLASH,
-    LT,
-    GT,
-    EQ,
-    DASH,
-    COMMA,
-    LAND,
-    LOR,
-    L_PAREN,
-    R_PAREN,
-    R_SQUARE_BRACKET,
-    R_CURLY_BRACE,
-    R_ANGLE_BRACKET,
-    RIGHT_ARROW,
-    COMMENT_START,
-    BLOCK_COMMENT_START,
-    SINGLE_LINE,
-    DOUBLE_LINE,
-    A, ASSUM, ASSUME, ASSUMPTION, AX, AXIOM,
-    B, BY,
-    C, CO, CON, COR, CONSTANT, CONSTANTS, COROLLARY,
-    E, ELSE,
-    I, IN,
-    L, LE, LEMMA, LO, LOCAL,
-    O, OB, OBVIOUS, OM, OMITTED,
-    P, PRO, PROO, PROOF, PROP, PROPOSITION,
-    Q, QED,
-    T, THE, THEN, THEOREM,
-    V, VARIABLE, VARIABLES,
-    IDENTIFIER,
-    PROOF_LEVEL_NUMBER,
-    PROOF_LEVEL_STAR,
-    PROOF_LEVEL_PLUS,
-    PROOF_NAME,
-    PROOF_ID,
-    OTHER,
-    END_OF_FILE
+  enum LexState {
+    LexState_CONSUME_LEADING_SPACE,
+    LexState_FORWARD_SLASH,
+    LexState_BACKWARD_SLASH,
+    LexState_LT,
+    LexState_GT,
+    LexState_EQ,
+    LexState_DASH,
+    LexState_COMMA,
+    LexState_LAND,
+    LexState_LOR,
+    LexState_L_PAREN,
+    LexState_R_PAREN,
+    LexState_R_SQUARE_BRACKET,
+    LexState_R_CURLY_BRACE,
+    LexState_R_ANGLE_BRACKET,
+    LexState_RIGHT_ARROW,
+    LexState_COMMENT_START,
+    LexState_BLOCK_COMMENT_START,
+    LexState_SINGLE_LINE,
+    LexState_DOUBLE_LINE,
+    LexState_A, LexState_ASSUM, LexState_ASSUME, LexState_ASSUMPTION, LexState_AX, LexState_AXIOM,
+    LexState_B, LexState_BY,
+    LexState_C, LexState_CO, LexState_CON, LexState_COR, LexState_CONSTANT, LexState_CONSTANTS, LexState_COROLLARY,
+    LexState_E, LexState_ELSE,
+    LexState_I, LexState_IN,
+    LexState_L, LexState_LE, LexState_LEMMA, LexState_LO, LexState_LOCAL,
+    LexState_O, LexState_OB, LexState_OBVIOUS, LexState_OM, LexState_OMITTED,
+    LexState_P, LexState_PRO, LexState_PROO, LexState_PROOF, LexState_PROP, LexState_PROPOSITION,
+    LexState_Q, LexState_QED,
+    LexState_T, LexState_THE, LexState_THEN, LexState_THEOREM,
+    LexState_V, LexState_VARIABLE, LexState_VARIABLES,
+    LexState_IDENTIFIER,
+    LexState_PROOF_LEVEL_NUMBER,
+    LexState_PROOF_LEVEL_STAR,
+    LexState_PROOF_LEVEL_PLUS,
+    LexState_PROOF_NAME,
+    LexState_PROOF_ID,
+    LexState_OTHER,
+    LexState_END_OF_FILE
   };
   
   /**
@@ -496,352 +489,352 @@ namespace {
     column_index& lexeme_start_col,
     std::vector<char>& proof_step_id_level
   ) {
-    LexState state = LexState::CONSUME_LEADING_SPACE;
-    Lexeme result_lexeme = Lexeme::OTHER;
+    LexState state = LexState_CONSUME_LEADING_SPACE;
+    Lexeme result_lexeme = Lexeme_OTHER;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
-      case LexState::CONSUME_LEADING_SPACE:
-        if (iswspace(lookahead)) SKIP(LexState::CONSUME_LEADING_SPACE);
+      case LexState_CONSUME_LEADING_SPACE:
+        if (iswspace(lookahead)) SKIP(LexState_CONSUME_LEADING_SPACE);
         lexeme_start_col = lexer->get_column(lexer);
         lexer->mark_end(lexer);
-        if (eof) ADVANCE(LexState::END_OF_FILE);
-        if ('/' == lookahead) ADVANCE(LexState::FORWARD_SLASH);
-        if ('\\' == lookahead) ADVANCE(LexState::BACKWARD_SLASH);
-        if ('<' == lookahead) ADVANCE(LexState::LT);
-        if ('>' == lookahead) ADVANCE(LexState::GT);
-        if ('=' == lookahead) ADVANCE(LexState::EQ);
-        if ('-' == lookahead) ADVANCE(LexState::DASH);
-        if (',' == lookahead) ADVANCE(LexState::COMMA);
-        if ('(' == lookahead) ADVANCE(LexState::L_PAREN);
-        if (')' == lookahead) ADVANCE(LexState::R_PAREN);
-        if (']' == lookahead) ADVANCE(LexState::R_SQUARE_BRACKET);
-        if ('}' == lookahead) ADVANCE(LexState::R_CURLY_BRACE);
-        if ('A' == lookahead) ADVANCE(LexState::A);
-        if ('B' == lookahead) ADVANCE(LexState::B);
-        if ('C' == lookahead) ADVANCE(LexState::C);
-        if ('E' == lookahead) ADVANCE(LexState::E);
-        if ('I' == lookahead) ADVANCE(LexState::I);
-        if ('L' == lookahead) ADVANCE(LexState::L);
-        if ('O' == lookahead) ADVANCE(LexState::O);
-        if ('P' == lookahead) ADVANCE(LexState::P);
-        if ('Q' == lookahead) ADVANCE(LexState::Q);
-        if ('T' == lookahead) ADVANCE(LexState::T);
-        if ('V' == lookahead) ADVANCE(LexState::V);
-        if (L'∧' == lookahead) ADVANCE(LexState::LAND);
-        if (L'∨' == lookahead) ADVANCE(LexState::LOR);
-        if (L'〉' == lookahead) ADVANCE(LexState::R_ANGLE_BRACKET);
-        if (L'⟶' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
-        ADVANCE(LexState::OTHER);
+        if (eof) ADVANCE(LexState_END_OF_FILE);
+        if ('/' == lookahead) ADVANCE(LexState_FORWARD_SLASH);
+        if ('\\' == lookahead) ADVANCE(LexState_BACKWARD_SLASH);
+        if ('<' == lookahead) ADVANCE(LexState_LT);
+        if ('>' == lookahead) ADVANCE(LexState_GT);
+        if ('=' == lookahead) ADVANCE(LexState_EQ);
+        if ('-' == lookahead) ADVANCE(LexState_DASH);
+        if (',' == lookahead) ADVANCE(LexState_COMMA);
+        if ('(' == lookahead) ADVANCE(LexState_L_PAREN);
+        if (')' == lookahead) ADVANCE(LexState_R_PAREN);
+        if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
+        if ('}' == lookahead) ADVANCE(LexState_R_CURLY_BRACE);
+        if ('A' == lookahead) ADVANCE(LexState_A);
+        if ('B' == lookahead) ADVANCE(LexState_B);
+        if ('C' == lookahead) ADVANCE(LexState_C);
+        if ('E' == lookahead) ADVANCE(LexState_E);
+        if ('I' == lookahead) ADVANCE(LexState_I);
+        if ('L' == lookahead) ADVANCE(LexState_L);
+        if ('O' == lookahead) ADVANCE(LexState_O);
+        if ('P' == lookahead) ADVANCE(LexState_P);
+        if ('Q' == lookahead) ADVANCE(LexState_Q);
+        if ('T' == lookahead) ADVANCE(LexState_T);
+        if ('V' == lookahead) ADVANCE(LexState_V);
+        if (L'∧' == lookahead) ADVANCE(LexState_LAND);
+        if (L'∨' == lookahead) ADVANCE(LexState_LOR);
+        if (L'〉' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
+        if (L'⟶' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
+        ADVANCE(LexState_OTHER);
         END_LEX_STATE();
-      case LexState::FORWARD_SLASH:
-        ACCEPT_LEXEME(Lexeme::FORWARD_SLASH);
-        if ('\\' == lookahead) ADVANCE(LexState::LAND);
+      case LexState_FORWARD_SLASH:
+        ACCEPT_LEXEME(Lexeme_FORWARD_SLASH);
+        if ('\\' == lookahead) ADVANCE(LexState_LAND);
         END_LEX_STATE();
-      case LexState::BACKWARD_SLASH:
-        ACCEPT_LEXEME(Lexeme::BACKWARD_SLASH);
-        if ('/' == lookahead) ADVANCE(LexState::LOR);
-        if ('*' == lookahead) ADVANCE(LexState::COMMENT_START);
+      case LexState_BACKWARD_SLASH:
+        ACCEPT_LEXEME(Lexeme_BACKWARD_SLASH);
+        if ('/' == lookahead) ADVANCE(LexState_LOR);
+        if ('*' == lookahead) ADVANCE(LexState_COMMENT_START);
         END_LEX_STATE();
-      case LexState::LT:
+      case LexState_LT:
         proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
-        if (iswdigit(lookahead)) ADVANCE(LexState::PROOF_LEVEL_NUMBER);
-        if ('*' == lookahead) ADVANCE(LexState::PROOF_LEVEL_STAR);
-        if ('+' == lookahead) ADVANCE(LexState::PROOF_LEVEL_PLUS);
-        ADVANCE(LexState::OTHER);
+        if (iswdigit(lookahead)) ADVANCE(LexState_PROOF_LEVEL_NUMBER);
+        if ('*' == lookahead) ADVANCE(LexState_PROOF_LEVEL_STAR);
+        if ('+' == lookahead) ADVANCE(LexState_PROOF_LEVEL_PLUS);
+        ADVANCE(LexState_OTHER);
         END_LEX_STATE();
-      case LexState::GT:
-        ACCEPT_LEXEME(Lexeme::GT);
-        if ('>' == lookahead) ADVANCE(LexState::R_ANGLE_BRACKET);
+      case LexState_GT:
+        ACCEPT_LEXEME(Lexeme_GT);
+        if ('>' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
         END_LEX_STATE();
-      case LexState::EQ:
-        ACCEPT_LEXEME(Lexeme::EQ);
-        if (is_next_codepoint_sequence(lexer, {'=','=','='})) ADVANCE(LexState::DOUBLE_LINE);
+      case LexState_EQ:
+        ACCEPT_LEXEME(Lexeme_EQ);
+        if (is_next_codepoint_sequence(lexer, "===")) ADVANCE(LexState_DOUBLE_LINE);
         END_LEX_STATE();
-      case LexState::DASH:
-        ACCEPT_LEXEME(Lexeme::DASH);
-        if ('>' == lookahead) ADVANCE(LexState::RIGHT_ARROW);
-        if (is_next_codepoint_sequence(lexer, {'-','-','-'})) ADVANCE(LexState::SINGLE_LINE);
+      case LexState_DASH:
+        ACCEPT_LEXEME(Lexeme_DASH);
+        if ('>' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
+        if (is_next_codepoint_sequence(lexer, "---")) ADVANCE(LexState_SINGLE_LINE);
         END_LEX_STATE();
-      case LexState::COMMA:
-        ACCEPT_LEXEME(Lexeme::COMMA);
+      case LexState_COMMA:
+        ACCEPT_LEXEME(Lexeme_COMMA);
         END_LEX_STATE();
-      case LexState::LAND:
-        ACCEPT_LEXEME(Lexeme::LAND);
+      case LexState_LAND:
+        ACCEPT_LEXEME(Lexeme_LAND);
         END_LEX_STATE();
-      case LexState::LOR:
-        ACCEPT_LEXEME(Lexeme::LOR);
+      case LexState_LOR:
+        ACCEPT_LEXEME(Lexeme_LOR);
         END_LEX_STATE();
-      case LexState::L_PAREN:
-        ACCEPT_LEXEME(Lexeme::L_PAREN);
-        if ('*' == lookahead) ADVANCE(LexState::BLOCK_COMMENT_START);
+      case LexState_L_PAREN:
+        ACCEPT_LEXEME(Lexeme_L_PAREN);
+        if ('*' == lookahead) ADVANCE(LexState_BLOCK_COMMENT_START);
         END_LEX_STATE();
-      case LexState::R_PAREN:
-        ACCEPT_LEXEME(Lexeme::R_PAREN);
+      case LexState_R_PAREN:
+        ACCEPT_LEXEME(Lexeme_R_PAREN);
         END_LEX_STATE();
-      case LexState::R_SQUARE_BRACKET:
-        ACCEPT_LEXEME(Lexeme::R_SQUARE_BRACKET);
+      case LexState_R_SQUARE_BRACKET:
+        ACCEPT_LEXEME(Lexeme_R_SQUARE_BRACKET);
         END_LEX_STATE();
-      case LexState::R_CURLY_BRACE:
-        ACCEPT_LEXEME(Lexeme::R_CURLY_BRACE);
+      case LexState_R_CURLY_BRACE:
+        ACCEPT_LEXEME(Lexeme_R_CURLY_BRACE);
         END_LEX_STATE();
-      case LexState::R_ANGLE_BRACKET:
-        ACCEPT_LEXEME(Lexeme::R_ANGLE_BRACKET);
+      case LexState_R_ANGLE_BRACKET:
+        ACCEPT_LEXEME(Lexeme_R_ANGLE_BRACKET);
         END_LEX_STATE();
-      case LexState::RIGHT_ARROW:
-        ACCEPT_LEXEME(Lexeme::RIGHT_ARROW);
+      case LexState_RIGHT_ARROW:
+        ACCEPT_LEXEME(Lexeme_RIGHT_ARROW);
         END_LEX_STATE();
-      case LexState::COMMENT_START:
-        ACCEPT_LEXEME(Lexeme::COMMENT_START);
+      case LexState_COMMENT_START:
+        ACCEPT_LEXEME(Lexeme_COMMENT_START);
         END_LEX_STATE();
-      case LexState::BLOCK_COMMENT_START:
-        ACCEPT_LEXEME(Lexeme::BLOCK_COMMENT_START);
+      case LexState_BLOCK_COMMENT_START:
+        ACCEPT_LEXEME(Lexeme_BLOCK_COMMENT_START);
         END_LEX_STATE();
-      case LexState::SINGLE_LINE:
-        ACCEPT_LEXEME(Lexeme::SINGLE_LINE);
+      case LexState_SINGLE_LINE:
+        ACCEPT_LEXEME(Lexeme_SINGLE_LINE);
         END_LEX_STATE();
-      case LexState::DOUBLE_LINE:
-        ACCEPT_LEXEME(Lexeme::DOUBLE_LINE);
+      case LexState_DOUBLE_LINE:
+        ACCEPT_LEXEME(Lexeme_DOUBLE_LINE);
         END_LEX_STATE();
-      case LexState::A:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('X' == lookahead) ADVANCE(LexState::AX);
-        if (is_next_codepoint_sequence(lexer, {'S','S','U','M'})) ADVANCE(LexState::ASSUM);
+      case LexState_A:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('X' == lookahead) ADVANCE(LexState_AX);
+        if (is_next_codepoint_sequence(lexer, "SSUM")) ADVANCE(LexState_ASSUM);
         END_LEX_STATE();
-      case LexState::ASSUM:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('E' == lookahead) ADVANCE(LexState::ASSUME);
-        if (is_next_codepoint_sequence(lexer, {'P','T','I','O','N'})) ADVANCE(LexState::ASSUMPTION);
+      case LexState_ASSUM:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('E' == lookahead) ADVANCE(LexState_ASSUME);
+        if (is_next_codepoint_sequence(lexer, "PTION")) ADVANCE(LexState_ASSUMPTION);
         END_LEX_STATE();
-      case LexState::ASSUME:
-        ACCEPT_LEXEME(Lexeme::ASSUME_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_ASSUME:
+        ACCEPT_LEXEME(Lexeme_ASSUME_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::ASSUMPTION:
-        ACCEPT_LEXEME(Lexeme::ASSUMPTION_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_ASSUMPTION:
+        ACCEPT_LEXEME(Lexeme_ASSUMPTION_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::AX:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'I','O','M'})) ADVANCE(LexState::AXIOM);
+      case LexState_AX:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "IOM")) ADVANCE(LexState_AXIOM);
         END_LEX_STATE();
-      case LexState::AXIOM:
-        ACCEPT_LEXEME(Lexeme::AXIOM_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_AXIOM:
+        ACCEPT_LEXEME(Lexeme_AXIOM_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::B:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('Y' == lookahead) ADVANCE(LexState::BY);
+      case LexState_B:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('Y' == lookahead) ADVANCE(LexState_BY);
         END_LEX_STATE();
-      case LexState::BY:
-        ACCEPT_LEXEME(Lexeme::BY_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_BY:
+        ACCEPT_LEXEME(Lexeme_BY_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::C:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('O' == lookahead) ADVANCE(LexState::CO);
+      case LexState_C:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('O' == lookahead) ADVANCE(LexState_CO);
         END_LEX_STATE();
-      case LexState::CO:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('N' == lookahead) ADVANCE(LexState::CON);
-        if ('R' == lookahead) ADVANCE(LexState::COR);
+      case LexState_CO:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('N' == lookahead) ADVANCE(LexState_CON);
+        if ('R' == lookahead) ADVANCE(LexState_COR);
         END_LEX_STATE();
-      case LexState::CON:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'S','T','A','N','T'})) ADVANCE(LexState::CONSTANT);
+      case LexState_CON:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "STANT")) ADVANCE(LexState_CONSTANT);
         END_LEX_STATE();
-      case LexState::CONSTANT:
-        ACCEPT_LEXEME(Lexeme::CONSTANT_KEYWORD);
-        if ('S' == lookahead) ADVANCE(LexState::CONSTANTS);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_CONSTANT:
+        ACCEPT_LEXEME(Lexeme_CONSTANT_KEYWORD);
+        if ('S' == lookahead) ADVANCE(LexState_CONSTANTS);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::CONSTANTS:
-        ACCEPT_LEXEME(Lexeme::CONSTANTS_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_CONSTANTS:
+        ACCEPT_LEXEME(Lexeme_CONSTANTS_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::COR:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'O','L','L','A','R','Y'})) ADVANCE(LexState::COROLLARY);
+      case LexState_COR:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "OLLARY")) ADVANCE(LexState_COROLLARY);
         END_LEX_STATE();
-      case LexState::COROLLARY:
-        ACCEPT_LEXEME(Lexeme::COROLLARY_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_COROLLARY:
+        ACCEPT_LEXEME(Lexeme_COROLLARY_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::E:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'L','S','E'})) ADVANCE(LexState::ELSE);
+      case LexState_E:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "LSE")) ADVANCE(LexState_ELSE);
         END_LEX_STATE();
-      case LexState::ELSE:
-        ACCEPT_LEXEME(Lexeme::ELSE_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_ELSE:
+        ACCEPT_LEXEME(Lexeme_ELSE_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::I:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('N' == lookahead) ADVANCE(LexState::IN);
+      case LexState_I:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('N' == lookahead) ADVANCE(LexState_IN);
         END_LEX_STATE();
-      case LexState::IN:
-        ACCEPT_LEXEME(Lexeme::IN_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_IN:
+        ACCEPT_LEXEME(Lexeme_IN_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::L:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('E' == lookahead) ADVANCE(LexState::LE);
-        if ('O' == lookahead) ADVANCE(LexState::LO);
+      case LexState_L:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('E' == lookahead) ADVANCE(LexState_LE);
+        if ('O' == lookahead) ADVANCE(LexState_LO);
         END_LEX_STATE();
-      case LexState::LE:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'M','M','A'})) ADVANCE(LexState::LEMMA);
+      case LexState_LE:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "MMA")) ADVANCE(LexState_LEMMA);
         END_LEX_STATE();
-      case LexState::LEMMA:
-        ACCEPT_LEXEME(Lexeme::LEMMA_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_LEMMA:
+        ACCEPT_LEXEME(Lexeme_LEMMA_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::LO:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'C','A','L'})) ADVANCE(LexState::LOCAL);
+      case LexState_LO:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "CAL")) ADVANCE(LexState_LOCAL);
         END_LEX_STATE();
-      case LexState::LOCAL:
-        ACCEPT_LEXEME(Lexeme::LOCAL_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_LOCAL:
+        ACCEPT_LEXEME(Lexeme_LOCAL_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::O:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('B' == lookahead) ADVANCE(LexState::OB);
-        if ('M' == lookahead) ADVANCE(LexState::OM);
+      case LexState_O:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('B' == lookahead) ADVANCE(LexState_OB);
+        if ('M' == lookahead) ADVANCE(LexState_OM);
         END_LEX_STATE();
-      case LexState::OB:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'V','I','O','U','S'})) ADVANCE(LexState::OBVIOUS);
+      case LexState_OB:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "VIOUS")) ADVANCE(LexState_OBVIOUS);
         END_LEX_STATE();
-      case LexState::OBVIOUS:
-        ACCEPT_LEXEME(Lexeme::OBVIOUS_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_OBVIOUS:
+        ACCEPT_LEXEME(Lexeme_OBVIOUS_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::OM:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'I','T','T','E','D'})) ADVANCE(LexState::OMITTED);
+      case LexState_OM:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "ITTED")) ADVANCE(LexState_OMITTED);
         END_LEX_STATE();
-      case LexState::OMITTED:
-        ACCEPT_LEXEME(Lexeme::OMITTED_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_OMITTED:
+        ACCEPT_LEXEME(Lexeme_OMITTED_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::P:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'R','O'})) ADVANCE(LexState::PRO);
+      case LexState_P:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "RO")) ADVANCE(LexState_PRO);
         END_LEX_STATE();
-      case LexState::PRO:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('O' == lookahead) ADVANCE(LexState::PROO);
-        if ('P' == lookahead) ADVANCE(LexState::PROP);
+      case LexState_PRO:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('O' == lookahead) ADVANCE(LexState_PROO);
+        if ('P' == lookahead) ADVANCE(LexState_PROP);
         END_LEX_STATE();
-      case LexState::PROO:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('F' == lookahead) ADVANCE(LexState::PROOF);
+      case LexState_PROO:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('F' == lookahead) ADVANCE(LexState_PROOF);
         END_LEX_STATE();
-      case LexState::PROOF:
-        ACCEPT_LEXEME(Lexeme::PROOF_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_PROOF:
+        ACCEPT_LEXEME(Lexeme_PROOF_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::PROP:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'O','S','I','T','I','O','N'})) ADVANCE(LexState::PROPOSITION);
+      case LexState_PROP:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "OSITION")) ADVANCE(LexState_PROPOSITION);
         END_LEX_STATE();
-      case LexState::PROPOSITION:
-        ACCEPT_LEXEME(Lexeme::PROPOSITION_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_PROPOSITION:
+        ACCEPT_LEXEME(Lexeme_PROPOSITION_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::Q:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'E','D'})) ADVANCE(LexState::QED);
+      case LexState_Q:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "ED")) ADVANCE(LexState_QED);
         END_LEX_STATE();
-      case LexState::QED:
-        ACCEPT_LEXEME(Lexeme::QED_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_QED:
+        ACCEPT_LEXEME(Lexeme_QED_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::T:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'H','E'})) ADVANCE(LexState::THE);
+      case LexState_T:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "HE")) ADVANCE(LexState_THE);
         END_LEX_STATE();
-      case LexState::THE:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if ('N' == lookahead) ADVANCE(LexState::THEN);
-        if (is_next_codepoint_sequence(lexer, {'O','R','E','M'})) ADVANCE(LexState::THEOREM);
+      case LexState_THE:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('N' == lookahead) ADVANCE(LexState_THEN);
+        if (is_next_codepoint_sequence(lexer, "OREM")) ADVANCE(LexState_THEOREM);
         END_LEX_STATE();
-      case LexState::THEN:
-        ACCEPT_LEXEME(Lexeme::THEN_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_THEN:
+        ACCEPT_LEXEME(Lexeme_THEN_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::THEOREM:
-        ACCEPT_LEXEME(Lexeme::THEOREM_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_THEOREM:
+        ACCEPT_LEXEME(Lexeme_THEOREM_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::V:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
-        if (is_next_codepoint_sequence(lexer, {'A','R','I','A','B','L','E'})) ADVANCE(LexState::VARIABLE);
+      case LexState_V:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "ARIABLE")) ADVANCE(LexState_VARIABLE);
         END_LEX_STATE();
-      case LexState::VARIABLE:
-        ACCEPT_LEXEME(Lexeme::VARIABLE_KEYWORD);
-        if ('S' == lookahead) ADVANCE(LexState::VARIABLES);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_VARIABLE:
+        ACCEPT_LEXEME(Lexeme_VARIABLE_KEYWORD);
+        if ('S' == lookahead) ADVANCE(LexState_VARIABLES);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::VARIABLES:
-        ACCEPT_LEXEME(Lexeme::VARIABLES_KEYWORD);
-        if (is_identifier_char(lookahead)) ADVANCE(LexState::IDENTIFIER);
+      case LexState_VARIABLES:
+        ACCEPT_LEXEME(Lexeme_VARIABLES_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::PROOF_LEVEL_NUMBER:
+      case LexState_PROOF_LEVEL_NUMBER:
         if (iswdigit(lookahead)) {
           proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
-          ADVANCE(LexState::PROOF_LEVEL_NUMBER);
+          ADVANCE(LexState_PROOF_LEVEL_NUMBER);
         }
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
+        if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
+        ADVANCE(LexState_OTHER);
         END_LEX_STATE();
-      case LexState::PROOF_LEVEL_STAR:
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
+      case LexState_PROOF_LEVEL_STAR:
+        if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
+        ADVANCE(LexState_OTHER);
         END_LEX_STATE();
-      case LexState::PROOF_LEVEL_PLUS:
-        if ('>' == lookahead) ADVANCE(LexState::PROOF_NAME);
-        ADVANCE(LexState::OTHER);
+      case LexState_PROOF_LEVEL_PLUS:
+        if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
+        ADVANCE(LexState_OTHER);
         END_LEX_STATE();
-      case LexState::PROOF_NAME:
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        if (iswalnum(lookahead)) ADVANCE(LexState::PROOF_NAME);
-        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+      case LexState_PROOF_NAME:
+        ACCEPT_LEXEME(Lexeme_PROOF_STEP_ID);
+        if (iswalnum(lookahead)) ADVANCE(LexState_PROOF_NAME);
+        if ('.' == lookahead) ADVANCE(LexState_PROOF_ID);
         END_LEX_STATE();
-      case LexState::PROOF_ID:
-        ACCEPT_LEXEME(Lexeme::PROOF_STEP_ID);
-        if ('.' == lookahead) ADVANCE(LexState::PROOF_ID);
+      case LexState_PROOF_ID:
+        ACCEPT_LEXEME(Lexeme_PROOF_STEP_ID);
+        if ('.' == lookahead) ADVANCE(LexState_PROOF_ID);
         END_LEX_STATE();
-      case LexState::IDENTIFIER:
-        ACCEPT_LEXEME(Lexeme::IDENTIFIER);
+      case LexState_IDENTIFIER:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
         END_LEX_STATE();
-      case LexState::OTHER:
-        ACCEPT_LEXEME(Lexeme::OTHER);
+      case LexState_OTHER:
+        ACCEPT_LEXEME(Lexeme_OTHER);
         END_LEX_STATE();
-      case LexState::END_OF_FILE:
-        ACCEPT_LEXEME(Lexeme::END_OF_FILE);
+      case LexState_END_OF_FILE:
+        ACCEPT_LEXEME(Lexeme_END_OF_FILE);
         END_LEX_STATE();
       default:
-        ACCEPT_LEXEME(Lexeme::OTHER);
+        ACCEPT_LEXEME(Lexeme_OTHER);
         END_LEX_STATE();
     }
   }
   
   // Tokens recognized by this scanner.
-  enum class Token {
-    LAND,
-    LOR,
-    RIGHT_DELIMITER,
-    COMMENT_START,
-    TERMINATOR,
-    PROOF_STEP_ID,
-    PROOF_KEYWORD,
-    BY_KEYWORD,
-    OBVIOUS_KEYWORD,
-    OMITTED_KEYWORD,
-    QED_KEYWORD,
-    OTHER
+  enum Token {
+    Token_LAND,
+    Token_LOR,
+    Token_RIGHT_DELIMITER,
+    Token_COMMENT_START,
+    Token_TERMINATOR,
+    Token_PROOF_STEP_ID,
+    Token_PROOF_KEYWORD,
+    Token_BY_KEYWORD,
+    Token_OBVIOUS_KEYWORD,
+    Token_OMITTED_KEYWORD,
+    Token_QED_KEYWORD,
+    Token_OTHER
   };
 
   /**
@@ -852,56 +845,56 @@ namespace {
    */
   Token tokenize_lexeme(Lexeme lexeme) {
     switch (lexeme) {
-      case Lexeme::FORWARD_SLASH: return Token::OTHER;
-      case Lexeme::BACKWARD_SLASH: return Token::OTHER;
-      case Lexeme::GT: return Token::OTHER;
-      case Lexeme::EQ: return Token::OTHER;
-      case Lexeme::DASH: return Token::OTHER;
-      case Lexeme::COMMA: return Token::RIGHT_DELIMITER;
-      case Lexeme::LAND: return Token::LAND;
-      case Lexeme::LOR: return Token::LOR;
-      case Lexeme::L_PAREN: return Token::OTHER;
-      case Lexeme::R_PAREN: return Token::RIGHT_DELIMITER;
-      case Lexeme::R_SQUARE_BRACKET: return Token::RIGHT_DELIMITER;
-      case Lexeme::R_CURLY_BRACE: return Token::RIGHT_DELIMITER;
-      case Lexeme::R_ANGLE_BRACKET: return Token::RIGHT_DELIMITER;
-      case Lexeme::RIGHT_ARROW: return Token::RIGHT_DELIMITER;
-      case Lexeme::COMMENT_START: return Token::COMMENT_START;
-      case Lexeme::BLOCK_COMMENT_START: return Token::COMMENT_START;
-      case Lexeme::SINGLE_LINE: return Token::TERMINATOR;
-      case Lexeme::DOUBLE_LINE: return Token::TERMINATOR;
-      case Lexeme::ASSUME_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::ASSUMPTION_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::AXIOM_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::BY_KEYWORD: return Token::BY_KEYWORD;
-      case Lexeme::CONSTANT_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::CONSTANTS_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::COROLLARY_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::ELSE_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme::IN_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme::LEMMA_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::LOCAL_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::OBVIOUS_KEYWORD: return Token::OBVIOUS_KEYWORD;
-      case Lexeme::OMITTED_KEYWORD: return Token::OMITTED_KEYWORD;
-      case Lexeme::PROOF_KEYWORD: return Token::PROOF_KEYWORD;
-      case Lexeme::PROPOSITION_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::THEN_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme::THEOREM_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::VARIABLE_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::VARIABLES_KEYWORD: return Token::TERMINATOR;
-      case Lexeme::PROOF_STEP_ID: return Token::PROOF_STEP_ID;
-      case Lexeme::QED_KEYWORD: return Token::QED_KEYWORD;
-      case Lexeme::IDENTIFIER: return Token::OTHER;
-      case Lexeme::OTHER: return Token::OTHER;
-      case Lexeme::END_OF_FILE: return Token::TERMINATOR;
-      default: return Token::OTHER;
+      case Lexeme_FORWARD_SLASH: return Token_OTHER;
+      case Lexeme_BACKWARD_SLASH: return Token_OTHER;
+      case Lexeme_GT: return Token_OTHER;
+      case Lexeme_EQ: return Token_OTHER;
+      case Lexeme_DASH: return Token_OTHER;
+      case Lexeme_COMMA: return Token_RIGHT_DELIMITER;
+      case Lexeme_LAND: return Token_LAND;
+      case Lexeme_LOR: return Token_LOR;
+      case Lexeme_L_PAREN: return Token_OTHER;
+      case Lexeme_R_PAREN: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_SQUARE_BRACKET: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_CURLY_BRACE: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_ANGLE_BRACKET: return Token_RIGHT_DELIMITER;
+      case Lexeme_RIGHT_ARROW: return Token_RIGHT_DELIMITER;
+      case Lexeme_COMMENT_START: return Token_COMMENT_START;
+      case Lexeme_BLOCK_COMMENT_START: return Token_COMMENT_START;
+      case Lexeme_SINGLE_LINE: return Token_TERMINATOR;
+      case Lexeme_DOUBLE_LINE: return Token_TERMINATOR;
+      case Lexeme_ASSUME_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_ASSUMPTION_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_AXIOM_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_BY_KEYWORD: return Token_BY_KEYWORD;
+      case Lexeme_CONSTANT_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_CONSTANTS_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_COROLLARY_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_ELSE_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_IN_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_LEMMA_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_LOCAL_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_OBVIOUS_KEYWORD: return Token_OBVIOUS_KEYWORD;
+      case Lexeme_OMITTED_KEYWORD: return Token_OMITTED_KEYWORD;
+      case Lexeme_PROOF_KEYWORD: return Token_PROOF_KEYWORD;
+      case Lexeme_PROPOSITION_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_THEN_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_THEOREM_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_VARIABLE_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_VARIABLES_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_PROOF_STEP_ID: return Token_PROOF_STEP_ID;
+      case Lexeme_QED_KEYWORD: return Token_QED_KEYWORD;
+      case Lexeme_IDENTIFIER: return Token_OTHER;
+      case Lexeme_OTHER: return Token_OTHER;
+      case Lexeme_END_OF_FILE: return Token_TERMINATOR;
+      default: return Token_OTHER;
     }
   }
     
   // Possible types of junction list.
-  enum class JunctType {
-    CONJUNCTION,
-    DISJUNCTION
+  enum JunctType {
+    JunctType_CONJUNCTION,
+    JunctType_DISJUNCTION
   };
 
   // Data about a jlist.
@@ -1141,10 +1134,10 @@ namespace {
      */
     bool emit_bullet(TSLexer* const lexer, const JunctType type) {
       switch (type) {
-        case JunctType::CONJUNCTION:
+        case JunctType_CONJUNCTION:
           lexer->result_symbol = BULLET_CONJ;
           break;
-        case JunctType::DISJUNCTION:
+        case JunctType_DISJUNCTION:
           lexer->result_symbol = BULLET_DISJ;
           break;
         default:
@@ -1486,7 +1479,7 @@ namespace {
         proof_level next_proof_level = -1;
         const proof_level current_proof_level = get_current_proof_level();
         switch (proof_step_id_token.type) {
-          case ProofStepIdType::STAR:
+          case ProofStepIdType_STAR:
             /**
              * <*> can start a new proof only at the very first level,
              * or directly following a PROOF keyword.
@@ -1496,7 +1489,7 @@ namespace {
               ? last_proof_level + 1
               : current_proof_level;
             break;
-          case ProofStepIdType::PLUS:
+          case ProofStepIdType_PLUS:
             /**
              * This keeps us from entering an infinite loop when we see
              * a <+> proof step ID; the first time we encounter the <+>,
@@ -1508,7 +1501,7 @@ namespace {
               ? last_proof_level + 1
               : current_proof_level;
             break;
-          case ProofStepIdType::NUMBERED:
+          case ProofStepIdType_NUMBERED:
             next_proof_level = proof_step_id_token.level;
             break;
           default:
@@ -1624,20 +1617,9 @@ namespace {
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
       // All symbols are marked as valid during error recovery.
-      const bool is_error_recovery =
-        valid_symbols[EXTRAMODULAR_TEXT]
-        && valid_symbols[BLOCK_COMMENT_TEXT]
-        && valid_symbols[INDENT]
-        && valid_symbols[BULLET_CONJ]
-        && valid_symbols[BULLET_DISJ]
-        && valid_symbols[DEDENT]
-        && valid_symbols[BEGIN_PROOF]
-        && valid_symbols[BEGIN_PROOF_STEP]
-        && valid_symbols[PROOF_KEYWORD]
-        && valid_symbols[BY_KEYWORD]
-        && valid_symbols[OBVIOUS_KEYWORD]
-        && valid_symbols[OMITTED_KEYWORD]
-        && valid_symbols[QED_KEYWORD];
+      // We can check for this by looking at the validity of the final
+      // (unused) external symbol, ERROR_SENTINEL.
+      const bool is_error_recovery = valid_symbols[ERROR_SENTINEL];
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
@@ -1649,51 +1631,37 @@ namespace {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
-      } else if (
-        valid_symbols[INDENT]
-        || valid_symbols[BULLET_CONJ]
-        || valid_symbols[BULLET_DISJ]
-        || valid_symbols[DEDENT]
-        || valid_symbols[BEGIN_PROOF]
-        || valid_symbols[BEGIN_PROOF_STEP]
-        || valid_symbols[PROOF_KEYWORD]
-        || valid_symbols[BY_KEYWORD]
-        || valid_symbols[OBVIOUS_KEYWORD]
-        || valid_symbols[OMITTED_KEYWORD]
-        || valid_symbols[QED_KEYWORD]
-      ) {
+      } else {
         column_index col;
         std::vector<char> proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
-          case Token::LAND:
-            return handle_junct_token(lexer, valid_symbols, JunctType::CONJUNCTION, col);
-          case Token::LOR:
-            return handle_junct_token(lexer, valid_symbols, JunctType::DISJUNCTION, col);
-          case Token::RIGHT_DELIMITER:
+          case Token_LAND:
+            return handle_junct_token(lexer, valid_symbols, JunctType_CONJUNCTION, col);
+          case Token_LOR:
+            return handle_junct_token(lexer, valid_symbols, JunctType_DISJUNCTION, col);
+          case Token_RIGHT_DELIMITER:
             return handle_right_delimiter_token(lexer, valid_symbols);
-          case Token::COMMENT_START:
+          case Token_COMMENT_START:
             return false;
-          case Token::TERMINATOR:
+          case Token_TERMINATOR:
             return handle_terminator_token(lexer, valid_symbols);
-          case Token::PROOF_STEP_ID:
+          case Token_PROOF_STEP_ID:
             return handle_proof_step_id_token(lexer, valid_symbols, col, proof_step_id_level);
-          case Token::PROOF_KEYWORD:
+          case Token_PROOF_KEYWORD:
             return handle_proof_keyword_token(lexer, valid_symbols);
-          case Token::BY_KEYWORD:
+          case Token_BY_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, BY_KEYWORD);
-          case Token::OBVIOUS_KEYWORD:
+          case Token_OBVIOUS_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OBVIOUS_KEYWORD);
-          case Token::OMITTED_KEYWORD:
+          case Token_OMITTED_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
-          case Token::QED_KEYWORD:
+          case Token_QED_KEYWORD:
             return handle_qed_keyword_token(lexer, valid_symbols);
-          case Token::OTHER:
+          case Token_OTHER:
             return handle_other_token(lexer, valid_symbols, col);
           default:
             return false;
         }
-      } else {
-        return false;
       }
     }
   };

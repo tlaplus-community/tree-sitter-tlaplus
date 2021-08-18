@@ -11,10 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Don't build on macOS until this issue is fixed:
-        # https://github.com/tree-sitter/tree-sitter/issues/1246
-        # os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
       fail-fast: false
     steps:
       - name: Clone repo
@@ -62,10 +59,8 @@ jobs:
         with:
           version: 2.0.16
       - name: Generate parser WASM
-        run: node_modules/.bin/tree-sitter build-wasm
-      - name: Move parser WASM
-        shell: bash
-        run: mv tree-sitter-tlaplus.wasm ./docs/js/tree-sitter-tlaplus.wasm
+        working-directory: docs/js
+        run: ../../node_modules/.bin/tree-sitter build-wasm ../..
       - name: List changes
         shell: bash
         run: git status

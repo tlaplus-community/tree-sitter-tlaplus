@@ -7010,7 +7010,7 @@
     },
     {
       "type": "SYMBOL",
-      "name": "error_sentinel"
+      "name": "_error_sentinel"
     }
   ],
   "inline": [],
