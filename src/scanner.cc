@@ -62,7 +62,8 @@ namespace {
     BY_KEYWORD,         // The BY keyword.
     OBVIOUS_KEYWORD,    // The OBVIOUS keyword.
     OMITTED_KEYWORD,    // The OMITTED keyword.
-    QED_KEYWORD         // The QED keyword.
+    QED_KEYWORD,        // The QED keyword.
+    ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
   // Datatype used to record length of nested proofs & jlists.
@@ -821,19 +822,19 @@ namespace {
   }
   
   // Tokens recognized by this scanner.
-  enum class Token {
-    LAND,
-    LOR,
-    RIGHT_DELIMITER,
-    COMMENT_START,
-    TERMINATOR,
-    PROOF_STEP_ID,
-    PROOF_KEYWORD,
-    BY_KEYWORD,
-    OBVIOUS_KEYWORD,
-    OMITTED_KEYWORD,
-    QED_KEYWORD,
-    OTHER
+  enum Token {
+    Token_LAND,
+    Token_LOR,
+    Token_RIGHT_DELIMITER,
+    Token_COMMENT_START,
+    Token_TERMINATOR,
+    Token_PROOF_STEP_ID,
+    Token_PROOF_KEYWORD,
+    Token_BY_KEYWORD,
+    Token_OBVIOUS_KEYWORD,
+    Token_OMITTED_KEYWORD,
+    Token_QED_KEYWORD,
+    Token_OTHER
   };
 
   /**
@@ -844,49 +845,49 @@ namespace {
    */
   Token tokenize_lexeme(Lexeme lexeme) {
     switch (lexeme) {
-      case Lexeme_FORWARD_SLASH: return Token::OTHER;
-      case Lexeme_BACKWARD_SLASH: return Token::OTHER;
-      case Lexeme_GT: return Token::OTHER;
-      case Lexeme_EQ: return Token::OTHER;
-      case Lexeme_DASH: return Token::OTHER;
-      case Lexeme_COMMA: return Token::RIGHT_DELIMITER;
-      case Lexeme_LAND: return Token::LAND;
-      case Lexeme_LOR: return Token::LOR;
-      case Lexeme_L_PAREN: return Token::OTHER;
-      case Lexeme_R_PAREN: return Token::RIGHT_DELIMITER;
-      case Lexeme_R_SQUARE_BRACKET: return Token::RIGHT_DELIMITER;
-      case Lexeme_R_CURLY_BRACE: return Token::RIGHT_DELIMITER;
-      case Lexeme_R_ANGLE_BRACKET: return Token::RIGHT_DELIMITER;
-      case Lexeme_RIGHT_ARROW: return Token::RIGHT_DELIMITER;
-      case Lexeme_COMMENT_START: return Token::COMMENT_START;
-      case Lexeme_BLOCK_COMMENT_START: return Token::COMMENT_START;
-      case Lexeme_SINGLE_LINE: return Token::TERMINATOR;
-      case Lexeme_DOUBLE_LINE: return Token::TERMINATOR;
-      case Lexeme_ASSUME_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_ASSUMPTION_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_AXIOM_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_BY_KEYWORD: return Token::BY_KEYWORD;
-      case Lexeme_CONSTANT_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_CONSTANTS_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_COROLLARY_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_ELSE_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme_IN_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme_LEMMA_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_LOCAL_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_OBVIOUS_KEYWORD: return Token::OBVIOUS_KEYWORD;
-      case Lexeme_OMITTED_KEYWORD: return Token::OMITTED_KEYWORD;
-      case Lexeme_PROOF_KEYWORD: return Token::PROOF_KEYWORD;
-      case Lexeme_PROPOSITION_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_THEN_KEYWORD: return Token::RIGHT_DELIMITER;
-      case Lexeme_THEOREM_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_VARIABLE_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_VARIABLES_KEYWORD: return Token::TERMINATOR;
-      case Lexeme_PROOF_STEP_ID: return Token::PROOF_STEP_ID;
-      case Lexeme_QED_KEYWORD: return Token::QED_KEYWORD;
-      case Lexeme_IDENTIFIER: return Token::OTHER;
-      case Lexeme_OTHER: return Token::OTHER;
-      case Lexeme_END_OF_FILE: return Token::TERMINATOR;
-      default: return Token::OTHER;
+      case Lexeme_FORWARD_SLASH: return Token_OTHER;
+      case Lexeme_BACKWARD_SLASH: return Token_OTHER;
+      case Lexeme_GT: return Token_OTHER;
+      case Lexeme_EQ: return Token_OTHER;
+      case Lexeme_DASH: return Token_OTHER;
+      case Lexeme_COMMA: return Token_RIGHT_DELIMITER;
+      case Lexeme_LAND: return Token_LAND;
+      case Lexeme_LOR: return Token_LOR;
+      case Lexeme_L_PAREN: return Token_OTHER;
+      case Lexeme_R_PAREN: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_SQUARE_BRACKET: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_CURLY_BRACE: return Token_RIGHT_DELIMITER;
+      case Lexeme_R_ANGLE_BRACKET: return Token_RIGHT_DELIMITER;
+      case Lexeme_RIGHT_ARROW: return Token_RIGHT_DELIMITER;
+      case Lexeme_COMMENT_START: return Token_COMMENT_START;
+      case Lexeme_BLOCK_COMMENT_START: return Token_COMMENT_START;
+      case Lexeme_SINGLE_LINE: return Token_TERMINATOR;
+      case Lexeme_DOUBLE_LINE: return Token_TERMINATOR;
+      case Lexeme_ASSUME_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_ASSUMPTION_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_AXIOM_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_BY_KEYWORD: return Token_BY_KEYWORD;
+      case Lexeme_CONSTANT_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_CONSTANTS_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_COROLLARY_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_ELSE_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_IN_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_LEMMA_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_LOCAL_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_OBVIOUS_KEYWORD: return Token_OBVIOUS_KEYWORD;
+      case Lexeme_OMITTED_KEYWORD: return Token_OMITTED_KEYWORD;
+      case Lexeme_PROOF_KEYWORD: return Token_PROOF_KEYWORD;
+      case Lexeme_PROPOSITION_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_THEN_KEYWORD: return Token_RIGHT_DELIMITER;
+      case Lexeme_THEOREM_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_VARIABLE_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_VARIABLES_KEYWORD: return Token_TERMINATOR;
+      case Lexeme_PROOF_STEP_ID: return Token_PROOF_STEP_ID;
+      case Lexeme_QED_KEYWORD: return Token_QED_KEYWORD;
+      case Lexeme_IDENTIFIER: return Token_OTHER;
+      case Lexeme_OTHER: return Token_OTHER;
+      case Lexeme_END_OF_FILE: return Token_TERMINATOR;
+      default: return Token_OTHER;
     }
   }
     
@@ -1616,20 +1617,9 @@ namespace {
      */
     bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
       // All symbols are marked as valid during error recovery.
-      const bool is_error_recovery =
-        valid_symbols[EXTRAMODULAR_TEXT]
-        && valid_symbols[BLOCK_COMMENT_TEXT]
-        && valid_symbols[INDENT]
-        && valid_symbols[BULLET_CONJ]
-        && valid_symbols[BULLET_DISJ]
-        && valid_symbols[DEDENT]
-        && valid_symbols[BEGIN_PROOF]
-        && valid_symbols[BEGIN_PROOF_STEP]
-        && valid_symbols[PROOF_KEYWORD]
-        && valid_symbols[BY_KEYWORD]
-        && valid_symbols[OBVIOUS_KEYWORD]
-        && valid_symbols[OMITTED_KEYWORD]
-        && valid_symbols[QED_KEYWORD];
+      // We can check for this by looking at the validity of the final
+      // (unused) external symbol, ERROR_SENTINEL.
+      const bool is_error_recovery = valid_symbols[ERROR_SENTINEL];
 
       // TODO: actually function during error recovery
       // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
@@ -1641,51 +1631,37 @@ namespace {
         return scan_extramodular_text(lexer);
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
-      } else if (
-        valid_symbols[INDENT]
-        || valid_symbols[BULLET_CONJ]
-        || valid_symbols[BULLET_DISJ]
-        || valid_symbols[DEDENT]
-        || valid_symbols[BEGIN_PROOF]
-        || valid_symbols[BEGIN_PROOF_STEP]
-        || valid_symbols[PROOF_KEYWORD]
-        || valid_symbols[BY_KEYWORD]
-        || valid_symbols[OBVIOUS_KEYWORD]
-        || valid_symbols[OMITTED_KEYWORD]
-        || valid_symbols[QED_KEYWORD]
-      ) {
+      } else {
         column_index col;
         std::vector<char> proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
-          case Token::LAND:
+          case Token_LAND:
             return handle_junct_token(lexer, valid_symbols, JunctType_CONJUNCTION, col);
-          case Token::LOR:
+          case Token_LOR:
             return handle_junct_token(lexer, valid_symbols, JunctType_DISJUNCTION, col);
-          case Token::RIGHT_DELIMITER:
+          case Token_RIGHT_DELIMITER:
             return handle_right_delimiter_token(lexer, valid_symbols);
-          case Token::COMMENT_START:
+          case Token_COMMENT_START:
             return false;
-          case Token::TERMINATOR:
+          case Token_TERMINATOR:
             return handle_terminator_token(lexer, valid_symbols);
-          case Token::PROOF_STEP_ID:
+          case Token_PROOF_STEP_ID:
             return handle_proof_step_id_token(lexer, valid_symbols, col, proof_step_id_level);
-          case Token::PROOF_KEYWORD:
+          case Token_PROOF_KEYWORD:
             return handle_proof_keyword_token(lexer, valid_symbols);
-          case Token::BY_KEYWORD:
+          case Token_BY_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, BY_KEYWORD);
-          case Token::OBVIOUS_KEYWORD:
+          case Token_OBVIOUS_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OBVIOUS_KEYWORD);
-          case Token::OMITTED_KEYWORD:
+          case Token_OMITTED_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
-          case Token::QED_KEYWORD:
+          case Token_QED_KEYWORD:
             return handle_qed_keyword_token(lexer, valid_symbols);
-          case Token::OTHER:
+          case Token_OTHER:
             return handle_other_token(lexer, valid_symbols, col);
           default:
             return false;
         }
-      } else {
-        return false;
       }
     }
   };
