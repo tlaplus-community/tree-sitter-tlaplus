@@ -130,3 +130,6 @@
 ; Proofs
 (proof_step_id (level) @property)
 (proof_step_id (name) @attribute)
+
+; Reference-based identifier highlighting
+(identifier_ref) @variable.reference
