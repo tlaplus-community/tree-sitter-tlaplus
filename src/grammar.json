@@ -1,5 +1,6 @@
 {
   "name": "tlaplus",
+  "word": "identifier",
   "rules": {
     "source_file": {
       "type": "SEQ",
@@ -63,8 +64,13 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "single_line"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "single_line"
+          },
+          "named": true,
+          "value": "header_line"
         },
         {
           "type": "STRING",
@@ -79,8 +85,13 @@
           }
         },
         {
-          "type": "SYMBOL",
-          "name": "single_line"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "single_line"
+          },
+          "named": true,
+          "value": "header_line"
         },
         {
           "type": "CHOICE",
@@ -98,7 +109,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "unit"
+            "name": "_unit"
           }
         },
         {
@@ -595,7 +606,7 @@
         }
       ]
     },
-    "unit": {
+    "_unit": {
       "type": "CHOICE",
       "members": [
         {
@@ -1351,6 +1362,19 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "_op"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        }
+      ]
+    },
+    "_op": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
           "name": "standalone_prefix_op_symbol"
         },
         {
@@ -1364,10 +1388,6 @@
         {
           "type": "SYMBOL",
           "name": "lambda"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
         }
       ]
     },
@@ -1782,7 +1802,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "number"
+          "name": "_number"
         },
         {
           "type": "SYMBOL",
@@ -2052,48 +2072,48 @@
         }
       ]
     },
-    "number": {
+    "_number": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_nat_number"
+          "name": "nat_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_real_number"
+          "name": "real_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_binary_number"
+          "name": "binary_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_octal_number"
+          "name": "octal_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_hex_number"
+          "name": "hex_number"
         }
       ]
     },
-    "_nat_number": {
+    "nat_number": {
       "type": "PATTERN",
       "value": "\\d+"
     },
-    "_real_number": {
+    "real_number": {
       "type": "PATTERN",
       "value": "\\d+\\.\\d+"
     },
-    "_binary_number": {
+    "binary_number": {
       "type": "PATTERN",
       "value": "(\\\\b|\\\\B)[0-1]+"
     },
-    "_octal_number": {
+    "octal_number": {
       "type": "PATTERN",
       "value": "(\\\\o|\\\\O)[0-7]+"
     },
-    "_hex_number": {
+    "hex_number": {
       "type": "PATTERN",
       "value": "(\\\\h|\\\\H)[0-9a-fA-F]+"
     },
@@ -7014,6 +7034,11 @@
     }
   ],
   "inline": [],
-  "supertypes": []
+  "supertypes": [
+    "_unit",
+    "_expr",
+    "_op",
+    "_number"
+  ]
 }
 

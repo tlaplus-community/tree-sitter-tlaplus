@@ -74,7 +74,11 @@
 ] @keyword.function
 
 ; Literals
-(number) @number
+(nat_number) @number
+(real_number) @float
+(binary_number) @number
+(octal_number) @number
+(hex_number) @number
 (string) @string
 (boolean) @boolean
 (primitive_value_set) @type
@@ -82,7 +86,7 @@
 ; Comments
 (comment) @comment
 (block_comment) @comment
-(unit (single_line) @comment)
+(single_line) @comment
 (extramodular_text) @text
 
 ; Namespaces
