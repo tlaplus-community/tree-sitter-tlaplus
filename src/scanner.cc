@@ -84,25 +84,6 @@ namespace {
   }
 
   /**
-   * Advances the scanner while marking the codepoint as whitespace.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   */
-  void skip(TSLexer* const lexer) {
-    lexer->advance(lexer, true);
-  }
-
-  /**
-   * Gets the next codepoint in the string.
-   * 
-   * @param lexer The tree-sitter lexing control structure.
-   * @return The next codepoint in the string.
-   */
-  int32_t next_codepoint(const TSLexer* const lexer) {
-    return lexer->lookahead;
-  }
-
-  /**
    * Checks whether the next codepoint is the one given.
    * 
    * @param lexer The tree-sitter lexing control structure.
@@ -113,7 +94,7 @@ namespace {
     const TSLexer* const lexer,
     int32_t const codepoint
   ) {
-    return codepoint == next_codepoint(lexer);
+    return codepoint == lexer->lookahead;
   }
 
   /**
@@ -123,7 +104,7 @@ namespace {
    * @return Whether there are any codepoints left in the string.
    */
   bool has_next(const TSLexer* const lexer) {
-    return !is_next_codepoint(lexer, 0);
+    return !lexer->eof(lexer);
   }
 
   /**

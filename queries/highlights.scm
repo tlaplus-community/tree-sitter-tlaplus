@@ -75,14 +75,14 @@
 ] @keyword
 
 ; Literals
-(number) @number
+(nat_number) @number
 (string) @string
 (primitive_value_set) @type
 
 ; Comments
 (comment) @comment
 (block_comment) @comment
-(unit (single_line) @comment)
+(single_line) @comment
 
 ; Constants, variables, and operators
 (constant_declaration (identifier) @constant)

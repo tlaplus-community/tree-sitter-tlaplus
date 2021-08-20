@@ -8,9 +8,8 @@ def == {x \in S : x \in T}
 
 ---------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (set_filter
       (single_quantifier_bound
         (identifier) (set_in) (identifier_ref)
@@ -19,5 +18,5 @@ def == {x \in S : x \in T}
         (identifier_ref) (in) (identifier_ref)
       )
     )
-  ))
+  )
 (double_line)))

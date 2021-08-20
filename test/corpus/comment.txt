@@ -8,7 +8,7 @@ Solitary Comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (comment)
 (double_line)))
 
@@ -23,11 +23,10 @@ op == \* This is a comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (comment)
-    (identifier_ref)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (comment) (identifier_ref)
+  )
 (double_line)))
 
 ====================|||
@@ -43,15 +42,14 @@ op ==
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (conj_list
-      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj) (nat_number))
       (comment)
-      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 ====================|||
@@ -67,15 +65,14 @@ op ==
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (comment)
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 ====================|||
@@ -95,7 +92,7 @@ comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -118,14 +115,14 @@ comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (bound_infix_op
-      (number) (plus)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (bound_infix_op
+      (nat_number) (plus)
       (block_comment)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 ====================|||
@@ -146,7 +143,7 @@ comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -170,7 +167,7 @@ comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -188,7 +185,7 @@ Lookahead Block Comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -205,15 +202,14 @@ op ==
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (conj_list
-      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj) (nat_number))
       (block_comment)
-      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 ====================|||
@@ -229,15 +225,14 @@ op ==
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (block_comment)
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 ====================|||
@@ -257,7 +252,7 @@ Fancy Block Comment
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -287,9 +282,9 @@ op == x
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
-  (unit (operator_definition (identifier) (def_eq) (identifier_ref)))
+  (operator_definition (identifier) (def_eq) (identifier_ref))
   (block_comment)
 (double_line)))
 
@@ -304,7 +299,7 @@ Sequential Nested Block Comments
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -333,7 +328,7 @@ Block Comments Separated By Single Line
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
 (double_line)))
 
@@ -363,7 +358,7 @@ Block Comments Separated By Two Lines
 
 --------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
+(source_file (module (header_line) (identifier) (header_line)
   (block_comment)
   (block_comment)
 (double_line)))

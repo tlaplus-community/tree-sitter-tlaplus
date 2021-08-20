@@ -83,6 +83,15 @@ module.exports = grammar({
     $.qed_keyword,
     $.error_sentinel
   ],
+  
+  word: $ => $.identifier,
+
+  supertypes: $ => [
+    $._unit,
+    $._expr,
+    $._op,
+    $._number
+  ],
 
   extras: $ => [
     /\s|\r?\n/,
@@ -155,9 +164,11 @@ module.exports = grammar({
 
     // Top-level module declaration
     module: $ => seq(
-      $.single_line, 'MODULE', field('name', $.identifier), $.single_line,
+      alias($.single_line, $.header_line),
+      'MODULE', field('name', $.identifier),
+      alias($.single_line, $.header_line),
       optional($.extends),
-      repeat($.unit),
+      repeat($._unit),
       $.double_line
     ),
 
@@ -219,7 +230,7 @@ module.exports = grammar({
     ),
 
     // A module-level definition
-    unit: $ => choice(
+    _unit: $ => choice(
       $.variable_declaration,
       $.constant_declaration,
       $.recursive_declaration,
@@ -357,12 +368,13 @@ module.exports = grammar({
     ),
 
     // Either an operator (op, +, *, LAMBDA, etc.) or an expression
-    _op_or_expr: $ => choice(
+    _op_or_expr: $ => choice($._op, $._expr),
+
+    _op: $ => choice(
       $.standalone_prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol,
       $.lambda,
-      $._expr
     ),
 
     // foo!bar!baz!
@@ -429,7 +441,7 @@ module.exports = grammar({
 
     // Anything that evaluates to a value
     _expr: $ => choice(
-      $.number,
+      $._number,
       $.string,
       $.boolean,
       $.primitive_value_set,
@@ -501,16 +513,16 @@ module.exports = grammar({
     ),
 
     // Number literal encodings
-    number: $ => choice(
-      $._nat_number,     $._real_number,
-      $._binary_number,  $._octal_number,   $._hex_number
+    _number: $ => choice(
+      $.nat_number,     $.real_number,
+      $.binary_number,  $.octal_number,   $.hex_number
     ),
 
-    _nat_number: $ => /\d+/,
-    _real_number: $ => /\d+\.\d+/,
-    _binary_number: $ => /(\\b|\\B)[0-1]+/,
-    _octal_number: $ => /(\\o|\\O)[0-7]+/,
-    _hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
+    nat_number: $ => /\d+/,
+    real_number: $ => /\d+\.\d+/,
+    binary_number: $ => /(\\b|\\B)[0-1]+/,
+    octal_number: $ => /(\\o|\\O)[0-7]+/,
+    hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
 
     // "foobar", "", etc.
     string: $ => /"([^"\\]|\\\\|\\")*"/,

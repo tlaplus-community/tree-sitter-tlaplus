@@ -11,15 +11,14 @@ op ==
 
 --------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (case
-      (case_arm (number) (case_arrow) (number))
-      (case_box) (case_arm (number) (case_arrow) (number))
-      (case_box) (other_arm (case_arrow) (number))
+      (case_arm (nat_number) (case_arrow) (nat_number))
+      (case_box) (case_arm (nat_number) (case_arrow) (nat_number))
+      (case_box) (other_arm (case_arrow) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -36,21 +35,20 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (conj_list
       (conj_item
         (bullet_conj)
         (case
-          (case_arm (number) (case_arrow) (number))
-          (case_box) (case_arm (number) (case_arrow) (number))
-          (case_box) (other_arm (case_arrow) (number))
+          (case_arm (nat_number) (case_arrow) (nat_number))
+          (case_box) (case_arm (nat_number) (case_arrow) (nat_number))
+          (case_box) (other_arm (case_arrow) (nat_number))
         )
       )
-      (conj_item (bullet_conj) (number))
+      (conj_item (bullet_conj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -78,27 +76,26 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (case
       (case_arm
-        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
+        (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
         (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
+        (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
       )
       (case_box)
       (case_arm
-        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
+        (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
         (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
+        (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
       )
       (case_box)
       (other_arm (case_arrow)
-        (conj_list (conj_item (bullet_conj) (number)) (conj_item (bullet_conj) (number)))
+        (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
       )
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -115,21 +112,20 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item
         (bullet_disj)
         (case
-          (case_arm (number) (case_arrow) (number))
-          (case_box) (case_arm (number) (case_arrow) (number))
-          (case_box) (other_arm (case_arrow) (number))
+          (case_arm (nat_number) (case_arrow) (nat_number))
+          (case_box) (case_arm (nat_number) (case_arrow) (nat_number))
+          (case_box) (other_arm (case_arrow) (nat_number))
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -157,27 +153,26 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (case
       (case_arm
-        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)) (disj_item (bullet_disj) (nat_number)))
         (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)) (disj_item (bullet_disj) (nat_number)))
       )
       (case_box)
       (case_arm
-        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)) (disj_item (bullet_disj) (nat_number)))
         (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)) (disj_item (bullet_disj) (nat_number)))
       )
       (case_box)
       (other_arm (case_arrow)
-        (disj_list (disj_item (bullet_disj) (number)) (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)) (disj_item (bullet_disj) (nat_number)))
       )
     )
-  ))
+  )
 (double_line)))
 
 ===================|||
@@ -208,9 +203,8 @@ op3 ==
 
 -------------------|||
 
-(source_file (extramodular_text) (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (extramodular_text) (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (case
       (case_arm (identifier_ref) (case_arrow) (conj_list (conj_item (bullet_conj)
         (case
@@ -222,9 +216,8 @@ op3 ==
       (case_box)
       (case_arm (identifier_ref) (case_arrow) (identifier_ref))
     )
-  ))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (operator_definition (identifier) (def_eq)
     (case
       (case_arm (identifier_ref) (case_arrow) (conj_list (conj_item (bullet_conj)
         (case
@@ -236,9 +229,8 @@ op3 ==
       (case_box)
       (case_arm (identifier_ref) (case_arrow) (identifier_ref))
     )
-  ))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (operator_definition (identifier) (def_eq)
     (case
       (case_arm (identifier_ref) (case_arrow) (conj_list
         (conj_item (bullet_conj)
@@ -253,5 +245,5 @@ op3 ==
       (case_box)
       (case_arm (identifier_ref) (case_arrow) (identifier_ref))
     )
-  ))
+  )
 (double_line)))
