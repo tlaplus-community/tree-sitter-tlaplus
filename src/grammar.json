@@ -867,7 +867,7 @@
               "name": "name",
               "content": {
                 "type": "SYMBOL",
-                "name": "standalone_prefix_op_symbol"
+                "name": "prefix_op_symbol"
               }
             },
             {
@@ -1006,7 +1006,7 @@
                   "name": "name",
                   "content": {
                     "type": "SYMBOL",
-                    "name": "standalone_prefix_op_symbol"
+                    "name": "prefix_op_symbol"
                   }
                 },
                 {
@@ -1335,7 +1335,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "standalone_prefix_op_symbol"
+              "name": "prefix_op_symbol"
             },
             {
               "type": "SYMBOL",
@@ -1375,7 +1375,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "standalone_prefix_op_symbol"
+          "name": "prefix_op_symbol"
         },
         {
           "type": "SYMBOL",
@@ -1460,7 +1460,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "standalone_prefix_op_symbol"
+          "name": "prefix_op_symbol"
         },
         {
           "type": "SYMBOL",
@@ -1536,7 +1536,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "standalone_prefix_op_symbol"
+              "name": "prefix_op_symbol"
             },
             {
               "type": "STRING",
@@ -2103,23 +2103,166 @@
     },
     "real_number": {
       "type": "PATTERN",
-      "value": "\\d+\\.\\d+"
+      "value": "\\d*\\.\\d+"
     },
     "binary_number": {
-      "type": "PATTERN",
-      "value": "(\\\\b|\\\\B)[0-1]+"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\b"
+              },
+              {
+                "type": "STRING",
+                "value": "\\B"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-1]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
     "octal_number": {
-      "type": "PATTERN",
-      "value": "(\\\\o|\\\\O)[0-7]+"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\o"
+              },
+              {
+                "type": "STRING",
+                "value": "\\O"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-7]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
     "hex_number": {
-      "type": "PATTERN",
-      "value": "(\\\\h|\\\\H)[0-9a-fA-F]+"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\h"
+              },
+              {
+                "type": "STRING",
+                "value": "\\H"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-9a-fA-F]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
     "string": {
-      "type": "PATTERN",
-      "value": "\"([^\"\\\\]|\\\\\\\\|\\\\\")*\""
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "\""
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "IMMEDIATE_TOKEN",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "[^\"\\n]"
+                }
+              },
+              {
+                "type": "SYMBOL",
+                "name": "escape_char"
+              }
+            ]
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": "\""
+          }
+        }
+      ]
+    },
+    "escape_char": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": "\\"
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "."
+          }
+        }
+      ]
     },
     "boolean": {
       "type": "CHOICE",
@@ -3469,7 +3612,7 @@
         }
       ]
     },
-    "standalone_prefix_op_symbol": {
+    "prefix_op_symbol": {
       "type": "CHOICE",
       "members": [
         {
@@ -3505,8 +3648,13 @@
           "name": "eventually"
         },
         {
-          "type": "SYMBOL",
-          "name": "negative_dot"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "negative_dot"
+          },
+          "named": true,
+          "value": "negative"
         }
       ]
     },
@@ -6856,7 +7004,7 @@
     ],
     [
       "bound_prefix_op",
-      "standalone_prefix_op_symbol"
+      "prefix_op_symbol"
     ],
     [
       "bound_op",
@@ -7038,6 +7186,7 @@
     "_unit",
     "_expr",
     "_op",
+    "_proof",
     "_number"
   ]
 }

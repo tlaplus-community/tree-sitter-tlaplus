@@ -200,7 +200,21 @@
         "named": true
       },
       {
-        "type": "standalone_prefix_op_symbol",
+        "type": "prefix_op_symbol",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_proof",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "non_terminal_proof",
+        "named": true
+      },
+      {
+        "type": "terminal_proof",
         "named": true
       }
     ]
@@ -358,6 +372,25 @@
     "type": "bigcirc",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "binary_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
+          "named": true
+        },
+        {
+          "type": "value",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "block_comment",
@@ -775,7 +808,7 @@
           "named": true
         },
         {
-          "type": "standalone_prefix_op_symbol",
+          "type": "prefix_op_symbol",
           "named": true
         }
       ]
@@ -1014,11 +1047,7 @@
           "named": true
         },
         {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
+          "type": "_proof",
           "named": true
         }
       ]
@@ -1237,6 +1266,11 @@
     "fields": {}
   },
   {
+    "type": "escape_char",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "eventually",
     "named": true,
     "fields": {}
@@ -1423,6 +1457,25 @@
       "types": [
         {
           "type": "_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "hex_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
+          "named": true
+        },
+        {
+          "type": "value",
           "named": true
         }
       ]
@@ -2248,6 +2301,25 @@
     "fields": {}
   },
   {
+    "type": "octal_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
+          "named": true
+        },
+        {
+          "type": "value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "odot",
     "named": true,
     "fields": {}
@@ -2297,7 +2369,7 @@
             "named": true
           },
           {
-            "type": "standalone_prefix_op_symbol",
+            "type": "prefix_op_symbol",
             "named": true
           }
         ]
@@ -2345,7 +2417,7 @@
             "named": true
           },
           {
-            "type": "standalone_prefix_op_symbol",
+            "type": "prefix_op_symbol",
             "named": true
           }
         ]
@@ -2450,19 +2522,15 @@
           "named": true
         },
         {
+          "type": "_proof",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
           "type": "quantifier_bound",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -2514,6 +2582,53 @@
     "type": "preceq",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "prefix_op_symbol",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "always",
+          "named": true
+        },
+        {
+          "type": "domain",
+          "named": true
+        },
+        {
+          "type": "enabled",
+          "named": true
+        },
+        {
+          "type": "eventually",
+          "named": true
+        },
+        {
+          "type": "lnot",
+          "named": true
+        },
+        {
+          "type": "negative",
+          "named": true
+        },
+        {
+          "type": "powerset",
+          "named": true
+        },
+        {
+          "type": "unchanged",
+          "named": true
+        },
+        {
+          "type": "union",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "prefixed_op",
@@ -2662,15 +2777,11 @@
       "required": true,
       "types": [
         {
-          "type": "non_terminal_proof",
+          "type": "_proof",
           "named": true
         },
         {
           "type": "proof_step_id",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -2982,53 +3093,6 @@
     "fields": {}
   },
   {
-    "type": "standalone_prefix_op_symbol",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "always",
-          "named": true
-        },
-        {
-          "type": "domain",
-          "named": true
-        },
-        {
-          "type": "enabled",
-          "named": true
-        },
-        {
-          "type": "eventually",
-          "named": true
-        },
-        {
-          "type": "lnot",
-          "named": true
-        },
-        {
-          "type": "negative_dot",
-          "named": true
-        },
-        {
-          "type": "powerset",
-          "named": true
-        },
-        {
-          "type": "unchanged",
-          "named": true
-        },
-        {
-          "type": "union",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "star",
     "named": true,
     "fields": {}
@@ -3072,6 +3136,21 @@
     }
   },
   {
+    "type": "string",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape_char",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "subexpr_component",
     "named": true,
     "fields": {},
@@ -3100,7 +3179,7 @@
           "named": true
         },
         {
-          "type": "standalone_prefix_op_symbol",
+          "type": "prefix_op_symbol",
           "named": true
         }
       ]
@@ -3239,15 +3318,11 @@
           "named": true
         },
         {
+          "type": "_proof",
+          "named": true
+        },
+        {
           "type": "assume_prove",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -3325,6 +3400,10 @@
           "named": true
         },
         {
+          "type": "_proof",
+          "named": true
+        },
+        {
           "type": "assume_prove",
           "named": true
         },
@@ -3334,14 +3413,6 @@
         },
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -3587,6 +3658,10 @@
   },
   {
     "type": "!!",
+    "named": false
+  },
+  {
+    "type": "\"",
     "named": false
   },
   {
@@ -4006,6 +4081,10 @@
     "named": false
   },
   {
+    "type": "\\",
+    "named": false
+  },
+  {
     "type": "\\/",
     "named": false
   },
@@ -4266,10 +4345,6 @@
     "named": true
   },
   {
-    "type": "binary_number",
-    "named": true
-  },
-  {
     "type": "bullet_conj",
     "named": true
   },
@@ -4302,6 +4377,10 @@
     "named": true
   },
   {
+    "type": "format",
+    "named": true
+  },
+  {
     "type": "gt",
     "named": true
   },
@@ -4311,10 +4390,6 @@
   },
   {
     "type": "header_line",
-    "named": true
-  },
-  {
-    "type": "hex_number",
     "named": true
   },
   {
@@ -4355,14 +4430,6 @@
   },
   {
     "type": "name",
-    "named": true
-  },
-  {
-    "type": "negative_dot",
-    "named": true
-  },
-  {
-    "type": "octal_number",
     "named": true
   },
   {
@@ -4410,11 +4477,11 @@
     "named": true
   },
   {
-    "type": "string",
+    "type": "sup_hash",
     "named": true
   },
   {
-    "type": "sup_hash",
+    "type": "value",
     "named": true
   },
   {
