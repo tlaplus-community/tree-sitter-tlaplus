@@ -42,6 +42,31 @@ jobs:
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
+      - name: Highlights Query Test
+        run: |
+          node_modules/.bin/tree-sitter query
+            ./queries/highlights.scm
+            ./test/examples/Highlight.tla
+      - name: Locals Query Test
+        run: |
+          node_modules/.bin/tree-sitter query
+            ./queries/locals.scm
+            ./test/examples/Highlight.tla
+      - name: Neovim Highlights Query Test
+        run: |
+          node_modules/.bin/tree-sitter query
+            ./nvim/queries/tlaplus/highlights.scm
+            ./test/examples/Highlight.tla
+      - name: Neovim Folds Query Test
+        run: |
+          node_modules/.bin/tree-sitter query
+            ./nvim/queries/tlaplus/folds.scm
+            ./test/examples/Highlight.tla
+      - name: Neovim Injections Query Test
+        run: |
+          node_modules/.bin/tree-sitter query
+            ./nvim/queries/tlaplus/injections.scm
+            ./test/examples/Highlight.tla
   check-generated-files:
     needs: build-and-test
     runs-on: windows-latest

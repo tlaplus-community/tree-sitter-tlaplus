@@ -76,6 +76,13 @@
 
 ; Literals
 (nat_number) @number
+(real_number) @number
+(binary_number (format) @keyword)
+(octal_number (format) @keyword)
+(hex_number (format) @keyword)
+(binary_number (value) @number)
+(octal_number (value) @number)
+(hex_number (value) @number)
 (string) @string
 (primitive_value_set) @type
 
@@ -85,14 +92,20 @@
 (single_line) @comment
 
 ; Constants, variables, and operators
-(constant_declaration (identifier) @constant)
 (variable_declaration (identifier) @variable.builtin)
+(constant_declaration (identifier) @constant)
+(constant_declaration (operator_declaration name: (_) @constant))
+(recursive_declaration (identifier) @operator)
+(recursive_declaration (operator_declaration name: (_) @operator))
 (operator_definition name: (_) @operator)
 (module_definition name: (identifier) @operator)
 (function_definition name: (identifier) @function)
 (bound_prefix_op symbol: (_) @function.builtin)
+(bound_nonfix_op (prefix_op_symbol) @operator)
 (bound_infix_op symbol: (_) @function.builtin)
+(bound_nonfix_op (infix_op_symbol) @operator)
 (bound_postfix_op symbol: (_) @function.builtin)
+(bound_nonfix_op (postfix_op_symbol) @operator)
 
 ; Parameters
 (operator_definition parameter: (identifier) @variable.parameter)
@@ -115,8 +128,6 @@
   "]_"
   "("
   ")"
-  "<"
-  ">"
 ] @punctuation.bracket
 [
   ","
@@ -128,8 +139,14 @@
 ] @punctuation.delimiter
 
 ; Proofs
-(proof_step_id (level) @property)
-(proof_step_id (name) @attribute)
+(proof_step_id "<" @punctuation.bracket)
+(proof_step_id (level) @number)
+(proof_step_id (name) @constant)
+(proof_step_id ">" @punctuation.bracket)
+(proof_step_ref "<" @punctuation.bracket)
+(proof_step_ref (level) @number)
+(proof_step_ref (name) @constant)
+(proof_step_ref ">" @punctuation.bracket)
 
 ; Reference-based identifier highlighting
 (identifier_ref) @variable.reference

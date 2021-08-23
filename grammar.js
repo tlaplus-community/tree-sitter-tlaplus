@@ -90,6 +90,7 @@ module.exports = grammar({
     $._unit,
     $._expr,
     $._op,
+    $._proof,
     $._number
   ],
 
@@ -116,7 +117,7 @@ module.exports = grammar({
     [$.minus, $.negative],
     // Lookahead to disambiguate lnot • '('  …
     // Could be nonfix prefix op or prefix op applied to expr in parentheses.
-    [$.bound_prefix_op, $.standalone_prefix_op_symbol],
+    [$.bound_prefix_op, $.prefix_op_symbol],
     // Lookahead to disambiguate 'SF_'  identifier  •  '('  …
     // Could be SF_op(x)(e) or could be SF_id(e)
     [$.bound_op, $._subscript_expr],
@@ -274,7 +275,7 @@ module.exports = grammar({
     // op, op(_,_), _+_, etc.
     operator_declaration: $ => choice(
       arity1OrN($.identifier, $.placeholder),
-      seq(field('name', $.standalone_prefix_op_symbol), $.placeholder),
+      seq(field('name', $.prefix_op_symbol), $.placeholder),
       seq($.placeholder, field('name', $.infix_op_symbol), $.placeholder),
       seq($.placeholder, field('name', $.postfix_op_symbol))
     ),
@@ -294,7 +295,7 @@ module.exports = grammar({
       choice(
         arity0OrN($.identifier, $._id_or_op_declaration),
         seq(
-          field('name', $.standalone_prefix_op_symbol),
+          field('name', $.prefix_op_symbol),
           field('parameter', $.identifier)
         ),
         seq(
@@ -359,7 +360,7 @@ module.exports = grammar({
     substitution: $ => seq(
       choice(
         alias($.identifier, $.identifier_ref),
-        $.standalone_prefix_op_symbol,
+        $.prefix_op_symbol,
         $.infix_op_symbol,
         $.postfix_op_symbol
       ),
@@ -371,7 +372,7 @@ module.exports = grammar({
     _op_or_expr: $ => choice($._op, $._expr),
 
     _op: $ => choice(
-      $.standalone_prefix_op_symbol,
+      $.prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol,
       $.lambda,
@@ -389,7 +390,7 @@ module.exports = grammar({
       alias($.identifier, $.identifier_ref),
       $.bound_op,
       $.bound_nonfix_op,
-      $.standalone_prefix_op_symbol,
+      $.prefix_op_symbol,
       $.infix_op_symbol,
       $.postfix_op_symbol
     ),
@@ -399,7 +400,7 @@ module.exports = grammar({
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
-      arity1($.standalone_prefix_op_symbol, $._expr),
+      arity1($.prefix_op_symbol, $._expr),
       arity2($.infix_op_symbol, $._expr),
       arity1($.postfix_op_symbol, $._expr)
     ),
@@ -518,14 +519,45 @@ module.exports = grammar({
       $.binary_number,  $.octal_number,   $.hex_number
     ),
 
+    // 12345
     nat_number: $ => /\d+/,
-    real_number: $ => /\d+\.\d+/,
-    binary_number: $ => /(\\b|\\B)[0-1]+/,
-    octal_number: $ => /(\\o|\\O)[0-7]+/,
-    hex_number: $ => /(\\h|\\H)[0-9a-fA-F]+/,
+
+    // 3.14159
+    real_number: $ => /\d*\.\d+/,
+
+    // \B01010101
+    binary_number: $ => seq(
+      alias(choice('\\b', '\\B'), $.format),
+      alias(token.immediate(/[0-1]+/), $.value)
+    ),
+
+    // \O01234567
+    octal_number: $ => seq(
+      alias(choice('\\o', '\\O'), $.format),
+      alias(token.immediate(/[0-7]+/), $.value)
+    ),
+
+    // \HDEADC0DE
+    hex_number: $ => seq(
+      alias(choice('\\h', '\\H'), $.format),
+      alias(token.immediate(/[0-9a-fA-F]+/), $.value)
+    ),
 
     // "foobar", "", etc.
-    string: $ => /"([^"\\]|\\\\|\\")*"/,
+    string: $ => seq(
+      '"',
+      repeat(choice(
+        token.immediate(/[^"\n]/),
+        $.escape_char
+      )),
+      token.immediate('"')
+    ),
+
+    // "/\\", "say \"hello\" back", "one\ntwo"
+    escape_char: $ => seq(
+      token.immediate('\\'),
+      token.immediate(/./)
+    ),
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
@@ -759,10 +791,10 @@ module.exports = grammar({
 
     // Use rule when using ops as higher-order constructs.
     // Negative is disambiguated from minus with a '.'
-    standalone_prefix_op_symbol: $ => choice(
+    prefix_op_symbol: $ => choice(
       $.lnot,     $.union,      $.powerset,   $.domain,
       $.enabled,  $.unchanged,  $.always,     $.eventually,
-      $.negative_dot
+      alias($.negative_dot, $.negative)
     ),
 
     // All bound prefix operators.
