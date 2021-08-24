@@ -1,5 +1,283 @@
 [
   {
+    "type": "_expr",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "_number",
+        "named": true
+      },
+      {
+        "type": "boolean",
+        "named": true
+      },
+      {
+        "type": "bound_infix_op",
+        "named": true
+      },
+      {
+        "type": "bound_nonfix_op",
+        "named": true
+      },
+      {
+        "type": "bound_op",
+        "named": true
+      },
+      {
+        "type": "bound_postfix_op",
+        "named": true
+      },
+      {
+        "type": "bound_prefix_op",
+        "named": true
+      },
+      {
+        "type": "bounded_quantification",
+        "named": true
+      },
+      {
+        "type": "case",
+        "named": true
+      },
+      {
+        "type": "choose",
+        "named": true
+      },
+      {
+        "type": "conj_list",
+        "named": true
+      },
+      {
+        "type": "disj_list",
+        "named": true
+      },
+      {
+        "type": "except",
+        "named": true
+      },
+      {
+        "type": "fairness",
+        "named": true
+      },
+      {
+        "type": "finite_set_literal",
+        "named": true
+      },
+      {
+        "type": "function_evaluation",
+        "named": true
+      },
+      {
+        "type": "function_literal",
+        "named": true
+      },
+      {
+        "type": "identifier_ref",
+        "named": true
+      },
+      {
+        "type": "if_then_else",
+        "named": true
+      },
+      {
+        "type": "label",
+        "named": true
+      },
+      {
+        "type": "let_in",
+        "named": true
+      },
+      {
+        "type": "parentheses",
+        "named": true
+      },
+      {
+        "type": "prefixed_op",
+        "named": true
+      },
+      {
+        "type": "prev_func_val",
+        "named": true
+      },
+      {
+        "type": "primitive_value_set",
+        "named": true
+      },
+      {
+        "type": "proof_step_ref",
+        "named": true
+      },
+      {
+        "type": "record_literal",
+        "named": true
+      },
+      {
+        "type": "record_value",
+        "named": true
+      },
+      {
+        "type": "set_filter",
+        "named": true
+      },
+      {
+        "type": "set_map",
+        "named": true
+      },
+      {
+        "type": "set_of_functions",
+        "named": true
+      },
+      {
+        "type": "set_of_records",
+        "named": true
+      },
+      {
+        "type": "step_expr_no_stutter",
+        "named": true
+      },
+      {
+        "type": "step_expr_or_stutter",
+        "named": true
+      },
+      {
+        "type": "string",
+        "named": true
+      },
+      {
+        "type": "subexpression",
+        "named": true
+      },
+      {
+        "type": "tuple_literal",
+        "named": true
+      },
+      {
+        "type": "unbounded_quantification",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_number",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "binary_number",
+        "named": true
+      },
+      {
+        "type": "hex_number",
+        "named": true
+      },
+      {
+        "type": "nat_number",
+        "named": true
+      },
+      {
+        "type": "octal_number",
+        "named": true
+      },
+      {
+        "type": "real_number",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_op",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "infix_op_symbol",
+        "named": true
+      },
+      {
+        "type": "lambda",
+        "named": true
+      },
+      {
+        "type": "postfix_op_symbol",
+        "named": true
+      },
+      {
+        "type": "prefix_op_symbol",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_proof",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "non_terminal_proof",
+        "named": true
+      },
+      {
+        "type": "terminal_proof",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_unit",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "assumption",
+        "named": true
+      },
+      {
+        "type": "constant_declaration",
+        "named": true
+      },
+      {
+        "type": "function_definition",
+        "named": true
+      },
+      {
+        "type": "instance",
+        "named": true
+      },
+      {
+        "type": "local_definition",
+        "named": true
+      },
+      {
+        "type": "module",
+        "named": true
+      },
+      {
+        "type": "module_definition",
+        "named": true
+      },
+      {
+        "type": "operator_definition",
+        "named": true
+      },
+      {
+        "type": "recursive_declaration",
+        "named": true
+      },
+      {
+        "type": "single_line",
+        "named": true
+      },
+      {
+        "type": "theorem",
+        "named": true
+      },
+      {
+        "type": "use_or_hide",
+        "named": true
+      },
+      {
+        "type": "variable_declaration",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "address",
     "named": true,
     "fields": {}
@@ -37,75 +315,7 @@
             "named": false
           },
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
+            "type": "_expr",
             "named": true
           },
           {
@@ -113,87 +323,7 @@
             "named": true
           },
           {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
             "type": "new",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
             "named": true
           }
         ]
@@ -203,155 +333,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -367,43 +349,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
+          "type": "_expr",
           "named": true
         },
         {
@@ -411,119 +357,7 @@
           "named": true
         },
         {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -538,6 +372,25 @@
     "type": "bigcirc",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "binary_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
+          "named": true
+        },
+        {
+          "type": "value",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "block_comment",
@@ -563,155 +416,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -721,155 +426,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -1239,75 +796,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
+          "type": "_expr",
           "named": true
         },
         {
@@ -1315,91 +804,11 @@
           "named": true
         },
         {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
           "type": "postfix_op_symbol",
           "named": true
         },
         {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "standalone_prefix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "prefix_op_symbol",
           "named": true
         }
       ]
@@ -1425,171 +834,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "infix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "postfix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "standalone_prefix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_op",
           "named": true
         }
       ]
@@ -1604,155 +853,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -1778,155 +879,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -1998,155 +951,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -2209,159 +1014,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "case_arrow",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -2386,163 +1043,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_proof",
           "named": true
         }
       ]
@@ -2567,67 +1072,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
@@ -2635,99 +1080,11 @@
           "named": true
         },
         {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
           "type": "set_in",
           "named": true
         },
         {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
           "type": "tuple_of_identifiers",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -2757,159 +1114,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "bullet_conj",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -2991,159 +1200,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "bullet_disj",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -3205,6 +1266,11 @@
     "fields": {}
   },
   {
+    "type": "escape_char",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "eventually",
     "named": true,
     "fields": {}
@@ -3218,159 +1284,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -3410,155 +1328,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_expr",
           "named": true
         }
       ]
@@ -3573,155 +1343,7 @@
       "required": false,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_expr",
           "named": true
         }
       ]
@@ -3741,155 +1363,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -3929,155 +1403,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_expr",
           "named": true
         }
       ]
@@ -4092,163 +1418,15 @@
       "required": true,
       "types": [
         {
+          "type": "_expr",
+          "named": true
+        },
+        {
           "type": "all_map_to",
           "named": true
         },
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
           "type": "quantifier_bound",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -4278,155 +1456,26 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "hex_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "value",
           "named": true
         }
       ]
@@ -4441,155 +1490,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -4599,155 +1500,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -4757,155 +1510,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -5346,159 +1951,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "label_as",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -5518,159 +1975,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -5732,155 +2041,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -5974,6 +2135,10 @@
       "required": true,
       "types": [
         {
+          "type": "_unit",
+          "named": true
+        },
+        {
           "type": "double_line",
           "named": true
         },
@@ -5982,11 +2147,7 @@
           "named": true
         },
         {
-          "type": "single_line",
-          "named": true
-        },
-        {
-          "type": "unit",
+          "type": "header_line",
           "named": true
         }
       ]
@@ -6070,6 +2231,11 @@
     }
   },
   {
+    "type": "nat_number",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "negative",
     "named": true,
     "fields": {}
@@ -6088,67 +2254,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
@@ -6156,27 +2262,7 @@
           "named": true
         },
         {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
           "type": "level",
-          "named": true
-        },
-        {
-          "type": "number",
           "named": true
         },
         {
@@ -6184,75 +2270,7 @@
           "named": true
         },
         {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
           "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -6283,9 +2301,23 @@
     "fields": {}
   },
   {
-    "type": "number",
+    "type": "octal_number",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "format",
+          "named": true
+        },
+        {
+          "type": "value",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "odot",
@@ -6306,171 +2338,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "infix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "postfix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "standalone_prefix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_op",
           "named": true
         }
       ]
@@ -6497,7 +2369,7 @@
             "named": true
           },
           {
-            "type": "standalone_prefix_op_symbol",
+            "type": "prefix_op_symbol",
             "named": true
           }
         ]
@@ -6523,155 +2395,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -6693,7 +2417,7 @@
             "named": true
           },
           {
-            "type": "standalone_prefix_op_symbol",
+            "type": "prefix_op_symbol",
             "named": true
           }
         ]
@@ -6755,159 +2479,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "case_arrow",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -6927,155 +2503,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_expr",
           "named": true
         }
       ]
@@ -7090,67 +2518,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_proof",
           "named": true
         },
         {
@@ -7158,103 +2530,7 @@
           "named": true
         },
         {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
           "type": "quantifier_bound",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -7306,6 +2582,53 @@
     "type": "preceq",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "prefix_op_symbol",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "always",
+          "named": true
+        },
+        {
+          "type": "domain",
+          "named": true
+        },
+        {
+          "type": "enabled",
+          "named": true
+        },
+        {
+          "type": "eventually",
+          "named": true
+        },
+        {
+          "type": "lnot",
+          "named": true
+        },
+        {
+          "type": "negative",
+          "named": true
+        },
+        {
+          "type": "powerset",
+          "named": true
+        },
+        {
+          "type": "unchanged",
+          "named": true
+        },
+        {
+          "type": "union",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "prefixed_op",
@@ -7454,15 +2777,11 @@
       "required": true,
       "types": [
         {
-          "type": "non_terminal_proof",
+          "type": "_proof",
           "named": true
         },
         {
           "type": "proof_step_id",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
           "named": true
         }
       ]
@@ -7482,155 +2801,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -7679,163 +2850,15 @@
       "required": true,
       "types": [
         {
+          "type": "_expr",
+          "named": true
+        },
+        {
           "type": "all_map_to",
           "named": true
         },
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -7850,159 +2873,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -8041,155 +2916,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -8234,155 +2961,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -8398,159 +2977,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "maps_to",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -8565,159 +2996,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -8742,67 +3025,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_expr",
           "named": true
         },
         {
@@ -8810,99 +3033,11 @@
           "named": true
         },
         {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
           "type": "set_in",
           "named": true
         },
         {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
           "type": "tuple_of_identifiers",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -8958,53 +3093,6 @@
     "fields": {}
   },
   {
-    "type": "standalone_prefix_op_symbol",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "always",
-          "named": true
-        },
-        {
-          "type": "domain",
-          "named": true
-        },
-        {
-          "type": "enabled",
-          "named": true
-        },
-        {
-          "type": "eventually",
-          "named": true
-        },
-        {
-          "type": "lnot",
-          "named": true
-        },
-        {
-          "type": "negative_dot",
-          "named": true
-        },
-        {
-          "type": "powerset",
-          "named": true
-        },
-        {
-          "type": "unchanged",
-          "named": true
-        },
-        {
-          "type": "union",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "star",
     "named": true,
     "fields": {}
@@ -9018,79 +3106,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
+          "type": "_expr",
           "named": true
         },
         {
@@ -9098,83 +3114,7 @@
           "named": true
         },
         {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
           "type": "rangle_bracket_sub",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -9189,155 +3129,22 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
-        },
+        }
+      ]
+    }
+  },
+  {
+    "type": "string",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "escape_char",
           "named": true
         }
       ]
@@ -9372,7 +3179,7 @@
           "named": true
         },
         {
-          "type": "standalone_prefix_op_symbol",
+          "type": "prefix_op_symbol",
           "named": true
         }
       ]
@@ -9474,175 +3281,15 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
+          "type": "_op",
           "named": true
         },
         {
           "type": "gets",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "infix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "postfix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "standalone_prefix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -9667,167 +3314,15 @@
       "required": true,
       "types": [
         {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "_proof",
+          "named": true
+        },
+        {
           "type": "assume_prove",
-          "named": true
-        },
-        {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -9901,47 +3396,15 @@
       "required": true,
       "types": [
         {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "_proof",
+          "named": true
+        },
+        {
           "type": "assume_prove",
-          "named": true
-        },
-        {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
           "named": true
         },
         {
@@ -9949,127 +3412,7 @@
           "named": true
         },
         {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "non_terminal_proof",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "terminal_proof",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -10089,79 +3432,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
+          "type": "_expr",
           "named": true
         },
         {
@@ -10169,83 +3440,7 @@
           "named": true
         },
         {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
           "type": "rangle_bracket",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -10283,155 +3478,7 @@
         "required": true,
         "types": [
           {
-            "type": "boolean",
-            "named": true
-          },
-          {
-            "type": "bound_infix_op",
-            "named": true
-          },
-          {
-            "type": "bound_nonfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_op",
-            "named": true
-          },
-          {
-            "type": "bound_postfix_op",
-            "named": true
-          },
-          {
-            "type": "bound_prefix_op",
-            "named": true
-          },
-          {
-            "type": "bounded_quantification",
-            "named": true
-          },
-          {
-            "type": "case",
-            "named": true
-          },
-          {
-            "type": "choose",
-            "named": true
-          },
-          {
-            "type": "conj_list",
-            "named": true
-          },
-          {
-            "type": "disj_list",
-            "named": true
-          },
-          {
-            "type": "except",
-            "named": true
-          },
-          {
-            "type": "fairness",
-            "named": true
-          },
-          {
-            "type": "finite_set_literal",
-            "named": true
-          },
-          {
-            "type": "function_evaluation",
-            "named": true
-          },
-          {
-            "type": "function_literal",
-            "named": true
-          },
-          {
-            "type": "identifier_ref",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "label",
-            "named": true
-          },
-          {
-            "type": "let_in",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parentheses",
-            "named": true
-          },
-          {
-            "type": "prefixed_op",
-            "named": true
-          },
-          {
-            "type": "prev_func_val",
-            "named": true
-          },
-          {
-            "type": "primitive_value_set",
-            "named": true
-          },
-          {
-            "type": "proof_step_ref",
-            "named": true
-          },
-          {
-            "type": "record_literal",
-            "named": true
-          },
-          {
-            "type": "record_value",
-            "named": true
-          },
-          {
-            "type": "set_filter",
-            "named": true
-          },
-          {
-            "type": "set_map",
-            "named": true
-          },
-          {
-            "type": "set_of_functions",
-            "named": true
-          },
-          {
-            "type": "set_of_records",
-            "named": true
-          },
-          {
-            "type": "step_expr_no_stutter",
-            "named": true
-          },
-          {
-            "type": "step_expr_or_stutter",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "subexpression",
-            "named": true
-          },
-          {
-            "type": "tuple_literal",
-            "named": true
-          },
-          {
-            "type": "unbounded_quantification",
+            "type": "_expr",
             "named": true
           }
         ]
@@ -10485,69 +3532,6 @@
     "fields": {}
   },
   {
-    "type": "unit",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "assumption",
-          "named": true
-        },
-        {
-          "type": "constant_declaration",
-          "named": true
-        },
-        {
-          "type": "function_definition",
-          "named": true
-        },
-        {
-          "type": "instance",
-          "named": true
-        },
-        {
-          "type": "local_definition",
-          "named": true
-        },
-        {
-          "type": "module",
-          "named": true
-        },
-        {
-          "type": "module_definition",
-          "named": true
-        },
-        {
-          "type": "operator_definition",
-          "named": true
-        },
-        {
-          "type": "recursive_declaration",
-          "named": true
-        },
-        {
-          "type": "single_line",
-          "named": true
-        },
-        {
-          "type": "theorem",
-          "named": true
-        },
-        {
-          "type": "use_or_hide",
-          "named": true
-        },
-        {
-          "type": "variable_declaration",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "uplus",
     "named": true,
     "fields": {}
@@ -10580,175 +3564,15 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
+          "type": "_expr",
           "named": true
         },
         {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "infix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "let_in",
+          "type": "_op",
           "named": true
         },
         {
           "type": "module_ref",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "postfix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "standalone_prefix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -10763,159 +3587,11 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
+          "type": "_expr",
           "named": true
         },
         {
           "type": "module_ref",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
           "named": true
         }
       ]
@@ -10965,155 +3641,7 @@
       "required": true,
       "types": [
         {
-          "type": "boolean",
-          "named": true
-        },
-        {
-          "type": "bound_infix_op",
-          "named": true
-        },
-        {
-          "type": "bound_nonfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_op",
-          "named": true
-        },
-        {
-          "type": "bound_postfix_op",
-          "named": true
-        },
-        {
-          "type": "bound_prefix_op",
-          "named": true
-        },
-        {
-          "type": "bounded_quantification",
-          "named": true
-        },
-        {
-          "type": "case",
-          "named": true
-        },
-        {
-          "type": "choose",
-          "named": true
-        },
-        {
-          "type": "conj_list",
-          "named": true
-        },
-        {
-          "type": "disj_list",
-          "named": true
-        },
-        {
-          "type": "except",
-          "named": true
-        },
-        {
-          "type": "fairness",
-          "named": true
-        },
-        {
-          "type": "finite_set_literal",
-          "named": true
-        },
-        {
-          "type": "function_evaluation",
-          "named": true
-        },
-        {
-          "type": "function_literal",
-          "named": true
-        },
-        {
-          "type": "identifier_ref",
-          "named": true
-        },
-        {
-          "type": "if_then_else",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "let_in",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parentheses",
-          "named": true
-        },
-        {
-          "type": "prefixed_op",
-          "named": true
-        },
-        {
-          "type": "prev_func_val",
-          "named": true
-        },
-        {
-          "type": "primitive_value_set",
-          "named": true
-        },
-        {
-          "type": "proof_step_ref",
-          "named": true
-        },
-        {
-          "type": "record_literal",
-          "named": true
-        },
-        {
-          "type": "record_value",
-          "named": true
-        },
-        {
-          "type": "set_filter",
-          "named": true
-        },
-        {
-          "type": "set_map",
-          "named": true
-        },
-        {
-          "type": "set_of_functions",
-          "named": true
-        },
-        {
-          "type": "set_of_records",
-          "named": true
-        },
-        {
-          "type": "step_expr_no_stutter",
-          "named": true
-        },
-        {
-          "type": "step_expr_or_stutter",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "subexpression",
-          "named": true
-        },
-        {
-          "type": "tuple_literal",
-          "named": true
-        },
-        {
-          "type": "unbounded_quantification",
+          "type": "_expr",
           "named": true
         }
       ]
@@ -11130,6 +3658,10 @@
   },
   {
     "type": "!!",
+    "named": false
+  },
+  {
+    "type": "\"",
     "named": false
   },
   {
@@ -11549,6 +4081,10 @@
     "named": false
   },
   {
+    "type": "\\",
+    "named": false
+  },
+  {
     "type": "\\/",
     "named": false
   },
@@ -11841,11 +4377,19 @@
     "named": true
   },
   {
+    "type": "format",
+    "named": true
+  },
+  {
     "type": "gt",
     "named": true
   },
   {
     "type": "hashhash",
+    "named": true
+  },
+  {
+    "type": "header_line",
     "named": true
   },
   {
@@ -11889,10 +4433,6 @@
     "named": true
   },
   {
-    "type": "negative_dot",
-    "named": true
-  },
-  {
     "type": "placeholder",
     "named": true
   },
@@ -11917,6 +4457,10 @@
     "named": true
   },
   {
+    "type": "real_number",
+    "named": true
+  },
+  {
     "type": "setminus",
     "named": true
   },
@@ -11933,11 +4477,11 @@
     "named": true
   },
   {
-    "type": "string",
+    "type": "sup_hash",
     "named": true
   },
   {
-    "type": "sup_hash",
+    "type": "value",
     "named": true
   },
   {

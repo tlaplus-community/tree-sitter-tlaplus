@@ -8,10 +8,10 @@ op == f(10)
 
 -------------|||
 
-(source_file (module (single_line) name: (identifier) (single_line)
-  (unit (operator_definition name: (identifier) (def_eq)
-    definition: (bound_op name: (identifier_ref) (number))
-  ))
+(source_file (module (header_line) name: (identifier) (header_line)
+  (operator_definition name: (identifier) (def_eq)
+    definition: (bound_op name: (identifier_ref) (nat_number))
+  )
 (double_line)))
 
 ===============================|||
@@ -29,24 +29,24 @@ INSTANCE M WITH
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (instance (identifier_ref)
+(source_file (module (header_line) (identifier) (header_line)
+  (instance (identifier_ref)
     (substitution (identifier_ref) (gets)
-      (conj_list (conj_item (bullet_conj) (number)))
+      (conj_list (conj_item (bullet_conj) (nat_number)))
     )
     (substitution (identifier_ref) (gets)
-      (conj_list (conj_item (bullet_conj) (number)))
+      (conj_list (conj_item (bullet_conj) (nat_number)))
     )
     (substitution (identifier_ref) (gets)
       (conj_list (conj_item (bullet_conj)
         (disj_list
-          (disj_item (bullet_disj) (number))
-          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (nat_number))
+          (disj_item (bullet_disj) (nat_number))
         )
       ))
     )
     (substitution (identifier_ref) (gets)
-      (disj_list (disj_item (bullet_disj) (number)))
+      (disj_list (disj_item (bullet_disj) (nat_number)))
     )
-  ))
+  )
 (double_line)))

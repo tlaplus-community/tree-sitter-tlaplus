@@ -10,14 +10,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -31,14 +30,13 @@ op == \/ 1
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -53,14 +51,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -75,15 +72,14 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
-      (disj_list (disj_item (bullet_disj) (number)))
+      (disj_list (disj_item (bullet_disj) (nat_number)))
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -98,20 +94,19 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item
         (bullet_disj)
         (bound_infix_op
-          (number)
+          (nat_number)
           (lor)
-          (number)
+          (nat_number)
         )
       )
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -127,14 +122,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -151,14 +145,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -174,20 +167,19 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item
         (bullet_disj)
         (disj_list
-          (disj_item (bullet_disj) (number))
-          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (nat_number))
+          (disj_item (bullet_disj) (nat_number))
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -203,19 +195,18 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item (bullet_disj)
         (disj_list
-          (disj_item (bullet_disj) (number))
-          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (nat_number))
+          (disj_item (bullet_disj) (nat_number))
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -231,21 +222,20 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item
         (bullet_disj)
         (bound_infix_op
-          (number)
+          (nat_number)
           (plus)
-          (number)
+          (nat_number)
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -261,21 +251,20 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
       (disj_item
         (bullet_disj)
         (bound_infix_op
-          (number)
+          (nat_number)
           (slash)
-          (number)
+          (nat_number)
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -291,19 +280,18 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
       (bound_infix_op
-        (disj_list (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)))
         (plus)
-        (number)
+        (nat_number)
       )
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -319,19 +307,18 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
       (bound_infix_op
-        (disj_list (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)))
         (slash)
-        (number)
+        (nat_number)
       )
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -344,15 +331,14 @@ op == 1 \/ 2
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
-      (number)
+      (nat_number)
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -367,14 +353,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (parentheses (number)))
-      (disj_item (bullet_disj) (parentheses (number)))
+      (disj_item (bullet_disj) (parentheses (nat_number)))
+      (disj_item (bullet_disj) (parentheses (nat_number)))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -390,17 +375,16 @@ op == (
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
       (parentheses
-        (disj_list (disj_item (bullet_disj) (number)))
+        (disj_list (disj_item (bullet_disj) (nat_number)))
       )
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -418,26 +402,25 @@ op == (
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (bound_infix_op
       (parentheses
         (disj_list
-          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (nat_number))
           (disj_item
             (bullet_disj)
             (disj_list
-              (disj_item (bullet_disj) (number))
-              (disj_item (bullet_disj) (number))
+              (disj_item (bullet_disj) (nat_number))
+              (disj_item (bullet_disj) (nat_number))
             )
           )
         )
       )
       (lor)
-      (number)
+      (nat_number)
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -457,33 +440,32 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (disj_item
         (bullet_disj)
         (disj_list
           (disj_item
             (bullet_disj)
             (bound_infix_op
-              (number)
+              (nat_number)
               (plus)
               (parentheses
                 (disj_list
-                  (disj_item (bullet_disj) (number))
-                  (disj_item (bullet_disj) (number))
+                  (disj_item (bullet_disj) (nat_number))
+                  (disj_item (bullet_disj) (nat_number))
                 )
               )
             )
           )
-          (disj_item (bullet_disj) (number))
+          (disj_item (bullet_disj) (nat_number))
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -500,22 +482,21 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (disj_item
         (bullet_disj)
         (parentheses
           (bound_infix_op
-            (number) (plus) (number)
+            (nat_number) (plus) (nat_number)
           )
         )
       )
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -529,14 +510,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -573,47 +553,42 @@ op5 ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
-  (unit (assumption (identifier_ref)))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (assumption (identifier_ref))
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
-  (unit (local_definition (instance (identifier_ref))))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (local_definition (instance (identifier_ref)))
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
-  (unit (single_line))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (single_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
-  (unit (module (single_line) (identifier) (single_line) (double_line)))
-  (unit (operator_definition
-    (identifier) (def_eq)
+  )
+  (module (header_line) (identifier) (header_line) (double_line))
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
+      (disj_item (bullet_disj) (nat_number))
     )
-  ))
-  (unit (variable_declaration (identifier) (identifier)))
+  )
+  (variable_declaration (identifier) (identifier))
 (double_line)))
 
 =============|||
@@ -628,14 +603,13 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (disj_item (bullet_disj) (tuple_literal (langle_bracket) (rangle_bracket)))
     )
-  ))
+  )
 (double_line)))
 
 =============|||
@@ -650,12 +624,11 @@ op ==
 
 -------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq)
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
     (disj_list
-      (disj_item (bullet_disj) (number))
+      (disj_item (bullet_disj) (nat_number))
       (disj_item (bullet_disj) (finite_set_literal))
     )
-  ))
+  )
 (double_line)))

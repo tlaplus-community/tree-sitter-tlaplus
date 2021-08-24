@@ -1,5 +1,6 @@
 {
   "name": "tlaplus",
+  "word": "identifier",
   "rules": {
     "source_file": {
       "type": "SEQ",
@@ -63,8 +64,13 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "single_line"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "single_line"
+          },
+          "named": true,
+          "value": "header_line"
         },
         {
           "type": "STRING",
@@ -79,8 +85,13 @@
           }
         },
         {
-          "type": "SYMBOL",
-          "name": "single_line"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "single_line"
+          },
+          "named": true,
+          "value": "header_line"
         },
         {
           "type": "CHOICE",
@@ -98,7 +109,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "unit"
+            "name": "_unit"
           }
         },
         {
@@ -595,7 +606,7 @@
         }
       ]
     },
-    "unit": {
+    "_unit": {
       "type": "CHOICE",
       "members": [
         {
@@ -856,7 +867,7 @@
               "name": "name",
               "content": {
                 "type": "SYMBOL",
-                "name": "standalone_prefix_op_symbol"
+                "name": "prefix_op_symbol"
               }
             },
             {
@@ -995,7 +1006,7 @@
                   "name": "name",
                   "content": {
                     "type": "SYMBOL",
-                    "name": "standalone_prefix_op_symbol"
+                    "name": "prefix_op_symbol"
                   }
                 },
                 {
@@ -1324,7 +1335,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "standalone_prefix_op_symbol"
+              "name": "prefix_op_symbol"
             },
             {
               "type": "SYMBOL",
@@ -1351,7 +1362,20 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "standalone_prefix_op_symbol"
+          "name": "_op"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        }
+      ]
+    },
+    "_op": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "prefix_op_symbol"
         },
         {
           "type": "SYMBOL",
@@ -1364,10 +1388,6 @@
         {
           "type": "SYMBOL",
           "name": "lambda"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
         }
       ]
     },
@@ -1440,7 +1460,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "standalone_prefix_op_symbol"
+          "name": "prefix_op_symbol"
         },
         {
           "type": "SYMBOL",
@@ -1516,7 +1536,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "standalone_prefix_op_symbol"
+              "name": "prefix_op_symbol"
             },
             {
               "type": "STRING",
@@ -1782,7 +1802,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "number"
+          "name": "_number"
         },
         {
           "type": "SYMBOL",
@@ -2052,54 +2072,197 @@
         }
       ]
     },
-    "number": {
+    "_number": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_nat_number"
+          "name": "nat_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_real_number"
+          "name": "real_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_binary_number"
+          "name": "binary_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_octal_number"
+          "name": "octal_number"
         },
         {
           "type": "SYMBOL",
-          "name": "_hex_number"
+          "name": "hex_number"
         }
       ]
     },
-    "_nat_number": {
+    "nat_number": {
       "type": "PATTERN",
       "value": "\\d+"
     },
-    "_real_number": {
+    "real_number": {
       "type": "PATTERN",
-      "value": "\\d+\\.\\d+"
+      "value": "\\d*\\.\\d+"
     },
-    "_binary_number": {
-      "type": "PATTERN",
-      "value": "(\\\\b|\\\\B)[0-1]+"
+    "binary_number": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\b"
+              },
+              {
+                "type": "STRING",
+                "value": "\\B"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-1]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
-    "_octal_number": {
-      "type": "PATTERN",
-      "value": "(\\\\o|\\\\O)[0-7]+"
+    "octal_number": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\o"
+              },
+              {
+                "type": "STRING",
+                "value": "\\O"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-7]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
-    "_hex_number": {
-      "type": "PATTERN",
-      "value": "(\\\\h|\\\\H)[0-9a-fA-F]+"
+    "hex_number": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "\\h"
+              },
+              {
+                "type": "STRING",
+                "value": "\\H"
+              }
+            ]
+          },
+          "named": true,
+          "value": "format"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "[0-9a-fA-F]+"
+            }
+          },
+          "named": true,
+          "value": "value"
+        }
+      ]
     },
     "string": {
-      "type": "PATTERN",
-      "value": "\"([^\"\\\\]|\\\\\\\\|\\\\\")*\""
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "\""
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "IMMEDIATE_TOKEN",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "[^\"\\n]"
+                }
+              },
+              {
+                "type": "SYMBOL",
+                "name": "escape_char"
+              }
+            ]
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": "\""
+          }
+        }
+      ]
+    },
+    "escape_char": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": "\\"
+          }
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "."
+          }
+        }
+      ]
     },
     "boolean": {
       "type": "CHOICE",
@@ -3449,7 +3612,7 @@
         }
       ]
     },
-    "standalone_prefix_op_symbol": {
+    "prefix_op_symbol": {
       "type": "CHOICE",
       "members": [
         {
@@ -3485,8 +3648,13 @@
           "name": "eventually"
         },
         {
-          "type": "SYMBOL",
-          "name": "negative_dot"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "negative_dot"
+          },
+          "named": true,
+          "value": "negative"
         }
       ]
     },
@@ -6836,7 +7004,7 @@
     ],
     [
       "bound_prefix_op",
-      "standalone_prefix_op_symbol"
+      "prefix_op_symbol"
     ],
     [
       "bound_op",
@@ -7014,6 +7182,12 @@
     }
   ],
   "inline": [],
-  "supertypes": []
+  "supertypes": [
+    "_unit",
+    "_expr",
+    "_op",
+    "_proof",
+    "_number"
+  ]
 }
 

@@ -15,6 +15,12 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Build
         run: npm install
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v10
+        with:
+          version: 2.0.16
+      - name: Generate parser WASM
+        run: node_modules/.bin/tree-sitter build-wasm
       - name: Publish
         run: npm publish --access public
         env:

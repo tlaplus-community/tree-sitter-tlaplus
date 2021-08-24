@@ -12,5 +12,6 @@ target
 *.obj
 *.wasm
 Test.tla
+Test.scm
 debug.txt
 package-lock.json

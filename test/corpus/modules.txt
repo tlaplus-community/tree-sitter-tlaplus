@@ -8,7 +8,7 @@ Single module
 -------------|||
 
 (source_file
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
 )
 
 =============|||
@@ -23,10 +23,8 @@ Nested modules
 -------------|||
 
 (source_file
-  (module (single_line) (identifier) (single_line)
-    (unit
-      (module (single_line) (identifier) (single_line) (double_line))
-    )
+  (module (header_line) (identifier) (header_line)
+    (module (header_line) (identifier) (header_line) (double_line))
     (double_line)
   )
 )
@@ -44,8 +42,8 @@ Multiple modules
 -------------|||
 
 (source_file
-  (module (single_line) (identifier) (single_line) (double_line))
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
 )
 
 =============|||
@@ -63,7 +61,7 @@ This is some more free-form text.
 
 (source_file
   (extramodular_text)
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
   (extramodular_text)
 )
 
@@ -86,7 +84,7 @@ That also should not have ended the text.
 
 (source_file
   (extramodular_text)
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
   (extramodular_text)
 )
 
@@ -123,10 +121,10 @@ Final free-form text
 
 (source_file
   (extramodular_text)
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
   (extramodular_text)
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
   (extramodular_text)
-  (module (single_line) (identifier) (single_line) (double_line))
+  (module (header_line) (identifier) (header_line) (double_line))
   (extramodular_text)
 )

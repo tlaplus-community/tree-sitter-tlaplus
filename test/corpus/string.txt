@@ -8,10 +8,8 @@ op == "Hello, world!"
 
 ------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (string)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq) (string))
 (double_line)))
 
 ==================|||
@@ -24,10 +22,15 @@ op == "The cow goes \"moo\", the chicken goes \"cluck cluck\""
 
 ------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (string)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (string
+      (escape_char)
+      (escape_char)
+      (escape_char)
+      (escape_char)
+    )
+  )
 (double_line)))
 
 ==================|||
@@ -40,10 +43,8 @@ op == "加拿大"
 
 ------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (string)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq) (string))
 (double_line)))
 
 ==================|||
@@ -56,10 +57,13 @@ op == <<"/\\", "\\/">>
 
 ------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition (identifier) (def_eq)
-    (tuple_literal (langle_bracket) (string) (string) (rangle_bracket))
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (tuple_literal (langle_bracket)
+      (string (escape_char))
+      (string (escape_char))
+    (rangle_bracket))
+  )
 (double_line)))
 
 

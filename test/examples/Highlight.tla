@@ -24,7 +24,7 @@ apply(a, b, _ + _) == a > b
 a + b == a
 result == apply(1, 2, LAMBDA x, y : x + y)
 M2(a, b, -. _) == INSTANCE M1 WITH \neg <- -., A <- B
-apply == M2!X!Y!Z!+
+apply == M2!X!Y!Z
 
 ref == Foo + Bar
 

@@ -8,10 +8,8 @@ op == <1>a
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (operator_definition
-    (identifier) (def_eq) (proof_step_ref (level) (name))
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq) (proof_step_ref (level) (name)))
 (double_line)))
 
 ===============================|||
@@ -25,10 +23,8 @@ OBVIOUS
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
-    (terminal_proof)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean) (terminal_proof))
 (double_line)))
 
 ===============================|||
@@ -42,10 +38,8 @@ PROOF OMITTED
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
-    (terminal_proof)
-  ))
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean) (terminal_proof))
 (double_line)))
 
 ===============================|||
@@ -59,12 +53,12 @@ PROOF BY DEF >
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (terminal_proof (use_body
       (use_body_def (infix_op_symbol (gt)))
     ))
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -87,8 +81,8 @@ PROOF BY ONLY
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (terminal_proof (use_body
       (use_body_expr
         (identifier_ref)
@@ -103,7 +97,7 @@ PROOF BY ONLY
         (infix_op_symbol (eq))
       )
     ))
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -117,12 +111,12 @@ PROOF <1>a QED
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -148,24 +142,24 @@ THEOREM TRUE
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (number))))
-      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (number))))
-      (proof_step (proof_step_id (level) (name)) (have_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (witness_proof_step (number) (number)))
+      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (nat_number))))
+      (proof_step (proof_step_id (level) (name)) (definition_proof_step (operator_definition (identifier) (def_eq) (nat_number))))
+      (proof_step (proof_step_id (level) (name)) (have_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (witness_proof_step (nat_number) (nat_number)))
       (proof_step (proof_step_id (level) (name)) (take_proof_step (identifier) (identifier) (identifier)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (case_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (pick_proof_step (identifier) (identifier) (identifier) (number)))
-      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
-      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (number)))))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (case_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (pick_proof_step (identifier) (identifier) (identifier) (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (nat_number)))))
+      (proof_step (proof_step_id (level) (name)) (use_or_hide (use_body (use_body_expr (nat_number)))))
       (proof_step (proof_step_id (level) (name)) (instance (identifier_ref)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -184,17 +178,17 @@ THEOREM TRUE
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -213,17 +207,17 @@ THEOREM TRUE
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -245,20 +239,20 @@ PROOF
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
         (qed_step (proof_step_id (level) (name)))
       )))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -282,14 +276,14 @@ PROOF
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
         (qed_step (proof_step_id (level) (name)) (non_terminal_proof
-          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
             (qed_step (proof_step_id (level) (name)))
           )))
           (qed_step (proof_step_id (level) (name)))
@@ -297,7 +291,7 @@ PROOF
       )))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 
@@ -326,25 +320,25 @@ PROOF
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
         (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr (identifier_ref)))))
       )))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
         (qed_step (proof_step_id (level) (name)) (terminal_proof))
       )))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
         (qed_step (proof_step_id (level) (name)) (terminal_proof))
       )))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ===============================|||
@@ -369,27 +363,27 @@ THEOREM TRUE
 
 -------------------------------|||
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean)
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean)
     (non_terminal_proof
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+            (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
             (qed_step (proof_step_id (level) (name)))
           )))
           (qed_step (proof_step_id (level) (name)))
         )))
-        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number) (non_terminal_proof
-          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+        (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number) (non_terminal_proof
+          (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
           (qed_step (proof_step_id (level) (name)))
         )))
         (qed_step (proof_step_id (level) (name)))
       )))
-      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (number)))
+      (proof_step (proof_step_id (level) (name)) (suffices_proof_step (nat_number)))
       (qed_step (proof_step_id (level) (name)))
     )
-  ))
+  )
 (double_line)))
 
 ==============================|||
@@ -421,45 +415,45 @@ THEOREM TRUE
 ------------------------------|||
 
 
-(source_file (module (single_line) (identifier) (single_line)
-  (unit (theorem (boolean) (non_terminal_proof
+(source_file (module (header_line) (identifier) (header_line)
+  (theorem (boolean) (non_terminal_proof
     (proof_step (proof_step_id (level) (name)) (suffices_proof_step
       (conj_list
-        (conj_item (bullet_conj) (number))
-        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+        (conj_item (bullet_conj) (nat_number))
+        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (nat_number))))
       )
       (non_terminal_proof
         (proof_step (proof_step_id (level) (name)) (witness_proof_step
           (disj_list
-            (disj_item (bullet_disj) (number))
-            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
+            (disj_item (bullet_disj) (nat_number))
+            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (nat_number))))
           )
           (conj_list
-            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
-            (conj_item (bullet_conj) (number))
+            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (nat_number))))
+            (conj_item (bullet_conj) (nat_number))
           )
         ))
         (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr
           (conj_list
-            (conj_item (bullet_conj) (number))
-            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
+            (conj_item (bullet_conj) (nat_number))
+            (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (nat_number))))
           )
           (disj_list
-            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
-            (disj_item (bullet_disj) (number))
+            (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (nat_number))))
+            (disj_item (bullet_disj) (nat_number))
           )
         ))))
       )
     ))
     (qed_step (proof_step_id (level) (name)) (terminal_proof (use_body (use_body_expr
       (disj_list
-        (disj_item (bullet_disj) (number))
-        (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (number))))
+        (disj_item (bullet_disj) (nat_number))
+        (disj_item (bullet_disj) (conj_list (conj_item (bullet_conj) (nat_number))))
       )
       (conj_list
-        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (number))))
-        (conj_item (bullet_conj) (number))
+        (conj_item (bullet_conj) (disj_list (disj_item (bullet_disj) (nat_number))))
+        (conj_item (bullet_conj) (nat_number))
       )
     ))))
-  )))
+  ))
 (double_line)))

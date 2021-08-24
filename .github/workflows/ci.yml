@@ -39,28 +39,21 @@ jobs:
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
-  check-generated-files:
-    needs: build-and-test
-    runs-on: windows-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v2
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-      - name: Build
-        run: npm install
+      - name: Highlights Query Test
+        run: node_modules/.bin/tree-sitter query ./queries/highlights.scm ./test/examples/Highlight.tla
+      - name: Locals Query Test
+        run: node_modules/.bin/tree-sitter query ./queries/locals.scm ./test/examples/Highlight.tla
+      - name: Neovim Highlights Query Test
+        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/highlights.scm ./test/examples/Highlight.tla
+      - name: Neovim Folds Query Test
+        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/folds.scm ./test/examples/Highlight.tla
+      - name: Neovim Injections Query Test
+        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/injections.scm ./test/examples/Highlight.tla
       - name: Generate parser code
         run: node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
         shell: bash
         run: git add --renormalize .
-      - name: Install Emscripten
-        uses: mymindstorm/setup-emsdk@v10
-        with:
-          version: 2.0.16
-      - name: Generate parser WASM
-        working-directory: docs/js
-        run: ../../node_modules/.bin/tree-sitter build-wasm ../..
       - name: List changes
         shell: bash
         run: git status
