@@ -10,6 +10,9 @@ This grammar is intended to function gracefully while parsing a source file mid-
 It is also fast enough to re-parse the file on every keystroke.
 You can take the parser for a spin at https://tlaplus-community.github.io/tree-sitter-tlaplus/
 
+The most important files in this repo are `grammar.js` and `src/scanner.cc`.
+The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA+ like nested proofs and conjunction/disjunction lists.
+
 ## Aims & Capabilities
 The aim of this project is to facilitate creation of modern user-assistive language tooling for TLA+.
 To that end, the project provides two main capabilities:
@@ -34,6 +37,17 @@ For a REPL, you might want to wait until the [multiple entry points](https://git
 ## Use
 There are a number of avenues available for consuming & using the parser in a project of your own; see the [tlaplus-tool-dev-examples](https://github.com/tlaplus-community/tlaplus-tool-dev-examples) repo.
 
+## Build & Test
+1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Install a C compiler
+1. Clone the repo with the `--recurse-submodules` parameter
+1. Open a terminal in the repo root and run `npm install` to download packages & build the project
+1. Ensure `node_modules/.bin` is on your path
+1. Run `tree-sitter test` to run the unit tests
+1. Run corpus tests (parsing all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo) with the following powershell commands (no output if successful):
+   - `$specs = Get-ChildItem -Path .\test\examples\external\specifications -Filter "*.tla" -Exclude "Reals.tla","Naturals.tla" -Recurse`
+   - `$specs |% {tree-sitter parse -q $_}`
+
 ## The Playground
 The playground enables you to easily try out the parser in your browser.
 You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest parser version from the main branch) or set it up locally as follows:
@@ -50,18 +64,7 @@ You can also click the "query" checkbox to open a third pane for testing [tree q
 (operator_definition name: (identifier) @operator)
 ```
 
-## Build & Test
-1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-1. Install a C compiler
-1. Clone the repo with the `--recurse-submodules` parameter
-1. Open a terminal in the repo root and run `npm install` to download packages & build the project
-1. Ensure `node_modules/.bin` is on your path
-1. Run `tree-sitter test` to run the unit tests
-1. Run corpus tests (parsing all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo) with the following powershell commands (no output if successful):
-   - `$specs = Get-ChildItem -Path .\test\examples\external\specifications -Filter "*.tla" -Exclude "Reals.tla","Naturals.tla" -Recurse`
-   - `$specs |% {tree-sitter parse -q $_}`
-
 ## Contributions
-Pull requests are welcome. If you modify the `grammar.js`, make sure you run `tree-sitter generate` before committing & pushing.
+Pull requests are welcome. If you modify `grammar.js`, make sure you run `tree-sitter generate` before committing & pushing.
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
