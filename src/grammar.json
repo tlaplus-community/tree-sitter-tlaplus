@@ -162,6 +162,10 @@
         {
           "type": "STRING",
           "value": "⟵"
+        },
+        {
+          "type": "STRING",
+          "value": "←"
         }
       ]
     },
@@ -227,6 +231,10 @@
         {
           "type": "STRING",
           "value": "⟼"
+        },
+        {
+          "type": "STRING",
+          "value": "↦"
         }
       ]
     },
@@ -240,6 +248,10 @@
         {
           "type": "STRING",
           "value": "⟶"
+        },
+        {
+          "type": "STRING",
+          "value": "→"
         }
       ]
     },
@@ -253,6 +265,10 @@
         {
           "type": "STRING",
           "value": "〈"
+        },
+        {
+          "type": "STRING",
+          "value": "⟨"
         }
       ]
     },
@@ -266,6 +282,10 @@
         {
           "type": "STRING",
           "value": "〉"
+        },
+        {
+          "type": "STRING",
+          "value": "⟩"
         }
       ]
     },
@@ -279,6 +299,10 @@
         {
           "type": "STRING",
           "value": "〉_"
+        },
+        {
+          "type": "STRING",
+          "value": "⟩_"
         }
       ]
     },
@@ -305,6 +329,10 @@
         {
           "type": "STRING",
           "value": "⟶"
+        },
+        {
+          "type": "STRING",
+          "value": "→"
         }
       ]
     },
@@ -3824,6 +3852,10 @@
         {
           "type": "STRING",
           "value": "⟹"
+        },
+        {
+          "type": "STRING",
+          "value": "⇒"
         }
       ]
     },
@@ -3837,6 +3869,10 @@
         {
           "type": "STRING",
           "value": "⇸"
+        },
+        {
+          "type": "STRING",
+          "value": "⥅"
         }
       ]
     },
@@ -3863,6 +3899,10 @@
         {
           "type": "STRING",
           "value": "⟺"
+        },
+        {
+          "type": "STRING",
+          "value": "⇔"
         }
       ]
     },
@@ -3876,6 +3916,10 @@
         {
           "type": "STRING",
           "value": "⇝"
+        },
+        {
+          "type": "STRING",
+          "value": "↝"
         }
       ]
     },
@@ -5927,8 +5971,25 @@
                 "type": "FIELD",
                 "name": "symbol",
                 "content": {
-                  "type": "SYMBOL",
-                  "name": "postfix_op_symbol"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "sup_plus"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "asterisk"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "sup_hash"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "prime"
+                    }
+                  ]
                 }
               }
             ]

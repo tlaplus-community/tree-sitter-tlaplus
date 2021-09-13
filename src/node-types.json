@@ -863,7 +863,19 @@
         "required": true,
         "types": [
           {
-            "type": "postfix_op_symbol",
+            "type": "asterisk",
+            "named": true
+          },
+          {
+            "type": "prime",
+            "named": true
+          },
+          {
+            "type": "sup_hash",
+            "named": true
+          },
+          {
+            "type": "sup_plus",
             "named": true
           }
         ]
@@ -4557,6 +4569,30 @@
     "named": false
   },
   {
+    "type": "←",
+    "named": false
+  },
+  {
+    "type": "→",
+    "named": false
+  },
+  {
+    "type": "↝",
+    "named": false
+  },
+  {
+    "type": "↦",
+    "named": false
+  },
+  {
+    "type": "⇒",
+    "named": false
+  },
+  {
+    "type": "⇔",
+    "named": false
+  },
+  {
     "type": "⇝",
     "named": false
   },
@@ -4777,6 +4813,18 @@
     "named": false
   },
   {
+    "type": "⟨",
+    "named": false
+  },
+  {
+    "type": "⟩",
+    "named": false
+  },
+  {
+    "type": "⟩_",
+    "named": false
+  },
+  {
     "type": "⟵",
     "named": false
   },
@@ -4794,6 +4842,10 @@
   },
   {
     "type": "⟼",
+    "named": false
+  },
+  {
+    "type": "⥅",
     "named": false
   },
   {
