@@ -34,8 +34,11 @@ If you really want to use this project to write an interpreter, nobody's stoppin
 You could first use SANY to check spec validity, then use this parser to extract & interact with the actual parse tree.
 For a REPL, you might want to wait until the [multiple entry points](https://github.com/tree-sitter/tree-sitter/issues/870) feature is added to tree-sitter so you can parse standalone TLA+ expressions without an encapsulating module.
 
-## Use
+## Use & Notable Integrations
 There are a number of avenues available for consuming & using the parser in a project of your own; see the [tlaplus-tool-dev-examples](https://github.com/tlaplus-community/tlaplus-tool-dev-examples) repo.
+
+Notable projects currently using or integrating this grammar include:
+ * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA+ syntax highlighting & code folding in Neovim
 
 ## Build & Test
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
