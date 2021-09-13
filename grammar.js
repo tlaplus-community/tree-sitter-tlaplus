@@ -182,18 +182,18 @@ module.exports = grammar({
     // Various syntactic elements and their unicode equivalents
     def_eq:             $ => choice('==', '≜'),
     set_in:             $ => choice('\\in', '∈'),
-    gets:               $ => choice('<-', '⟵'),
+    gets:               $ => choice('<-', '⟵', '←'),
     forall:             $ => choice('\\A', '\\forall', '∀'),
     exists:             $ => choice('\\E', '\\exists', '∃'),
     temporal_forall:    $ => choice('\\AA'),
     temporal_exists:    $ => choice('\\EE'),
-    all_map_to:         $ => choice('|->', '⟼'), 
-    maps_to:            $ => choice('->', '⟶'),
-    langle_bracket:     $ => choice('<<', '〈'),
-    rangle_bracket:     $ => choice('>>', '〉'),
-    rangle_bracket_sub: $ => choice('>>_', '〉_'),
+    all_map_to:         $ => choice('|->', '⟼', '↦'), 
+    maps_to:            $ => choice('->', '⟶', '→'),
+    langle_bracket:     $ => choice('<<', '〈', '⟨'),
+    rangle_bracket:     $ => choice('>>', '〉', '⟩'),
+    rangle_bracket_sub: $ => choice('>>_', '〉_', '⟩_'),
     case_box:           $ => choice('[]', '□'),
-    case_arrow:         $ => choice('->', '⟶'),
+    case_arrow:         $ => choice('->', '⟶', '→'),
     colon:              $ => ':',
     address:            $ => '@',
     label_as:           $ => choice('::', '∷'),
@@ -810,11 +810,11 @@ module.exports = grammar({
     ),
 
     // Infix operator symbols and their unicode equivalents.
-    implies:          $ => choice('=>', '⟹'),
-    plus_arrow:       $ => choice('-+->', '⇸'),
+    implies:          $ => choice('=>', '⟹', '⇒'),
+    plus_arrow:       $ => choice('-+->', '⇸', '⥅'),
     equiv:            $ => choice('\\equiv', '≡'),
-    iff:              $ => choice('<=>', '⟺'),
-    leads_to:         $ => choice('~>', '⇝'),
+    iff:              $ => choice('<=>', '⟺', '⇔'),
+    leads_to:         $ => choice('~>', '⇝', '↝'),
     land:             $ => choice('/\\', '\\land', '∧'),
     lor:              $ => choice('\\/', '\\lor', '∨'),
     assign:           $ => choice(':=', '≔'),
@@ -979,7 +979,8 @@ module.exports = grammar({
     // All bound postfix operators.
     // Precedence defined on p271 of Specifying Systems.
     bound_postfix_op: $ => choice(
-      postfixOpPrec('15-15', $._expr, $.postfix_op_symbol)
+      postfixOpPrec('15-15', $._expr, choice(
+        $.sup_plus, $.asterisk, $.sup_hash, $.prime))
     ),
 
     /************************************************************************/
