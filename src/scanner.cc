@@ -514,6 +514,7 @@ namespace {
         if (L'∧' == lookahead) ADVANCE(LexState_LAND);
         if (L'∨' == lookahead) ADVANCE(LexState_LOR);
         if (L'〉' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
+        if (L'⟩' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
         if (L'⟶' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
         ADVANCE(LexState_OTHER);
         END_LEX_STATE();
