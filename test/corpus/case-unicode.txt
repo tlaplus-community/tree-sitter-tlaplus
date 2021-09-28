@@ -27,9 +27,9 @@ Conjlist with CASE
 
 ---- MODULE Test ----
 op ≜
-  ∧  CASE 1 → 2
-      □ 3 → 2
-      □ OTHER → 5
+  ∧ CASE 1 → 2
+    □ 3 → 2
+    □ OTHER → 5
   ∧ 6
 ====
 
@@ -244,6 +244,42 @@ op3 ≜
       ))
       (case_box)
       (case_arm (identifier_ref) (case_arrow) (identifier_ref))
+    )
+  )
+(double_line)))
+
+=============|||
+Unicode CASE in jlist with bad indentation
+=============|||
+
+---- MODULE Test ----
+op ==
+  ∧ CASE 1 →
+      ∧ 2
+      ∧ 3
+        □ 4 → 5
+  ∧ 6
+====
+
+--------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (conj_list
+      (conj_item
+        (bullet_conj)
+        (case
+          (case_arm (nat_number) (case_arrow)
+            (conj_list
+              (conj_item (bullet_conj) (nat_number))
+              (conj_item (bullet_conj) (nat_number))
+            )
+          )
+          (case_box)
+          (case_arm (nat_number) (case_arrow) (nat_number))
+        )
+      )
+      (conj_item (bullet_conj) (nat_number))
     )
   )
 (double_line)))
