@@ -45,7 +45,7 @@ CASE with dangling else
 op ==
   CASE 1 ->
   CASE 2 -> 3
-  [] 4 -> 5
+  [] OTHER -> 4
 ====
 
 --------------|||
@@ -55,9 +55,9 @@ op ==
     (case (case_arm (nat_number) (case_arrow)
       (case
         (case_arm (nat_number) (case_arrow) (nat_number))
-        (case_box) (case_arm (case_arrow) (nat_number))
+        (case_box) (other_arm (case_arrow) (nat_number))
       )
-    )
+    ))
   )
 (double_line)))
 
