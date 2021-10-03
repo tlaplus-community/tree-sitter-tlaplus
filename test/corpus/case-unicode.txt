@@ -253,7 +253,7 @@ Unicode CASE in jlist with bad indentation
 =============|||
 
 ---- MODULE Test ----
-op ==
+op ≜
   ∧ CASE 1 →
       ∧ 2
       ∧ 3
