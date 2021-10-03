@@ -446,7 +446,7 @@ module.exports = grammar({
       $._number,
       $.string,
       $.boolean,
-      $.primitive_value_set,
+      $._primitive_value_set,
       $.parentheses,
       $.label,
       $.subexpression,
@@ -568,11 +568,11 @@ module.exports = grammar({
       $.string_set,     $.boolean_set,  $.nat_number_set,
       $.int_number_set, $.real_number_set
     ),
-    string_set = $ => 'STRING',                 // From TLA+ builtins
-    boolean_set = $ => 'BOOLEAN',               // From TLA+ builtins
-    nat_number_set = $ => choice('Nat', 'ℕ'),   // From Naturals standard module
-    int_number_set = $ => choice('Int', 'ℤ'),   // From Integers standard module
-    real_number_set = $ => choice('Real', 'ℝ'), // From Reals standard module
+    string_set:       $ => 'STRING',            // From TLA+ builtins
+    boolean_set:      $ => 'BOOLEAN',           // From TLA+ builtins
+    nat_number_set:   $ => choice('Nat', 'ℕ'),  // From Naturals standard module
+    int_number_set:   $ => choice('Int', 'ℤ'),  // From Integers standard module
+    real_number_set:  $ => choice('Real', 'ℝ'), // From Reals standard module
 
     // Label for less-fragile addressing of subexpressions
     // lbl(a, b) :: e

@@ -1842,7 +1842,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "primitive_value_set"
+          "name": "_primitive_value_set"
         },
         {
           "type": "SYMBOL",
@@ -2305,28 +2305,75 @@
         }
       ]
     },
-    "primitive_value_set": {
+    "_primitive_value_set": {
       "type": "CHOICE",
       "members": [
         {
-          "type": "STRING",
-          "value": "STRING"
+          "type": "SYMBOL",
+          "name": "string_set"
         },
         {
-          "type": "STRING",
-          "value": "BOOLEAN"
+          "type": "SYMBOL",
+          "name": "boolean_set"
         },
+        {
+          "type": "SYMBOL",
+          "name": "nat_number_set"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "int_number_set"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "real_number_set"
+        }
+      ]
+    },
+    "string_set": {
+      "type": "STRING",
+      "value": "STRING"
+    },
+    "boolean_set": {
+      "type": "STRING",
+      "value": "BOOLEAN"
+    },
+    "nat_number_set": {
+      "type": "CHOICE",
+      "members": [
         {
           "type": "STRING",
           "value": "Nat"
         },
         {
           "type": "STRING",
+          "value": "ℕ"
+        }
+      ]
+    },
+    "int_number_set": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
           "value": "Int"
         },
         {
           "type": "STRING",
+          "value": "ℤ"
+        }
+      ]
+    },
+    "real_number_set": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
           "value": "Real"
+        },
+        {
+          "type": "STRING",
+          "value": "ℝ"
         }
       ]
     },
@@ -7248,7 +7295,8 @@
     "_expr",
     "_op",
     "_proof",
-    "_number"
+    "_number",
+    "_primitive_value_set"
   ]
 }
 
