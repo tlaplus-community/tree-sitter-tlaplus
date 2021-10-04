@@ -1063,6 +1063,11 @@
     }
   },
   {
+    "type": "case_arrow",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "case_box",
     "named": true,
     "fields": {}
@@ -4389,10 +4394,6 @@
   },
   {
     "type": "bullet_disj",
-    "named": true
-  },
-  {
-    "type": "case_arrow",
     "named": true
   },
   {

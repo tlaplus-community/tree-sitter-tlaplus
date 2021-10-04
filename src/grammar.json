@@ -306,6 +306,23 @@
         }
       ]
     },
+    "case_arrow": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "STRING",
+          "value": "⟶"
+        },
+        {
+          "type": "STRING",
+          "value": "→"
+        }
+      ]
+    },
     "case_box": {
       "type": "CHOICE",
       "members": [
@@ -3387,13 +3404,12 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "ALIAS",
-            "content": {
-              "type": "SYMBOL",
-              "name": "case_keyword"
-            },
-            "named": false,
+            "type": "STRING",
             "value": "CASE"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_notify_case_keyword"
           },
           {
             "type": "SYMBOL",
@@ -3455,6 +3471,10 @@
           },
           {
             "type": "SYMBOL",
+            "name": "_notify_case_arrow"
+          },
+          {
+            "type": "SYMBOL",
             "name": "_expr"
           }
         ]
@@ -3467,17 +3487,20 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "ALIAS",
-            "content": {
-              "type": "SYMBOL",
-              "name": "other_keyword"
-            },
-            "named": false,
+            "type": "STRING",
             "value": "OTHER"
           },
           {
             "type": "SYMBOL",
+            "name": "_notify_other_keyword"
+          },
+          {
+            "type": "SYMBOL",
             "name": "case_arrow"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_notify_case_arrow"
           },
           {
             "type": "SYMBOL",
@@ -6666,13 +6689,12 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "case_keyword"
-          },
-          "named": false,
+          "type": "STRING",
           "value": "CASE"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_notify_case_keyword"
         },
         {
           "type": "SYMBOL",
@@ -7252,15 +7274,15 @@
     },
     {
       "type": "SYMBOL",
-      "name": "case_keyword"
+      "name": "_notify_case_keyword"
     },
     {
       "type": "SYMBOL",
-      "name": "case_arrow"
+      "name": "_notify_case_arrow"
     },
     {
       "type": "SYMBOL",
-      "name": "other_keyword"
+      "name": "_notify_other_keyword"
     },
     {
       "type": "SYMBOL",

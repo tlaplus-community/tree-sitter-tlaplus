@@ -73,9 +73,9 @@ module.exports = grammar({
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
-    $.case_keyword,
-    $.case_arrow,
-    $.other_keyword,
+    $._notify_case_keyword,
+    $._notify_case_arrow,
+    $._notify_other_keyword,
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
@@ -196,6 +196,7 @@ module.exports = grammar({
     langle_bracket:     $ => choice('<<', '〈', '⟨'),
     rangle_bracket:     $ => choice('>>', '〉', '⟩'),
     rangle_bracket_sub: $ => choice('>>_', '〉_', '⟩_'),
+    case_arrow:         $ => choice('->', '⟶', '→'),
     case_box:           $ => choice('[]', '□'),
     colon:              $ => ':',
     address:            $ => '@',
@@ -730,17 +731,17 @@ module.exports = grammar({
     // (2) CASE e -> (CASE f -> g [] h -> i)
     // Parse (2) is used, making this right-associative
     case: $ => prec.right(seq(
-      alias($.case_keyword, 'CASE'), $.case_arm,
+      'CASE', $._notify_case_keyword, $.case_arm,
       repeat(seq($.case_box, $.case_arm)),
       optional(seq($.case_box, $.other_arm))
     )),
 
     // p -> val
-    case_arm: $ => prec('0-0', seq($._expr, $.case_arrow, $._expr)),
+    case_arm: $ => prec('0-0', seq($._expr, $.case_arrow, $._notify_case_arrow, $._expr)),
 
     // OTHER -> val
     other_arm: $ => prec('0-0', seq(
-      alias($.other_keyword, 'OTHER'), $.case_arrow, $._expr)
+      'OTHER', $._notify_other_keyword, $.case_arrow, $._notify_case_arrow, $._expr)
     ),
 
     // LET x == 5 IN 2*x
@@ -1094,7 +1095,7 @@ module.exports = grammar({
     suffices_proof_step: $ => seq(
       optional('SUFFICES'), choice($._expr, $.assume_prove), optional($._proof)
     ),
-    case_proof_step: $ => seq(alias($.case_keyword, 'CASE'), $._expr, optional($._proof)),
+    case_proof_step: $ => seq('CASE', $._notify_case_keyword, $._expr, optional($._proof)),
     pick_proof_step: $ => seq(
       'PICK', $._bound_or_identifier_list, ':', $._expr,
       optional($._proof)
