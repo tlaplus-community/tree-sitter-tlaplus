@@ -55,6 +55,9 @@ namespace {
     INDENT,             // Marks beginning of junction list.
     BULLET_CONJ,        // New item of a conjunction list.
     BULLET_DISJ,        // New item of a disjunction list.
+    CASE_KEYWORD,       // The CASE keyword.
+    CASE_ARROW,         // The -> case arrow.
+    OTHER_KEYWORD,      // The OTHER keyword.
     DEDENT,             // Marks end of junction list.
     BEGIN_PROOF,        // Marks the beginning of an entire proof.
     BEGIN_PROOF_STEP,   // Marks the beginning of a proof step.
@@ -374,6 +377,28 @@ namespace {
       }
     }
   };
+  
+  /**
+   * Determines whether the codepoint is one of the various alternative
+   * Unicode symbols for a right angle-bracket >>.
+   * 
+   * @param codepoint The codepoint to check
+   * @return Whether the codepoint is a right-angle bracket.
+   */
+  bool is_unicode_rangle_bracket(int32_t codepoint) {
+    return L'〉' == codepoint || L'⟩' == codepoint;
+  }
+
+  /**
+   * Determines whether the codepoint is one of the various alternative
+   * Unicode symbols for a right arrow ->.
+   * 
+   * @param codepoint The codepoint to check
+   * @return Whether the codepoint is a right arrow.
+   */
+  bool is_unicode_right_arrow(int32_t codepoint) {
+    return L'⟶' == codepoint || L'→' == codepoint;
+  }
 
   // Lexemes recognized by this lexer.
   enum Lexeme {
@@ -400,6 +425,7 @@ namespace {
     Lexeme_ASSUMPTION_KEYWORD,
     Lexeme_AXIOM_KEYWORD,
     Lexeme_BY_KEYWORD,
+    Lexeme_CASE_KEYWORD,
     Lexeme_CONSTANT_KEYWORD,
     Lexeme_CONSTANTS_KEYWORD,
     Lexeme_COROLLARY_KEYWORD,
@@ -409,6 +435,7 @@ namespace {
     Lexeme_LOCAL_KEYWORD,
     Lexeme_OBVIOUS_KEYWORD,
     Lexeme_OMITTED_KEYWORD,
+    Lexeme_OTHER_KEYWORD,
     Lexeme_PROOF_KEYWORD,
     Lexeme_PROPOSITION_KEYWORD,
     Lexeme_QED_KEYWORD,
@@ -447,11 +474,11 @@ namespace {
     LexState_DOUBLE_LINE,
     LexState_A, LexState_ASSUM, LexState_ASSUME, LexState_ASSUMPTION, LexState_AX, LexState_AXIOM,
     LexState_B, LexState_BY,
-    LexState_C, LexState_CO, LexState_CON, LexState_COR, LexState_CONSTANT, LexState_CONSTANTS, LexState_COROLLARY,
+    LexState_C, LexState_CA, LexState_CASE, LexState_CO, LexState_CON, LexState_COR, LexState_CONSTANT, LexState_CONSTANTS, LexState_COROLLARY,
     LexState_E, LexState_ELSE,
     LexState_I, LexState_IN,
     LexState_L, LexState_LE, LexState_LEMMA, LexState_LO, LexState_LOCAL,
-    LexState_O, LexState_OB, LexState_OBVIOUS, LexState_OM, LexState_OMITTED,
+    LexState_O, LexState_OB, LexState_OBVIOUS, LexState_OM, LexState_OMITTED, LexState_OT, LexState_OTHER,
     LexState_P, LexState_PRO, LexState_PROO, LexState_PROOF, LexState_PROP, LexState_PROPOSITION,
     LexState_Q, LexState_QED,
     LexState_T, LexState_THE, LexState_THEN, LexState_THEOREM,
@@ -462,7 +489,7 @@ namespace {
     LexState_PROOF_LEVEL_PLUS,
     LexState_PROOF_NAME,
     LexState_PROOF_ID,
-    LexState_OTHER,
+    LexState_OTHER_LEXEME,
     LexState_END_OF_FILE
   };
   
@@ -516,11 +543,9 @@ namespace {
         if ('V' == lookahead) ADVANCE(LexState_V);
         if (L'∧' == lookahead) ADVANCE(LexState_LAND);
         if (L'∨' == lookahead) ADVANCE(LexState_LOR);
-        if (L'〉' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
-        if (L'⟩' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
-        if (L'⟶' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
-        if (L'→' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
-        ADVANCE(LexState_OTHER);
+        if (is_unicode_rangle_bracket(lookahead)) ADVANCE(LexState_R_ANGLE_BRACKET);
+        if (is_unicode_right_arrow(lookahead)) ADVANCE(LexState_RIGHT_ARROW);
+        ADVANCE(LexState_OTHER_LEXEME);
         END_LEX_STATE();
       case LexState_FORWARD_SLASH:
         ACCEPT_LEXEME(Lexeme_FORWARD_SLASH);
@@ -536,7 +561,7 @@ namespace {
         if (iswdigit(lookahead)) ADVANCE(LexState_PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState_PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState_PROOF_LEVEL_PLUS);
-        ADVANCE(LexState_OTHER);
+        ADVANCE(LexState_OTHER_LEXEME);
         END_LEX_STATE();
       case LexState_GT:
         ACCEPT_LEXEME(Lexeme_GT);
@@ -630,7 +655,16 @@ namespace {
         END_LEX_STATE();
       case LexState_C:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if ('A' == lookahead) ADVANCE(LexState_CA);
         if ('O' == lookahead) ADVANCE(LexState_CO);
+        END_LEX_STATE();
+      case LexState_CA:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "SE")) ADVANCE(LexState_CASE);
+        END_LEX_STATE();
+      case LexState_CASE:
+        ACCEPT_LEXEME(Lexeme_CASE_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
       case LexState_CO:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
@@ -699,6 +733,7 @@ namespace {
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
         if ('B' == lookahead) ADVANCE(LexState_OB);
         if ('M' == lookahead) ADVANCE(LexState_OM);
+        if ('T' == lookahead) ADVANCE(LexState_OT);
         END_LEX_STATE();
       case LexState_OB:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
@@ -714,6 +749,14 @@ namespace {
         END_LEX_STATE();
       case LexState_OMITTED:
         ACCEPT_LEXEME(Lexeme_OMITTED_KEYWORD);
+        if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
+        END_LEX_STATE();
+      case LexState_OT:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "HER")) ADVANCE(LexState_OTHER);
+        END_LEX_STATE();
+      case LexState_OTHER:
+        ACCEPT_LEXEME(Lexeme_OTHER_KEYWORD);
         if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
       case LexState_P:
@@ -785,15 +828,15 @@ namespace {
           ADVANCE(LexState_PROOF_LEVEL_NUMBER);
         }
         if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
-        ADVANCE(LexState_OTHER);
+        ADVANCE(LexState_OTHER_LEXEME);
         END_LEX_STATE();
       case LexState_PROOF_LEVEL_STAR:
         if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
-        ADVANCE(LexState_OTHER);
+        ADVANCE(LexState_OTHER_LEXEME);
         END_LEX_STATE();
       case LexState_PROOF_LEVEL_PLUS:
         if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
-        ADVANCE(LexState_OTHER);
+        ADVANCE(LexState_OTHER_LEXEME);
         END_LEX_STATE();
       case LexState_PROOF_NAME:
         ACCEPT_LEXEME(Lexeme_PROOF_STEP_ID);
@@ -807,7 +850,7 @@ namespace {
       case LexState_IDENTIFIER:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
         END_LEX_STATE();
-      case LexState_OTHER:
+      case LexState_OTHER_LEXEME:
         ACCEPT_LEXEME(Lexeme_OTHER);
         END_LEX_STATE();
       case LexState_END_OF_FILE:
@@ -824,13 +867,16 @@ namespace {
     Token_LAND,
     Token_LOR,
     Token_RIGHT_DELIMITER,
+    Token_RIGHT_ARROW,
     Token_COMMENT_START,
     Token_TERMINATOR,
     Token_PROOF_STEP_ID,
-    Token_PROOF_KEYWORD,
     Token_BY_KEYWORD,
+    Token_CASE_KEYWORD,
     Token_OBVIOUS_KEYWORD,
     Token_OMITTED_KEYWORD,
+    Token_OTHER_KEYWORD,
+    Token_PROOF_KEYWORD,
     Token_QED_KEYWORD,
     Token_OTHER
   };
@@ -857,7 +903,7 @@ namespace {
       case Lexeme_R_SQUARE_BRACKET: return Token_RIGHT_DELIMITER;
       case Lexeme_R_CURLY_BRACE: return Token_RIGHT_DELIMITER;
       case Lexeme_R_ANGLE_BRACKET: return Token_RIGHT_DELIMITER;
-      case Lexeme_RIGHT_ARROW: return Token_RIGHT_DELIMITER;
+      case Lexeme_RIGHT_ARROW: return Token_RIGHT_ARROW;
       case Lexeme_COMMENT_START: return Token_COMMENT_START;
       case Lexeme_BLOCK_COMMENT_START: return Token_COMMENT_START;
       case Lexeme_SINGLE_LINE: return Token_TERMINATOR;
@@ -866,6 +912,7 @@ namespace {
       case Lexeme_ASSUMPTION_KEYWORD: return Token_TERMINATOR;
       case Lexeme_AXIOM_KEYWORD: return Token_TERMINATOR;
       case Lexeme_BY_KEYWORD: return Token_BY_KEYWORD;
+      case Lexeme_CASE_KEYWORD: return Token_CASE_KEYWORD;
       case Lexeme_CONSTANT_KEYWORD: return Token_TERMINATOR;
       case Lexeme_CONSTANTS_KEYWORD: return Token_TERMINATOR;
       case Lexeme_COROLLARY_KEYWORD: return Token_TERMINATOR;
@@ -875,6 +922,7 @@ namespace {
       case Lexeme_LOCAL_KEYWORD: return Token_TERMINATOR;
       case Lexeme_OBVIOUS_KEYWORD: return Token_OBVIOUS_KEYWORD;
       case Lexeme_OMITTED_KEYWORD: return Token_OMITTED_KEYWORD;
+      case Lexeme_OTHER_KEYWORD: return Token_OTHER_KEYWORD;
       case Lexeme_PROOF_KEYWORD: return Token_PROOF_KEYWORD;
       case Lexeme_PROPOSITION_KEYWORD: return Token_TERMINATOR;
       case Lexeme_THEN_KEYWORD: return Token_RIGHT_DELIMITER;
@@ -1372,6 +1420,37 @@ namespace {
         && emit_dedent(lexer);
     }
     
+    bool handle_case_keyword_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      lexer->result_symbol = CASE_KEYWORD;
+      lexer->mark_end(lexer);
+      return true;
+    }
+
+    bool handle_right_arrow_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      if (valid_symbols[CASE_ARROW]) {
+        lexer->result_symbol = CASE_ARROW;
+        lexer->mark_end(lexer);
+        return true;
+      } else {
+        return handle_right_delimiter_token(lexer, valid_symbols);
+      }
+    }
+
+    bool handle_other_keyword_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      lexer->result_symbol = OTHER_KEYWORD;
+      lexer->mark_end(lexer);
+      return true;
+    }
+
     /**
      * Gets whether we are currently in a proof.
      *
@@ -1640,6 +1719,12 @@ namespace {
             return handle_junct_token(lexer, valid_symbols, JunctType_DISJUNCTION, col);
           case Token_RIGHT_DELIMITER:
             return handle_right_delimiter_token(lexer, valid_symbols);
+          case Token_CASE_KEYWORD:
+            return handle_case_keyword_token(lexer, valid_symbols);
+          case Token_RIGHT_ARROW:
+            return handle_right_arrow_token(lexer, valid_symbols);
+          case Token_OTHER_KEYWORD:
+            return handle_other_keyword_token(lexer, valid_symbols);
           case Token_COMMENT_START:
             return false;
           case Token_TERMINATOR:

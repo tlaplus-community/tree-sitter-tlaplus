@@ -319,23 +319,6 @@
         }
       ]
     },
-    "case_arrow": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "->"
-        },
-        {
-          "type": "STRING",
-          "value": "⟶"
-        },
-        {
-          "type": "STRING",
-          "value": "→"
-        }
-      ]
-    },
     "colon": {
       "type": "STRING",
       "value": ":"
@@ -3404,7 +3387,12 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "STRING",
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "case_keyword"
+            },
+            "named": false,
             "value": "CASE"
           },
           {
@@ -3479,7 +3467,12 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "STRING",
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "other_keyword"
+            },
+            "named": false,
             "value": "OTHER"
           },
           {
@@ -6673,7 +6666,12 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "case_keyword"
+          },
+          "named": false,
           "value": "CASE"
         },
         {
@@ -7251,6 +7249,18 @@
     {
       "type": "SYMBOL",
       "name": "bullet_disj"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "case_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "case_arrow"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "other_keyword"
     },
     {
       "type": "SYMBOL",
