@@ -84,7 +84,11 @@
 (octal_number (value) @number)
 (hex_number (value) @number)
 (string) @string
-(primitive_value_set) @type
+(string_set) @type
+(boolean_set) @type
+(nat_number_set) @type
+(int_number_set) @type
+(real_number_set) @type
 
 ; Comments
 (comment) @comment
