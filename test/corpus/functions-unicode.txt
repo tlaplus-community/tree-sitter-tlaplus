@@ -1,14 +1,14 @@
 ===============================|||
-Jlist Inside Function Evaluation
+Jlist Inside Unicode Function Evaluation
 ===============================|||
 
 ---- MODULE Test ----
-op ==
-    /\ 1
-    /\ f[
-        \/ 2
-        \/ 3,
-        /\ 4
+op ≜
+    ∧ 1
+    ∧ f[
+        ∨ 2
+        ∨ 3,
+        ∧ 4
           ]
 ====
 
@@ -32,18 +32,18 @@ op ==
 (double_line)))
 
 ===============================|||
-Jlist Inside Function Set
+Jlist Inside Unicode Function Set
 ===============================|||
 
 ---- MODULE Test ----
-op == [
-  /\ A
-  /\ B
-  /\ C
-    ->
-      /\ D
-      /\ E
-      /\ F
+op ≜ [
+  ∧ A
+  ∧ B
+  ∧ C
+    →
+      ∧ D
+      ∧ E
+      ∧ F
         ]
 ====
 
