@@ -1633,7 +1633,7 @@ namespace {
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
       } else {
-        column_index col;
+        column_index col = -1;
         std::vector<char> proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
           case Token_LAND:
