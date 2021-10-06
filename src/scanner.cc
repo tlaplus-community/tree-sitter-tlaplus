@@ -383,6 +383,7 @@ namespace {
     Lexeme_EQ,
     Lexeme_DASH,
     Lexeme_COMMA,
+    Lexeme_COLON,
     Lexeme_LAND,
     Lexeme_LOR,
     Lexeme_L_PAREN,
@@ -431,6 +432,7 @@ namespace {
     LexState_EQ,
     LexState_DASH,
     LexState_COMMA,
+    LexState_COLON,
     LexState_LAND,
     LexState_LOR,
     LexState_L_PAREN,
@@ -496,6 +498,7 @@ namespace {
         if ('=' == lookahead) ADVANCE(LexState_EQ);
         if ('-' == lookahead) ADVANCE(LexState_DASH);
         if (',' == lookahead) ADVANCE(LexState_COMMA);
+        if (':' == lookahead) ADVANCE(LexState_COLON);
         if ('(' == lookahead) ADVANCE(LexState_L_PAREN);
         if (')' == lookahead) ADVANCE(LexState_R_PAREN);
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
@@ -516,6 +519,7 @@ namespace {
         if (L'〉' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
         if (L'⟩' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
         if (L'⟶' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
+        if (L'→' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
         ADVANCE(LexState_OTHER);
         END_LEX_STATE();
       case LexState_FORWARD_SLASH:
@@ -549,6 +553,11 @@ namespace {
         END_LEX_STATE();
       case LexState_COMMA:
         ACCEPT_LEXEME(Lexeme_COMMA);
+        END_LEX_STATE();
+      case LexState_COLON:
+        ACCEPT_LEXEME(Lexeme_COLON);
+        if (':' == lookahead) ADVANCE(LexState_OTHER);
+        if ('=' == lookahead) ADVANCE(LexState_OTHER);
         END_LEX_STATE();
       case LexState_LAND:
         ACCEPT_LEXEME(Lexeme_LAND);
@@ -842,6 +851,7 @@ namespace {
       case Lexeme_EQ: return Token_OTHER;
       case Lexeme_DASH: return Token_OTHER;
       case Lexeme_COMMA: return Token_RIGHT_DELIMITER;
+      case Lexeme_COLON: return Token_RIGHT_DELIMITER;
       case Lexeme_LAND: return Token_LAND;
       case Lexeme_LOR: return Token_LOR;
       case Lexeme_L_PAREN: return Token_OTHER;
@@ -1623,7 +1633,7 @@ namespace {
       } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
         return scan_block_comment_text(lexer);
       } else {
-        column_index col;
+        column_index col = -1;
         std::vector<char> proof_step_id_level;
         switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
           case Token_LAND:

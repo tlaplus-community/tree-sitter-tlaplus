@@ -8,6 +8,10 @@
         "named": true
       },
       {
+        "type": "_primitive_value_set",
+        "named": true
+      },
+      {
         "type": "boolean",
         "named": true
       },
@@ -97,10 +101,6 @@
       },
       {
         "type": "prev_func_val",
-        "named": true
-      },
-      {
-        "type": "primitive_value_set",
         "named": true
       },
       {
@@ -201,6 +201,32 @@
       },
       {
         "type": "prefix_op_symbol",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "_primitive_value_set",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "boolean_set",
+        "named": true
+      },
+      {
+        "type": "int_number_set",
+        "named": true
+      },
+      {
+        "type": "nat_number_set",
+        "named": true
+      },
+      {
+        "type": "real_number_set",
+        "named": true
+      },
+      {
+        "type": "string_set",
         "named": true
       }
     ]
@@ -1922,6 +1948,11 @@
     }
   },
   {
+    "type": "int_number_set",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "label",
     "named": true,
     "fields": {
@@ -2244,6 +2275,11 @@
   },
   {
     "type": "nat_number",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "nat_number_set",
     "named": true,
     "fields": {}
   },
@@ -2682,11 +2718,6 @@
     "fields": {}
   },
   {
-    "type": "primitive_value_set",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "proof_step",
     "named": true,
     "fields": {},
@@ -2850,6 +2881,11 @@
   },
   {
     "type": "rd_ttile",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "real_number_set",
     "named": true,
     "fields": {}
   },
@@ -3853,10 +3889,6 @@
     "named": false
   },
   {
-    "type": "BOOLEAN",
-    "named": false
-  },
-  {
     "type": "BY",
     "named": false
   },
@@ -4018,10 +4050,6 @@
   },
   {
     "type": "STATE",
-    "named": false
-  },
-  {
-    "type": "STRING",
     "named": false
   },
   {
@@ -4357,6 +4385,10 @@
     "named": true
   },
   {
+    "type": "boolean_set",
+    "named": true
+  },
+  {
     "type": "bullet_conj",
     "named": true
   },
@@ -4489,6 +4521,10 @@
     "named": true
   },
   {
+    "type": "string_set",
+    "named": true
+  },
+  {
     "type": "sup_hash",
     "named": true
   },
@@ -4566,6 +4602,18 @@
   },
   {
     "type": "⁺",
+    "named": false
+  },
+  {
+    "type": "ℕ",
+    "named": false
+  },
+  {
+    "type": "ℝ",
+    "named": false
+  },
+  {
+    "type": "ℤ",
     "named": false
   },
   {

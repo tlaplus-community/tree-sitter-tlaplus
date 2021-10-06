@@ -22,6 +22,46 @@ op ==
 (double_line)))
 
 =============|||
+Solitary CASE
+=============|||
+
+---- MODULE Test ----
+op == CASE 1 -> 2
+====
+
+--------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (case (case_arm (nat_number) (case_arrow) (nat_number)))
+  )
+(double_line)))
+
+=============|||
+CASE with dangling else
+=============|||
+
+---- MODULE Test ----
+op ==
+  CASE 1 ->
+  CASE 2 -> 3
+  [] OTHER -> 4
+====
+
+--------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (case (case_arm (nat_number) (case_arrow)
+      (case
+        (case_arm (nat_number) (case_arrow) (nat_number))
+        (case_box) (other_arm (case_arrow) (nat_number))
+      )
+    ))
+  )
+(double_line)))
+
+=============|||
 Conjlist with CASE
 =============|||
 
