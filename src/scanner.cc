@@ -556,6 +556,8 @@ namespace {
         END_LEX_STATE();
       case LexState_COLON:
         ACCEPT_LEXEME(Lexeme_COLON);
+        if (':' == lookahead) ADVANCE(LexState_OTHER);
+        if ('=' == lookahead) ADVANCE(LexState_OTHER);
         END_LEX_STATE();
       case LexState_LAND:
         ACCEPT_LEXEME(Lexeme_LAND);
