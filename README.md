@@ -39,7 +39,7 @@ There are a number of avenues available for consuming & using the parser in a pr
 
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA+ syntax highlighting & code folding in Neovim
- * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA+ syntax highlighting in Emacs.
+ * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA+ syntax highlighting in Emacs
 
 ## Build & Test
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
