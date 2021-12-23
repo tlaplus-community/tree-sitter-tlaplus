@@ -64,12 +64,21 @@ function postfixOpPrec(level, expr, symbol) {
   ))
 }
 
+function regexOr(regex) {
+    if (arguments.length > 1) {
+        regex = Array.from(arguments).join('|');
+    }
+    return {
+        type: 'PATTERN',
+        value: regex
+    };
+}
+
 module.exports = grammar({
   name: 'tlaplus',
 
   externals: $ => [
     $.extramodular_text,
-    $._block_comment_text,
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
@@ -98,7 +107,7 @@ module.exports = grammar({
   extras: $ => [
     /\s|\r?\n/,
     $.comment,
-    $.block_comment
+    $.block_comment,
   ],
   
   // Prefix, infix, and postfix operator precedence categories, defined
@@ -146,6 +155,8 @@ module.exports = grammar({
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
     [$._expr, $.function_definition],
+    [$._expr, $.pcal_variable],
+    [$.bound_infix_op, $.pcal_assign],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
@@ -160,9 +171,32 @@ module.exports = grammar({
     // \* this is a comment ending with newline
     comment: $ => /\\\*.*/,
 
-    // (* this is a (* nestable *) multi-line (* comment *) *)
-    // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
-    block_comment: $ => seq('(*', $._block_comment_text),
+    // source: https://github.com/tree-sitter/tree-sitter/discussions/1252#discussioncomment-988725
+    block_comment: $ => seq(
+      '(*',
+      repeat(
+        choice($.pcal_algorithm, 
+               $.block_comment_text)
+      ),
+      '*)'
+    ),
+
+    block_comment_text: $ => 
+      prec.right(repeat1(
+        choice(
+          regexOr(
+            '[^*()\n]', // any symbol except reserved
+            '[^*\n][)]', // closing parenthesis, which is not a comment end
+            '[(][^(*\n]', // opening parenthesis, which is not a comment start
+            '[)][*][^)\n]',
+            '[*][^*)\n]',
+            '[*][)][ \t]*[\n]?[ \t]*[(][*]' // contiguous block comment border
+          ),
+          /\*/,
+          /\(/,
+          /\)/,
+        )
+      )),
 
     // Top-level module declaration
     module: $ => seq(
@@ -1152,5 +1186,150 @@ module.exports = grammar({
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]+/), $.name),
     ),
+
+    // PlusCAL grammar according to the BNF from p. 60-62 of the p-manual (https://lamport.azurewebsites.net/tla/p-manual.pdf)
+    pcal_algorithm: $ => seq(
+      choice('--algorithm', seq('--fair', 'algorithm')),
+      field('algorithm_name', $.identifier),
+      optional($.pcal_var_decls),
+      optional($.pcal_definitions),
+      repeat($.pcal_macro),
+      repeat($.pcal_procedure),
+      choice($.pcal_algorithm_body, repeat1($.pcal_process)),
+      'end', 'algorithm', optional(';'),
+    ),
+    pcal_stmt: $ => seq(
+      optional(seq(field('pcal_statement', $.identifier), ':', optional(choice('+', '-')))),
+      $.pcal_unlabeled_stmt
+    ),
+    pcal_definitions: $ => seq(
+      'define',
+      $.pcal_defs,
+      'end', 'define', optional(';')
+    ),
+    pcal_macro: $ => seq(
+      'macro', field('macro_name', $.identifier),
+      '(',
+      optional(seq($.pcal_variable, repeat(seq(',', $.pcal_variable)))),
+      ')',
+      $.pcal_algorithm_body,
+      'end', 'macro', optional(';')
+    ),
+    pcal_procedure: $ => seq(
+      'procedure', field('name', $.identifier),
+      '(',
+      optional(seq($.pcal_p_var_decl, repeat(seq(',', $.pcal_p_var_decl)))),
+      ')',
+      optional($.pcal_p_var_decls),
+      $.pcal_algorithm_body,
+      'end', 'procedure', optional(';')
+    ),
+    pcal_process: $ => seq(
+      optional(seq('fair', optional('+'))),
+      'process', field('name', $.identifier),
+      choice('=', '\in'),
+      $._expr,
+      optional($.pcal_var_decls),
+      $.pcal_algorithm_body,
+      'end', 'process', optional(';')
+    ),
+    pcal_var_decls: $ => seq(
+      choice('variable', 'variables'),
+      repeat1($.pcal_var_decl)
+    ),
+    pcal_var_decl: $ => seq(
+      $.pcal_variable,
+      optional(seq(choice('=', '\in'), $._expr)),
+      choice(';', ',')
+    ),
+    pcal_p_var_decls: $ => seq(
+      choice('variable', 'variables'),
+      repeat1(seq($.pcal_p_var_decl, choice(';', ',')))
+    ),
+    pcal_p_var_decl: $ => seq(
+      $.pcal_variable,
+      optional(seq('=', $._expr))
+    ),
+    pcal_algorithm_body: $ => seq(
+      'begin',
+      repeat1($.pcal_stmt)
+    ),
+    pcal_unlabeled_stmt: $ => choice(
+      $.pcal_assign,
+      $.pcal_if,
+      $.pcal_while,
+      $.pcal_either,
+      $.pcal_with,
+      $.pcal_await,
+      $.pcal_print,
+      $.pcal_assert,
+      $.pcal_skip,
+      $.pcal_return,
+      $.pcal_goto,
+      $.pcal_call,
+      $.pcal_macro_call,
+    ),
+    pcal_assign: $ => seq(
+      $.pcal_lhs, 
+      $.assign,
+      $._expr,
+      repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr)), ';'
+    ),
+    pcal_lhs: $ => seq(
+      $.pcal_variable,
+      repeat(choice(
+        seq('[', $._expr, repeat(seq(',', $._expr)), ']'),
+        seq('.', $.identifier)
+      ))
+    ),
+    pcal_if: $ => seq(
+      'if', $._expr, 'then',
+      repeat1($.pcal_stmt),
+      repeat(seq('elsif', $._expr, 'then', repeat1($.pcal_stmt))),
+      optional(seq('else', repeat1($.pcal_stmt))),
+      'end', 'if', ';'
+    ),
+    pcal_while: $ => seq(
+      'while', $._expr,
+      'do',
+      repeat1($.pcal_stmt),
+      'end', 'while', ';'
+    ),
+    pcal_either: $ => seq(
+      'either',
+      repeat1($.pcal_stmt),
+      repeat1(seq('or', repeat1($.pcal_stmt))),
+      'end', 'either', ';'
+    ),
+    pcal_with: $ => seq(
+      'with',
+      repeat1(seq(
+        $.pcal_variable,
+        choice('=', '\in'),
+        $._expr,
+        choice(',', ';')
+      )),
+      'do',
+      repeat1($.pcal_stmt),
+      'end', 'with', ';'
+    ),
+    pcal_await: $ => seq(
+      choice('await', 'when'),
+      $._expr,
+      ';'
+    ),
+    pcal_print: $ => seq('print', $._expr, ';'),
+    pcal_assert: $ => seq('assert', $._expr, ';'),
+    pcal_skip: $ => seq('skip', ';'),
+    pcal_return: $ => seq('return', ';'),
+    pcal_goto: $ => seq('goto', field('statement', $.identifier), ';'),
+    pcal_call: $ => seq('call', $.pcal_macro_call),
+    pcal_macro_call: $ => seq(
+      field('name', $.identifier), '(',
+      optional(seq($._expr, repeat(seq(',', $._expr)))),
+      ')', ';'
+    ),
+    pcal_variable: $ => $.identifier,
+    pcal_defs: $ => repeat1($._definition),
   }
 });

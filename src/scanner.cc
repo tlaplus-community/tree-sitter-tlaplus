@@ -51,7 +51,6 @@ namespace {
   // Tokens emitted by this external scanner.
   enum TokenType {
     EXTRAMODULAR_TEXT,  // Freeform text between modules.
-    BLOCK_COMMENT_TEXT, // Text inside block comments.
     INDENT,             // Marks beginning of junction list.
     BULLET_CONJ,        // New item of a conjunction list.
     BULLET_DISJ,        // New item of a disjunction list.
@@ -241,94 +240,6 @@ namespace {
     CLexState_END_OF_FILE
   };
   
-  /**
-   * Scans for block comment text. This scanner function supports nested
-   * block comments, so (* text (* text *) text *) will all be parsed as
-   * a single block comment. Also, multiple block comments separated
-   * only by spaces, tabs, or a single newline will be parsed as a single
-   * block comment for convenience; for example, the following is a
-   * single comment:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * Although the following constitutes two separate block comments:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * A block comment will also be emitted if EOF is reached.
-   *
-   * @param lexer The tree-sitter lexing control structure.
-   * @return Whether any block comment text was detected.
-   */
-  bool scan_block_comment_text(TSLexer* const lexer) {
-    uint32_t nest_level = 0;
-    CLexState state = CLexState_CONSUME;
-    START_LEXER();
-    eof = !has_next(lexer);
-    switch (state) {
-      case CLexState_CONSUME:
-        if (eof) ADVANCE(CLexState_END_OF_FILE);
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_ASTERISK:
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        if (')' == lookahead) ADVANCE(CLexState_RIGHT_COMMENT_DELIMITER);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_L_PAREN:
-        if ('*' == lookahead) {ADVANCE(CLexState_LEFT_COMMENT_DELIMITER);}
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_LEFT_COMMENT_DELIMITER:
-        nest_level++;
-        GO_TO_STATE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_RIGHT_COMMENT_DELIMITER:
-        if (nest_level > 0) {
-          nest_level--;
-          GO_TO_STATE(CLexState_CONSUME);
-        } else {
-          ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-          if (iswspace(lookahead)) GO_TO_STATE(CLexState_LOOKAHEAD);
-          if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        }
-        END_STATE();
-      case CLexState_LOOKAHEAD:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\r' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\n' == lookahead) ADVANCE(CLexState_LOOKAHEAD_NEWLINE);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_NEWLINE:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_L_PAREN:
-        if ('*' == lookahead) ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_END_OF_FILE:
-        ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-        END_STATE();
-      default:
-        END_STATE();
-    }
-  }
   
   // Types of proof step IDs.
   enum ProofStepIdType {
@@ -393,7 +304,6 @@ namespace {
     Lexeme_R_ANGLE_BRACKET,
     Lexeme_RIGHT_ARROW,
     Lexeme_COMMENT_START,
-    Lexeme_BLOCK_COMMENT_START,
     Lexeme_SINGLE_LINE,
     Lexeme_DOUBLE_LINE,
     Lexeme_ASSUME_KEYWORD,
@@ -442,7 +352,6 @@ namespace {
     LexState_R_ANGLE_BRACKET,
     LexState_RIGHT_ARROW,
     LexState_COMMENT_START,
-    LexState_BLOCK_COMMENT_START,
     LexState_SINGLE_LINE,
     LexState_DOUBLE_LINE,
     LexState_A, LexState_ASSUM, LexState_ASSUME, LexState_ASSUMPTION, LexState_AX, LexState_AXIOM,
@@ -565,10 +474,6 @@ namespace {
       case LexState_LOR:
         ACCEPT_LEXEME(Lexeme_LOR);
         END_LEX_STATE();
-      case LexState_L_PAREN:
-        ACCEPT_LEXEME(Lexeme_L_PAREN);
-        if ('*' == lookahead) ADVANCE(LexState_BLOCK_COMMENT_START);
-        END_LEX_STATE();
       case LexState_R_PAREN:
         ACCEPT_LEXEME(Lexeme_R_PAREN);
         END_LEX_STATE();
@@ -586,9 +491,6 @@ namespace {
         END_LEX_STATE();
       case LexState_COMMENT_START:
         ACCEPT_LEXEME(Lexeme_COMMENT_START);
-        END_LEX_STATE();
-      case LexState_BLOCK_COMMENT_START:
-        ACCEPT_LEXEME(Lexeme_BLOCK_COMMENT_START);
         END_LEX_STATE();
       case LexState_SINGLE_LINE:
         ACCEPT_LEXEME(Lexeme_SINGLE_LINE);
@@ -861,7 +763,6 @@ namespace {
       case Lexeme_R_ANGLE_BRACKET: return Token_RIGHT_DELIMITER;
       case Lexeme_RIGHT_ARROW: return Token_RIGHT_DELIMITER;
       case Lexeme_COMMENT_START: return Token_COMMENT_START;
-      case Lexeme_BLOCK_COMMENT_START: return Token_COMMENT_START;
       case Lexeme_SINGLE_LINE: return Token_TERMINATOR;
       case Lexeme_DOUBLE_LINE: return Token_TERMINATOR;
       case Lexeme_ASSUME_KEYWORD: return Token_TERMINATOR;
@@ -1630,8 +1531,6 @@ namespace {
 
       if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
-      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
-        return scan_block_comment_text(lexer);
       } else {
         column_index col = -1;
         std::vector<char> proof_step_id_level;
