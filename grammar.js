@@ -155,11 +155,11 @@ module.exports = grammar({
     // Lookahead to disambiguate identifier  •  '['  …
     // Could be f[x \in S] == ... (function def'n) or f[x] (application)
     [$._expr, $.function_definition],
-    [$._expr, $.pcal_variable],
-    [$.bound_infix_op, $.pcal_assign],
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
+    [$._expr, $.pcal_lhs],
+    [$.bound_infix_op, $.pcal_assign],
   ],
 
   rules: {
@@ -251,6 +251,11 @@ module.exports = grammar({
       'LAMBDA',       'STATE',      'ACTION',     'TEMPORAL',
       'OBVIOUS',      'OMITTED',    'LEMMA',      'PROPOSITION',
       'ONLY'
+    ),
+
+    // Predefined variables, like `self`
+    builtin_variable: $ => choice(
+      'self'
     ),
 
     // General-purpose identifier, should exclude reserved keywords,
@@ -515,6 +520,7 @@ module.exports = grammar({
       $.let_in,
       $.conj_list,
       $.disj_list,
+      $.builtin_variable,
     ),
 
     // Expressions allowed in subscripts; must be enclosed in delimiters
@@ -1190,7 +1196,7 @@ module.exports = grammar({
     // PlusCAL grammar according to the BNF from p. 60-62 of the p-manual (https://lamport.azurewebsites.net/tla/p-manual.pdf)
     pcal_algorithm: $ => seq(
       choice('--algorithm', seq('--fair', 'algorithm')),
-      field('algorithm_name', $.identifier),
+      field('name', $.identifier),
       optional($.pcal_var_decls),
       optional($.pcal_definitions),
       repeat($.pcal_macro),
@@ -1198,19 +1204,23 @@ module.exports = grammar({
       choice($.pcal_algorithm_body, repeat1($.pcal_process)),
       'end', 'algorithm', optional(';'),
     ),
+    _pcal_stmts: $ => seq(repeat(seq($.pcal_stmt, ';')), $.pcal_stmt, optional(';')),
     pcal_stmt: $ => seq(
-      optional(seq(field('pcal_statement', $.identifier), ':', optional(choice('+', '-')))),
-      $.pcal_unlabeled_stmt
+      optional(seq(field('label', seq($.identifier, ':')), optional(choice('+', '-')))),
+      $._pcal_unlabeled_stmt
     ),
     pcal_definitions: $ => seq(
       'define',
-      $.pcal_defs,
+      repeat1($._definition),
       'end', 'define', optional(';')
     ),
     pcal_macro: $ => seq(
-      'macro', field('macro_name', $.identifier),
+      'macro', field('name', $.identifier),
       '(',
-      optional(seq($.pcal_variable, repeat(seq(',', $.pcal_variable)))),
+      optional(seq(
+        field('parameter', $.identifier), 
+        repeat(seq(',', field('parameter', $.identifier)))
+      )),
       ')',
       $.pcal_algorithm_body,
       'end', 'macro', optional(';')
@@ -1227,7 +1237,7 @@ module.exports = grammar({
     pcal_process: $ => seq(
       optional(seq('fair', optional('+'))),
       'process', field('name', $.identifier),
-      choice('=', '\in'),
+      choice('=', $.set_in),
       $._expr,
       optional($.pcal_var_decls),
       $.pcal_algorithm_body,
@@ -1238,7 +1248,7 @@ module.exports = grammar({
       repeat1($.pcal_var_decl)
     ),
     pcal_var_decl: $ => seq(
-      $.pcal_variable,
+      $.identifier,
       optional(seq(choice('=', '\in'), $._expr)),
       choice(';', ',')
     ),
@@ -1247,14 +1257,14 @@ module.exports = grammar({
       repeat1(seq($.pcal_p_var_decl, choice(';', ',')))
     ),
     pcal_p_var_decl: $ => seq(
-      $.pcal_variable,
+      $.identifier,
       optional(seq('=', $._expr))
     ),
     pcal_algorithm_body: $ => seq(
       'begin',
-      repeat1($.pcal_stmt)
+      $._pcal_stmts
     ),
-    pcal_unlabeled_stmt: $ => choice(
+    _pcal_unlabeled_stmt: $ => choice(
       $.pcal_assign,
       $.pcal_if,
       $.pcal_while,
@@ -1273,10 +1283,10 @@ module.exports = grammar({
       $.pcal_lhs, 
       $.assign,
       $._expr,
-      repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr)), ';'
+      repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr))
     ),
     pcal_lhs: $ => seq(
-      $.pcal_variable,
+      alias($.identifier, $.identifier_ref),
       repeat(choice(
         seq('[', $._expr, repeat(seq(',', $._expr)), ']'),
         seq('.', $.identifier)
@@ -1284,52 +1294,55 @@ module.exports = grammar({
     ),
     pcal_if: $ => seq(
       'if', $._expr, 'then',
-      repeat1($.pcal_stmt),
-      repeat(seq('elsif', $._expr, 'then', repeat1($.pcal_stmt))),
-      optional(seq('else', repeat1($.pcal_stmt))),
-      'end', 'if', ';'
+      $._pcal_stmts,
+      repeat(seq('elseif', $._expr, 'then', $._pcal_stmts)),
+      optional(seq('else', $._pcal_stmts)),
+      alias('end', $.pcal_end_if), 'if'
     ),
     pcal_while: $ => seq(
       'while', $._expr,
       'do',
-      repeat1($.pcal_stmt),
-      'end', 'while', ';'
+      $._pcal_stmts,
+      alias('end', $.pcal_end_while), 'while'
     ),
     pcal_either: $ => seq(
       'either',
-      repeat1($.pcal_stmt),
-      repeat1(seq('or', repeat1($.pcal_stmt))),
-      'end', 'either', ';'
+      $._pcal_stmts,
+      repeat1(seq('or', $._pcal_stmts)),
+      alias('end', $.pcal_end_either), 'either'
     ),
     pcal_with: $ => seq(
       'with',
-      repeat1(seq(
-        $.pcal_variable,
-        choice('=', '\in'),
+      repeat(seq(
+        $.identifier,
+        choice('=', $.set_in),
         $._expr,
         choice(',', ';')
       )),
+      seq(
+        $.identifier,
+        choice('=', $.set_in),
+        $._expr,
+        optional(choice(',', ';'))
+      ),
       'do',
-      repeat1($.pcal_stmt),
-      'end', 'with', ';'
+      $._pcal_stmts,
+      alias('end', $.pcal_end_with), 'with'
     ),
     pcal_await: $ => seq(
       choice('await', 'when'),
-      $._expr,
-      ';'
+      $._expr
     ),
-    pcal_print: $ => seq('print', $._expr, ';'),
-    pcal_assert: $ => seq('assert', $._expr, ';'),
-    pcal_skip: $ => seq('skip', ';'),
-    pcal_return: $ => seq('return', ';'),
-    pcal_goto: $ => seq('goto', field('statement', $.identifier), ';'),
+    pcal_print: $ => seq('print', $._expr),
+    pcal_assert: $ => seq('assert', $._expr),
+    pcal_skip: $ => seq('skip'),
+    pcal_return: $ => seq('return'),
+    pcal_goto: $ => seq('goto', field('statement', $.identifier)),
     pcal_call: $ => seq('call', $.pcal_macro_call),
     pcal_macro_call: $ => seq(
       field('name', $.identifier), '(',
       optional(seq($._expr, repeat(seq(',', $._expr)))),
-      ')', ';'
+      ')'
     ),
-    pcal_variable: $ => $.identifier,
-    pcal_defs: $ => repeat1($._definition),
   }
 });

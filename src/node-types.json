@@ -40,6 +40,10 @@
         "named": true
       },
       {
+        "type": "builtin_variable",
+        "named": true
+      },
+      {
         "type": "case",
         "named": true
       },
@@ -1028,6 +1032,11 @@
         ]
       }
     }
+  },
+  {
+    "type": "builtin_variable",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "bullet",
@@ -2580,7 +2589,7 @@
     "type": "pcal_algorithm",
     "named": true,
     "fields": {
-      "algorithm_name": {
+      "name": {
         "multiple": false,
         "required": true,
         "types": [
@@ -2714,21 +2723,6 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_defs",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_defs",
-    "named": true,
-    "fields": {},
-    "children": {
       "multiple": true,
       "required": true,
       "types": [
@@ -2759,6 +2753,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "pcal_end_either",
+          "named": true
+        },
         {
           "type": "pcal_stmt",
           "named": true
@@ -2795,6 +2793,10 @@
           "named": true
         },
         {
+          "type": "pcal_end_if",
+          "named": true
+        },
+        {
           "type": "pcal_stmt",
           "named": true
         }
@@ -2816,10 +2818,6 @@
         {
           "type": "identifier",
           "named": true
-        },
-        {
-          "type": "pcal_variable",
-          "named": true
         }
       ]
     }
@@ -2828,9 +2826,19 @@
     "type": "pcal_macro",
     "named": true,
     "fields": {
-      "macro_name": {
+      "name": {
         "multiple": false,
         "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameter": {
+        "multiple": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -2840,15 +2848,11 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
           "type": "pcal_algorithm_body",
-          "named": true
-        },
-        {
-          "type": "pcal_variable",
           "named": true
         }
       ]
@@ -2893,7 +2897,7 @@
           "named": true
         },
         {
-          "type": "pcal_variable",
+          "type": "identifier",
           "named": true
         }
       ]
@@ -2993,6 +2997,10 @@
         {
           "type": "pcal_var_decls",
           "named": true
+        },
+        {
+          "type": "set_in",
+          "named": true
         }
       ]
     }
@@ -3011,10 +3019,14 @@
     "type": "pcal_stmt",
     "named": true,
     "fields": {
-      "pcal_statement": {
-        "multiple": false,
+      "label": {
+        "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": ":",
+            "named": false
+          },
           {
             "type": "identifier",
             "named": true
@@ -3022,21 +3034,6 @@
         ]
       }
     },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_unlabeled_stmt",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_unlabeled_stmt",
-    "named": true,
-    "fields": {},
     "children": {
       "multiple": false,
       "required": true,
@@ -3109,7 +3106,7 @@
           "named": true
         },
         {
-          "type": "pcal_variable",
+          "type": "identifier",
           "named": true
         }
       ]
@@ -3131,21 +3128,6 @@
     }
   },
   {
-    "type": "pcal_variable",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pcal_while",
     "named": true,
     "fields": {},
@@ -3155,6 +3137,10 @@
       "types": [
         {
           "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_end_while",
           "named": true
         },
         {
@@ -3177,11 +3163,19 @@
           "named": true
         },
         {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "pcal_end_with",
+          "named": true
+        },
+        {
           "type": "pcal_stmt",
           "named": true
         },
         {
-          "type": "pcal_variable",
+          "type": "set_in",
           "named": true
         }
       ]
@@ -5108,7 +5102,7 @@
     "named": false
   },
   {
-    "type": "elsif",
+    "type": "elseif",
     "named": false
   },
   {
@@ -5200,6 +5194,22 @@
     "named": false
   },
   {
+    "type": "pcal_end_either",
+    "named": true
+  },
+  {
+    "type": "pcal_end_if",
+    "named": true
+  },
+  {
+    "type": "pcal_end_while",
+    "named": true
+  },
+  {
+    "type": "pcal_end_with",
+    "named": true
+  },
+  {
     "type": "placeholder",
     "named": true
   },
@@ -5237,6 +5247,10 @@
   },
   {
     "type": "return",
+    "named": false
+  },
+  {
+    "type": "self",
     "named": false
   },
   {
