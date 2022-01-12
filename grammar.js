@@ -253,11 +253,6 @@ module.exports = grammar({
       'ONLY'
     ),
 
-    // Predefined variables, like `self`
-    builtin_variable: $ => choice(
-      'self'
-    ),
-
     // General-purpose identifier, should exclude reserved keywords,
     // but tree-sitter currently does not support match exclusion logic.
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/14
@@ -520,7 +515,6 @@ module.exports = grammar({
       $.let_in,
       $.conj_list,
       $.disj_list,
-      $.builtin_variable,
     ),
 
     // Expressions allowed in subscripts; must be enclosed in delimiters
@@ -1193,7 +1187,12 @@ module.exports = grammar({
       alias(token.immediate(/[\w|\d]+/), $.name),
     ),
 
-    // PlusCAL grammar according to the BNF from p. 60-62 of the p-manual (https://lamport.azurewebsites.net/tla/p-manual.pdf)
+    /**************************************************************************/
+    /* PlusCal: written inside block comments and transpiled into TLA+.       */
+    /* According to the BNF from p. 60-62 of the p-manual                     */
+    /* (https://lamport.azurewebsites.net/tla/p-manual.pdf)                   */
+    /**************************************************************************/
+
     pcal_algorithm: $ => seq(
       choice('--algorithm', seq('--fair', 'algorithm')),
       field('name', $.identifier),
@@ -1204,8 +1203,8 @@ module.exports = grammar({
       choice($.pcal_algorithm_body, repeat1($.pcal_process)),
       'end', 'algorithm', optional(';'),
     ),
-    _pcal_stmts: $ => seq(repeat(seq($.pcal_stmt, ';')), $.pcal_stmt, optional(';')),
-    pcal_stmt: $ => seq(
+    _pcal_stmts: $ => seq(repeat(seq($._pcal_stmt, ';')), $._pcal_stmt, optional(';')),
+    _pcal_stmt: $ => seq(
       optional(seq(field('label', seq($.identifier, ':')), optional(choice('+', '-')))),
       $._pcal_unlabeled_stmt
     ),

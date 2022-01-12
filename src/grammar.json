@@ -630,15 +630,6 @@
         }
       ]
     },
-    "builtin_variable": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "self"
-        }
-      ]
-    },
     "identifier": {
       "type": "PATTERN",
       "value": "\\w*[A-Za-z]\\w*"
@@ -2037,10 +2028,6 @@
         {
           "type": "SYMBOL",
           "name": "disj_list"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "builtin_variable"
         }
       ]
     },
@@ -7266,7 +7253,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "pcal_stmt"
+                "name": "_pcal_stmt"
               },
               {
                 "type": "STRING",
@@ -7277,7 +7264,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_stmt"
+          "name": "_pcal_stmt"
         },
         {
           "type": "CHOICE",
@@ -7293,7 +7280,7 @@
         }
       ]
     },
-    "pcal_stmt": {
+    "_pcal_stmt": {
       "type": "SEQ",
       "members": [
         {
