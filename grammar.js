@@ -194,7 +194,7 @@ module.exports = grammar({
             '[(][^(*\n]', // opening parenthesis, which is not a comment start
             '[)][*][^)\n]',
             '[*][^*)\n]',
-            '[*][)][ \t]*[\n]?[ \t]*[(][*]' // contiguous block comment border
+            '[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]' // contiguous block comment border
           ),
           /\*/,
           /\(/,
