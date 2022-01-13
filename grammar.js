@@ -158,7 +158,11 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
+    // Lookahead to disambiguate identifier  •  '['  …
+    // Could be application `f[x]` or could be assignment `record[x] :=`
     [$._expr, $.pcal_lhs],
+    // Lookahead to disambiguate _expr  •  '||'  …
+    // Could be `x || y` or could be assignment `x := y || y := x`
     [$.bound_infix_op, $.pcal_assign],
   ],
 
@@ -1193,6 +1197,14 @@ module.exports = grammar({
     /* (https://lamport.azurewebsites.net/tla/p-manual.pdf)                   */
     /**************************************************************************/
 
+    // PlusCal algorithm definition:
+    // --algorithm foo
+    //   *variable declarations*
+    //   *define section*
+    //   *macro declarations*
+    //   *procedure declarations*
+    //   *algorithm body* or *PlusCal processes*
+    // end algorithm;
     pcal_algorithm: $ => seq(
       choice('--algorithm', seq('--fair', 'algorithm')),
       field('name', $.identifier),
@@ -1203,16 +1215,33 @@ module.exports = grammar({
       choice($.pcal_algorithm_body, repeat1($.pcal_process)),
       'end', 'algorithm', optional(';'),
     ),
+
+    // Consequent statements with an optional semicolon at the end:
+    // await initialized[self];
+    // A:+ call my_procedure();
+    // x := y || y := x
     _pcal_stmts: $ => seq(repeat(seq($._pcal_stmt, ';')), $._pcal_stmt, optional(';')),
+
+    // Single statement, optionally prefixed with a label:
+    // A:+ call my_procedure()
     _pcal_stmt: $ => seq(
       optional(seq(field('label', seq($.identifier, ':')), optional(choice('+', '-')))),
       $._pcal_unlabeled_stmt
     ),
+
+    // Operators, which depend on PlusCal variables
+    // define 
+    //   zy == y*(x+y)
+    // end define ;
     pcal_definitions: $ => seq(
       'define',
       repeat1($._definition),
       'end', 'define', optional(';')
     ),
+
+    // macro go(routine) begin
+    //   initialized[routine] := TRUE;
+    // end macro
     pcal_macro: $ => seq(
       'macro', field('name', $.identifier),
       '(',
@@ -1224,6 +1253,12 @@ module.exports = grammar({
       $.pcal_algorithm_body,
       'end', 'macro', optional(';')
     ),
+
+    // procedure foo(x=0) begin
+    //   Send:
+    //     await x \notin cs;
+    //     return;
+    // end procedure
     pcal_procedure: $ => seq(
       'procedure', field('name', $.identifier),
       '(',
@@ -1233,6 +1268,14 @@ module.exports = grammar({
       $.pcal_algorithm_body,
       'end', 'procedure', optional(';')
     ),
+
+    // fair+ process bar in 1..10
+    // variables i = 0;
+    // begin
+    // A:
+    //   i := i +1;
+    //   print(i);
+    // end process
     pcal_process: $ => seq(
       optional(seq('fair', optional('+'))),
       'process', field('name', $.identifier),
@@ -1242,19 +1285,33 @@ module.exports = grammar({
       $.pcal_algorithm_body,
       'end', 'process', optional(';')
     ),
+
+    // variables x = 0; y = [a |-> "a", b |-> {}];
     pcal_var_decls: $ => seq(
       choice('variable', 'variables'),
       repeat1($.pcal_var_decl)
     ),
+
+    // x \in 1..10 
+    // x = "x"
     pcal_var_decl: $ => seq(
       $.identifier,
       optional(seq(choice('=', '\in'), $._expr)),
       choice(';', ',')
     ),
+
+    // Procedure local variables:
+    // variables x=1..10, y=1;
     pcal_p_var_decls: $ => seq(
       choice('variable', 'variables'),
       repeat1(seq($.pcal_p_var_decl, choice(';', ',')))
     ),
+
+    // Procedure variable or parameter, maybe with a default value:
+    // procedure foo(a, b=1)
+    //               🠑   🠑
+    // variable x=1;
+    //           🠑 
     pcal_p_var_decl: $ => seq(
       $.identifier,
       optional(seq('=', $._expr))
@@ -1263,6 +1320,11 @@ module.exports = grammar({
       'begin',
       $._pcal_stmts
     ),
+
+    // Single statement:
+    // with x \in xs do
+    //   print(x);
+    // end with
     _pcal_unlabeled_stmt: $ => choice(
       $.pcal_assign,
       $.pcal_if,
@@ -1278,12 +1340,17 @@ module.exports = grammar({
       $.pcal_call,
       $.pcal_macro_call,
     ),
+
+    // x[i] := x[j] || a := b
     pcal_assign: $ => seq(
       $.pcal_lhs, 
       $.assign,
       $._expr,
       repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr))
     ),
+
+    // Left part of assignment:
+    // x[i]
     pcal_lhs: $ => seq(
       alias($.identifier, $.identifier_ref),
       repeat(choice(
@@ -1291,6 +1358,14 @@ module.exports = grammar({
         seq('.', $.identifier)
       ))
     ),
+
+    // if test1 then
+    //   clause1
+    // elseif test2 then
+    //   clause2
+    // else 
+    //   clause3
+    // end if
     pcal_if: $ => seq(
       'if', $._expr, 'then',
       $._pcal_stmts,
@@ -1298,18 +1373,30 @@ module.exports = grammar({
       optional(seq('else', $._pcal_stmts)),
       alias('end', $.pcal_end_if), 'if'
     ),
+
+    // while i <= 10 do
+    //   i := i + 1;
+    // end while;
     pcal_while: $ => seq(
       'while', $._expr,
       'do',
       $._pcal_stmts,
       alias('end', $.pcal_end_while), 'while'
     ),
+
+    // Process branching operator:
+    // either clause1
+    //     or clause2
+    //     or clause3
+    // end either
     pcal_either: $ => seq(
       'either',
       $._pcal_stmts,
       repeat1(seq('or', $._pcal_stmts)),
       alias('end', $.pcal_end_either), 'either'
     ),
+
+    // with id \in S do body end with 
     pcal_with: $ => seq(
       'with',
       repeat(seq(
@@ -1328,16 +1415,47 @@ module.exports = grammar({
       $._pcal_stmts,
       alias('end', $.pcal_end_with), 'with'
     ),
+
+    // await channels[chan] /= {};
     pcal_await: $ => seq(
       choice('await', 'when'),
       $._expr
     ),
+
+    // print(expr)
     pcal_print: $ => seq('print', $._expr),
+
+    // assert(test)
     pcal_assert: $ => seq('assert', $._expr),
+
+    // Statement, that does nothing:
+    // skip
     pcal_skip: $ => seq('skip'),
+
+    // Used in procedures. Assigns to the parameters and local 
+    // procedure variables their previous values
+    // procedure foo(a=1) begin
+    // variable b=2;
+    //   a := b;
+    //   return;
+    // end procedure
     pcal_return: $ => seq('return'),
+
+    // Jump to a label:
+    // process foo begin
+    //   A: 
+    //     print("A");
+    //   B:
+    //     goto A;
+    // end process
     pcal_goto: $ => seq('goto', field('statement', $.identifier)),
+
+    // Procedure call:
+    // call my_proc(param1, param2)
     pcal_call: $ => seq('call', $.pcal_macro_call),
+
+    // Macro call:
+    // my_macro(param1, param2)
     pcal_macro_call: $ => seq(
       field('name', $.identifier), '(',
       optional(seq($._expr, repeat(seq(',', $._expr)))),

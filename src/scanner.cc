@@ -136,7 +136,7 @@ namespace {
    * Checks whether the next codepoint sequence is the one given.
    * This function can change the state of the lexer.
    * 
-  * @param lexer The tree-sitter lexing control structure.
+   * @param lexer The tree-sitter lexing control structure.
    * @param token The codepoint sequence to check for.
    * @return Whether the next codepoint sequence is the one given.
    */
@@ -239,91 +239,6 @@ namespace {
     CLexState_LOOKAHEAD_L_PAREN,
     CLexState_END_OF_FILE
   };
-  
-  /**
-   * Scans for block comment text. This scanner function supports nested
-   * block comments, so (* text (* text *) text *) will all be parsed as
-   * a single block comment. Also, multiple block comments separated
-   * only by spaces, tabs, or a single newline will be parsed as a single
-   * block comment for convenience; for example, the following is a
-   * single comment:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * Although the following constitutes two separate block comments:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * A block comment will also be emitted if EOF is reached.
-   *
-   * @param lexer The tree-sitter lexing control structure.
-   * @return Whether any block comment text was detected.
-   */
-  bool scan_block_comment_text(TSLexer* const lexer) {
-    uint32_t nest_level = 0;
-    CLexState state = CLexState_CONSUME;
-    START_LEXER();
-    eof = !has_next(lexer);
-    switch (state) {
-      case CLexState_CONSUME:
-        if (eof) ADVANCE(CLexState_END_OF_FILE);
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_ASTERISK:
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        if (')' == lookahead) ADVANCE(CLexState_RIGHT_COMMENT_DELIMITER);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_L_PAREN:
-        if ('*' == lookahead) {ADVANCE(CLexState_LEFT_COMMENT_DELIMITER);}
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_LEFT_COMMENT_DELIMITER:
-        nest_level++;
-        GO_TO_STATE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_RIGHT_COMMENT_DELIMITER:
-        if (nest_level > 0) {
-          nest_level--;
-          GO_TO_STATE(CLexState_CONSUME);
-        } else {
-          if (iswspace(lookahead)) GO_TO_STATE(CLexState_LOOKAHEAD);
-          if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        }
-        END_STATE();
-      case CLexState_LOOKAHEAD:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\r' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\n' == lookahead) ADVANCE(CLexState_LOOKAHEAD_NEWLINE);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_NEWLINE:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_L_PAREN:
-        if ('*' == lookahead) ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      default:
-        END_STATE();
-    }
-  }
   
   // Types of proof step IDs.
   enum ProofStepIdType {
@@ -1706,4 +1621,4 @@ extern "C" {
     Scanner* const scanner = static_cast<Scanner*>(payload);
     return scanner->scan(lexer, valid_symbols);
   }
-} 
+}
