@@ -179,8 +179,10 @@ module.exports = grammar({
     block_comment: $ => seq(
       '(*',
       repeat(
-        choice($.pcal_algorithm, 
-               $.block_comment_text)
+        choice(
+          $._pcal_algorithm, 
+          $.block_comment_text
+        )
       ),
       '*)'
     ),
@@ -513,7 +515,51 @@ module.exports = grammar({
       $.tuple_literal,
       $.step_expr_or_stutter,
       $.step_expr_no_stutter,
-      $.fairness,
+      $.if_then_else,
+      $.case,
+      $.let_in,
+      $.conj_list,
+      $.disj_list,
+    ),
+
+    /************************************************************************/
+    /* EXPRESSIONS                                                          */
+    /************************************************************************/
+
+    // Anything that evaluates to a value
+    _expr: $ => choice(
+      $._number,
+      $.string,
+      $.boolean,
+      $._primitive_value_set,
+      $.parentheses,
+      $.label,
+      $.subexpression,
+      $.proof_step_ref,
+      alias($.identifier, $.identifier_ref),
+      $.bound_op,
+      $.bound_nonfix_op,
+      $.prefixed_op,
+      $.bound_prefix_op,
+      $.bound_infix_op,
+      $.bound_postfix_op,
+      $.bounded_quantification,
+      $.unbounded_quantification,
+      $.choose,
+      $.finite_set_literal,
+      $.set_filter,
+      $.set_map,
+      $.function_evaluation,
+      $.function_literal,
+      $.set_of_functions,
+      $.record_literal,
+      $.set_of_records,
+      $.record_value,
+      $.except,
+      $.prev_func_val,
+      $.tuple_literal,
+      $.step_expr_or_stutter,
+      $.step_expr_no_stutter,
       $.if_then_else,
       $.case,
       $.let_in,
@@ -661,8 +707,6 @@ module.exports = grammar({
     finite_set_literal: $ => seq('{', commaList($._expr), '}'),
 
     // { x \in S : P(x) }
-    // Set dynamic precedence to 1 so that the expression {x \in S : x \in P}
-    // is parsed as set_filter instead of set_map during GLR parsing.
     set_filter: $ => prec.dynamic(1, seq(
       '{',
       field('generator', $.single_quantifier_bound),
@@ -1193,9 +1237,15 @@ module.exports = grammar({
 
     /**************************************************************************/
     /* PlusCal: written inside block comments and transpiled into TLA+.       */
-    /* According to the BNF from p. 60-62 of the p-manual                     */
+    /* According to the BNF from p. 60-62 of both p-manual and c-manual       */
     /* (https://lamport.azurewebsites.net/tla/p-manual.pdf)                   */
+    /* (https://lamport.azurewebsites.net/tla/c-manual.pdf)                   */
     /**************************************************************************/
+
+    _pcal_algorithm: $ => choice(
+      $.pcal_p_algorithm, 
+      $.pcal_c_algorithm
+    ),
 
     // PlusCal algorithm definition:
     // --algorithm foo
@@ -1205,53 +1255,77 @@ module.exports = grammar({
     //   *procedure declarations*
     //   *algorithm body* or *PlusCal processes*
     // end algorithm;
-    pcal_algorithm: $ => seq(
+    pcal_p_algorithm: $ => seq(
       choice('--algorithm', seq('--fair', 'algorithm')),
       field('name', $.identifier),
       optional($.pcal_var_decls),
-      optional($.pcal_definitions),
-      repeat($.pcal_macro),
-      repeat($.pcal_procedure),
-      choice($.pcal_algorithm_body, repeat1($.pcal_process)),
+      optional($.pcal_p_definitions),
+      repeat($.pcal_p_macro),
+      repeat($.pcal_p_procedure),
+      choice(
+        $.pcal_p_algorithm_body, 
+        repeat1($.pcal_p_process)
+      ),
       'end', 'algorithm', optional(';'),
     ),
 
-    // Consequent statements with an optional semicolon at the end:
-    // await initialized[self];
-    // A:+ call my_procedure();
-    // x := y || y := x
-    _pcal_stmts: $ => seq(repeat(seq($._pcal_stmt, ';')), $._pcal_stmt, optional(';')),
-
-    // Single statement, optionally prefixed with a label:
-    // A:+ call my_procedure()
-    _pcal_stmt: $ => seq(
-      optional(seq(field('label', seq($.identifier, ':')), optional(choice('+', '-')))),
-      $._pcal_unlabeled_stmt
+    // TODO docs
+    pcal_c_algorithm: $ => seq(
+      choice('--algorithm', seq('--fair', 'algorithm')),
+      field('name', $.identifier),
+      '{',
+      optional($.pcal_var_decls),
+      optional($.pcal_c_definitions),
+      repeat($.pcal_c_macro),
+      repeat($.pcal_c_procedure),
+      choice(
+        $.pcal_c_algorithm_body,
+        repeat1($.pcal_c_process)
+      ),
+      '}'
     ),
 
     // Operators, which depend on PlusCal variables
     // define 
     //   zy == y*(x+y)
     // end define ;
-    pcal_definitions: $ => seq(
+    pcal_p_definitions: $ => seq(
       'define',
       repeat1($._definition),
       'end', 'define', optional(';')
     ),
 
+    // TODO docs
+    pcal_c_definitions: $ => seq(
+      'define', '{',
+      repeat1($._definition),
+      '}', optional(';')
+    ),
+
     // macro go(routine) begin
     //   initialized[routine] := TRUE;
     // end macro
-    pcal_macro: $ => seq(
+    pcal_p_macro: $ => seq(
+      $.pcal_macro_decl,
+      $.pcal_p_algorithm_body,
+      'end', 'macro', optional(';')
+    ),
+
+    // TODO docs
+    pcal_c_macro: $ => seq(
+      $.pcal_macro_decl,
+      $.pcal_c_algorithm_body,
+      optional(';')
+    ),
+
+    pcal_macro_decl: $ => seq(
       'macro', field('name', $.identifier),
       '(',
       optional(seq(
         field('parameter', $.identifier), 
         repeat(seq(',', field('parameter', $.identifier)))
       )),
-      ')',
-      $.pcal_algorithm_body,
-      'end', 'macro', optional(';')
+      ')'
     ),
 
     // procedure foo(x=0) begin
@@ -1259,14 +1333,25 @@ module.exports = grammar({
     //     await x \notin cs;
     //     return;
     // end procedure
-    pcal_procedure: $ => seq(
+    pcal_p_procedure: $ => seq(
+      $.pcal_procedure_decl,
+      $.pcal_p_algorithm_body,
+      'end', 'procedure', optional(';')
+    ),
+
+    // TODO docs
+    pcal_c_procedure: $ => seq(
+      $.pcal_procedure_decl,
+      $.pcal_c_algorithm_body,
+      optional(';')
+    ),
+    
+    pcal_procedure_decl: $ => seq(
       'procedure', field('name', $.identifier),
       '(',
-      optional(seq($.pcal_p_var_decl, repeat(seq(',', $.pcal_p_var_decl)))),
+      optional(seq($.pcal_proc_var_decl, repeat(seq(',', $.pcal_proc_var_decl)))),
       ')',
-      optional($.pcal_p_var_decls),
-      $.pcal_algorithm_body,
-      'end', 'procedure', optional(';')
+      optional($.pcal_proc_var_decls),
     ),
 
     // fair+ process bar in 1..10
@@ -1276,35 +1361,51 @@ module.exports = grammar({
     //   i := i +1;
     //   print(i);
     // end process
-    pcal_process: $ => seq(
+
+    pcal_p_process: $ => seq(
       optional(seq('fair', optional('+'))),
       'process', field('name', $.identifier),
       choice('=', $.set_in),
       $._expr,
       optional($.pcal_var_decls),
-      $.pcal_algorithm_body,
+      $.pcal_p_algorithm_body,
       'end', 'process', optional(';')
+    ),
+
+    // TODO 
+    pcal_c_process: $ => seq(
+      optional(seq('fair', optional('+'))),
+      'process', '(', field('name', $.identifier),
+      choice('=', $.set_in),
+      $._expr, ')',
+      optional($.pcal_var_decls),
+      $.pcal_c_algorithm_body,
+      optional(';')
     ),
 
     // variables x = 0; y = [a |-> "a", b |-> {}];
     pcal_var_decls: $ => seq(
       choice('variable', 'variables'),
-      repeat1($.pcal_var_decl)
+      $.pcal_var_decl,
+      repeat(seq(
+        choice(';', ','),
+        $.pcal_var_decl
+      )),
+      optional(';')
     ),
 
     // x \in 1..10 
     // x = "x"
     pcal_var_decl: $ => seq(
       $.identifier,
-      optional(seq(choice('=', '\in'), $._expr)),
-      choice(';', ',')
+      optional(seq(choice('=', $.set_in), $._expr)),
     ),
 
     // Procedure local variables:
     // variables x=1..10, y=1;
-    pcal_p_var_decls: $ => seq(
+    pcal_proc_var_decls: $ => seq(
       choice('variable', 'variables'),
-      repeat1(seq($.pcal_p_var_decl, choice(';', ',')))
+      repeat1(seq($.pcal_proc_var_decl, choice(';', ',')))
     ),
 
     // Procedure variable or parameter, maybe with a default value:
@@ -1312,25 +1413,88 @@ module.exports = grammar({
     //               🠑   🠑
     // variable x=1;
     //           🠑 
-    pcal_p_var_decl: $ => seq(
+    pcal_proc_var_decl: $ => seq(
       $.identifier,
       optional(seq('=', $._expr))
     ),
-    pcal_algorithm_body: $ => seq(
+
+    pcal_p_algorithm_body: $ => seq(
       'begin',
-      $._pcal_stmts
+      $._pcal_p_stmts
+    ),
+
+    // Consequent statements with an optional semicolon at the end:
+    // await initialized[self];
+    // A:+ call my_procedure();
+    // x := y || y := x
+    _pcal_p_stmts: $ => seq(
+      repeat(seq($._pcal_p_stmt, ';')), 
+      $._pcal_p_stmt, 
+      optional(';')
+    ),
+
+
+    // TODO docs
+    // Set dynamic precedence to 1 so that the expression {x \in S : x \in P}
+    // is parsed as set_filter instead of set_map during GLR parsing.
+    pcal_c_algorithm_body: $ => seq(
+      seq(
+        '{',
+        $._pcal_c_stmt,
+        repeat(seq(';', $._pcal_c_stmt)),
+        optional(';'),
+        '}'
+      )
+    ),
+
+    // Single statement, optionally prefixed with a label:
+    // A:+ call my_procedure()
+    _pcal_p_stmt: $ => seq(
+      optional($._pcal_label),
+      $._pcal_p_unlabeled_stmt
+    ),
+
+    // TODO docs
+    _pcal_c_stmt: $ => seq(
+      optional($._pcal_label),
+      choice(
+        $._pcal_c_unlabeled_stmt,
+        $.pcal_c_algorithm_body
+      )
+    ),
+
+    _pcal_label: $ => seq(
+      field('label', seq($.identifier, ':')), 
+      optional(choice('+', '-'))
     ),
 
     // Single statement:
     // with x \in xs do
     //   print(x);
     // end with
-    _pcal_unlabeled_stmt: $ => choice(
+    _pcal_p_unlabeled_stmt: $ => choice(
       $.pcal_assign,
-      $.pcal_if,
-      $.pcal_while,
-      $.pcal_either,
-      $.pcal_with,
+      $.pcal_p_if,
+      $.pcal_p_while,
+      $.pcal_p_either,
+      $.pcal_p_with,
+      $.pcal_await,
+      $.pcal_print,
+      $.pcal_assert,
+      $.pcal_skip,
+      $.pcal_return,
+      $.pcal_goto,
+      $.pcal_call,
+      $.pcal_macro_call,
+    ),
+
+    // TODO docs
+    _pcal_c_unlabeled_stmt: $ => choice(
+      $.pcal_assign,
+      $.pcal_c_if,
+      $.pcal_c_while,
+      $.pcal_c_either,
+      $.pcal_c_with,
       $.pcal_await,
       $.pcal_print,
       $.pcal_assert,
@@ -1361,27 +1525,43 @@ module.exports = grammar({
 
     // if test1 then
     //   clause1
-    // elseif test2 then
+    // elsif test2 then
     //   clause2
     // else 
     //   clause3
     // end if
-    pcal_if: $ => seq(
-      'if', $._expr, 'then',
-      $._pcal_stmts,
-      repeat(seq('elseif', $._expr, 'then', $._pcal_stmts)),
-      optional(seq('else', $._pcal_stmts)),
+    pcal_p_if: $ => seq(
+      'if', $._expr, 'then', $._pcal_p_stmts,
+      repeat(seq('elsif', $._expr, 'then', $._pcal_p_stmts)),
+      optional(seq('else', $._pcal_p_stmts)),
       alias('end', $.pcal_end_if), 'if'
     ),
+
+    // TODO docs
+    // '--algorithm'  identifier  '{'  '{'  'if'  '('  _expr  ')'  'if'  '('  _expr  ')'  _pcal_c_stmt  •  'else'  …
+    // Possible interpretations:
+    // 1:  '--algorithm'  identifier  '{'  '{'  'if'  '('  _expr  ')'  (pcal_c_if  'if'  '('  _expr  ')'  _pcal_c_stmt  •  'else'  _pcal_c_stmt)
+    // 2:  '--algorithm'  identifier  '{'  '{'  'if'  '('  _expr  ')'  (pcal_c_if  'if'  '('  _expr  ')'  _pcal_c_stmt)  •  'else'  …
+    pcal_c_if: $ => prec.right(seq(
+      'if', '(', $._expr, ')',
+      $._pcal_c_stmt,
+      optional(seq('else', $._pcal_c_stmt))
+    )),
 
     // while i <= 10 do
     //   i := i + 1;
     // end while;
-    pcal_while: $ => seq(
+    pcal_p_while: $ => seq(
       'while', $._expr,
       'do',
-      $._pcal_stmts,
+      $._pcal_p_stmts,
       alias('end', $.pcal_end_while), 'while'
+    ),
+
+    // TODO docs
+    pcal_c_while: $ => seq(
+      'while', '(', $._expr, ')', 
+      $._pcal_c_stmt
     ),
 
     // Process branching operator:
@@ -1389,31 +1569,44 @@ module.exports = grammar({
     //     or clause2
     //     or clause3
     // end either
-    pcal_either: $ => seq(
+    pcal_p_either: $ => seq(
       'either',
-      $._pcal_stmts,
-      repeat1(seq('or', $._pcal_stmts)),
+      $._pcal_p_stmts,
+      repeat1(seq('or', $._pcal_p_stmts)),
       alias('end', $.pcal_end_either), 'either'
     ),
 
+    // TODO docs, read test
+    // '--algorithm'  identifier  '{'  '{'  'either'  'either'  _pcal_c_stmt  pcal_c_either_repeat1  •  'or'  …
+    pcal_c_either: $ => prec.right(seq(
+      'either', $._pcal_c_stmt,
+      repeat1(seq('or', $._pcal_c_stmt))
+    )),
+
     // with id \in S do body end with 
-    pcal_with: $ => seq(
-      'with',
-      repeat(seq(
-        $.identifier,
-        choice('=', $.set_in),
-        $._expr,
-        choice(',', ';')
-      )),
-      seq(
-        $.identifier,
-        choice('=', $.set_in),
-        $._expr,
-        optional(choice(',', ';'))
-      ),
-      'do',
-      $._pcal_stmts,
+    pcal_p_with: $ => seq(
+      'with', $._pcal_with_vars, 'do',
+      $._pcal_p_stmts,
       alias('end', $.pcal_end_with), 'with'
+    ),
+
+    // TODO docs
+    pcal_c_with: $ => seq(
+      'with', '(', $._pcal_with_vars, ')', 
+      $._pcal_c_stmt
+    ),
+
+    _pcal_with_vars: $ => seq(
+      $.identifier,
+      choice('=', $.set_in),
+      $._expr,
+      repeat(seq(
+        choice(',', ';'),
+        $.identifier,
+        choice('=', $.set_in),
+        $._expr,
+      )),
+      optional(choice(',', ';'))
     ),
 
     // await channels[chan] /= {};

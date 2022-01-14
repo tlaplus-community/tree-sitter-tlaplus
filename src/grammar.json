@@ -61,7 +61,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "pcal_algorithm"
+                "name": "_pcal_algorithm"
               },
               {
                 "type": "SYMBOL",
@@ -86,7 +86,7 @@
           "members": [
             {
               "type": "PATTERN",
-              "value": "[^*()\n]|[^*\n][)]|[(][^(*\n]|[)][*][^)\n]|[*][^*)\n]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
+              "value": "[^*()\n]|[^*\n][)]|[(][^(*\n]|[)][*][^)\n]|[\\\\]|[\\\\][*]|[*][^*)\n]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
             },
             {
               "type": "PATTERN",
@@ -99,6 +99,10 @@
             {
               "type": "PATTERN",
               "value": "\\)"
+            },
+            {
+              "type": "PATTERN",
+              "value": "\\\\"
             }
           ]
         }
@@ -2004,10 +2008,6 @@
         {
           "type": "SYMBOL",
           "name": "step_expr_no_stutter"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "fairness"
         },
         {
           "type": "SYMBOL",
@@ -7134,7 +7134,20 @@
         }
       ]
     },
-    "pcal_algorithm": {
+    "_pcal_algorithm": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_p_algorithm"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_algorithm"
+        }
+      ]
+    },
+    "pcal_p_algorithm": {
       "type": "SEQ",
       "members": [
         {
@@ -7184,7 +7197,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "pcal_definitions"
+              "name": "pcal_p_definitions"
             },
             {
               "type": "BLANK"
@@ -7195,14 +7208,14 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "pcal_macro"
+            "name": "pcal_p_macro"
           }
         },
         {
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "pcal_procedure"
+            "name": "pcal_p_procedure"
           }
         },
         {
@@ -7210,13 +7223,13 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "pcal_algorithm_body"
+              "name": "pcal_p_algorithm_body"
             },
             {
               "type": "REPEAT1",
               "content": {
                 "type": "SYMBOL",
-                "name": "pcal_process"
+                "name": "pcal_p_process"
               }
             }
           ]
@@ -7243,91 +7256,49 @@
         }
       ]
     },
-    "_pcal_stmts": {
+    "pcal_c_algorithm": {
       "type": "SEQ",
       "members": [
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_pcal_stmt"
-              },
-              {
-                "type": "STRING",
-                "value": ";"
-              }
-            ]
-          }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_pcal_stmt"
-        },
         {
           "type": "CHOICE",
           "members": [
             {
               "type": "STRING",
-              "value": ";"
+              "value": "--algorithm"
             },
-            {
-              "type": "BLANK"
-            }
-          ]
-        }
-      ]
-    },
-    "_pcal_stmt": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
             {
               "type": "SEQ",
               "members": [
                 {
-                  "type": "FIELD",
-                  "name": "label",
-                  "content": {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "SYMBOL",
-                        "name": "identifier"
-                      },
-                      {
-                        "type": "STRING",
-                        "value": ":"
-                      }
-                    ]
-                  }
+                  "type": "STRING",
+                  "value": "--fair"
                 },
                 {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "CHOICE",
-                      "members": [
-                        {
-                          "type": "STRING",
-                          "value": "+"
-                        },
-                        {
-                          "type": "STRING",
-                          "value": "-"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
+                  "type": "STRING",
+                  "value": "algorithm"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "pcal_var_decls"
             },
             {
               "type": "BLANK"
@@ -7335,12 +7306,54 @@
           ]
         },
         {
-          "type": "SYMBOL",
-          "name": "_pcal_unlabeled_stmt"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "pcal_c_definitions"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_macro"
+          }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_procedure"
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "pcal_c_algorithm_body"
+            },
+            {
+              "type": "REPEAT1",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_c_process"
+              }
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "}"
         }
       ]
     },
-    "pcal_definitions": {
+    "pcal_p_definitions": {
       "type": "SEQ",
       "members": [
         {
@@ -7376,7 +7389,101 @@
         }
       ]
     },
-    "pcal_macro": {
+    "pcal_c_definitions": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "define"
+        },
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_definition"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_p_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_macro_decl"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_p_algorithm_body"
+        },
+        {
+          "type": "STRING",
+          "value": "end"
+        },
+        {
+          "type": "STRING",
+          "value": "macro"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_c_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_macro_decl"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_algorithm_body"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_macro_decl": {
       "type": "SEQ",
       "members": [
         {
@@ -7439,10 +7546,19 @@
         {
           "type": "STRING",
           "value": ")"
+        }
+      ]
+    },
+    "pcal_p_procedure": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_procedure_decl"
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_algorithm_body"
+          "name": "pcal_p_algorithm_body"
         },
         {
           "type": "STRING",
@@ -7450,7 +7566,7 @@
         },
         {
           "type": "STRING",
-          "value": "macro"
+          "value": "procedure"
         },
         {
           "type": "CHOICE",
@@ -7466,7 +7582,32 @@
         }
       ]
     },
-    "pcal_procedure": {
+    "pcal_c_procedure": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_procedure_decl"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_algorithm_body"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_procedure_decl": {
       "type": "SEQ",
       "members": [
         {
@@ -7493,7 +7634,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "pcal_p_var_decl"
+                  "name": "pcal_proc_var_decl"
                 },
                 {
                   "type": "REPEAT",
@@ -7506,7 +7647,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "pcal_p_var_decl"
+                        "name": "pcal_proc_var_decl"
                       }
                     ]
                   }
@@ -7527,31 +7668,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "pcal_p_var_decls"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "pcal_algorithm_body"
-        },
-        {
-          "type": "STRING",
-          "value": "end"
-        },
-        {
-          "type": "STRING",
-          "value": "procedure"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": ";"
+              "name": "pcal_proc_var_decls"
             },
             {
               "type": "BLANK"
@@ -7560,7 +7677,7 @@
         }
       ]
     },
-    "pcal_process": {
+    "pcal_p_process": {
       "type": "SEQ",
       "members": [
         {
@@ -7635,7 +7752,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_algorithm_body"
+          "name": "pcal_p_algorithm_body"
         },
         {
           "type": "STRING",
@@ -7644,6 +7761,105 @@
         {
           "type": "STRING",
           "value": "process"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_c_process": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "fair"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": "+"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "process"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
+              "name": "set_in"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "pcal_var_decls"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_algorithm_body"
         },
         {
           "type": "CHOICE",
@@ -7676,11 +7892,45 @@
           ]
         },
         {
-          "type": "REPEAT1",
+          "type": "SYMBOL",
+          "name": "pcal_var_decl"
+        },
+        {
+          "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "pcal_var_decl"
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ";"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": ","
+                  }
+                ]
+              },
+              {
+                "type": "SYMBOL",
+                "name": "pcal_var_decl"
+              }
+            ]
           }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -7705,8 +7955,8 @@
                       "value": "="
                     },
                     {
-                      "type": "STRING",
-                      "value": "in"
+                      "type": "SYMBOL",
+                      "name": "set_in"
                     }
                   ]
                 },
@@ -7720,23 +7970,10 @@
               "type": "BLANK"
             }
           ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": ";"
-            },
-            {
-              "type": "STRING",
-              "value": ","
-            }
-          ]
         }
       ]
     },
-    "pcal_p_var_decls": {
+    "pcal_proc_var_decls": {
       "type": "SEQ",
       "members": [
         {
@@ -7759,7 +7996,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "pcal_p_var_decl"
+                "name": "pcal_proc_var_decl"
               },
               {
                 "type": "CHOICE",
@@ -7779,7 +8016,7 @@
         }
       ]
     },
-    "pcal_p_var_decl": {
+    "pcal_proc_var_decl": {
       "type": "SEQ",
       "members": [
         {
@@ -7809,7 +8046,7 @@
         }
       ]
     },
-    "pcal_algorithm_body": {
+    "pcal_p_algorithm_body": {
       "type": "SEQ",
       "members": [
         {
@@ -7818,11 +8055,192 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_pcal_stmts"
+          "name": "_pcal_p_stmts"
         }
       ]
     },
-    "_pcal_unlabeled_stmt": {
+    "_pcal_p_stmts": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_pcal_p_stmt"
+              },
+              {
+                "type": "STRING",
+                "value": ";"
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_p_stmt"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pcal_c_algorithm_body": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "{"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_pcal_c_stmt"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ";"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_pcal_c_stmt"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ";"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
+              "type": "STRING",
+              "value": "}"
+            }
+          ]
+        }
+      ]
+    },
+    "_pcal_c_stmt": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_pcal_label"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_pcal_c_unlabeled_stmt"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "pcal_c_algorithm_body"
+            }
+          ]
+        }
+      ]
+    },
+    "_pcal_p_stmt": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_pcal_label"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_p_unlabeled_stmt"
+        }
+      ]
+    },
+    "_pcal_label": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              {
+                "type": "STRING",
+                "value": ":"
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "+"
+                },
+                {
+                  "type": "STRING",
+                  "value": "-"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "_pcal_p_unlabeled_stmt": {
       "type": "CHOICE",
       "members": [
         {
@@ -7831,19 +8249,76 @@
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_if"
+          "name": "pcal_p_if"
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_while"
+          "name": "pcal_p_while"
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_either"
+          "name": "pcal_p_either"
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_with"
+          "name": "pcal_p_with"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_await"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_print"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_assert"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_skip"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_return"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_goto"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_call"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_macro_call"
+        }
+      ]
+    },
+    "_pcal_c_unlabeled_stmt": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "pcal_assign"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_if"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_while"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_either"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pcal_c_with"
         },
         {
           "type": "SYMBOL",
@@ -7988,7 +8463,7 @@
         }
       ]
     },
-    "pcal_if": {
+    "pcal_p_if": {
       "type": "SEQ",
       "members": [
         {
@@ -8005,7 +8480,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_pcal_stmts"
+          "name": "_pcal_p_stmts"
         },
         {
           "type": "REPEAT",
@@ -8014,7 +8489,7 @@
             "members": [
               {
                 "type": "STRING",
-                "value": "elseif"
+                "value": "elsif"
               },
               {
                 "type": "SYMBOL",
@@ -8026,7 +8501,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "_pcal_stmts"
+                "name": "_pcal_p_stmts"
               }
             ]
           }
@@ -8043,7 +8518,7 @@
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "_pcal_stmts"
+                  "name": "_pcal_p_stmts"
                 }
               ]
             },
@@ -8067,7 +8542,57 @@
         }
       ]
     },
-    "pcal_while": {
+    "pcal_c_if": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "if"
+          },
+          {
+            "type": "STRING",
+            "value": "("
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_expr"
+          },
+          {
+            "type": "STRING",
+            "value": ")"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_pcal_c_stmt"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "else"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_pcal_c_stmt"
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "pcal_p_while": {
       "type": "SEQ",
       "members": [
         {
@@ -8084,7 +8609,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_pcal_stmts"
+          "name": "_pcal_p_stmts"
         },
         {
           "type": "ALIAS",
@@ -8101,7 +8626,32 @@
         }
       ]
     },
-    "pcal_either": {
+    "pcal_c_while": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "while"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_c_stmt"
+        }
+      ]
+    },
+    "pcal_p_either": {
       "type": "SEQ",
       "members": [
         {
@@ -8110,7 +8660,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_pcal_stmts"
+          "name": "_pcal_p_stmts"
         },
         {
           "type": "REPEAT1",
@@ -8123,7 +8673,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "_pcal_stmts"
+                "name": "_pcal_p_stmts"
               }
             ]
           }
@@ -8143,7 +8693,40 @@
         }
       ]
     },
-    "pcal_with": {
+    "pcal_c_either": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "either"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_pcal_c_stmt"
+          },
+          {
+            "type": "REPEAT1",
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "or"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_pcal_c_stmt"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "pcal_p_with": {
       "type": "SEQ",
       "members": [
         {
@@ -8151,10 +8734,99 @@
           "value": "with"
         },
         {
+          "type": "SYMBOL",
+          "name": "_pcal_with_vars"
+        },
+        {
+          "type": "STRING",
+          "value": "do"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_p_stmts"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "end"
+          },
+          "named": true,
+          "value": "pcal_end_with"
+        },
+        {
+          "type": "STRING",
+          "value": "with"
+        }
+      ]
+    },
+    "pcal_c_with": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "with"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_with_vars"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_c_stmt"
+        }
+      ]
+    },
+    "_pcal_with_vars": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
+              "name": "set_in"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        },
+        {
           "type": "REPEAT",
           "content": {
             "type": "SEQ",
             "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ","
+                  },
+                  {
+                    "type": "STRING",
+                    "value": ";"
+                  }
+                ]
+              },
               {
                 "type": "SYMBOL",
                 "name": "identifier"
@@ -8175,90 +8847,30 @@
               {
                 "type": "SYMBOL",
                 "name": "_expr"
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": ","
-                  },
-                  {
-                    "type": "STRING",
-                    "value": ";"
-                  }
-                ]
               }
             ]
           }
         },
         {
-          "type": "SEQ",
+          "type": "CHOICE",
           "members": [
-            {
-              "type": "SYMBOL",
-              "name": "identifier"
-            },
             {
               "type": "CHOICE",
               "members": [
                 {
                   "type": "STRING",
-                  "value": "="
+                  "value": ","
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "set_in"
+                  "type": "STRING",
+                  "value": ";"
                 }
               ]
             },
             {
-              "type": "SYMBOL",
-              "name": "_expr"
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
-                      "type": "STRING",
-                      "value": ";"
-                    }
-                  ]
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
+              "type": "BLANK"
             }
           ]
-        },
-        {
-          "type": "STRING",
-          "value": "do"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_pcal_stmts"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "STRING",
-            "value": "end"
-          },
-          "named": true,
-          "value": "pcal_end_with"
-        },
-        {
-          "type": "STRING",
-          "value": "with"
         }
       ]
     },

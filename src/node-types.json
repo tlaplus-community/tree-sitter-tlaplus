@@ -60,10 +60,6 @@
         "named": true
       },
       {
-        "type": "fairness",
-        "named": true
-      },
-      {
         "type": "finite_set_literal",
         "named": true
       },
@@ -431,7 +427,11 @@
           "named": true
         },
         {
-          "type": "pcal_algorithm",
+          "type": "pcal_c_algorithm",
+          "named": true
+        },
+        {
+          "type": "pcal_p_algorithm",
           "named": true
         }
       ]
@@ -1371,21 +1371,6 @@
       "types": [
         {
           "type": "identifier_ref",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "fairness",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
           "named": true
         }
       ]
@@ -2577,130 +2562,6 @@
     }
   },
   {
-    "type": "pcal_algorithm",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_algorithm_body",
-          "named": true
-        },
-        {
-          "type": "pcal_definitions",
-          "named": true
-        },
-        {
-          "type": "pcal_macro",
-          "named": true
-        },
-        {
-          "type": "pcal_procedure",
-          "named": true
-        },
-        {
-          "type": "pcal_process",
-          "named": true
-        },
-        {
-          "type": "pcal_var_decls",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_algorithm_body",
-    "named": true,
-    "fields": {
-      "label": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "pcal_assert",
-          "named": true
-        },
-        {
-          "type": "pcal_assign",
-          "named": true
-        },
-        {
-          "type": "pcal_await",
-          "named": true
-        },
-        {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
-          "type": "pcal_either",
-          "named": true
-        },
-        {
-          "type": "pcal_goto",
-          "named": true
-        },
-        {
-          "type": "pcal_if",
-          "named": true
-        },
-        {
-          "type": "pcal_macro_call",
-          "named": true
-        },
-        {
-          "type": "pcal_print",
-          "named": true
-        },
-        {
-          "type": "pcal_return",
-          "named": true
-        },
-        {
-          "type": "pcal_skip",
-          "named": true
-        },
-        {
-          "type": "pcal_while",
-          "named": true
-        },
-        {
-          "type": "pcal_with",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pcal_assert",
     "named": true,
     "fields": {},
@@ -2758,22 +2619,135 @@
     }
   },
   {
-    "type": "pcal_call",
+    "type": "pcal_c_algorithm",
     "named": true,
-    "fields": {},
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "pcal_macro_call",
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_definitions",
+          "named": true
+        },
+        {
+          "type": "pcal_c_macro",
+          "named": true
+        },
+        {
+          "type": "pcal_c_procedure",
+          "named": true
+        },
+        {
+          "type": "pcal_c_process",
+          "named": true
+        },
+        {
+          "type": "pcal_var_decls",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "pcal_definitions",
+    "type": "pcal_c_algorithm_body",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_either",
+          "named": true
+        },
+        {
+          "type": "pcal_c_if",
+          "named": true
+        },
+        {
+          "type": "pcal_c_while",
+          "named": true
+        },
+        {
+          "type": "pcal_c_with",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_definitions",
     "named": true,
     "fields": {},
     "children": {
@@ -2800,7 +2774,7 @@
     }
   },
   {
-    "type": "pcal_either",
+    "type": "pcal_c_either",
     "named": true,
     "fields": {
       "label": {
@@ -2835,15 +2809,27 @@
           "named": true
         },
         {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_either",
+          "named": true
+        },
+        {
+          "type": "pcal_c_if",
+          "named": true
+        },
+        {
+          "type": "pcal_c_while",
+          "named": true
+        },
+        {
+          "type": "pcal_c_with",
+          "named": true
+        },
+        {
           "type": "pcal_call",
-          "named": true
-        },
-        {
-          "type": "pcal_either",
-          "named": true
-        },
-        {
-          "type": "pcal_end_either",
           "named": true
         },
         {
@@ -2851,7 +2837,341 @@
           "named": true
         },
         {
-          "type": "pcal_if",
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_if",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_either",
+          "named": true
+        },
+        {
+          "type": "pcal_c_if",
+          "named": true
+        },
+        {
+          "type": "pcal_c_while",
+          "named": true
+        },
+        {
+          "type": "pcal_c_with",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_macro",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_procedure",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_procedure_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_process",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_var_decls",
+          "named": true
+        },
+        {
+          "type": "set_in",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_while",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_either",
+          "named": true
+        },
+        {
+          "type": "pcal_c_if",
+          "named": true
+        },
+        {
+          "type": "pcal_c_while",
+          "named": true
+        },
+        {
+          "type": "pcal_c_with",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_c_with",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_c_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_c_either",
+          "named": true
+        },
+        {
+          "type": "pcal_c_if",
+          "named": true
+        },
+        {
+          "type": "pcal_c_while",
+          "named": true
+        },
+        {
+          "type": "pcal_c_with",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
           "named": true
         },
         {
@@ -2871,11 +3191,22 @@
           "named": true
         },
         {
-          "type": "pcal_while",
+          "type": "set_in",
           "named": true
-        },
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_call",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
         {
-          "type": "pcal_with",
+          "type": "pcal_macro_call",
           "named": true
         }
       ]
@@ -2898,92 +3229,6 @@
     }
   },
   {
-    "type": "pcal_if",
-    "named": true,
-    "fields": {
-      "label": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "pcal_assert",
-          "named": true
-        },
-        {
-          "type": "pcal_assign",
-          "named": true
-        },
-        {
-          "type": "pcal_await",
-          "named": true
-        },
-        {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
-          "type": "pcal_either",
-          "named": true
-        },
-        {
-          "type": "pcal_end_if",
-          "named": true
-        },
-        {
-          "type": "pcal_goto",
-          "named": true
-        },
-        {
-          "type": "pcal_if",
-          "named": true
-        },
-        {
-          "type": "pcal_macro_call",
-          "named": true
-        },
-        {
-          "type": "pcal_print",
-          "named": true
-        },
-        {
-          "type": "pcal_return",
-          "named": true
-        },
-        {
-          "type": "pcal_skip",
-          "named": true
-        },
-        {
-          "type": "pcal_while",
-          "named": true
-        },
-        {
-          "type": "pcal_with",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pcal_lhs",
     "named": true,
     "fields": {},
@@ -2997,42 +3242,6 @@
         },
         {
           "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_macro",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
-      "parameter": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_algorithm_body",
           "named": true
         }
       ]
@@ -3065,9 +3274,531 @@
     }
   },
   {
-    "type": "pcal_p_var_decl",
+    "type": "pcal_macro_decl",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pcal_p_algorithm",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_p_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_p_definitions",
+          "named": true
+        },
+        {
+          "type": "pcal_p_macro",
+          "named": true
+        },
+        {
+          "type": "pcal_p_procedure",
+          "named": true
+        },
+        {
+          "type": "pcal_p_process",
+          "named": true
+        },
+        {
+          "type": "pcal_var_decls",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_algorithm_body",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_p_either",
+          "named": true
+        },
+        {
+          "type": "pcal_p_if",
+          "named": true
+        },
+        {
+          "type": "pcal_p_while",
+          "named": true
+        },
+        {
+          "type": "pcal_p_with",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_definitions",
     "named": true,
     "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "function_definition",
+          "named": true
+        },
+        {
+          "type": "instance",
+          "named": true
+        },
+        {
+          "type": "module_definition",
+          "named": true
+        },
+        {
+          "type": "operator_definition",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_either",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_end_either",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_p_either",
+          "named": true
+        },
+        {
+          "type": "pcal_p_if",
+          "named": true
+        },
+        {
+          "type": "pcal_p_while",
+          "named": true
+        },
+        {
+          "type": "pcal_p_with",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_if",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_end_if",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_p_either",
+          "named": true
+        },
+        {
+          "type": "pcal_p_if",
+          "named": true
+        },
+        {
+          "type": "pcal_p_while",
+          "named": true
+        },
+        {
+          "type": "pcal_p_with",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_macro",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_macro_decl",
+          "named": true
+        },
+        {
+          "type": "pcal_p_algorithm_body",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_procedure",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_p_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_procedure_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_process",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_p_algorithm_body",
+          "named": true
+        },
+        {
+          "type": "pcal_var_decls",
+          "named": true
+        },
+        {
+          "type": "set_in",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_while",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        },
+        {
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_end_while",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_p_either",
+          "named": true
+        },
+        {
+          "type": "pcal_p_if",
+          "named": true
+        },
+        {
+          "type": "pcal_p_while",
+          "named": true
+        },
+        {
+          "type": "pcal_p_with",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_p_with",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -3079,20 +3810,65 @@
         {
           "type": "identifier",
           "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_p_var_decls",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
+        },
         {
-          "type": "pcal_p_var_decl",
+          "type": "pcal_assert",
+          "named": true
+        },
+        {
+          "type": "pcal_assign",
+          "named": true
+        },
+        {
+          "type": "pcal_await",
+          "named": true
+        },
+        {
+          "type": "pcal_call",
+          "named": true
+        },
+        {
+          "type": "pcal_end_with",
+          "named": true
+        },
+        {
+          "type": "pcal_goto",
+          "named": true
+        },
+        {
+          "type": "pcal_macro_call",
+          "named": true
+        },
+        {
+          "type": "pcal_p_either",
+          "named": true
+        },
+        {
+          "type": "pcal_p_if",
+          "named": true
+        },
+        {
+          "type": "pcal_p_while",
+          "named": true
+        },
+        {
+          "type": "pcal_p_with",
+          "named": true
+        },
+        {
+          "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_return",
+          "named": true
+        },
+        {
+          "type": "pcal_skip",
+          "named": true
+        },
+        {
+          "type": "set_in",
           "named": true
         }
       ]
@@ -3114,54 +3890,9 @@
     }
   },
   {
-    "type": "pcal_procedure",
+    "type": "pcal_proc_var_decl",
     "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_algorithm_body",
-          "named": true
-        },
-        {
-          "type": "pcal_p_var_decl",
-          "named": true
-        },
-        {
-          "type": "pcal_p_var_decls",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_process",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
@@ -3171,15 +3902,52 @@
           "named": true
         },
         {
-          "type": "pcal_algorithm_body",
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_proc_var_decls",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "pcal_proc_var_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_procedure_decl",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "pcal_proc_var_decl",
           "named": true
         },
         {
-          "type": "pcal_var_decls",
-          "named": true
-        },
-        {
-          "type": "set_in",
+          "type": "pcal_proc_var_decls",
           "named": true
         }
       ]
@@ -3210,6 +3978,10 @@
         {
           "type": "identifier",
           "named": true
+        },
+        {
+          "type": "set_in",
+          "named": true
         }
       ]
     }
@@ -3224,186 +3996,6 @@
       "types": [
         {
           "type": "pcal_var_decl",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_while",
-    "named": true,
-    "fields": {
-      "label": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "pcal_assert",
-          "named": true
-        },
-        {
-          "type": "pcal_assign",
-          "named": true
-        },
-        {
-          "type": "pcal_await",
-          "named": true
-        },
-        {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
-          "type": "pcal_either",
-          "named": true
-        },
-        {
-          "type": "pcal_end_while",
-          "named": true
-        },
-        {
-          "type": "pcal_goto",
-          "named": true
-        },
-        {
-          "type": "pcal_if",
-          "named": true
-        },
-        {
-          "type": "pcal_macro_call",
-          "named": true
-        },
-        {
-          "type": "pcal_print",
-          "named": true
-        },
-        {
-          "type": "pcal_return",
-          "named": true
-        },
-        {
-          "type": "pcal_skip",
-          "named": true
-        },
-        {
-          "type": "pcal_while",
-          "named": true
-        },
-        {
-          "type": "pcal_with",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_with",
-    "named": true,
-    "fields": {
-      "label": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ":",
-            "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "pcal_assert",
-          "named": true
-        },
-        {
-          "type": "pcal_assign",
-          "named": true
-        },
-        {
-          "type": "pcal_await",
-          "named": true
-        },
-        {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
-          "type": "pcal_either",
-          "named": true
-        },
-        {
-          "type": "pcal_end_with",
-          "named": true
-        },
-        {
-          "type": "pcal_goto",
-          "named": true
-        },
-        {
-          "type": "pcal_if",
-          "named": true
-        },
-        {
-          "type": "pcal_macro_call",
-          "named": true
-        },
-        {
-          "type": "pcal_print",
-          "named": true
-        },
-        {
-          "type": "pcal_return",
-          "named": true
-        },
-        {
-          "type": "pcal_skip",
-          "named": true
-        },
-        {
-          "type": "pcal_while",
-          "named": true
-        },
-        {
-          "type": "pcal_with",
-          "named": true
-        },
-        {
-          "type": "set_in",
           "named": true
         }
       ]
@@ -5330,7 +5922,7 @@
     "named": false
   },
   {
-    "type": "elseif",
+    "type": "elsif",
     "named": false
   },
   {
@@ -5375,10 +5967,6 @@
   },
   {
     "type": "if",
-    "named": false
-  },
-  {
-    "type": "in",
     "named": false
   },
   {
