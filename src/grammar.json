@@ -86,7 +86,7 @@
           "members": [
             {
               "type": "PATTERN",
-              "value": "[^*()\n]|[^*\n][)]|[(][^(*\n]|[)][*][^)\n]|[\\\\]|[\\\\][*]|[*][^*)\n]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
+              "value": "[^*()\n]|[^*\n][)]|[(][^(*\n]|[)][*][^)\n]|[*][^*)\n]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
             },
             {
               "type": "PATTERN",
@@ -99,10 +99,6 @@
             {
               "type": "PATTERN",
               "value": "\\)"
-            },
-            {
-              "type": "PATTERN",
-              "value": "\\\\"
             }
           ]
         }
@@ -8146,6 +8142,27 @@
         }
       ]
     },
+    "_pcal_p_stmt": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_pcal_label"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_pcal_p_unlabeled_stmt"
+        }
+      ]
+    },
     "_pcal_c_stmt": {
       "type": "SEQ",
       "members": [
@@ -8173,27 +8190,6 @@
               "name": "pcal_c_algorithm_body"
             }
           ]
-        }
-      ]
-    },
-    "_pcal_p_stmt": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "_pcal_label"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_pcal_p_unlabeled_stmt"
         }
       ]
     },

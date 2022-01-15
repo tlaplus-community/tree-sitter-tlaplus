@@ -522,51 +522,6 @@ module.exports = grammar({
       $.disj_list,
     ),
 
-    /************************************************************************/
-    /* EXPRESSIONS                                                          */
-    /************************************************************************/
-
-    // Anything that evaluates to a value
-    _expr: $ => choice(
-      $._number,
-      $.string,
-      $.boolean,
-      $._primitive_value_set,
-      $.parentheses,
-      $.label,
-      $.subexpression,
-      $.proof_step_ref,
-      alias($.identifier, $.identifier_ref),
-      $.bound_op,
-      $.bound_nonfix_op,
-      $.prefixed_op,
-      $.bound_prefix_op,
-      $.bound_infix_op,
-      $.bound_postfix_op,
-      $.bounded_quantification,
-      $.unbounded_quantification,
-      $.choose,
-      $.finite_set_literal,
-      $.set_filter,
-      $.set_map,
-      $.function_evaluation,
-      $.function_literal,
-      $.set_of_functions,
-      $.record_literal,
-      $.set_of_records,
-      $.record_value,
-      $.except,
-      $.prev_func_val,
-      $.tuple_literal,
-      $.step_expr_or_stutter,
-      $.step_expr_no_stutter,
-      $.if_then_else,
-      $.case,
-      $.let_in,
-      $.conj_list,
-      $.disj_list,
-    ),
-
     // Expressions allowed in subscripts; must be enclosed in delimiters
     // Used in WF_expr, <><<f>>_expr, etc.
     _subscript_expr: $ => choice(
@@ -707,6 +662,8 @@ module.exports = grammar({
     finite_set_literal: $ => seq('{', commaList($._expr), '}'),
 
     // { x \in S : P(x) }
+    // Set dynamic precedence to 1 so that the expression {x \in S : x \in P}
+    // is parsed as set_filter instead of set_map during GLR parsing.
     set_filter: $ => prec.dynamic(1, seq(
       '{',
       field('generator', $.single_quantifier_bound),

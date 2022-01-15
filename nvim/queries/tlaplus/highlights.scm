@@ -1,6 +1,6 @@
-; highlights.scm
-; Default capture names for tree-sitter highlight found here:
-; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
+; ; highlights.scm
+; ; Default capture names for tree-sitter highlight found here:
+; ; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
 
 
 ; Keywords
@@ -98,13 +98,15 @@
   "when"
   "with"
 ] @keyword
-(pcal_with ("=") @keyword)
-(pcal_process ("=") @keyword)
+(pcal_p_with ("=") @keyword)
+(pcal_c_with ("=") @keyword)
+(pcal_p_process ("=") @keyword)
+(pcal_c_process ("=") @keyword)
 [ 
   "if" 
   "then" 
   "else" 
-  "elseif" 
+  "elsif"
   (pcal_end_if)
   "either"
   (pcal_end_either)
@@ -140,7 +142,8 @@
 ; Namespaces and includes
 (extends (identifier_ref) @include)
 (module name: (_) @namespace)
-(pcal_algorithm name: (identifier) @namespace)
+(pcal_p_algorithm name: (identifier) @namespace)
+(pcal_c_algorithm name: (identifier) @namespace)
 
 ; Operators and functions
 (bound_infix_op symbol: (_) @function.builtin)
@@ -152,10 +155,11 @@
 (function_definition name: (identifier) @function)
 (module_definition name: (identifier) @function)
 (operator_definition name: (_) @operator)
-(pcal_macro name: (identifier) @function.macro)
+(pcal_macro_decl name: (identifier) @function.macro)
 (pcal_macro_call name: (identifier) @function.macro)
-(pcal_procedure name: (identifier) @function.macro)
-(pcal_process name: (identifier) @function)
+(pcal_procedure_decl name: (identifier) @function.macro)
+(pcal_p_process name: (identifier) @function)
+(pcal_c_process name: (identifier) @function)
 (recursive_declaration (identifier) @operator)
 (recursive_declaration (operator_declaration name: (_) @operator))
 
@@ -163,8 +167,11 @@
 (constant_declaration (identifier) @constant.builtin)
 (constant_declaration (operator_declaration name: (_) @constant.builtin))
 (pcal_var_decl (identifier) @variable.builtin)
-(pcal_with (identifier) @parameter)
+(pcal_p_with (identifier) @parameter)
+(pcal_c_with (identifier) @parameter)
+((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
+(set_of_records (identifier) @attribute)
 (variable_declaration (identifier) @variable.builtin)
 
 ; Parameters
@@ -175,8 +182,8 @@
 (module_definition parameter: (identifier) @parameter)
 (operator_definition (operator_declaration name: (_) @parameter))
 (operator_definition parameter: (identifier) @parameter)
-(pcal_macro parameter: (identifier) @parameter)
-(pcal_p_var_decl (identifier) @parameter)
+(pcal_macro_decl parameter: (identifier) @parameter)
+(pcal_proc_var_decl (identifier) @parameter)
 
 ; Delimiters
 [
@@ -217,7 +224,7 @@
 (block_comment_text) @comment
 (comment) @comment
 (single_line) @comment
-(pcal_algorithm_body label: (identifier) @tag)
+(_ label: (identifier) @tag)
 (pcal_goto statement: (identifier) @tag)
 
 ; Reference highlighting with the same color as declarations.
@@ -227,3 +234,4 @@
 ((identifier_ref) @parameter (#is? @parameter parameter))
 ((identifier_ref) @variable.builtin (#is? @variable.builtin builtin_variable))
 ((identifier_ref) @variable.builtin (#is? @variable.builtin variable))
+((identifier_ref) @include (#is? @include sequences))
