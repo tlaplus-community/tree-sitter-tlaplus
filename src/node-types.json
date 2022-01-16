@@ -2638,6 +2638,10 @@
       "required": true,
       "types": [
         {
+          "type": "pcal_algorithm_start",
+          "named": true
+        },
+        {
           "type": "pcal_c_algorithm_body",
           "named": true
         },
@@ -3318,6 +3322,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "pcal_algorithm_start",
+          "named": true
+        },
         {
           "type": "pcal_p_algorithm_body",
           "named": true
@@ -5218,14 +5226,6 @@
     "named": false
   },
   {
-    "type": "--algorithm",
-    "named": false
-  },
-  {
-    "type": "--fair",
-    "named": false
-  },
-  {
     "type": "->",
     "named": false
   },
@@ -6008,6 +6008,10 @@
   {
     "type": "or",
     "named": false
+  },
+  {
+    "type": "pcal_algorithm_start",
+    "named": true
   },
   {
     "type": "pcal_end_either",

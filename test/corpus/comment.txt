@@ -378,3 +378,18 @@ Block Comments Separated By Two Lines
   (block_comment (block_comment_text))
   (block_comment (block_comment_text))
 (double_line)))
+
+====================|||
+Block Comment With Nested Line Comment
+====================|||
+
+---- MODULE Test ----
+  (* \* *)
+====
+
+--------------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (block_comment (block_comment_text))
+(double_line)))
+

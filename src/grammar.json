@@ -44,15 +44,29 @@
       ]
     },
     "comment": {
-      "type": "PATTERN",
-      "value": "\\\\\\*.*"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 0,
+        "content": {
+          "type": "PATTERN",
+          "value": "\\\\\\*.*"
+        }
+      }
     },
     "block_comment": {
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
-          "value": "(*"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "(*"
+            }
+          }
         },
         {
           "type": "REPEAT",
@@ -71,8 +85,15 @@
           }
         },
         {
-          "type": "STRING",
-          "value": "*)"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "*)"
+            }
+          }
         }
       ]
     },
@@ -85,20 +106,48 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "PATTERN",
-              "value": "[^*()\n]|[^*\n][)]|[(][^(*\n]|[)][*][^)\n]|[*][^*)\n]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "[^*()]|[^*][)]|[(][^(*]|[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]"
+                }
+              }
             },
             {
-              "type": "PATTERN",
-              "value": "\\*"
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\*"
+                }
+              }
             },
             {
-              "type": "PATTERN",
-              "value": "\\("
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\("
+                }
+              }
             },
             {
-              "type": "PATTERN",
-              "value": "\\)"
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\)"
+                }
+              }
             }
           ]
         }
@@ -7147,26 +7196,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "--algorithm"
-            },
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "--fair"
-                },
-                {
-                  "type": "STRING",
-                  "value": "algorithm"
-                }
-              ]
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "pcal_algorithm_start"
         },
         {
           "type": "FIELD",
@@ -7256,26 +7287,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "--algorithm"
-            },
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "--fair"
-                },
-                {
-                  "type": "STRING",
-                  "value": "algorithm"
-                }
-              ]
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "pcal_algorithm_start"
         },
         {
           "type": "FIELD",
@@ -7348,6 +7361,35 @@
           "value": "}"
         }
       ]
+    },
+    "pcal_algorithm_start": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 2,
+        "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "--algorithm"
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "--fair"
+                },
+                {
+                  "type": "STRING",
+                  "value": "algorithm"
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     "pcal_p_definitions": {
       "type": "SEQ",

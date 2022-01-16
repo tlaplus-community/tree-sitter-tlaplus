@@ -77,9 +77,7 @@
 ] @keyword
 ;  Pluscal keywords
 [
-  "--algorithm" 
-  "--fair"
-  "algorithm"
+  (pcal_algorithm_start)
   "assert"
   "await"
   "begin"

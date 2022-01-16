@@ -227,19 +227,6 @@ namespace {
     }
   }
 
-  // Possible states for the comment lexer to enter.
-  enum CLexState {
-    CLexState_CONSUME,
-    CLexState_ASTERISK,
-    CLexState_L_PAREN,
-    CLexState_LEFT_COMMENT_DELIMITER,
-    CLexState_RIGHT_COMMENT_DELIMITER,
-    CLexState_LOOKAHEAD,
-    CLexState_LOOKAHEAD_NEWLINE,
-    CLexState_LOOKAHEAD_L_PAREN,
-    CLexState_END_OF_FILE
-  };
-  
   // Types of proof step IDs.
   enum ProofStepIdType {
     ProofStepIdType_STAR,     // <*>
@@ -294,6 +281,7 @@ namespace {
     Lexeme_DASH,
     Lexeme_COMMA,
     Lexeme_COLON,
+    Lexeme_SEMICOLON,
     Lexeme_LAND,
     Lexeme_LOR,
     Lexeme_L_PAREN,
@@ -343,6 +331,7 @@ namespace {
     LexState_DASH,
     LexState_COMMA,
     LexState_COLON,
+    LexState_SEMICOLON,
     LexState_LAND,
     LexState_LOR,
     LexState_L_PAREN,
@@ -409,6 +398,7 @@ namespace {
         if ('-' == lookahead) ADVANCE(LexState_DASH);
         if (',' == lookahead) ADVANCE(LexState_COMMA);
         if (':' == lookahead) ADVANCE(LexState_COLON);
+        if (';' == lookahead) ADVANCE(LexState_SEMICOLON);
         if ('(' == lookahead) ADVANCE(LexState_L_PAREN);
         if (')' == lookahead) ADVANCE(LexState_R_PAREN);
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
@@ -468,6 +458,9 @@ namespace {
         ACCEPT_LEXEME(Lexeme_COLON);
         if (':' == lookahead) ADVANCE(LexState_OTHER);
         if ('=' == lookahead) ADVANCE(LexState_OTHER);
+        END_LEX_STATE();
+      case LexState_SEMICOLON:
+        ACCEPT_LEXEME(Lexeme_SEMICOLON);
         END_LEX_STATE();
       case LexState_LAND:
         ACCEPT_LEXEME(Lexeme_LAND);
@@ -762,6 +755,7 @@ namespace {
       case Lexeme_DASH: return Token_OTHER;
       case Lexeme_COMMA: return Token_RIGHT_DELIMITER;
       case Lexeme_COLON: return Token_RIGHT_DELIMITER;
+      case Lexeme_SEMICOLON: return Token_TERMINATOR;
       case Lexeme_LAND: return Token_LAND;
       case Lexeme_LOR: return Token_LOR;
       case Lexeme_L_PAREN: return Token_OTHER;

@@ -1,3 +1,9 @@
+const PREC = {
+  COMMENT: 0,
+  BLOCK_COMMENT: 1,
+  PCAL: 2
+}
+
 // A sequence of one or more comma-separated strings matching the rule
 function commaList1(rule) {
   return seq(rule, repeat(seq(',', rule)))
@@ -173,34 +179,33 @@ module.exports = grammar({
     ),
 
     // \* this is a comment ending with newline
-    comment: $ => /\\\*.*/,
+    comment: $ => token(prec(PREC.COMMENT, /\\\*.*/)),
 
     // source: https://github.com/tree-sitter/tree-sitter/discussions/1252#discussioncomment-988725
     block_comment: $ => seq(
-      '(*',
+      token(prec(PREC.BLOCK_COMMENT, '(*')),
       repeat(
         choice(
-          $._pcal_algorithm, 
+          $._pcal_algorithm,
           $.block_comment_text
         )
       ),
-      '*)'
+      token(prec(PREC.BLOCK_COMMENT, '*)'))
     ),
+
 
     block_comment_text: $ => 
       prec.right(repeat1(
         choice(
-          regexOr(
-            '[^*()\n]', // any symbol except reserved
-            '[^*\n][)]', // closing parenthesis, which is not a comment end
-            '[(][^(*\n]', // opening parenthesis, which is not a comment start
-            '[)][*][^)\n]',
-            '[*][^*)\n]',
+          token(prec(PREC.BLOCK_COMMENT, regexOr(
+            '[^*()]', // any symbol except reserved
+            '[^*][)]', // closing parenthesis, which is not a comment end
+            '[(][^(*]', // opening parenthesis, which is not a comment start
             '[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]' // contiguous block comment border
-          ),
-          /\*/,
-          /\(/,
-          /\)/,
+          ))),
+          token(prec(PREC.BLOCK_COMMENT, /\*/)),
+          token(prec(PREC.BLOCK_COMMENT, /\(/)),
+          token(prec(PREC.BLOCK_COMMENT, /\)/)),
         )
       )),
 
@@ -1204,16 +1209,9 @@ module.exports = grammar({
       $.pcal_c_algorithm
     ),
 
-    // PlusCal algorithm definition:
-    // --algorithm foo
-    //   *variable declarations*
-    //   *define section*
-    //   *macro declarations*
-    //   *procedure declarations*
-    //   *algorithm body* or *PlusCal processes*
-    // end algorithm;
+    // PlusCal p-syntax algorithm definition
     pcal_p_algorithm: $ => seq(
-      choice('--algorithm', seq('--fair', 'algorithm')),
+      $.pcal_algorithm_start,
       field('name', $.identifier),
       optional($.pcal_var_decls),
       optional($.pcal_p_definitions),
@@ -1226,9 +1224,9 @@ module.exports = grammar({
       'end', 'algorithm', optional(';'),
     ),
 
-    // TODO docs
+    // PlusCal c-syntax algorithm definition
     pcal_c_algorithm: $ => seq(
-      choice('--algorithm', seq('--fair', 'algorithm')),
+      $.pcal_algorithm_start,
       field('name', $.identifier),
       '{',
       optional($.pcal_var_decls),
@@ -1241,6 +1239,16 @@ module.exports = grammar({
       ),
       '}'
     ),
+
+    pcal_algorithm_start: $ => 
+      token(
+        prec(PREC.PCAL, (
+          choice(
+            '--algorithm', 
+            seq('--fair', 'algorithm')
+          )
+        ))
+      ),
 
     // Operators, which depend on PlusCal variables
     // define 
