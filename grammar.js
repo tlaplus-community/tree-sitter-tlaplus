@@ -520,6 +520,7 @@ module.exports = grammar({
       $.tuple_literal,
       $.step_expr_or_stutter,
       $.step_expr_no_stutter,
+      $.fairness,
       $.if_then_else,
       $.case,
       $.let_in,

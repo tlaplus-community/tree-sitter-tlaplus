@@ -2056,6 +2056,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "fairness"
+        },
+        {
+          "type": "SYMBOL",
           "name": "if_then_else"
         },
         {

@@ -60,6 +60,10 @@
         "named": true
       },
       {
+        "type": "fairness",
+        "named": true
+      },
+      {
         "type": "finite_set_literal",
         "named": true
       },
@@ -1371,6 +1375,21 @@
       "types": [
         {
           "type": "identifier_ref",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fairness",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_expr",
           "named": true
         }
       ]
