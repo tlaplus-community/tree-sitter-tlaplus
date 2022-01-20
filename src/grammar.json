@@ -75,7 +75,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_pcal_algorithm"
+                "name": "pcal_algorithm"
               },
               {
                 "type": "SYMBOL",
@@ -7183,20 +7183,20 @@
         }
       ]
     },
-    "_pcal_algorithm": {
+    "pcal_algorithm": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "pcal_p_algorithm"
+          "name": "_pcal_p_algorithm"
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_c_algorithm"
+          "name": "_pcal_c_algorithm"
         }
       ]
     },
-    "pcal_p_algorithm": {
+    "_pcal_p_algorithm": {
       "type": "SEQ",
       "members": [
         {
@@ -7227,8 +7227,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "pcal_p_definitions"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_p_definitions"
+              },
+              "named": true,
+              "value": "pcal_definitions"
             },
             {
               "type": "BLANK"
@@ -7238,29 +7243,49 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "pcal_p_macro"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "pcal_p_macro"
+            },
+            "named": true,
+            "value": "pcal_macro"
           }
         },
         {
           "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "pcal_p_procedure"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "pcal_p_procedure"
+            },
+            "named": true,
+            "value": "pcal_procedure"
           }
         },
         {
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "pcal_p_algorithm_body"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_p_algorithm_body"
+              },
+              "named": true,
+              "value": "pcal_algorithm_body"
             },
             {
               "type": "REPEAT1",
               "content": {
-                "type": "SYMBOL",
-                "name": "pcal_p_process"
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "pcal_p_process"
+                },
+                "named": true,
+                "value": "pcal_process"
               }
             }
           ]
@@ -7287,7 +7312,7 @@
         }
       ]
     },
-    "pcal_c_algorithm": {
+    "_pcal_c_algorithm": {
       "type": "SEQ",
       "members": [
         {
@@ -7322,8 +7347,13 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "pcal_c_definitions"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_c_definitions"
+              },
+              "named": true,
+              "value": "pcal_definitions"
             },
             {
               "type": "BLANK"
@@ -7333,29 +7363,49 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "pcal_c_macro"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "pcal_c_macro"
+            },
+            "named": true,
+            "value": "pcal_macro"
           }
         },
         {
           "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "pcal_c_procedure"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "pcal_c_procedure"
+            },
+            "named": true,
+            "value": "pcal_procedure"
           }
         },
         {
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "pcal_c_algorithm_body"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_c_algorithm_body"
+              },
+              "named": true,
+              "value": "pcal_algorithm_body"
             },
             {
               "type": "REPEAT1",
               "content": {
-                "type": "SYMBOL",
-                "name": "pcal_c_process"
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "pcal_c_process"
+                },
+                "named": true,
+                "value": "pcal_process"
               }
             }
           ]
@@ -7475,8 +7525,13 @@
           "name": "pcal_macro_decl"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "STRING",
@@ -7508,8 +7563,13 @@
           "name": "pcal_macro_decl"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "CHOICE",
@@ -7599,8 +7659,13 @@
           "name": "pcal_procedure_decl"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "STRING",
@@ -7632,8 +7697,13 @@
           "name": "pcal_procedure_decl"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "CHOICE",
@@ -7793,8 +7863,13 @@
           ]
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "STRING",
@@ -7900,8 +7975,13 @@
           ]
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_algorithm_body"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_algorithm_body"
+          },
+          "named": true,
+          "value": "pcal_algorithm_body"
         },
         {
           "type": "CHOICE",
@@ -8232,8 +8312,13 @@
               "name": "_pcal_c_unlabeled_stmt"
             },
             {
-              "type": "SYMBOL",
-              "name": "pcal_c_algorithm_body"
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "pcal_c_algorithm_body"
+              },
+              "named": true,
+              "value": "pcal_algorithm_body"
             }
           ]
         }
@@ -8290,20 +8375,40 @@
           "name": "pcal_assign"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_if"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_if"
+          },
+          "named": true,
+          "value": "pcal_if"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_while"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_while"
+          },
+          "named": true,
+          "value": "pcal_while"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_either"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_either"
+          },
+          "named": true,
+          "value": "pcal_either"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_p_with"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_p_with"
+          },
+          "named": true,
+          "value": "pcal_with"
         },
         {
           "type": "SYMBOL",
@@ -8347,20 +8452,40 @@
           "name": "pcal_assign"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_if"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_if"
+          },
+          "named": true,
+          "value": "pcal_if"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_while"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_while"
+          },
+          "named": true,
+          "value": "pcal_while"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_either"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_either"
+          },
+          "named": true,
+          "value": "pcal_either"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_c_with"
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "pcal_c_with"
+          },
+          "named": true,
+          "value": "pcal_with"
         },
         {
           "type": "SYMBOL",

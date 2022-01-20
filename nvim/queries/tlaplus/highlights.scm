@@ -96,10 +96,8 @@
   "when"
   "with"
 ] @keyword
-(pcal_p_with ("=") @keyword)
-(pcal_c_with ("=") @keyword)
-(pcal_p_process ("=") @keyword)
-(pcal_c_process ("=") @keyword)
+(pcal_with ("=") @keyword)
+(pcal_process ("=") @keyword)
 [ 
   "if" 
   "then" 
@@ -140,8 +138,7 @@
 ; Namespaces and includes
 (extends (identifier_ref) @include)
 (module name: (_) @namespace)
-(pcal_p_algorithm name: (identifier) @namespace)
-(pcal_c_algorithm name: (identifier) @namespace)
+(pcal_algorithm name: (identifier) @namespace)
 
 ; Operators and functions
 (bound_infix_op symbol: (_) @function.builtin)
@@ -156,8 +153,7 @@
 (pcal_macro_decl name: (identifier) @function.macro)
 (pcal_macro_call name: (identifier) @function.macro)
 (pcal_procedure_decl name: (identifier) @function.macro)
-(pcal_p_process name: (identifier) @function)
-(pcal_c_process name: (identifier) @function)
+(pcal_process name: (identifier) @function)
 (recursive_declaration (identifier) @operator)
 (recursive_declaration (operator_declaration name: (_) @operator))
 
@@ -165,8 +161,7 @@
 (constant_declaration (identifier) @constant.builtin)
 (constant_declaration (operator_declaration name: (_) @constant.builtin))
 (pcal_var_decl (identifier) @variable.builtin)
-(pcal_p_with (identifier) @parameter)
-(pcal_c_with (identifier) @parameter)
+(pcal_with (identifier) @parameter)
 ((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
 (set_of_records (identifier) @attribute)
