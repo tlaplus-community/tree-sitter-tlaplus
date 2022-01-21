@@ -152,7 +152,7 @@
 (operator_definition name: (_) @operator)
 (pcal_macro_decl name: (identifier) @function.macro)
 (pcal_macro_call name: (identifier) @function.macro)
-(pcal_procedure_decl name: (identifier) @function.macro)
+(pcal_proc_decl name: (identifier) @function.macro)
 (pcal_process name: (identifier) @function)
 (recursive_declaration (identifier) @operator)
 (recursive_declaration (operator_declaration name: (_) @operator))
@@ -199,6 +199,8 @@
   ";"
   (bullet_conj)
   (bullet_disj)
+  (prev_func_val)
+  (placeholder)
 ] @punctuation.delimiter
 
 ; Proofs

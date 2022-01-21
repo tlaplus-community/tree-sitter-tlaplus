@@ -7656,7 +7656,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "pcal_procedure_decl"
+          "name": "pcal_proc_decl"
         },
         {
           "type": "ALIAS",
@@ -7694,7 +7694,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "pcal_procedure_decl"
+          "name": "pcal_proc_decl"
         },
         {
           "type": "ALIAS",
@@ -7719,7 +7719,7 @@
         }
       ]
     },
-    "pcal_procedure_decl": {
+    "pcal_proc_decl": {
       "type": "SEQ",
       "members": [
         {
@@ -8436,7 +8436,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_call"
+          "name": "pcal_proc_call"
         },
         {
           "type": "SYMBOL",
@@ -8513,7 +8513,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "pcal_call"
+          "name": "pcal_proc_call"
         },
         {
           "type": "SYMBOL",
@@ -9124,7 +9124,7 @@
         }
       ]
     },
-    "pcal_call": {
+    "pcal_proc_call": {
       "type": "SEQ",
       "members": [
         {
@@ -9132,8 +9132,53 @@
           "value": "call"
         },
         {
-          "type": "SYMBOL",
-          "name": "pcal_macro_call"
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_expr"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "_expr"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },

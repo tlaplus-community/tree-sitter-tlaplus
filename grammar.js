@@ -1300,18 +1300,18 @@ module.exports = grammar({
     //     return;
     // end procedure
     pcal_p_procedure: $ => seq(
-      $.pcal_procedure_decl,
+      $.pcal_proc_decl,
       alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
       'end', 'procedure', optional(';')
     ),
 
     pcal_c_procedure: $ => seq(
-      $.pcal_procedure_decl,
+      $.pcal_proc_decl,
       alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
       optional(';')
     ),
     
-    pcal_procedure_decl: $ => seq(
+    pcal_proc_decl: $ => seq(
       'procedure', field('name', $.identifier),
       '(',
       optional(seq($.pcal_proc_var_decl, repeat(seq(',', $.pcal_proc_var_decl)))),
@@ -1326,7 +1326,6 @@ module.exports = grammar({
     //   i := i +1;
     //   print(i);
     // end process
-
     pcal_p_process: $ => seq(
       optional(seq('fair', optional('+'))),
       'process', field('name', $.identifier),
@@ -1443,7 +1442,7 @@ module.exports = grammar({
       $.pcal_skip,
       $.pcal_return,
       $.pcal_goto,
-      $.pcal_call,
+      $.pcal_proc_call,
       $.pcal_macro_call,
     ),
 
@@ -1459,7 +1458,7 @@ module.exports = grammar({
       $.pcal_skip,
       $.pcal_return,
       $.pcal_goto,
-      $.pcal_call,
+      $.pcal_proc_call,
       $.pcal_macro_call,
     ),
 
@@ -1594,7 +1593,12 @@ module.exports = grammar({
 
     // Procedure call:
     // call my_proc(param1, param2)
-    pcal_call: $ => seq('call', $.pcal_macro_call),
+    pcal_proc_call: $ => seq(
+      'call',
+      field('name', $.identifier), '(',
+      optional(seq($._expr, repeat(seq(',', $._expr)))),
+      ')'
+    ),
 
     // Macro call:
     // my_macro(param1, param2)

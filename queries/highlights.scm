@@ -97,12 +97,12 @@
   "with"
 ] @keyword
 (pcal_with ("=") @keyword)
-(pcal_process ("=") @keyword) 
+(pcal_process ("=") @keyword)
 [ 
   "if" 
   "then" 
   "else" 
-  "elsif" 
+  "elsif"
   (pcal_end_if)
   "either"
   (pcal_end_either)
@@ -152,6 +152,7 @@
 (operator_definition name: (_) @operator)
 (pcal_macro_decl name: (identifier) @function.macro)
 (pcal_macro_call name: (identifier) @function.macro)
+(pcal_proc_decl name: (identifier) @function.macro)
 (pcal_process name: (identifier) @function)
 (recursive_declaration (identifier) @operator)
 (recursive_declaration (operator_declaration name: (_) @operator))
@@ -198,6 +199,8 @@
   ";"
   (bullet_conj)
   (bullet_disj)
+  (prev_func_val)
+  (placeholder)
 ] @punctuation.delimiter
 
 ; Proofs

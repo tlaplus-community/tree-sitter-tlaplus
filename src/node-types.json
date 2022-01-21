@@ -2666,10 +2666,6 @@
           "named": true
         },
         {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
           "type": "pcal_either",
           "named": true
         },
@@ -2687,6 +2683,10 @@
         },
         {
           "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_call",
           "named": true
         },
         {
@@ -2766,21 +2766,6 @@
     }
   },
   {
-    "type": "pcal_call",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "pcal_macro_call",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pcal_definitions",
     "named": true,
     "fields": {},
@@ -2847,10 +2832,6 @@
           "named": true
         },
         {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
           "type": "pcal_either",
           "named": true
         },
@@ -2872,6 +2853,10 @@
         },
         {
           "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_call",
           "named": true
         },
         {
@@ -2953,10 +2938,6 @@
           "named": true
         },
         {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
           "type": "pcal_either",
           "named": true
         },
@@ -2978,6 +2959,10 @@
         },
         {
           "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_call",
           "named": true
         },
         {
@@ -3105,6 +3090,62 @@
     }
   },
   {
+    "type": "pcal_proc_call",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pcal_proc_decl",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "pcal_proc_var_decl",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_var_decls",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "pcal_proc_var_decl",
     "named": true,
     "fields": {},
@@ -3151,37 +3192,7 @@
           "named": true
         },
         {
-          "type": "pcal_procedure_decl",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "pcal_procedure_decl",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "pcal_proc_var_decl",
-          "named": true
-        },
-        {
-          "type": "pcal_proc_var_decls",
+          "type": "pcal_proc_decl",
           "named": true
         }
       ]
@@ -3317,10 +3328,6 @@
           "named": true
         },
         {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
           "type": "pcal_either",
           "named": true
         },
@@ -3342,6 +3349,10 @@
         },
         {
           "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_call",
           "named": true
         },
         {
@@ -3411,10 +3422,6 @@
           "named": true
         },
         {
-          "type": "pcal_call",
-          "named": true
-        },
-        {
           "type": "pcal_either",
           "named": true
         },
@@ -3436,6 +3443,10 @@
         },
         {
           "type": "pcal_print",
+          "named": true
+        },
+        {
+          "type": "pcal_proc_call",
           "named": true
         },
         {
