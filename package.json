@@ -28,7 +28,7 @@
     "nan": "^2.14.2"
   },
   "devDependencies": {
-    "@tlaplus/tree-sitter-cli": "^0.20.1-1"
+    "tree-sitter-cli": "^0.20.4"
   },
   "tree-sitter": [
     {
