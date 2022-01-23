@@ -85,6 +85,7 @@ module.exports = grammar({
 
   externals: $ => [
     $.extramodular_text,
+    $.identifier,
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
@@ -99,7 +100,7 @@ module.exports = grammar({
     $._error_sentinel
   ],
   
-  word: $ => $.identifier,
+  //word: $ => $.identifier,
 
   supertypes: $ => [
     $._unit,
@@ -267,8 +268,18 @@ module.exports = grammar({
     // but tree-sitter currently does not support match exclusion logic.
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/14
     // Can contain letters, numbers, and underscores
-    // If only one character long, must be letter (not number or _)
-    identifier: $ => /\w*[A-Za-z]\w*/,
+    // Must contain at least one alphabetic character (not number or _)
+    // Cannot start with WF_ or SF_
+    //identifier: $ => /\w*[A-Za-z]\w*/,
+    /*
+    identifier: $ => regexOr(
+      '[SW]',
+      '[SW][^F]\w*',
+      '[SW]F[^_]\w*',
+      '[A-RT-VX-Za-z]\w*',
+      '[^A-Za-z]+[A-Za-z]\w*'
+    ),
+    */
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(

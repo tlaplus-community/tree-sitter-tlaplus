@@ -1,6 +1,5 @@
 {
   "name": "tlaplus",
-  "word": "identifier",
   "rules": {
     "source_file": {
       "type": "SEQ",
@@ -678,10 +677,6 @@
           "value": "ONLY"
         }
       ]
-    },
-    "identifier": {
-      "type": "PATTERN",
-      "value": "\\w*[A-Za-z]\\w*"
     },
     "extends": {
       "type": "SEQ",
@@ -9389,6 +9384,10 @@
     {
       "type": "SYMBOL",
       "name": "extramodular_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "identifier"
     },
     {
       "type": "SYMBOL",
