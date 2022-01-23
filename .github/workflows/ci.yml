@@ -49,6 +49,8 @@ jobs:
         run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/folds.scm ./test/examples/Highlight.tla
       - name: Neovim Injections Query Test
         run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/injections.scm ./test/examples/Highlight.tla
+      - name: Neovim Locals Query Test
+        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/locals.scm ./test/examples/Highlight.tla
       - name: Generate parser code
         run: node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
