@@ -1,0 +1,39 @@
+==================|||
+PlusCal Comments
+==================|||
+---- MODULE Test ----
+(* 
+zero
+--algorithm Test
+(* one 
+  (* two (* three \* four *)*)
+*)
+
+\* five
+begin
+  skip \* six (* seven *)
+end algorithm *)
+====
+-------------|||
+
+(source_file
+  (module
+    (header_line)
+    (identifier)
+    (header_line)
+    (block_comment
+      (block_comment_text)
+      (pcal_algorithm
+        (pcal_algorithm_start)
+        (identifier)
+        (block_comment
+          (block_comment_text)
+          (block_comment
+            (block_comment_text)
+            (block_comment
+              (block_comment_text))))
+        (comment)
+        (pcal_algorithm_body
+          (pcal_skip))
+        (comment)))
+    (double_line)))

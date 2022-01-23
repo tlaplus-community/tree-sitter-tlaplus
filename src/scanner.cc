@@ -51,7 +51,6 @@ namespace {
   // Tokens emitted by this external scanner.
   enum TokenType {
     EXTRAMODULAR_TEXT,  // Freeform text between modules.
-    BLOCK_COMMENT_TEXT, // Text inside block comments.
     INDENT,             // Marks beginning of junction list.
     BULLET_CONJ,        // New item of a conjunction list.
     BULLET_DISJ,        // New item of a disjunction list.
@@ -228,108 +227,6 @@ namespace {
     }
   }
 
-  // Possible states for the comment lexer to enter.
-  enum CLexState {
-    CLexState_CONSUME,
-    CLexState_ASTERISK,
-    CLexState_L_PAREN,
-    CLexState_LEFT_COMMENT_DELIMITER,
-    CLexState_RIGHT_COMMENT_DELIMITER,
-    CLexState_LOOKAHEAD,
-    CLexState_LOOKAHEAD_NEWLINE,
-    CLexState_LOOKAHEAD_L_PAREN,
-    CLexState_END_OF_FILE
-  };
-  
-  /**
-   * Scans for block comment text. This scanner function supports nested
-   * block comments, so (* text (* text *) text *) will all be parsed as
-   * a single block comment. Also, multiple block comments separated
-   * only by spaces, tabs, or a single newline will be parsed as a single
-   * block comment for convenience; for example, the following is a
-   * single comment:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * Although the following constitutes two separate block comments:
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   *   (***********************)
-   *   (* text text text text *)
-   *   (***********************)
-   * 
-   * A block comment will also be emitted if EOF is reached.
-   *
-   * @param lexer The tree-sitter lexing control structure.
-   * @return Whether any block comment text was detected.
-   */
-  bool scan_block_comment_text(TSLexer* const lexer) {
-    uint32_t nest_level = 0;
-    CLexState state = CLexState_CONSUME;
-    START_LEXER();
-    eof = !has_next(lexer);
-    switch (state) {
-      case CLexState_CONSUME:
-        if (eof) ADVANCE(CLexState_END_OF_FILE);
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_ASTERISK:
-        if ('*' == lookahead) ADVANCE(CLexState_ASTERISK);
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        if (')' == lookahead) ADVANCE(CLexState_RIGHT_COMMENT_DELIMITER);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_L_PAREN:
-        if ('*' == lookahead) {ADVANCE(CLexState_LEFT_COMMENT_DELIMITER);}
-        if ('(' == lookahead) ADVANCE(CLexState_L_PAREN);
-        ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_LEFT_COMMENT_DELIMITER:
-        nest_level++;
-        GO_TO_STATE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_RIGHT_COMMENT_DELIMITER:
-        if (nest_level > 0) {
-          nest_level--;
-          GO_TO_STATE(CLexState_CONSUME);
-        } else {
-          ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-          if (iswspace(lookahead)) GO_TO_STATE(CLexState_LOOKAHEAD);
-          if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        }
-        END_STATE();
-      case CLexState_LOOKAHEAD:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\r' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\n' == lookahead) ADVANCE(CLexState_LOOKAHEAD_NEWLINE);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_NEWLINE:
-        if (' ' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('\t' == lookahead) ADVANCE(CLexState_LOOKAHEAD);
-        if ('(' == lookahead) ADVANCE(CLexState_LOOKAHEAD_L_PAREN);
-        END_STATE();
-      case CLexState_LOOKAHEAD_L_PAREN:
-        if ('*' == lookahead) ADVANCE(CLexState_CONSUME);
-        END_STATE();
-      case CLexState_END_OF_FILE:
-        ACCEPT_TOKEN(BLOCK_COMMENT_TEXT);
-        END_STATE();
-      default:
-        END_STATE();
-    }
-  }
-  
   // Types of proof step IDs.
   enum ProofStepIdType {
     ProofStepIdType_STAR,     // <*>
@@ -384,6 +281,7 @@ namespace {
     Lexeme_DASH,
     Lexeme_COMMA,
     Lexeme_COLON,
+    Lexeme_SEMICOLON,
     Lexeme_LAND,
     Lexeme_LOR,
     Lexeme_L_PAREN,
@@ -433,6 +331,7 @@ namespace {
     LexState_DASH,
     LexState_COMMA,
     LexState_COLON,
+    LexState_SEMICOLON,
     LexState_LAND,
     LexState_LOR,
     LexState_L_PAREN,
@@ -499,6 +398,7 @@ namespace {
         if ('-' == lookahead) ADVANCE(LexState_DASH);
         if (',' == lookahead) ADVANCE(LexState_COMMA);
         if (':' == lookahead) ADVANCE(LexState_COLON);
+        if (';' == lookahead) ADVANCE(LexState_SEMICOLON);
         if ('(' == lookahead) ADVANCE(LexState_L_PAREN);
         if (')' == lookahead) ADVANCE(LexState_R_PAREN);
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
@@ -558,6 +458,9 @@ namespace {
         ACCEPT_LEXEME(Lexeme_COLON);
         if (':' == lookahead) ADVANCE(LexState_OTHER);
         if ('=' == lookahead) ADVANCE(LexState_OTHER);
+        END_LEX_STATE();
+      case LexState_SEMICOLON:
+        ACCEPT_LEXEME(Lexeme_SEMICOLON);
         END_LEX_STATE();
       case LexState_LAND:
         ACCEPT_LEXEME(Lexeme_LAND);
@@ -852,6 +755,7 @@ namespace {
       case Lexeme_DASH: return Token_OTHER;
       case Lexeme_COMMA: return Token_RIGHT_DELIMITER;
       case Lexeme_COLON: return Token_RIGHT_DELIMITER;
+      case Lexeme_SEMICOLON: return Token_TERMINATOR;
       case Lexeme_LAND: return Token_LAND;
       case Lexeme_LOR: return Token_LOR;
       case Lexeme_L_PAREN: return Token_OTHER;
@@ -1630,8 +1534,6 @@ namespace {
 
       if(valid_symbols[EXTRAMODULAR_TEXT]) {
         return scan_extramodular_text(lexer);
-      } else if (valid_symbols[BLOCK_COMMENT_TEXT]) {
-        return scan_block_comment_text(lexer);
       } else {
         column_index col = -1;
         std::vector<char> proof_step_id_level;

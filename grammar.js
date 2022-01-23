@@ -1,3 +1,9 @@
+const PREC = {
+  COMMENT: 0,
+  BLOCK_COMMENT: 1,
+  PCAL: 2
+}
+
 // A sequence of one or more comma-separated strings matching the rule
 function commaList1(rule) {
   return seq(rule, repeat(seq(',', rule)))
@@ -64,12 +70,21 @@ function postfixOpPrec(level, expr, symbol) {
   ))
 }
 
+function regexOr(regex) {
+    if (arguments.length > 1) {
+        regex = Array.from(arguments).join('|');
+    }
+    return {
+        type: 'PATTERN',
+        value: regex
+    };
+}
+
 module.exports = grammar({
   name: 'tlaplus',
 
   externals: $ => [
     $.extramodular_text,
-    $._block_comment_text,
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
@@ -98,7 +113,7 @@ module.exports = grammar({
   extras: $ => [
     /\s|\r?\n/,
     $.comment,
-    $.block_comment
+    $.block_comment,
   ],
   
   // Prefix, infix, and postfix operator precedence categories, defined
@@ -149,6 +164,12 @@ module.exports = grammar({
     // Lookahead to disambiguate subexpr_component  '!'  •  '\in'  …
     // The '\in' could be followed by a ! or it could be the end
     [$.subexpr_prefix],
+    // Lookahead to disambiguate identifier  •  '['  …
+    // Could be application `f[x]` or could be assignment `record[x] :=`
+    [$._expr, $.pcal_lhs],
+    // Lookahead to disambiguate _expr  •  '||'  …
+    // Could be `x || y` or could be assignment `x := y || y := x`
+    [$.bound_infix_op, $.pcal_assign],
   ],
 
   rules: {
@@ -158,11 +179,34 @@ module.exports = grammar({
     ),
 
     // \* this is a comment ending with newline
-    comment: $ => /\\\*.*/,
+    comment: $ => token(prec(PREC.COMMENT, /\\\*.*/)),
 
-    // (* this is a (* nestable *) multi-line (* comment *) *)
-    // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/15
-    block_comment: $ => seq('(*', $._block_comment_text),
+    // source: https://github.com/tree-sitter/tree-sitter/discussions/1252#discussioncomment-988725
+    block_comment: $ => seq(
+      token(prec(PREC.BLOCK_COMMENT, '(*')),
+      repeat(
+        choice(
+          $.pcal_algorithm,
+          $.block_comment_text
+        )
+      ),
+      token(prec(PREC.BLOCK_COMMENT, '*)'))
+    ),
+
+    block_comment_text: $ => 
+      prec.right(repeat1(
+        choice(
+          token(prec(PREC.BLOCK_COMMENT, regexOr(
+            '[^*()]', // any symbol except reserved
+            '[^*][)]', // closing parenthesis, which is not a comment end
+            '[(][^(*]', // opening parenthesis, which is not a comment start
+            '[*][)][ \t]*(\r\n|\n)?[ \t]*[(][*]' // contiguous block comment border
+          ))),
+          token(prec(PREC.BLOCK_COMMENT, /\*/)),
+          token(prec(PREC.BLOCK_COMMENT, /\(/)),
+          token(prec(PREC.BLOCK_COMMENT, /\)/)),
+        )
+      )),
 
     // Top-level module declaration
     module: $ => seq(
@@ -1151,6 +1195,417 @@ module.exports = grammar({
       alias(token.immediate(/\d+|\*/), $.level),
       token.immediate('>'),
       alias(token.immediate(/[\w|\d]+/), $.name),
+    ),
+
+    /**************************************************************************/
+    /* PlusCal: written inside block comments and transpiled into TLA+.       */
+    /* Has two syntaxes: p-syntax (explicit block endings)                    */
+    /*               and c-syntax (blocks in braces).                         */
+    /* Syntaxes cannot be mixed.                                              */
+    /* BNF can be found on p. 60-62 of both p-manual and c-manual:            */
+    /* (https://lamport.azurewebsites.net/tla/p-manual.pdf)                   */
+    /* (https://lamport.azurewebsites.net/tla/c-manual.pdf)                   */
+    /**************************************************************************/
+
+    pcal_algorithm: $ => choice(
+      $._pcal_p_algorithm, 
+      $._pcal_c_algorithm
+    ),
+
+    // PlusCal p-syntax algorithm definition
+    _pcal_p_algorithm: $ => seq(
+      $.pcal_algorithm_start,
+      field('name', $.identifier),
+      optional($.pcal_var_decls),
+      optional(alias($.pcal_p_definitions, $.pcal_definitions)),
+      repeat(alias($.pcal_p_macro, $.pcal_macro)),
+      repeat(alias($.pcal_p_procedure, $.pcal_procedure)),
+      choice(
+        alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
+        repeat1(alias($.pcal_p_process, $.pcal_process))
+      ),
+      'end', 'algorithm', optional(';'),
+    ),
+
+    // PlusCal c-syntax algorithm definition
+    _pcal_c_algorithm: $ => seq(
+      $.pcal_algorithm_start,
+      field('name', $.identifier),
+      '{',
+      optional($.pcal_var_decls),
+      optional(alias($.pcal_c_definitions, $.pcal_definitions)),
+      repeat(alias($.pcal_c_macro, $.pcal_macro)),
+      repeat(alias($.pcal_c_procedure, $.pcal_procedure)),
+      choice(
+        alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
+        repeat1(alias($.pcal_c_process, $.pcal_process))
+      ),
+      '}'
+    ),
+
+    pcal_algorithm_start: $ => 
+      token(
+        prec(PREC.PCAL, (
+          choice(
+            '--algorithm', 
+            seq('--fair', 'algorithm')
+          )
+        ))
+      ),
+
+    // Operators, which depend on PlusCal variables
+    // define 
+    //   zy == y*(x+y)
+    // end define ;
+    pcal_p_definitions: $ => seq(
+      'define',
+      repeat1($._definition),
+      'end', 'define', optional(';')
+    ),
+
+    pcal_c_definitions: $ => seq(
+      'define', '{',
+      repeat1($._definition),
+      '}', optional(';')
+    ),
+
+    // macro go(routine) begin
+    //   initialized[routine] := TRUE;
+    // end macro
+    pcal_p_macro: $ => seq(
+      $.pcal_macro_decl,
+      alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
+      'end', 'macro', optional(';')
+    ),
+
+    pcal_c_macro: $ => seq(
+      $.pcal_macro_decl,
+      alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
+      optional(';')
+    ),
+
+    pcal_macro_decl: $ => seq(
+      'macro', field('name', $.identifier),
+      '(',
+      optional(seq(
+        field('parameter', $.identifier), 
+        repeat(seq(',', field('parameter', $.identifier)))
+      )),
+      ')'
+    ),
+
+    // procedure foo(x=0) begin
+    //   Send:
+    //     await x \notin cs;
+    //     return;
+    // end procedure
+    pcal_p_procedure: $ => seq(
+      $.pcal_proc_decl,
+      alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
+      'end', 'procedure', optional(';')
+    ),
+
+    pcal_c_procedure: $ => seq(
+      $.pcal_proc_decl,
+      alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
+      optional(';')
+    ),
+    
+    pcal_proc_decl: $ => seq(
+      'procedure', field('name', $.identifier),
+      '(',
+      optional(seq($.pcal_proc_var_decl, repeat(seq(',', $.pcal_proc_var_decl)))),
+      ')',
+      optional($.pcal_proc_var_decls),
+    ),
+
+    // fair+ process bar in 1..10
+    // variables i = 0;
+    // begin
+    // A:
+    //   i := i +1;
+    //   print(i);
+    // end process
+    pcal_p_process: $ => seq(
+      optional(seq('fair', optional('+'))),
+      'process', field('name', $.identifier),
+      choice('=', $.set_in),
+      $._expr,
+      optional($.pcal_var_decls),
+      alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
+      'end', 'process', optional(';')
+    ),
+
+    pcal_c_process: $ => seq(
+      optional(seq('fair', optional('+'))),
+      'process', '(', field('name', $.identifier),
+      choice('=', $.set_in),
+      $._expr, ')',
+      optional($.pcal_var_decls),
+      alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
+      optional(';')
+    ),
+
+    // variables x = 0; y = [a |-> "a", b |-> {}];
+    pcal_var_decls: $ => seq(
+      choice('variable', 'variables'),
+      $.pcal_var_decl,
+      repeat(seq(
+        choice(';', ','),
+        $.pcal_var_decl
+      )),
+      optional(';')
+    ),
+
+    // x \in 1..10 
+    // x = "x"
+    pcal_var_decl: $ => seq(
+      $.identifier,
+      optional(seq(choice('=', $.set_in), $._expr)),
+    ),
+
+    // Procedure local variables:
+    // variables x=1..10, y=1;
+    pcal_proc_var_decls: $ => seq(
+      choice('variable', 'variables'),
+      repeat1(seq($.pcal_proc_var_decl, choice(';', ',')))
+    ),
+
+    // Procedure variable or parameter, maybe with a default value:
+    // procedure foo(a, b=1)
+    //               🠑   🠑
+    // variable x=1;
+    //           🠑 
+    pcal_proc_var_decl: $ => seq(
+      $.identifier,
+      optional(seq('=', $._expr))
+    ),
+
+    pcal_p_algorithm_body: $ => seq(
+      'begin',
+      $._pcal_p_stmts
+    ),
+
+    // Consequent statements with an optional semicolon at the end:
+    // await initialized[self];
+    // A:+ call my_procedure();
+    // x := y || y := x
+    _pcal_p_stmts: $ => seq(
+      repeat(seq($._pcal_p_stmt, ';')), 
+      $._pcal_p_stmt, 
+      optional(';')
+    ),
+
+    pcal_c_algorithm_body: $ => seq(
+      seq(
+        '{',
+        $._pcal_c_stmt,
+        repeat(seq(';', $._pcal_c_stmt)),
+        optional(';'),
+        '}'
+      )
+    ),
+
+    // Single statement, optionally prefixed with a label:
+    // A:+ call my_procedure()
+    _pcal_p_stmt: $ => seq(
+      optional($._pcal_label),
+      $._pcal_p_unlabeled_stmt
+    ),
+
+    _pcal_c_stmt: $ => seq(
+      optional($._pcal_label),
+      choice(
+        $._pcal_c_unlabeled_stmt,
+        alias($.pcal_c_algorithm_body, $.pcal_algorithm_body)
+      )
+    ),
+
+    _pcal_label: $ => seq(
+      field('label', seq($.identifier, ':')), 
+      optional(choice('+', '-'))
+    ),
+
+    // Single statement:
+    // with x \in xs do
+    //   print(x);
+    // end with
+    _pcal_p_unlabeled_stmt: $ => choice(
+      $.pcal_assign,
+      alias($.pcal_p_if, $.pcal_if),
+      alias($.pcal_p_while, $.pcal_while),
+      alias($.pcal_p_either, $.pcal_either),
+      alias($.pcal_p_with, $.pcal_with),
+      $.pcal_await,
+      $.pcal_print,
+      $.pcal_assert,
+      $.pcal_skip,
+      $.pcal_return,
+      $.pcal_goto,
+      $.pcal_proc_call,
+      $.pcal_macro_call,
+    ),
+
+    _pcal_c_unlabeled_stmt: $ => choice(
+      $.pcal_assign,
+      alias($.pcal_c_if, $.pcal_if),
+      alias($.pcal_c_while, $.pcal_while),
+      alias($.pcal_c_either, $.pcal_either),
+      alias($.pcal_c_with, $.pcal_with),
+      $.pcal_await,
+      $.pcal_print,
+      $.pcal_assert,
+      $.pcal_skip,
+      $.pcal_return,
+      $.pcal_goto,
+      $.pcal_proc_call,
+      $.pcal_macro_call,
+    ),
+
+    // x[i] := x[j] || a := b
+    pcal_assign: $ => seq(
+      $.pcal_lhs, 
+      $.assign,
+      $._expr,
+      repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr))
+    ),
+
+    // Left part of assignment:
+    // x[i]
+    pcal_lhs: $ => seq(
+      alias($.identifier, $.identifier_ref),
+      repeat(choice(
+        seq('[', $._expr, repeat(seq(',', $._expr)), ']'),
+        seq('.', $.identifier)
+      ))
+    ),
+
+    // if test1 then
+    //   clause1
+    // elsif test2 then
+    //   clause2
+    // else 
+    //   clause3
+    // end if
+    pcal_p_if: $ => seq(
+      'if', $._expr, 'then', $._pcal_p_stmts,
+      repeat(seq('elsif', $._expr, 'then', $._pcal_p_stmts)),
+      optional(seq('else', $._pcal_p_stmts)),
+      alias('end', $.pcal_end_if), 'if'
+    ),
+
+    pcal_c_if: $ => prec.right(seq(
+      'if', '(', $._expr, ')',
+      $._pcal_c_stmt,
+      optional(seq('else', $._pcal_c_stmt))
+    )),
+
+    // while i <= 10 do
+    //   i := i + 1;
+    // end while;
+    pcal_p_while: $ => seq(
+      'while', $._expr,
+      'do',
+      $._pcal_p_stmts,
+      alias('end', $.pcal_end_while), 'while'
+    ),
+
+    pcal_c_while: $ => seq(
+      'while', '(', $._expr, ')', 
+      $._pcal_c_stmt
+    ),
+
+    // Process branching operator:
+    // either clause1
+    //     or clause2
+    //     or clause3
+    // end either
+    pcal_p_either: $ => seq(
+      'either',
+      $._pcal_p_stmts,
+      repeat1(seq('or', $._pcal_p_stmts)),
+      alias('end', $.pcal_end_either), 'either'
+    ),
+
+    pcal_c_either: $ => prec.right(seq(
+      'either', $._pcal_c_stmt,
+      repeat1(seq('or', $._pcal_c_stmt))
+    )),
+
+    // with id \in S do body end with 
+    pcal_p_with: $ => seq(
+      'with', $._pcal_with_vars, 'do',
+      $._pcal_p_stmts,
+      alias('end', $.pcal_end_with), 'with'
+    ),
+
+    pcal_c_with: $ => seq(
+      'with', '(', $._pcal_with_vars, ')', 
+      $._pcal_c_stmt
+    ),
+
+    _pcal_with_vars: $ => seq(
+      $.identifier,
+      choice('=', $.set_in),
+      $._expr,
+      repeat(seq(
+        choice(',', ';'),
+        $.identifier,
+        choice('=', $.set_in),
+        $._expr,
+      )),
+      optional(choice(',', ';'))
+    ),
+
+    // await channels[chan] /= {};
+    pcal_await: $ => seq(
+      choice('await', 'when'),
+      $._expr
+    ),
+
+    // print(expr)
+    pcal_print: $ => seq('print', $._expr),
+
+    // assert(test)
+    pcal_assert: $ => seq('assert', $._expr),
+
+    // Statement, that does nothing:
+    // skip
+    pcal_skip: $ => seq('skip'),
+
+    // Used in procedures. Assigns to the parameters and local 
+    // procedure variables their previous values
+    // procedure foo(a=1) begin
+    // variable b=2;
+    //   a := b;
+    //   return;
+    // end procedure
+    pcal_return: $ => seq('return'),
+
+    // Jump to a label:
+    // process foo begin
+    //   A: 
+    //     print("A");
+    //   B:
+    //     goto A;
+    // end process
+    pcal_goto: $ => seq('goto', field('statement', $.identifier)),
+
+    // Procedure call:
+    // call my_proc(param1, param2)
+    pcal_proc_call: $ => seq(
+      'call',
+      field('name', $.identifier), '(',
+      optional(seq($._expr, repeat(seq(',', $._expr)))),
+      ')'
+    ),
+
+    // Macro call:
+    // my_macro(param1, param2)
+    pcal_macro_call: $ => seq(
+      field('name', $.identifier), '(',
+      optional(seq($._expr, repeat(seq(',', $._expr)))),
+      ')'
     ),
   }
 });
