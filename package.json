@@ -1,7 +1,7 @@
 {
   "name": "@tlaplus/tree-sitter-tlaplus",
-  "version": "0.3.0",
-  "description": "A tree-sitter grammar for TLA+",
+  "version": "0.4.0",
+  "description": "A tree-sitter grammar for TLA+ and PlusCal",
   "main": "bindings/node",
   "scripts": {
     "test": "tree-sitter test"
@@ -12,11 +12,13 @@
   },
   "keywords": [
     "TLA+",
+    "PlusCal",
     "tree-sitter",
     "grammar",
     "parser"
   ],
   "author": "Andrew Helwer",
+  "contributors": ["Vasiliy Morkovkin"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tlaplus-community/tree-sitter-tlaplus/issues"

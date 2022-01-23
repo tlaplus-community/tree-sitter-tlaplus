@@ -1,11 +1,11 @@
 [package]
 name = "tree-sitter-tlaplus"
-description = "A tree-sitter grammar for TLA+"
-version = "0.3.0"
-authors = ["Andrew Helwer"]
+description = "A tree-sitter grammar for TLA+ and PlusCal"
+version = "0.4.0"
+authors = ["Andrew Helwer", "Vasiliy Morkovkin"]
 license = "MIT"
 readme = "README.md"
-keywords = ["tlaplus", "tree-sitter", "grammar", "parser"]
+keywords = ["tlaplus", "pluscal", "tree-sitter", "grammar", "parser"]
 categories = ["parsing", "text-editors"]
 repository = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
 edition = "2018"
@@ -23,7 +23,7 @@ include = [
 path = "bindings/rust/lib.rs"
 
 [dependencies]
-tree-sitter = "0.20.0"
+tree-sitter = "0.20.3"
 
 [build-dependencies]
 cc = "1.0"
