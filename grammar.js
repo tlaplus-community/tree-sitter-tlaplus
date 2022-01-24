@@ -1,6 +1,8 @@
 const PREC = {
   COMMENT: 0,
+  IDENTIFIER: 0,
   BLOCK_COMMENT: 1,
+  FAIRNESS: 1,
   PCAL: 2
 }
 
@@ -85,7 +87,6 @@ module.exports = grammar({
 
   externals: $ => [
     $.extramodular_text,
-    $.identifier,
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
@@ -100,8 +101,6 @@ module.exports = grammar({
     $._error_sentinel
   ],
   
-  //word: $ => $.identifier,
-
   supertypes: $ => [
     $._unit,
     $._expr,
@@ -270,16 +269,7 @@ module.exports = grammar({
     // Can contain letters, numbers, and underscores
     // Must contain at least one alphabetic character (not number or _)
     // Cannot start with WF_ or SF_
-    //identifier: $ => /\w*[A-Za-z]\w*/,
-    /*
-    identifier: $ => regexOr(
-      '[SW]',
-      '[SW][^F]\w*',
-      '[SW]F[^_]\w*',
-      '[A-RT-VX-Za-z]\w*',
-      '[^A-Za-z]+[A-Za-z]\w*'
-    ),
-    */
+    identifier: $ => token(prec(PREC.IDENTIFIER, /\w*[A-Za-z]\w*/)),
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(
@@ -765,7 +755,7 @@ module.exports = grammar({
 
     // WF_vars(ActionName)
     fairness: $ => seq(
-      choice('WF_', 'SF_'), $._subscript_expr, '(', $._expr, ')'
+      token(prec(PREC.FAIRNESS, choice('WF_', 'SF_')), $._subscript_expr, '(', $._expr, ')'
     ),
 
     // IF a > b THEN a ELSE b

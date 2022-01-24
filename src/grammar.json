@@ -678,6 +678,10 @@
         }
       ]
     },
+    "identifier": {
+      "type": "PATTERN",
+      "value": "\\w*[A-Za-z]\\w*"
+    },
     "extends": {
       "type": "SEQ",
       "members": [
@@ -3410,17 +3414,24 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "WF_"
-            },
-            {
-              "type": "STRING",
-              "value": "SF_"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "WF_"
+                },
+                {
+                  "type": "STRING",
+                  "value": "SF_"
+                }
+              ]
             }
-          ]
+          }
         },
         {
           "type": "SYMBOL",
@@ -9384,10 +9395,6 @@
     {
       "type": "SYMBOL",
       "name": "extramodular_text"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "identifier"
     },
     {
       "type": "SYMBOL",
