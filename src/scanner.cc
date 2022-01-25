@@ -62,6 +62,8 @@ namespace {
     OBVIOUS_KEYWORD,    // The OBVIOUS keyword.
     OMITTED_KEYWORD,    // The OMITTED keyword.
     QED_KEYWORD,        // The QED keyword.
+    WEAK_FAIRNESS,      // The WF_ keyword.
+    STRONG_FAIRNESS,    // The SF_ keyword.
     ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
@@ -316,6 +318,8 @@ namespace {
     Lexeme_VARIABLES_KEYWORD,
     Lexeme_PROOF_STEP_ID,
     Lexeme_IDENTIFIER,
+    Lexeme_WEAK_FAIRNESS,
+    Lexeme_STRONG_FAIRNESS,
     Lexeme_OTHER,
     Lexeme_END_OF_FILE
   };
@@ -339,6 +343,7 @@ namespace {
     LexState_R_SQUARE_BRACKET,
     LexState_R_CURLY_BRACE,
     LexState_R_ANGLE_BRACKET,
+    LexState_S, LexState_SF_,
     LexState_RIGHT_ARROW,
     LexState_COMMENT_START,
     LexState_BLOCK_COMMENT_START,
@@ -355,6 +360,7 @@ namespace {
     LexState_Q, LexState_QED,
     LexState_T, LexState_THE, LexState_THEN, LexState_THEOREM,
     LexState_V, LexState_VARIABLE, LexState_VARIABLES,
+    LexState_W, LexState_WF_,
     LexState_IDENTIFIER,
     LexState_PROOF_LEVEL_NUMBER,
     LexState_PROOF_LEVEL_STAR,
@@ -412,8 +418,10 @@ namespace {
         if ('O' == lookahead) ADVANCE(LexState_O);
         if ('P' == lookahead) ADVANCE(LexState_P);
         if ('Q' == lookahead) ADVANCE(LexState_Q);
+        if ('S' == lookahead) ADVANCE(LexState_S);
         if ('T' == lookahead) ADVANCE(LexState_T);
         if ('V' == lookahead) ADVANCE(LexState_V);
+        if ('W' == lookahead) ADVANCE(LexState_W);
         if (L'∧' == lookahead) ADVANCE(LexState_LAND);
         if (L'∨' == lookahead) ADVANCE(LexState_LOR);
         if (L'〉' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
@@ -654,6 +662,13 @@ namespace {
         ACCEPT_LEXEME(Lexeme_QED_KEYWORD);
         if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
         END_LEX_STATE();
+      case LexState_S:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "F_")) ADVANCE(LexState_SF_);
+        END_LEX_STATE();
+      case LexState_SF_:
+        ACCEPT_LEXEME(Lexeme_STRONG_FAIRNESS);
+        END_LEX_STATE();
       case LexState_T:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
         if (is_next_codepoint_sequence(lexer, "HE")) ADVANCE(LexState_THE);
@@ -683,6 +698,13 @@ namespace {
       case LexState_VARIABLES:
         ACCEPT_LEXEME(Lexeme_VARIABLES_KEYWORD);
         if (is_identifier_char(lookahead)) ADVANCE(LexState_IDENTIFIER);
+        END_LEX_STATE();
+      case LexState_W:
+        ACCEPT_LEXEME(Lexeme_IDENTIFIER);
+        if (is_next_codepoint_sequence(lexer, "F_")) ADVANCE(LexState_WF_);
+        END_LEX_STATE();
+      case LexState_WF_:
+        ACCEPT_LEXEME(Lexeme_WEAK_FAIRNESS);
         END_LEX_STATE();
       case LexState_PROOF_LEVEL_NUMBER:
         if (iswdigit(lookahead)) {
@@ -737,6 +759,8 @@ namespace {
     Token_OBVIOUS_KEYWORD,
     Token_OMITTED_KEYWORD,
     Token_QED_KEYWORD,
+    Token_WEAK_FAIRNESS,
+    Token_STRONG_FAIRNESS,
     Token_OTHER
   };
 
@@ -789,6 +813,8 @@ namespace {
       case Lexeme_VARIABLES_KEYWORD: return Token_TERMINATOR;
       case Lexeme_PROOF_STEP_ID: return Token_PROOF_STEP_ID;
       case Lexeme_QED_KEYWORD: return Token_QED_KEYWORD;
+      case Lexeme_STRONG_FAIRNESS: return Token_STRONG_FAIRNESS;
+      case Lexeme_WEAK_FAIRNESS: return Token_WEAK_FAIRNESS;
       case Lexeme_IDENTIFIER: return Token_OTHER;
       case Lexeme_OTHER: return Token_OTHER;
       case Lexeme_END_OF_FILE: return Token_TERMINATOR;
@@ -1238,15 +1264,10 @@ namespace {
      *    improve error reporting since the end-of-module token is missing)
      *
      * @param lexer The tree-sitter lexing control structure.
-     * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_terminator_token(
-      TSLexer* const lexer,
-      const bool* const valid_symbols
-    ) {
-      return is_in_jlist()
-        && emit_dedent(lexer);
+    bool handle_terminator_token(TSLexer* const lexer) {
+      return is_in_jlist() && emit_dedent(lexer);
     }
     
     /**
@@ -1270,7 +1291,6 @@ namespace {
      */
     bool handle_other_token(
       TSLexer* const lexer,
-      const bool* const valid_symbols,
       column_index const next
     ) {
       return is_in_jlist()
@@ -1434,10 +1454,10 @@ namespace {
       } else {
         if (valid_symbols[DEDENT]) {
           // End all jlists before start of proof.
-          return handle_terminator_token(lexer, valid_symbols);
+          return handle_terminator_token(lexer);
         } else {
           // This is a reference to a proof step in an expression.
-          return handle_other_token(lexer, valid_symbols, next);
+          return handle_other_token(lexer, next);
         }
       }
     }
@@ -1461,7 +1481,7 @@ namespace {
         lexer->mark_end(lexer);
         return true;
       } else {
-        return handle_terminator_token(lexer, valid_symbols);
+        return handle_terminator_token(lexer);
       }
     }
     
@@ -1487,7 +1507,7 @@ namespace {
         lexer->mark_end(lexer);
         return true;
       } else {
-        return handle_terminator_token(lexer, valid_symbols);
+        return handle_terminator_token(lexer);
       }
     }
     
@@ -1499,18 +1519,36 @@ namespace {
      * we pop the top proof level off the stack.
      * 
      * @param lexer The tree-sitter lexing control structure.
-     * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token should be emitted.
      */
-    bool handle_qed_keyword_token(
-      TSLexer* const lexer,
-      const bool* const valid_symbols
-    ) {
+    bool handle_qed_keyword_token(TSLexer* const lexer) {
       last_proof_level = get_current_proof_level();
       proofs.pop_back();
       lexer->result_symbol = QED_KEYWORD;
       lexer->mark_end(lexer);
       return true;
+    }
+    
+    /**
+     * Handles the fairness tokens WF_ and SF_.
+     *
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the encountered token.
+     * @param keyword_type The specific keyword being handled.
+     * @return Whether a token should be emitted.
+     */
+    bool handle_fairness_keyword_token(
+      TSLexer* const lexer,
+      column_index const next,
+      TokenType keyword_type
+    ) {
+      if (handle_other_token(lexer, next)) {
+        return true;
+      } else {
+        lexer->result_symbol = keyword_type;
+        lexer->mark_end(lexer);
+        return true;
+      }
     }
     
     /**
@@ -1547,7 +1585,7 @@ namespace {
           case Token_COMMENT_START:
             return false;
           case Token_TERMINATOR:
-            return handle_terminator_token(lexer, valid_symbols);
+            return handle_terminator_token(lexer);
           case Token_PROOF_STEP_ID:
             return handle_proof_step_id_token(lexer, valid_symbols, col, proof_step_id_level);
           case Token_PROOF_KEYWORD:
@@ -1559,9 +1597,13 @@ namespace {
           case Token_OMITTED_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
           case Token_QED_KEYWORD:
-            return handle_qed_keyword_token(lexer, valid_symbols);
+            return handle_qed_keyword_token(lexer);
+          case Token_WEAK_FAIRNESS:
+            return handle_fairness_keyword_token(lexer, col, WEAK_FAIRNESS);
+          case Token_STRONG_FAIRNESS:
+            return handle_fairness_keyword_token(lexer, col, STRONG_FAIRNESS);
           case Token_OTHER:
-            return handle_other_token(lexer, valid_symbols, col);
+            return handle_other_token(lexer, col);
           default:
             return false;
         }

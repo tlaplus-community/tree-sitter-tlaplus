@@ -4,7 +4,7 @@
 [![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
 
 ## Overview
-This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for [TLA+](https://en.wikipedia.org/wiki/TLA%2B), the formal specification language.
+This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for the formal specification language [TLA+](https://en.wikipedia.org/wiki/TLA%2B) (and [PlusCal](https://en.wikipedia.org/wiki/PlusCal)).
 Tree-sitter is an incremental error-tolerant parser generator primarily aimed at language tooling such as highlighting, code folding, symbol finding, and other tasks making use of its fully-featured syntax tree query API.
 This grammar is intended to function gracefully while parsing a source file mid-edit, when the syntax isn't fully correct.
 It is also fast enough to re-parse the file on every keystroke.

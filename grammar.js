@@ -91,14 +91,16 @@ module.exports = grammar({
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
-    $.proof_keyword,
-    $.by_keyword,
-    $.obvious_keyword,
-    $.omitted_keyword,
-    $.qed_keyword,
+    'PROOF',
+    'BY',
+    'OBVIOUS',
+    'OMITTED',
+    'QED',
+    'WF_',
+    'SF_',
     $._error_sentinel
   ],
-  
+
   word: $ => $.identifier,
 
   supertypes: $ => [
@@ -267,8 +269,9 @@ module.exports = grammar({
     // but tree-sitter currently does not support match exclusion logic.
     // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/14
     // Can contain letters, numbers, and underscores
-    // If only one character long, must be letter (not number or _)
-    identifier: $ => /\w*[A-Za-z]\w*/,
+    // Must contain at least one alphabetic character (not number or _)
+    // Cannot start with WF_ or SF_
+    identifier: $ => /[0-9_]*[A-Za-z][A-Za-z0-9_]*/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(
@@ -1084,16 +1087,16 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional(alias($.proof_keyword, 'PROOF')),
+      optional('PROOF'),
       choice(
-        seq(alias($.by_keyword, 'BY'), optional('ONLY'), $.use_body),
-        alias($.obvious_keyword, 'OBVIOUS'),
-        alias($.omitted_keyword, 'OMITTED')
+        seq('BY', optional('ONLY'), $.use_body),
+        'OBVIOUS',
+        'OMITTED'
       )
     ),
 
     non_terminal_proof: $ => seq(
-      optional(alias($.proof_keyword, 'PROOF')),
+      optional('PROOF'),
       $._begin_proof,
       repeat($.proof_step),
       $.qed_step
@@ -1152,7 +1155,7 @@ module.exports = grammar({
     qed_step: $ => seq(
       $._begin_proof_step,
       $.proof_step_id,
-      alias($.qed_keyword, 'QED'),
+      'QED',
       optional($._proof)
     ),
 
