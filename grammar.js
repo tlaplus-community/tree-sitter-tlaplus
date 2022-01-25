@@ -1,8 +1,6 @@
 const PREC = {
   COMMENT: 0,
-  IDENTIFIER: 0,
   BLOCK_COMMENT: 1,
-  FAIRNESS: 1,
   PCAL: 2
 }
 
@@ -93,14 +91,18 @@ module.exports = grammar({
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
-    $.proof_keyword,
-    $.by_keyword,
-    $.obvious_keyword,
-    $.omitted_keyword,
-    $.qed_keyword,
+    'PROOF',
+    'BY',
+    'OBVIOUS',
+    'OMITTED',
+    'QED',
+    'WF_',
+    'SF_',
     $._error_sentinel
   ],
-  
+
+  word: $ => $.identifier,
+
   supertypes: $ => [
     $._unit,
     $._expr,
@@ -269,7 +271,7 @@ module.exports = grammar({
     // Can contain letters, numbers, and underscores
     // Must contain at least one alphabetic character (not number or _)
     // Cannot start with WF_ or SF_
-    identifier: $ => token(prec(PREC.IDENTIFIER, /\w*[A-Za-z]\w*/)),
+    identifier: $ => /[0-9_]*[A-Za-z][A-Za-z0-9_]*/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(
@@ -755,7 +757,7 @@ module.exports = grammar({
 
     // WF_vars(ActionName)
     fairness: $ => seq(
-      token(prec(PREC.FAIRNESS, choice('WF_', 'SF_')), $._subscript_expr, '(', $._expr, ')'
+      choice('WF_', 'SF_'), $._subscript_expr, '(', $._expr, ')'
     ),
 
     // IF a > b THEN a ELSE b
@@ -1085,16 +1087,16 @@ module.exports = grammar({
 
     // PROOF BY z \in Nat
     terminal_proof: $ => seq(
-      optional(alias($.proof_keyword, 'PROOF')),
+      optional('PROOF'),
       choice(
-        seq(alias($.by_keyword, 'BY'), optional('ONLY'), $.use_body),
-        alias($.obvious_keyword, 'OBVIOUS'),
-        alias($.omitted_keyword, 'OMITTED')
+        seq('BY', optional('ONLY'), $.use_body),
+        'OBVIOUS',
+        'OMITTED'
       )
     ),
 
     non_terminal_proof: $ => seq(
-      optional(alias($.proof_keyword, 'PROOF')),
+      optional('PROOF'),
       $._begin_proof,
       repeat($.proof_step),
       $.qed_step
@@ -1153,7 +1155,7 @@ module.exports = grammar({
     qed_step: $ => seq(
       $._begin_proof_step,
       $.proof_step_id,
-      alias($.qed_keyword, 'QED'),
+      'QED',
       optional($._proof)
     ),
 

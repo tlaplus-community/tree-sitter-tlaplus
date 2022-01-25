@@ -1,5 +1,6 @@
 {
   "name": "tlaplus",
+  "word": "identifier",
   "rules": {
     "source_file": {
       "type": "SEQ",
@@ -680,7 +681,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "\\w*[A-Za-z]\\w*"
+      "value": "[0-9_]*[A-Za-z][A-Za-z0-9_]*"
     },
     "extends": {
       "type": "SEQ",
@@ -3414,24 +3415,17 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "TOKEN",
-          "content": {
-            "type": "PREC",
-            "value": 1,
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "WF_"
-                },
-                {
-                  "type": "STRING",
-                  "value": "SF_"
-                }
-              ]
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "WF_"
+            },
+            {
+              "type": "STRING",
+              "value": "SF_"
             }
-          }
+          ]
         },
         {
           "type": "SYMBOL",
@@ -6470,12 +6464,7 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "proof_keyword"
-              },
-              "named": false,
+              "type": "STRING",
               "value": "PROOF"
             },
             {
@@ -6490,12 +6479,7 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "ALIAS",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "by_keyword"
-                  },
-                  "named": false,
+                  "type": "STRING",
                   "value": "BY"
                 },
                 {
@@ -6517,21 +6501,11 @@
               ]
             },
             {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "obvious_keyword"
-              },
-              "named": false,
+              "type": "STRING",
               "value": "OBVIOUS"
             },
             {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "omitted_keyword"
-              },
-              "named": false,
+              "type": "STRING",
               "value": "OMITTED"
             }
           ]
@@ -6545,12 +6519,7 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "ALIAS",
-              "content": {
-                "type": "SYMBOL",
-                "name": "proof_keyword"
-              },
-              "named": false,
+              "type": "STRING",
               "value": "PROOF"
             },
             {
@@ -6893,12 +6862,7 @@
           "name": "proof_step_id"
         },
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "qed_keyword"
-          },
-          "named": false,
+          "type": "STRING",
           "value": "QED"
         },
         {
@@ -9421,24 +9385,32 @@
       "name": "_begin_proof_step"
     },
     {
-      "type": "SYMBOL",
-      "name": "proof_keyword"
+      "type": "STRING",
+      "value": "PROOF"
     },
     {
-      "type": "SYMBOL",
-      "name": "by_keyword"
+      "type": "STRING",
+      "value": "BY"
     },
     {
-      "type": "SYMBOL",
-      "name": "obvious_keyword"
+      "type": "STRING",
+      "value": "OBVIOUS"
     },
     {
-      "type": "SYMBOL",
-      "name": "omitted_keyword"
+      "type": "STRING",
+      "value": "OMITTED"
     },
     {
-      "type": "SYMBOL",
-      "name": "qed_keyword"
+      "type": "STRING",
+      "value": "QED"
+    },
+    {
+      "type": "STRING",
+      "value": "WF_"
+    },
+    {
+      "type": "STRING",
+      "value": "SF_"
     },
     {
       "type": "SYMBOL",
