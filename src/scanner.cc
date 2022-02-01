@@ -848,27 +848,22 @@ namespace {
 
     unsigned serialize(char* const buffer, bool const is_dry_run) {
       unsigned offset = 0;
-      unsigned byte_count = 0;
       unsigned copied = 0;
 
       // Serialize junction type
       copied = sizeof(uint8_t);
       if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(type); }
       offset += copied;
-      byte_count += copied;
 
       // Serialize alignment column
       copied = sizeof(column_index);
       if (!is_dry_run) { memcpy(&buffer[offset], (char*)&alignment_column, copied); }
       offset += copied;
-      byte_count += copied;
 
-      return byte_count;
+      return offset;
     }
 
-    void deserialize(const char* const buffer, unsigned const length) {
-      assert(length > 0);
-
+    unsigned deserialize(const char* const buffer) {
       unsigned offset = 0;
       unsigned copied = 0;
 
@@ -881,6 +876,8 @@ namespace {
       copied = sizeof(column_index);
       memcpy((char*)&alignment_column, &buffer[offset], copied);
       offset += copied;
+      
+      return offset;
     }
   };
   
@@ -934,42 +931,35 @@ namespace {
      */
     unsigned serialize(char* const buffer, const bool is_dry_run) {
       unsigned offset = 0;
-      unsigned byte_count = 0;
       unsigned copied = 0;
 
       const nest_address jlist_depth = static_cast<nest_address>(jlists.size());
       copied = sizeof(nest_address);
       if (!is_dry_run) { memcpy(&buffer[offset], &jlist_depth, copied); }
       offset += copied;
-      byte_count += copied;
       for (nest_address i = 0; i < jlist_depth; i++) {
         char* const buffer_addr = is_dry_run ? NULL : &buffer[offset];
         copied = jlists[i].serialize(buffer_addr, is_dry_run);
         offset += copied;
-        byte_count += copied;
       }
       
       const nest_address proof_depth = static_cast<nest_address>(proofs.size());
       copied = sizeof(nest_address);
       if (!is_dry_run) { memcpy(&buffer[offset], &proof_depth, copied); }
       offset += copied;
-      byte_count += copied;
       copied = proof_depth * sizeof(proof_level);
       if (!is_dry_run) { memcpy(&buffer[offset], proofs.data(), copied); }
       offset += copied;
-      byte_count += copied;
       
       copied = sizeof(proof_level);
       if (!is_dry_run) { memcpy(&buffer[offset], &last_proof_level, copied); }
       offset += copied;
-      byte_count += copied;
       
       copied = sizeof(uint8_t);
       if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(have_seen_proof_keyword); }
       offset += copied;
-      byte_count += copied;
 
-      return byte_count;
+      return offset;
     }
 
     /**
@@ -996,10 +986,10 @@ namespace {
         memcpy(&jlist_depth, &buffer[offset], copied);
         jlists.resize(jlist_depth);
         offset += copied;
+
         for (nest_address i = 0; i < jlist_depth; i++) {
           assert(offset < length);
-          copied = length - offset;
-          jlists[i].deserialize(&buffer[offset], copied);
+          copied = jlists[i].deserialize(&buffer[offset]);
           offset += copied;
         }
       
@@ -1008,6 +998,7 @@ namespace {
         memcpy(&proof_depth, &buffer[offset], copied);
         proofs.resize(proof_depth);
         offset += copied;
+
         copied = proof_depth * sizeof(proof_level);
         memcpy(proofs.data(), &buffer[offset], copied);
         offset += copied;
@@ -1653,7 +1644,6 @@ namespace {
     
     unsigned serialize(char* const buffer) {
       unsigned offset = 0;
-      unsigned byte_count = 0;
       unsigned copied = 0;
 
       // First write number of enclosing contexts (guaranteed to be >= 1)
@@ -1661,7 +1651,6 @@ namespace {
       copied = sizeof(nest_address);
       memcpy(&buffer[offset], &context_depth, copied);
       offset += copied;
-      byte_count += copied;
       
       // Then write size of N-1 enclosing contexts
       for (int i = 0; i < context_depth - 1; i++) {
@@ -1669,14 +1658,12 @@ namespace {
         copied = sizeof(unsigned);
         memcpy(&buffer[offset], &context_size, copied);
         offset += copied;
-        byte_count += copied;
       }
       
       // Reserve space for current context size
       unsigned const current_context_size_offset = offset;
       copied = sizeof(unsigned);
       offset += copied;
-      byte_count += copied;
       
       // Serialize N-1 enclosing contexts
       for (int i = 0; i < this->enclosing_contexts.size(); i++) {
@@ -1684,22 +1671,22 @@ namespace {
         copied = context.size();
         memcpy(&buffer[offset], context.data(), copied);
         offset += copied;
-        byte_count += copied;
       }
 
       // Serialize current context
       copied = this->current_context.serialize(&buffer[offset]);
       offset += copied;
-      byte_count += copied;
       
       // Write current context size to reserved position
       memcpy(&buffer[current_context_size_offset], &copied, sizeof(unsigned));
       
-      return byte_count;
+      return offset;
     }
 
     void deserialize(const char* const buffer, unsigned const length) {
       this->enclosing_contexts.clear();
+      this->current_context.deserialize(NULL, 0);
+
       if (length > 0) {
         unsigned offset = 0;
         unsigned copied = 0;
@@ -1708,6 +1695,7 @@ namespace {
         nest_address context_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&context_depth, &buffer[offset], copied);
+        assert(1 <= context_depth);
         this->enclosing_contexts.resize(context_depth - 1);
         offset += copied;
         
