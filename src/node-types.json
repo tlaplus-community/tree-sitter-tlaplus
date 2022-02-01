@@ -2709,6 +2709,11 @@
     }
   },
   {
+    "type": "pcal_algorithm_start",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "pcal_assert",
     "named": true,
     "fields": {},
@@ -5471,10 +5476,6 @@
   {
     "type": "or",
     "named": false
-  },
-  {
-    "type": "pcal_algorithm_start",
-    "named": true
   },
   {
     "type": "pcal_end_either",

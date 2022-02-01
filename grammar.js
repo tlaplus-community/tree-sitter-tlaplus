@@ -98,6 +98,8 @@ module.exports = grammar({
     'QED',
     'WF_',
     'SF_',
+    $._notify_pcal_algorithm_start,
+    $._notify_pcal_algorithm_end,
     $._error_sentinel
   ],
 
@@ -1227,7 +1229,7 @@ module.exports = grammar({
         alias($.pcal_p_algorithm_body, $.pcal_algorithm_body),
         repeat1(alias($.pcal_p_process, $.pcal_process))
       ),
-      'end', 'algorithm', optional(';'),
+      'end', 'algorithm', $._notify_pcal_algorithm_end, optional(';'),
     ),
 
     // PlusCal c-syntax algorithm definition
@@ -1243,17 +1245,20 @@ module.exports = grammar({
         alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
         repeat1(alias($.pcal_c_process, $.pcal_process))
       ),
-      '}'
+      '}', $._notify_pcal_algorithm_end
     ),
 
     pcal_algorithm_start: $ => 
-      token(
-        prec(PREC.PCAL, (
-          choice(
-            '--algorithm', 
-            seq('--fair', 'algorithm')
-          )
-        ))
+      seq(
+        token(
+          prec(PREC.PCAL, (
+            choice(
+              '--algorithm', 
+              seq('--fair', 'algorithm')
+            )
+          ))
+        ),
+        $._notify_pcal_algorithm_start
       ),
 
     // Operators, which depend on PlusCal variables

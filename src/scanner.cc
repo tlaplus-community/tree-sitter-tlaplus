@@ -64,6 +64,8 @@ namespace {
     QED_KEYWORD,        // The QED keyword.
     WEAK_FAIRNESS,      // The WF_ keyword.
     STRONG_FAIRNESS,    // The SF_ keyword.
+    PCAL_START,         // Notifies scanner of start of PlusCal block.
+    PCAL_END,           // Notifies scanner of end of PlusCal block.
     ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
@@ -836,7 +838,7 @@ namespace {
 
     // The starting alignment columnt of the jlist.
     column_index alignment_column;
-
+    
     JunctList() { }
 
     JunctList(JunctType const type, column_index const alignment_column) {
@@ -844,30 +846,24 @@ namespace {
       this->alignment_column = alignment_column;
     }
 
-    unsigned serialize(char* buffer) {
+    unsigned serialize(char* const buffer, bool const is_dry_run) {
       unsigned offset = 0;
-      unsigned byte_count = 0;
       unsigned copied = 0;
 
       // Serialize junction type
       copied = sizeof(uint8_t);
-      buffer[offset] = static_cast<uint8_t>(type);
+      if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(type); }
       offset += copied;
-      byte_count += copied;
 
       // Serialize alignment column
       copied = sizeof(column_index);
-      memcpy(&buffer[offset], (char*)&alignment_column, copied);
+      if (!is_dry_run) { memcpy(&buffer[offset], (char*)&alignment_column, copied); }
       offset += copied;
-      byte_count += copied;
 
-      return byte_count;
+      return offset;
     }
 
-    unsigned deserialize(const char* const buffer, unsigned const length) {
-      assert(length > 0);
-
-      unsigned byte_count = 0;
+    unsigned deserialize(const char* const buffer) {
       unsigned offset = 0;
       unsigned copied = 0;
 
@@ -875,24 +871,22 @@ namespace {
       copied = sizeof(uint8_t);
       type = JunctType(buffer[offset]);
       offset += copied;
-      byte_count += copied;
 
       // Deserialize alignment column
       copied = sizeof(column_index);
       memcpy((char*)&alignment_column, &buffer[offset], copied);
       offset += copied;
-      byte_count += copied;
-
-      return byte_count;
+      
+      return offset;
     }
   };
   
   /**
-   * A stateful scanner used to parse junction lists.
+   * A stateful scanner used to parse junction lists and proofs.
    */
   struct Scanner {
 
-    //The nested junction lists at the current lexer position.
+    // The nested junction lists at the current lexer position.
     std::vector<JunctList> jlists;
 
     // The nested proofs at the current lexer position.
@@ -910,7 +904,14 @@ namespace {
     Scanner() {
       deserialize(NULL, 0);
     }
-
+    
+    /**
+     * Calculates the serialized size of the scanner.
+     */
+    unsigned serialized_size() {
+      return serialize(NULL, true);
+    }
+    
     /**
      * Serializes the Scanner state into the given buffer.
      *
@@ -918,42 +919,47 @@ namespace {
      * @return Number of bytes written into the buffer.
      */
     unsigned serialize(char* const buffer) {
+      return serialize(buffer, false);
+    }
+
+    /**
+     * Serializes the Scanner state into the given buffer.
+     *
+     * @param buffer The buffer into which to serialize the scanner state.
+     * @param is_dry_run Whether to actually copy the bytes to the buffer.
+     * @return Number of bytes written into the buffer.
+     */
+    unsigned serialize(char* const buffer, const bool is_dry_run) {
       unsigned offset = 0;
-      unsigned byte_count = 0;
       unsigned copied = 0;
 
       const nest_address jlist_depth = static_cast<nest_address>(jlists.size());
       copied = sizeof(nest_address);
-      memcpy(&buffer[offset], &jlist_depth, copied);
+      if (!is_dry_run) { memcpy(&buffer[offset], &jlist_depth, copied); }
       offset += copied;
-      byte_count += copied;
       for (nest_address i = 0; i < jlist_depth; i++) {
-        copied = jlists[i].serialize(&buffer[offset]);
+        char* const buffer_addr = is_dry_run ? NULL : &buffer[offset];
+        copied = jlists[i].serialize(buffer_addr, is_dry_run);
         offset += copied;
-        byte_count += copied;
       }
       
       const nest_address proof_depth = static_cast<nest_address>(proofs.size());
       copied = sizeof(nest_address);
-      memcpy(&buffer[offset], &proof_depth, copied);
+      if (!is_dry_run) { memcpy(&buffer[offset], &proof_depth, copied); }
       offset += copied;
-      byte_count += copied;
       copied = proof_depth * sizeof(proof_level);
-      memcpy(&buffer[offset], proofs.data(), copied);
+      if (!is_dry_run) { memcpy(&buffer[offset], proofs.data(), copied); }
       offset += copied;
-      byte_count += copied;
       
       copied = sizeof(proof_level);
-      memcpy(&buffer[offset], &last_proof_level, copied);
+      if (!is_dry_run) { memcpy(&buffer[offset], &last_proof_level, copied); }
       offset += copied;
-      byte_count += copied;
       
       copied = sizeof(uint8_t);
-      buffer[offset] = static_cast<uint8_t>(have_seen_proof_keyword);
+      if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(have_seen_proof_keyword); }
       offset += copied;
-      byte_count += copied;
 
-      return byte_count;
+      return offset;
     }
 
     /**
@@ -980,9 +986,10 @@ namespace {
         memcpy(&jlist_depth, &buffer[offset], copied);
         jlists.resize(jlist_depth);
         offset += copied;
+
         for (nest_address i = 0; i < jlist_depth; i++) {
           assert(offset < length);
-          copied = jlists[i].deserialize(&buffer[offset], length - offset);
+          copied = jlists[i].deserialize(&buffer[offset]);
           offset += copied;
         }
       
@@ -991,6 +998,7 @@ namespace {
         memcpy(&proof_depth, &buffer[offset], copied);
         proofs.resize(proof_depth);
         offset += copied;
+
         copied = proof_depth * sizeof(proof_level);
         memcpy(proofs.data(), &buffer[offset], copied);
         offset += copied;
@@ -1531,6 +1539,8 @@ namespace {
     
     /**
      * Handles the fairness tokens WF_ and SF_.
+     * Need to handle this in an external scanner due to:
+     * https://github.com/tree-sitter/tree-sitter/issues/1615
      *
      * @param lexer The tree-sitter lexing control structure.
      * @param next The column position of the encountered token.
@@ -1610,6 +1620,139 @@ namespace {
       }
     }
   };
+  
+  /**
+   * A hierarchy of nested stateful scanners.
+   * Each time a PlusCal block is entered, a nested context is created.
+   * Exiting the PlusCal block exits the context.
+   * Multiply-nested PlusCal blocks are supported.
+   */
+  struct NestedScanner {
+
+    // The enclosing context(s) of the PlusCal block.
+    std::vector< std::vector<char> > enclosing_contexts;
+    
+    // The currently-active context.
+    Scanner current_context;
+
+    /**
+     * Initializes a new instance of the NestedScanner object.
+     */
+    NestedScanner() {
+      this->deserialize(NULL, 0);
+    }
+    
+    unsigned serialize(char* const buffer) {
+      unsigned offset = 0;
+      unsigned copied = 0;
+
+      // First write number of enclosing contexts (guaranteed to be >= 1)
+      nest_address const context_depth = this->enclosing_contexts.size() + 1;
+      copied = sizeof(nest_address);
+      memcpy(&buffer[offset], &context_depth, copied);
+      offset += copied;
+      
+      // Then write size of N-1 enclosing contexts
+      for (int i = 0; i < context_depth - 1; i++) {
+        unsigned const context_size = this->enclosing_contexts[i].size();
+        copied = sizeof(unsigned);
+        memcpy(&buffer[offset], &context_size, copied);
+        offset += copied;
+      }
+      
+      // Reserve space for current context size
+      unsigned const current_context_size_offset = offset;
+      copied = sizeof(unsigned);
+      offset += copied;
+      
+      // Serialize N-1 enclosing contexts
+      for (int i = 0; i < this->enclosing_contexts.size(); i++) {
+        std::vector<char>& context = this->enclosing_contexts[i];
+        copied = context.size();
+        memcpy(&buffer[offset], context.data(), copied);
+        offset += copied;
+      }
+
+      // Serialize current context
+      copied = this->current_context.serialize(&buffer[offset]);
+      offset += copied;
+      
+      // Write current context size to reserved position
+      memcpy(&buffer[current_context_size_offset], &copied, sizeof(unsigned));
+      
+      return offset;
+    }
+
+    void deserialize(const char* const buffer, unsigned const length) {
+      this->enclosing_contexts.clear();
+      this->current_context.deserialize(NULL, 0);
+
+      if (length > 0) {
+        unsigned offset = 0;
+        unsigned copied = 0;
+
+        // First item: total number of contexts (guaranteed to be >= 1)
+        nest_address context_depth = 0;
+        copied = sizeof(nest_address);
+        memcpy(&context_depth, &buffer[offset], copied);
+        assert(1 <= context_depth);
+        this->enclosing_contexts.resize(context_depth - 1);
+        offset += copied;
+        
+        // Next N items: size of all contexts
+        std::vector<unsigned> context_sizes;
+        context_sizes.resize(context_depth);
+        copied = context_depth * sizeof(unsigned);
+        memcpy(context_sizes.data(), &buffer[offset], copied);
+        offset += copied;
+        
+        // Deserialize N-1 contexts as enclosing contexts
+        for (int i = 0; i < context_depth - 1; i++) {
+          copied = context_sizes[i];
+          this->enclosing_contexts[i].resize(copied);
+          memcpy(this->enclosing_contexts[i].data(), &buffer[offset], copied);
+          offset += copied;
+        }
+        
+        // Final context is deserialized as current context
+        copied = context_sizes.back();
+        this->current_context.deserialize(&buffer[offset], copied);
+        offset += copied;
+
+        assert(offset == length);
+      }
+    }
+
+    bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
+      // All symbols are marked as valid during error recovery.
+      // We can check for this by looking at the validity of the final
+      // (unused) external symbol, ERROR_SENTINEL.
+      // TODO: actually function during error recovery
+      // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
+      if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+      } else if (valid_symbols[PCAL_START]) {
+        // Entering PlusCal block; push current context then clear
+        unsigned const expected_size = this->current_context.serialized_size();
+        this->enclosing_contexts.resize(this->enclosing_contexts.size() + 1);
+        this->enclosing_contexts.back().resize(expected_size);
+        unsigned const actual_size = this->current_context.serialize(this->enclosing_contexts.back().data());
+        assert(expected_size == actual_size);
+        this->current_context.deserialize(NULL, 0);
+        lexer->result_symbol = PCAL_START;
+        return true;
+      } else if (valid_symbols[PCAL_END]) {
+        // Exiting PlusCal block; rehydrate context then pop
+        std::vector<char>& next = this->enclosing_contexts.back();
+        this->current_context.deserialize(next.data(), next.size());
+        this->enclosing_contexts.pop_back();
+        lexer->result_symbol = PCAL_END;
+        return true;
+      } else {
+        return current_context.scan(lexer, valid_symbols);
+      }
+    }
+  };
 }
 
 extern "C" {
@@ -1617,13 +1760,13 @@ extern "C" {
   // Called once when language is set on a parser.
   // Allocates memory for storing scanner state.
   void* tree_sitter_tlaplus_external_scanner_create() {
-    return new Scanner();
+    return new NestedScanner();
   }
 
   // Called once parser is deleted or different language set.
   // Frees memory storing scanner state.
   void tree_sitter_tlaplus_external_scanner_destroy(void* const payload) {
-    Scanner* const scanner = static_cast<Scanner*>(payload);
+    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
     delete scanner;
   }
 
@@ -1633,7 +1776,7 @@ extern "C" {
     void* const payload,
     char* const buffer
   ) {
-    Scanner* scanner = static_cast<Scanner*>(payload);
+    NestedScanner* scanner = static_cast<NestedScanner*>(payload);
     return scanner->serialize(buffer);
   }
 
@@ -1644,7 +1787,7 @@ extern "C" {
     const char* const buffer,
     unsigned const length
   ) {
-    Scanner* const scanner = static_cast<Scanner*>(payload);
+    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
     scanner->deserialize(buffer, length);
   }
 
@@ -1654,7 +1797,7 @@ extern "C" {
     TSLexer* const lexer,
     const bool* const valid_symbols
   ) {
-    Scanner* const scanner = static_cast<Scanner*>(payload);
+    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
     return scanner->scan(lexer, valid_symbols);
   }
 }
