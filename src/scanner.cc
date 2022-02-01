@@ -1630,7 +1630,7 @@ namespace {
   struct NestedScanner {
 
     // The enclosing context(s) of the PlusCal block.
-    std::vector<std::vector<char>> enclosing_contexts;
+    std::vector< std::vector<char> > enclosing_contexts;
     
     // The currently-active context.
     Scanner current_context;
