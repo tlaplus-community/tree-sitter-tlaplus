@@ -7387,6 +7387,10 @@
         {
           "type": "STRING",
           "value": "}"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_notify_pcal_algorithm_end"
         }
       ]
     },

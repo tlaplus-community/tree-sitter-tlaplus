@@ -1245,7 +1245,7 @@ module.exports = grammar({
         alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
         repeat1(alias($.pcal_c_process, $.pcal_process))
       ),
-      '}'
+      '}', $._notify_pcal_algorithm_end
     ),
 
     pcal_algorithm_start: $ => 
