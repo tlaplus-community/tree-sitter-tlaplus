@@ -1,10 +1,10 @@
-; ; highlights.scm
-; ; Default capture names for tree-sitter highlight found here:
-; ; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
+; ; Highlighting for TLA+ files on GitHub
+; ; Capture names found here:
+; ; https://github.com/tree-sitter/tree-sitter/blob/f5d1c0b8609f8697861eab352ead44916c068c74/cli/src/highlight.rs#L150-L171
 
-
-; Keywords
+; TLA+ Keywords
 [
+  "ASDF"
   "ACTION"
   "ASSUME"
   "ASSUMPTION"
@@ -75,53 +75,44 @@
   (temporal_exists)
   (temporal_forall)
 ] @keyword
-;  Pluscal keywords
+
+;  PlusCal keywords
 [
-  (pcal_algorithm_start)
   "assert"
   "await"
   "begin"
   "call"
   "define"
+  "either"
+  "else" 
+  "elsif"
   "end"
   "fair"
   "goto"
+  "if" 
   "macro"
   "or"
+  "print"
   "procedure"
   "process"
+  "return"
   "skip"
   "variable"
   "variables"
   "when"
   "with"
-] @keyword
-(pcal_with ("=") @keyword)
-(pcal_process ("=") @keyword)
-[ 
-  "if" 
   "then" 
-  "else" 
-  "elsif"
-  (pcal_end_if)
-  "either"
+  (pcal_algorithm_start)
   (pcal_end_either)
-] @conditional
-[ 
-  "while" 
-  "do" 
-  (pcal_end_while) 
-  "with" 
-  (pcal_end_with)
-] @repeat
-("return") @keyword.return
-("print") @function.macro
-
+  (pcal_end_if)
+  (pcal_process ("="))
+  (pcal_with ("="))
+] @keyword
 
 ; Literals
 (binary_number (format) @keyword)
 (binary_number (value) @number)
-(boolean) @boolean
+(boolean) @number
 (boolean_set) @type
 (hex_number (format) @keyword)
 (hex_number (value) @number)
@@ -133,12 +124,13 @@
 (real_number) @number
 (real_number_set) @type
 (string) @string
+(escape_char) @string.special
 (string_set) @type
 
 ; Namespaces and includes
-(extends (identifier_ref) @include)
-(module name: (_) @namespace)
-(pcal_algorithm name: (identifier) @namespace)
+(extends (identifier_ref) @module)
+(module name: (_) @module)
+(pcal_algorithm name: (identifier) @module)
 
 ; Operators and functions
 (bound_infix_op symbol: (_) @function.builtin)
@@ -150,33 +142,33 @@
 (function_definition name: (identifier) @function)
 (module_definition name: (identifier) @function)
 (operator_definition name: (_) @operator)
-(pcal_macro_decl name: (identifier) @function.macro)
-(pcal_macro_call name: (identifier) @function.macro)
-(pcal_proc_decl name: (identifier) @function.macro)
+(pcal_macro_decl name: (identifier) @function)
+(pcal_macro_call name: (identifier) @function)
+(pcal_proc_decl name: (identifier) @function)
 (pcal_process name: (identifier) @function)
 (recursive_declaration (identifier) @operator)
 (recursive_declaration (operator_declaration name: (_) @operator))
 
 ; Constants and variables
-(constant_declaration (identifier) @constant.builtin)
-(constant_declaration (operator_declaration name: (_) @constant.builtin))
+(constant_declaration (identifier) @constant)
+(constant_declaration (operator_declaration name: (_) @constant))
+(variable_declaration (identifier) @variable.builtin)
 (pcal_var_decl (identifier) @variable.builtin)
-(pcal_with (identifier) @parameter)
+(pcal_with (identifier) @variable.parameter)
 ((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
 (set_of_records (identifier) @attribute)
-(variable_declaration (identifier) @variable.builtin)
 
 ; Parameters
-(quantifier_bound (identifier) @parameter)
-(quantifier_bound (tuple_of_identifiers (identifier) @parameter))
-(lambda (identifier) @parameter)
-(module_definition (operator_declaration name: (_) @parameter))
-(module_definition parameter: (identifier) @parameter)
-(operator_definition (operator_declaration name: (_) @parameter))
-(operator_definition parameter: (identifier) @parameter)
-(pcal_macro_decl parameter: (identifier) @parameter)
-(pcal_proc_var_decl (identifier) @parameter)
+(quantifier_bound (identifier) @variable.parameter)
+(quantifier_bound (tuple_of_identifiers (identifier) @variable.parameter))
+(lambda (identifier) @variable.parameter)
+(module_definition (operator_declaration name: (_) @variable.parameter))
+(module_definition parameter: (identifier) @variable.parameter)
+(operator_definition (operator_declaration name: (_) @variable.parameter))
+(operator_definition parameter: (identifier) @variable.parameter)
+(pcal_macro_decl parameter: (identifier) @variable.parameter)
+(pcal_proc_var_decl (identifier) @variable.parameter)
 
 ; Delimiters
 [
@@ -221,10 +213,3 @@
 (single_line) @comment
 (_ label: (identifier) @tag)
 (pcal_goto statement: (identifier) @tag)
-
-; Reference highlighting with the same color as declarations.
-; `constant`, `operator`, and others are custom captures defined in locals.scm
-((identifier_ref) @constant.builtin (#is? @constant.builtin constant))
-((identifier_ref) @operator (#is? @operator function))
-((identifier_ref) @parameter (#is? @parameter parameter))
-((identifier_ref) @variable.builtin (#is? @variable.builtin var))

@@ -1,7 +1,7 @@
 ; ; highlights.scm
-; ; Intended for consumption by tree-sitter highlight command
 ; ; Default capture names for tree-sitter highlight found here:
 ; ; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
+
 
 ; Keywords
 [
@@ -117,6 +117,7 @@
 ("return") @keyword.return
 ("print") @function.macro
 
+
 ; Literals
 (binary_number (format) @keyword)
 (binary_number (value) @number)
@@ -132,7 +133,7 @@
 (real_number) @number
 (real_number_set) @type
 (string) @string
-(escape_char) @string.special
+(escape_char) @string.escape
 (string_set) @type
 
 ; Namespaces and includes
@@ -222,5 +223,9 @@
 (_ label: (identifier) @tag)
 (pcal_goto statement: (identifier) @tag)
 
-; Reference highlighting
-(identifier_ref) @variable.reference
+; Reference highlighting with the same color as declarations.
+; `constant`, `operator`, and others are custom captures defined in locals.scm
+((identifier_ref) @constant.builtin (#is? @constant.builtin constant))
+((identifier_ref) @operator (#is? @operator function))
+((identifier_ref) @parameter (#is? @parameter parameter))
+((identifier_ref) @variable.builtin (#is? @variable.builtin var))

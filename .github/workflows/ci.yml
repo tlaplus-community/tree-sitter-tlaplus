@@ -39,18 +39,21 @@ jobs:
           $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
           $failures
           exit $failures.length
-      - name: Highlights Query Test
-        run: node_modules/.bin/tree-sitter query ./queries/highlights.scm ./test/examples/Highlight.tla
-      - name: Locals Query Test
-        run: node_modules/.bin/tree-sitter query ./queries/locals.scm ./test/examples/Highlight.tla
-      - name: Neovim Highlights Query Test
-        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/highlights.scm ./test/examples/Highlight.tla
-      - name: Neovim Folds Query Test
-        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/folds.scm ./test/examples/Highlight.tla
-      - name: Neovim Injections Query Test
-        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/injections.scm ./test/examples/Highlight.tla
-      - name: Neovim Locals Query Test
-        run: node_modules/.bin/tree-sitter query ./nvim/queries/tlaplus/locals.scm ./test/examples/Highlight.tla
+      - name: Query File Tests
+        shell: pwsh
+        run: |
+          $query_files = Get-ChildItem `
+            -Path @(".\queries", ".\integrations") `
+            -Filter "*.scm" `
+            -Recurse
+          $results = $query_files.FullName `
+            |% { `
+              Write-Host (Resolve-Path -Path $_ -Relative); `
+              node_modules/.bin/tree-sitter query $_ ./test/examples/Highlight.tla | Out-Null; `
+              $lastexitcode `
+            }
+          $failures = $results |? {$_ -ne 0}
+          exit $failures.length
       - name: Generate parser code
         run: node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
