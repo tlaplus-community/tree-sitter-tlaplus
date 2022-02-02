@@ -4,7 +4,6 @@
 
 ; TLA+ Keywords
 [
-  "ASDF"
   "ACTION"
   "ASSUME"
   "ASSUMPTION"
