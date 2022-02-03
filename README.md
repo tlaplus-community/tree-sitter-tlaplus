@@ -59,7 +59,7 @@ As applicable, query files for integrations live in the `integrations` directory
 
 ## The Playground
 The playground enables you to easily try out the parser in your browser.
-You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest parser version from the main branch) or set it up locally as follows:
+You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or set it up locally as follows:
 1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203))
 1. Run `tree-sitter build-wasm`
 1. Run `tree-sitter playground`
