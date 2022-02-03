@@ -40,6 +40,11 @@ There are a number of avenues available for consuming & using the parser in a pr
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA+ syntax highlighting & code folding in Neovim
  * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA+ syntax highlighting in Emacs
+ * [tla-web](https://github.com/will62794/tla-web) for a web-based TLA+ interpreter and trace explorer
+ * GitHub for syntax highlighting of TLA+ files
+   - Markdown snippets still use [this](https://github.com/agentultra/TLAGrammar) regex-based highlighter
+
+As applicable, query files for integrations live in the `integrations` directory.
 
 ## Build & Test
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
