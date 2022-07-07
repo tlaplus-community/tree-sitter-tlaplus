@@ -4028,14 +4028,18 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
-          "type": "extramodular_text",
+          "type": "_unit",
           "named": true
         },
         {
-          "type": "module",
+          "type": "extends",
+          "named": true
+        },
+        {
+          "type": "extramodular_text",
           "named": true
         }
       ]
