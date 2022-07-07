@@ -50,7 +50,8 @@ namespace {
 
   // Tokens emitted by this external scanner.
   enum TokenType {
-    EXTRAMODULAR_TEXT,  // Freeform text between modules.
+    LEADING_EXTRAMODULAR_TEXT,  // Freeform text at the start of the file.
+    TRAILING_EXTRAMODULAR_TEXT, // Freeform text between or after modules.
     INDENT,             // Marks beginning of junction list.
     BULLET_CONJ,        // New item of a conjunction list.
     BULLET_DISJ,        // New item of a disjunction list.
@@ -185,9 +186,10 @@ namespace {
    * than a regex in the grammar itself.
    *
    * @param lexer The tree-sitter lexing control structure
+   * @param valid_symbols Tokens possibly expected in this spot.
    * @return Whether any extramodular text was detected.
    */
-  bool scan_extramodular_text(TSLexer* const lexer) {
+  bool scan_extramodular_text(TSLexer* const lexer, const bool* const valid_symbols) {
     bool has_consumed_any = false;
     EMTLexState state = EMTLexState_CONSUME;
     START_LEXER();
@@ -216,13 +218,13 @@ namespace {
         END_STATE();
       case EMTLexState_MODULE:
         if (!has_consumed_any) GO_TO_STATE(EMTLexState_BLANK_BEFORE_MODULE);
-        ACCEPT_LOOKAHEAD_TOKEN(EXTRAMODULAR_TEXT);
+        ACCEPT_LOOKAHEAD_TOKEN(valid_symbols[LEADING_EXTRAMODULAR_TEXT] ? LEADING_EXTRAMODULAR_TEXT : TRAILING_EXTRAMODULAR_TEXT);
         END_STATE();
       case EMTLexState_BLANK_BEFORE_MODULE:
         END_STATE();
       case EMTLexState_END_OF_FILE:
         if (!has_consumed_any) GO_TO_STATE(EMTLexState_BLANK_BEFORE_END_OF_FILE);
-        ACCEPT_TOKEN(EXTRAMODULAR_TEXT);
+        if (valid_symbols[TRAILING_EXTRAMODULAR_TEXT]) ACCEPT_TOKEN(TRAILING_EXTRAMODULAR_TEXT);
         END_STATE();
       case EMTLexState_BLANK_BEFORE_END_OF_FILE:
         END_STATE();
@@ -1580,8 +1582,8 @@ namespace {
         return false;
       }
 
-      if(valid_symbols[EXTRAMODULAR_TEXT]) {
-        return scan_extramodular_text(lexer);
+      if(valid_symbols[LEADING_EXTRAMODULAR_TEXT] || valid_symbols[TRAILING_EXTRAMODULAR_TEXT]) {
+        return scan_extramodular_text(lexer, valid_symbols);
       } else {
         column_index col = -1;
         std::vector<char> proof_step_id_level;

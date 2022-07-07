@@ -84,7 +84,8 @@ module.exports = grammar({
   name: 'tlaplus',
 
   externals: $ => [
-    $.extramodular_text,
+    $.leading_extramodular_text,
+    $.trailing_extramodular_text,
     $._indent,
     $.bullet_conj,
     $.bullet_disj,
@@ -177,9 +178,19 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => seq(
-      repeat1(seq(optional($.extramodular_text), $.module)),
-      optional($.extramodular_text)
+    // Can be one of three things:
+    // * a valid TLA+ source file with an encapsulating module
+    // * a source file containing multiple modules (ambiguously valid but used by the tools)
+    // * a TLA+ snippet without an encapsulating module
+    source_file: $ => choice(
+      seq(
+        optional(alias($.leading_extramodular_text, $.extramodular_text)),
+        repeat1(prec(1, seq($.module, optional(alias($.trailing_extramodular_text, $.extramodular_text)))))
+      ),
+      seq(
+        optional($.extends),
+        repeat($._unit)
+      )
     ),
 
     // \* this is a comment ending with newline
