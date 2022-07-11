@@ -4,6 +4,8 @@
   (function_definition) 
   (lambda) 
   (module) 
+  (module_definition) 
+  (operator_definition)
   (pcal_algorithm)
   (pcal_macro)
   (pcal_procedure)
@@ -13,7 +15,7 @@
 
 ; Definitions
 (constant_declaration (identifier) @local.definition)
-(constant_declaration (operator_declaration name: (_) @local.definition)
+(constant_declaration (operator_declaration name: (_) @local.definition))
 (function_definition name: (identifier) @local.definition)
 (lambda (identifier) @local.definition)
 (module_definition name: (_) @local.definition)
