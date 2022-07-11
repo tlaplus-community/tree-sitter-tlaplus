@@ -1699,8 +1699,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "prefix_op_symbol"
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "prefix_op_symbol"
+              }
             },
             {
               "type": "STRING",
@@ -1720,8 +1724,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "infix_op_symbol"
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "infix_op_symbol"
+              }
             },
             {
               "type": "STRING",
@@ -1749,8 +1757,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "postfix_op_symbol"
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "postfix_op_symbol"
+              }
             },
             {
               "type": "STRING",

@@ -16,12 +16,18 @@ function commaList(rule) {
 
 // An operator with one parameter.
 function arity1(op, expr) {
-  return seq(op, '(', expr, ')')
+  return seq(
+    field('name', op),
+    '(', expr, ')'
+  )
 }
 
 // An operator with two parameters.
 function arity2(op, expr) {
-  return seq(op, '(', expr, ',', expr, ')')
+  return seq(
+    field('name', op),
+    '(', expr, ',', expr, ')'
+  )
 }
 
 // An operator with 0 or more parameters.

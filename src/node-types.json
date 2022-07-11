@@ -835,25 +835,32 @@
   {
     "type": "bound_nonfix_op",
     "named": true,
-    "fields": {},
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "infix_op_symbol",
+            "named": true
+          },
+          {
+            "type": "postfix_op_symbol",
+            "named": true
+          },
+          {
+            "type": "prefix_op_symbol",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
           "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "infix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "postfix_op_symbol",
-          "named": true
-        },
-        {
-          "type": "prefix_op_symbol",
           "named": true
         }
       ]

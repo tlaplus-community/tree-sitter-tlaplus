@@ -1,6 +1,6 @@
 A good mix of language constructs to illustrate highlighting.
 ---- MODULE Highlight ----
-CONSTANT Foo
+CONSTANTS Foo, Const(_, _)
 VARIABLE Bar
 n == -10
 s == "hello, world!"
@@ -24,9 +24,14 @@ apply(a, b, _ + _) == a > b
 a + b == a
 result == apply(1, 2, LAMBDA x, y : x + y)
 M2(a, b, -. _) == INSTANCE M1 WITH \neg <- -., A <- B
-apply == M2!X!Y!Z
+apply == M2
 
-ref == Foo + Bar
+ref == Foo + Const(a, b)
+
+a ≺ b ≜ a < b
+op2(a, _‖_, g(_)) ≜ Const(f(g(a ‖ Bar)), b)
+
+a + b ≜ a ‖ b
 
 THEOREM TRUE
 PROOF

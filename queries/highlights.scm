@@ -134,9 +134,7 @@
 
 ; Operators and functions
 (bound_infix_op symbol: (_) @function.builtin)
-(bound_nonfix_op (infix_op_symbol) @operator)
-(bound_nonfix_op (postfix_op_symbol) @operator)
-(bound_nonfix_op (prefix_op_symbol) @operator)
+(bound_nonfix_op name: (_) @operator)
 (bound_postfix_op symbol: (_) @function.builtin)
 (bound_prefix_op symbol: (_) @function.builtin)
 (function_definition name: (identifier) @function)
@@ -217,3 +215,7 @@
 
 ; Reference highlighting
 (identifier_ref) @variable.reference
+(bound_prefix_op symbol: (_) @variable.reference)
+(bound_infix_op symbol: (_) @variable.reference)
+(bound_postfix_op symbol: (_) @variable.reference)
+(bound_nonfix_op name: (_) @variable.reference)

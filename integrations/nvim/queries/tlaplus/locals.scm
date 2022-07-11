@@ -4,7 +4,6 @@
   (function_definition) 
   (lambda) 
   (module) 
-  (module_definition) 
   (pcal_algorithm)
   (pcal_macro)
   (pcal_procedure)
@@ -14,12 +13,15 @@
 
 ; Definitions
 (constant_declaration (identifier) @definition.constant)
+(constant_declaration (operator_declaration name: (_) @definition.constant))
 (function_definition name: (identifier) @definition.function)
 (lambda (identifier) @definition.parameter)
 (module_definition name: (_) @definition.function)
 (module_definition parameter: (identifier) @definition.parameter)
+(module_definition parameter: (operator_declaration name: (_) @definition.parameter))
 (operator_definition name: (_) @definition.function)
 (operator_definition parameter: (identifier) @definition.parameter)
+(operator_definition parameter: (operator_declaration name: (_) @definition.parameter))
 (pcal_macro_decl parameter: (identifier) @definition.parameter)
 (pcal_proc_var_decl (identifier) @definition.parameter)
 (pcal_var_decl (identifier) @definition.var)
@@ -42,3 +44,7 @@
 
 ; References
 (identifier_ref) @reference
+(bound_prefix_op symbol: (_) @reference)
+(bound_infix_op symbol: (_) @reference)
+(bound_postfix_op symbol: (_) @reference)
+(bound_nonfix_op name: (_) @reference)
