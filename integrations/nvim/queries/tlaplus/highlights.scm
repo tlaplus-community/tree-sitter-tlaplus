@@ -143,7 +143,7 @@
 
 ; Operators and functions
 (bound_infix_op symbol: (_) @operator)
-(bound_nonfix_op name: (_) @operator)
+(bound_nonfix_op symbol: (_) @operator)
 (bound_postfix_op symbol: (_) @operator)
 (bound_prefix_op symbol: (_) @operator)
 (function_definition name: (identifier) @function)
@@ -238,6 +238,6 @@
 (bound_postfix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
 (bound_postfix_op symbol: (_) @operator (#is? @operator macro))
 (bound_postfix_op symbol: (_) @parameter (#is? @parameter parameter))
-(bound_nonfix_op name: (_) @constant.builtin (#is? @constant.builtin constant))
-(bound_nonfix_op name: (_) @operator (#is? @operator macro))
-(bound_nonfix_op name: (_) @parameter (#is? @parameter parameter))
+(bound_nonfix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
+(bound_nonfix_op symbol: (_) @operator (#is? @operator macro))
+(bound_nonfix_op symbol: (_) @parameter (#is? @parameter parameter))

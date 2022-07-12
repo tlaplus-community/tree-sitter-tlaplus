@@ -56,4 +56,4 @@
 (bound_prefix_op symbol: (_) @reference)
 (bound_infix_op symbol: (_) @reference)
 (bound_postfix_op symbol: (_) @reference)
-(bound_nonfix_op name: (_) @reference)
+(bound_nonfix_op symbol: (_) @reference)

@@ -1700,7 +1700,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "name",
+              "name": "symbol",
               "content": {
                 "type": "SYMBOL",
                 "name": "prefix_op_symbol"
@@ -1725,7 +1725,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "name",
+              "name": "symbol",
               "content": {
                 "type": "SYMBOL",
                 "name": "infix_op_symbol"
@@ -1758,7 +1758,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "name",
+              "name": "symbol",
               "content": {
                 "type": "SYMBOL",
                 "name": "postfix_op_symbol"

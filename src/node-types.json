@@ -836,7 +836,7 @@
     "type": "bound_nonfix_op",
     "named": true,
     "fields": {
-      "name": {
+      "symbol": {
         "multiple": false,
         "required": true,
         "types": [

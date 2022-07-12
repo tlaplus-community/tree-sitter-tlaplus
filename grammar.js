@@ -14,22 +14,6 @@ function commaList(rule) {
   return optional(commaList1(rule))
 }
 
-// An operator with one parameter.
-function arity1(op, expr) {
-  return seq(
-    field('name', op),
-    '(', expr, ')'
-  )
-}
-
-// An operator with two parameters.
-function arity2(op, expr) {
-  return seq(
-    field('name', op),
-    '(', expr, ',', expr, ')'
-  )
-}
-
 // An operator with 0 or more parameters.
 function arity0OrN(op, expr) {
   return seq(
@@ -467,9 +451,9 @@ module.exports = grammar({
 
     // +(2, 4)
     bound_nonfix_op: $ => choice(
-      arity1($.prefix_op_symbol, $._expr),
-      arity2($.infix_op_symbol, $._expr),
-      arity1($.postfix_op_symbol, $._expr)
+      seq(field('symbol', $.prefix_op_symbol), '(', $._expr, ')'),
+      seq(field('symbol', $.infix_op_symbol), '(', $._expr, ',', $._expr, ')'),
+      seq(field('symbol', $.postfix_op_symbol), '(', $._expr, ')'),
     ),
 
     // Metalanguage to navigate the parse tree of an expression
