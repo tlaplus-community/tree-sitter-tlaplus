@@ -27,9 +27,6 @@
   name: (identifier) @definition.function
   (#set! "definition.function.scope" "parent"))
 (lambda (identifier) @definition.parameter)
-(module
-  name: (identifier) @definition.namespace
-  (#set! "definition.namespace.scope" "parent"))
 (module_definition
   name: (_) @definition.import
   (#set! "definition.import.scope" "parent"))

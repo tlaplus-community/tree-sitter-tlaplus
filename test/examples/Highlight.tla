@@ -3,7 +3,7 @@ Also includes various tests for scopes and reference highlighting.
 ---- MODULE Highlight ----
 EXTENDS A, B, C
 LOCAL INSTANCE D WITH X ← Y
-CONSTANTS Foo, Const(_, _), _ ≺ _
+CONSTANTS Foo, Const(_, _), □ _, _ ≺ _, _ ^*
 VARIABLES bar, baz
 
 const_ref ≜ Foo
@@ -34,13 +34,17 @@ function_param_ref_test ≜ r
 ---- MODULE Inner ----
 inner_def ≜ x
 ====
-M2(a, b, -. _) ≜ INSTANCE Inner WITH ¬ ← -., x ← a, y ← b
+M2(a, b) ≜ INSTANCE Inner WITH x ← a, y ← b
 module_ref ≜ M2!inner_def \* Need stack graphs to ref-highlight this
 module_inner_ref ≜ inner_def
 
-higher_order_op(a, _‖_, g(_)) ≜ g(a ‖ bar)
+higher_order_op(a, ~_, _‖_, _^#, param_op(_)) ≜ ~param_op(a ‖ bar)^#
 op_ref ≜ higher_order_op(1, +, -.)
-op_parameter_scope_test ≜ a ‖ b
+op_parameter_scope_test ≜
+  ∧ ~TRUE
+  ∧ a ‖ b
+  ∧ x^#
+  ∧ param_op(1)
 
 ¬ x ≜ x
 prefix_op_ref ≜ ¬ TRUE
@@ -51,6 +55,11 @@ nonfix_infix_op_ref ≜ ⊆(1, 2)
 x⁺ ≜ x
 postfix_op_ref ≜ 1⁺
 nonfix_postfix_op_ref ≜ ⁺(1)
+
+standalone_symbol_ref(-. _, _ ‼ _, _ ^#) ≜
+  ∧ op(□, ≺, ^*)  \* constant
+  ∧ op(-., ‼, ^#) \* parameter
+  ∧ op(¬, ⊆, ⁺)   \* defined operator
 
 RECURSIVE some_recursive_op(_), _ ⪯ _
 some_recursive_op(x) ≜ some_recursive_op(x-1)
