@@ -138,16 +138,17 @@
 
 ; Namespaces and includes
 (extends (identifier_ref) @include)
+(instance (identifier_ref) @include)
 (module name: (_) @namespace)
 (pcal_algorithm name: (identifier) @namespace)
 
-; Operators and functions
+; Operators, functions, and macros
 (bound_infix_op symbol: (_) @operator)
 (bound_nonfix_op symbol: (_) @operator)
 (bound_postfix_op symbol: (_) @operator)
 (bound_prefix_op symbol: (_) @operator)
 (function_definition name: (identifier) @function)
-(module_definition name: (identifier) @function.macro)
+(module_definition name: (_) @include)
 (operator_definition name: (_) @function.macro)
 (pcal_macro_decl name: (identifier) @function.macro)
 (pcal_macro_call name: (identifier) @function.macro)
@@ -159,16 +160,14 @@
 ; Constants and variables
 (constant_declaration (identifier) @constant.builtin)
 (constant_declaration (operator_declaration name: (_) @constant.builtin))
-(pcal_var_decl (identifier) @variable.builtin)
+(pcal_var_decl (identifier) @variable)
 (pcal_with (identifier) @parameter)
 ((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
 (set_of_records (identifier) @attribute)
-(variable_declaration (identifier) @variable.builtin)
+(variable_declaration (identifier) @variable)
 
 ; Parameters
-(quantifier_bound (identifier) @parameter)
-(quantifier_bound (tuple_of_identifiers (identifier) @parameter))
 (lambda (identifier) @parameter)
 (module_definition (operator_declaration name: (_) @parameter))
 (module_definition parameter: (identifier) @parameter)
@@ -176,6 +175,11 @@
 (operator_definition parameter: (identifier) @parameter)
 (pcal_macro_decl parameter: (identifier) @parameter)
 (pcal_proc_var_decl (identifier) @parameter)
+(quantifier_bound (identifier) @parameter)
+(quantifier_bound (tuple_of_identifiers (identifier) @parameter))
+(single_quantifier_bound (identifier) @parameter)
+(single_quantifier_bound (tuple_of_identifiers (identifier) @parameter))
+(unbounded_quantification (identifier) @parameter)
 
 ; Delimiters
 [
@@ -227,8 +231,9 @@
 ((identifier_ref) @constant.builtin (#is? @constant.builtin constant))
 ((identifier_ref) @function (#is? @function function))
 ((identifier_ref) @function.macro (#is? @function.macro macro))
+((identifier_ref) @include (#is? @include import))
 ((identifier_ref) @parameter (#is? @parameter parameter))
-((identifier_ref) @variable.builtin (#is? @variable.builtin var))
+((identifier_ref) @variable (#is? @variable var))
 (bound_prefix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
 (bound_prefix_op symbol: (_) @operator (#is? @operator macro))
 (bound_prefix_op symbol: (_) @parameter (#is? @parameter parameter))

@@ -2,6 +2,7 @@
 [
   (bounded_quantification)
   (function_definition) 
+  (function_literal)
   (lambda) 
   (let_in)
   (module) 
@@ -11,6 +12,8 @@
   (pcal_macro)
   (pcal_procedure)
   (pcal_with)
+  (set_filter)
+  (set_map)
   (unbounded_quantification)
 ] @scope
 
@@ -22,8 +25,8 @@
   (#set! "definition.function.scope" "parent"))
 (lambda (identifier) @definition.parameter)
 (module_definition
-  name: (_) @definition.macro
-  (#set! "definition.macro.scope" "parent"))
+  name: (_) @definition.import
+  (#set! "definition.import.scope" "parent"))
 (module_definition parameter: (identifier) @definition.parameter)
 (module_definition parameter: (operator_declaration name: (_) @definition.parameter))
 (operator_definition
@@ -37,6 +40,9 @@
 (pcal_with (identifier) @definition.parameter)
 (quantifier_bound (identifier) @definition.parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @definition.parameter))
+(single_quantifier_bound (identifier) @definition.parameter)
+(single_quantifier_bound (tuple_of_identifiers (identifier) @definition.parameter))
+(unbounded_quantification (identifier) @definition.parameter)
 (variable_declaration (identifier) @definition.var)
 
 ; Builtin variables
