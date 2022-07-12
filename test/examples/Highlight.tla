@@ -42,8 +42,15 @@ higher_order_op(a, _‖_, g(_)) ≜ g(a ‖ bar)
 op_ref ≜ higher_order_op(1, +, -.)
 op_parameter_scope_test ≜ a ‖ b
 
-a ⊑ b ≜ a + b
-infix_op_ref ≜ 1 ⊑ 2
+¬ x ≜ x
+prefix_op_ref ≜ ¬ TRUE
+nonfix_prefix_op_ref ≜ ¬(TRUE)
+a ⊆ b ≜ a + b
+infix_op_ref ≜ 1 ⊆ 2
+nonfix_infix_op_ref ≜ ⊆(1, 2)
+x⁺ ≜ x
+postfix_op_ref ≜ 1⁺
+nonfix_postfix_op_ref ≜ ⁺(1)
 
 RECURSIVE some_recursive_op(_), _ ⪯ _
 some_recursive_op(x) ≜ some_recursive_op(x-1)
