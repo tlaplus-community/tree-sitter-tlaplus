@@ -3237,8 +3237,13 @@
             "value": "."
           },
           {
-            "type": "SYMBOL",
-            "name": "identifier"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            "named": true,
+            "value": "identifier_ref"
           }
         ]
       }
@@ -3336,8 +3341,13 @@
                 "value": "."
               },
               {
-                "type": "SYMBOL",
-                "name": "identifier"
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                "named": true,
+                "value": "identifier_ref"
               }
             ]
           },
@@ -4912,6 +4922,18 @@
         }
       ]
     },
+    "hashhash": {
+      "type": "STRING",
+      "value": "##"
+    },
+    "dol": {
+      "type": "STRING",
+      "value": "$"
+    },
+    "doldol": {
+      "type": "STRING",
+      "value": "$$"
+    },
     "qq": {
       "type": "CHOICE",
       "members": [
@@ -4924,18 +4946,6 @@
           "value": "⁇"
         }
       ]
-    },
-    "hashhash": {
-      "type": "STRING",
-      "value": "##"
-    },
-    "dol": {
-      "type": "STRING",
-      "value": "$"
-    },
-    "doldol": {
-      "type": "STRING",
-      "value": "$$"
     },
     "sqcap": {
       "type": "CHOICE",
@@ -5156,6 +5166,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "propto"
+        },
+        {
+          "type": "SYMBOL",
           "name": "sim"
         },
         {
@@ -5180,15 +5194,27 @@
         },
         {
           "type": "SYMBOL",
+          "name": "subset"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "supset"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "subseteq"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "supseteq"
+        },
+        {
+          "type": "SYMBOL",
           "name": "compose"
         },
         {
           "type": "SYMBOL",
           "name": "map_to"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "map_from"
         },
         {
           "type": "SYMBOL",
@@ -5340,6 +5366,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "times"
+        },
+        {
+          "type": "SYMBOL",
           "name": "wr"
         },
         {
@@ -5353,6 +5383,10 @@
         {
           "type": "SYMBOL",
           "name": "powpow"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "map_from"
         }
       ]
     },

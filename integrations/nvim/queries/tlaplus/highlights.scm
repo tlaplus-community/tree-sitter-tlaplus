@@ -136,10 +136,10 @@
 (escape_char) @string.escape
 (string_set) @type
 
-; Namespaces and includes
-(extends (identifier_ref) @include)
-(instance (identifier_ref) @include)
-(module name: (_) @namespace)
+; Namespaces
+(extends (identifier_ref) @namespace)
+(instance (identifier_ref) @namespace)
+(module name: (identifier) @namespace)
 (pcal_algorithm name: (identifier) @namespace)
 
 ; Operators, functions, and macros
@@ -158,8 +158,8 @@
 (recursive_declaration (operator_declaration name: (_) @function.macro))
 
 ; Constants and variables
-(constant_declaration (identifier) @constant.builtin)
-(constant_declaration (operator_declaration name: (_) @constant.builtin))
+(constant_declaration (identifier) @constant)
+(constant_declaration (operator_declaration name: (_) @constant))
 (pcal_var_decl (identifier) @variable)
 (pcal_with (identifier) @parameter)
 ((".") . (identifier) @attribute)
@@ -168,6 +168,8 @@
 (variable_declaration (identifier) @variable)
 
 ; Parameters
+(choose (identifier) @parameter)
+(choose (tuple_of_identifiers (identifier) @parameter))
 (lambda (identifier) @parameter)
 (module_definition (operator_declaration name: (_) @parameter))
 (module_definition parameter: (identifier) @parameter)
@@ -228,21 +230,22 @@
 
 ; Reference highlighting with the same color as declarations.
 ; `constant`, `operator`, and others are custom captures defined in locals.scm
-((identifier_ref) @constant.builtin (#is? @constant.builtin constant))
+((identifier_ref) @constant (#is? @constant constant))
 ((identifier_ref) @function (#is? @function function))
 ((identifier_ref) @function.macro (#is? @function.macro macro))
 ((identifier_ref) @include (#is? @include import))
+((identifier_ref) @namespace (#is? @namespace namespace))
 ((identifier_ref) @parameter (#is? @parameter parameter))
 ((identifier_ref) @variable (#is? @variable var))
-(bound_prefix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
+(bound_prefix_op symbol: (_) @constant (#is? @constant constant))
 (bound_prefix_op symbol: (_) @operator (#is? @operator macro))
 (bound_prefix_op symbol: (_) @parameter (#is? @parameter parameter))
-(bound_infix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
+(bound_infix_op symbol: (_) @constant (#is? @constant constant))
 (bound_infix_op symbol: (_) @operator (#is? @operator macro))
 (bound_infix_op symbol: (_) @parameter (#is? @parameter parameter))
-(bound_postfix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
+(bound_postfix_op symbol: (_) @constant (#is? @constant constant))
 (bound_postfix_op symbol: (_) @operator (#is? @operator macro))
 (bound_postfix_op symbol: (_) @parameter (#is? @parameter parameter))
-(bound_nonfix_op symbol: (_) @constant.builtin (#is? @constant.builtin constant))
+(bound_nonfix_op symbol: (_) @constant (#is? @constant constant))
 (bound_nonfix_op symbol: (_) @operator (#is? @operator macro))
 (bound_nonfix_op symbol: (_) @parameter (#is? @parameter parameter))

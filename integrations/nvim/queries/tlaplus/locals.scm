@@ -1,6 +1,7 @@
 ; Scopes
 [
   (bounded_quantification)
+  (choose)
   (function_definition) 
   (function_literal)
   (lambda) 
@@ -18,12 +19,17 @@
 ] @scope
 
 ; Definitions
+(choose (identifier) @definition.parameter)
+(choose (tuple_of_identifiers (identifier) @definition.parameter))
 (constant_declaration (identifier) @definition.constant)
 (constant_declaration (operator_declaration name: (_) @definition.constant))
 (function_definition
   name: (identifier) @definition.function
   (#set! "definition.function.scope" "parent"))
 (lambda (identifier) @definition.parameter)
+(module
+  name: (identifier) @definition.namespace
+  (#set! "definition.namespace.scope" "parent"))
 (module_definition
   name: (_) @definition.import
   (#set! "definition.import.scope" "parent"))

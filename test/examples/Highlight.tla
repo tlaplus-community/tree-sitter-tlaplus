@@ -31,25 +31,34 @@ LOCAL g[⟨x, y, z⟩ ∈ S, ⟨u, v⟩ ∈ T] ≜ x
 function_ref ≜ f
 function_param_ref_test ≜ r
 
-apply(a, b, op(_, _)) ≜ op(a, b)
-result ≜ apply(1, 2, LAMBDA x, y : x + y + z)
-
-M2(a, b, -. _) ≜ INSTANCE M1 WITH ¬ ← -., x ← a, y ← b
-module_ref ≜ M2!some_m2_op
+---- MODULE Inner ----
+inner_def ≜ x
+====
+M2(a, b, -. _) ≜ INSTANCE Inner WITH ¬ ← -., x ← a, y ← b
+module_ref ≜ M2!inner_def \* Need stack graphs to ref-highlight this
+module_inner_ref ≜ inner_def
 
 higher_order_op(a, _‖_, g(_)) ≜ g(a ‖ bar)
 op_ref ≜ higher_order_op(1, +, -.)
 op_parameter_scope_test ≜ a ‖ b
 
-a * b ≜ a + b
-infix_op_ref ≜ 1 * 2
+a ⊑ b ≜ a + b
+infix_op_ref ≜ 1 ⊑ 2
 
+RECURSIVE some_recursive_op(_), _ ⪯ _
+some_recursive_op(x) ≜ some_recursive_op(x-1)
+
+\* Scope testing for parameter highlighting in expressions
 let_in_def ≜
   ∧ LET let_in_op(x) ≜ x IN let_in_op(1)
   ∧ let_in_op(1)
-
-RECURSIVE some_recursive_op(_), _ ⪯ _
-
+apply(a, b, c, op(_, _, _)) ≜ op(a, b, c)
+choose_def ≜
+  ∧ CHOOSE ⟨x, y, z⟩ ∈ Nat : w < x < y < z
+  ∧ w + x + y + z
+lambda_def ≜
+  ∧ apply(1, 2, 3, LAMBDA x, y, z : w + x + y + z)
+  ∧ w + x + y + z
 unbounded_quant ≜
   ∧ ∃ x, y, z : w < x < y < z
   ∧ w + x + y + z
@@ -63,7 +72,7 @@ set_filter ≜
   ∧ {⟨ x, y, z ⟩ ∈ Nat : w < x < y < z}
   ∧ w + x + y + z
 set_map ≜
-  ∧ {x + y + z : x, y, z ∈ Nat}
+  ∧ {w + x + y + z : x, y, z ∈ Nat}
   ∧ w + x + y + z
 func_literal ≜
   ∧ [x, y, z ∈ Nat ↦ w + x + y + z]

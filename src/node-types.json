@@ -1350,10 +1350,6 @@
         {
           "type": "_expr",
           "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
         }
       ]
     }
@@ -1845,6 +1841,10 @@
           "named": true
         },
         {
+          "type": "propto",
+          "named": true
+        },
+        {
           "type": "qq",
           "named": true
         },
@@ -1905,11 +1905,31 @@
           "named": true
         },
         {
+          "type": "subset",
+          "named": true
+        },
+        {
+          "type": "subseteq",
+          "named": true
+        },
+        {
           "type": "succ",
           "named": true
         },
         {
           "type": "succeq",
+          "named": true
+        },
+        {
+          "type": "supset",
+          "named": true
+        },
+        {
+          "type": "supseteq",
+          "named": true
+        },
+        {
+          "type": "times",
           "named": true
         },
         {
@@ -3860,10 +3880,6 @@
       "types": [
         {
           "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "identifier",
           "named": true
         }
       ]

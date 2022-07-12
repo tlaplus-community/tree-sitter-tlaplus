@@ -718,7 +718,7 @@ module.exports = grammar({
     ),
 
     // r.val
-    record_value: $ => prec.left('17-17', seq($._expr, '.', $.identifier)),
+    record_value: $ => prec.left('17-17', seq($._expr, '.', alias($.identifier, $.identifier_ref))),
 
     // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
     except: $ => seq(
@@ -730,7 +730,7 @@ module.exports = grammar({
     // .foo[bar].baz
     _except_val: $ => repeat1(
       choice(
-        seq('.', $.identifier),
+        seq('.', alias($.identifier, $.identifier_ref)),
         seq('[', commaList1($._expr), ']')
       )
     ),
@@ -938,10 +938,10 @@ module.exports = grammar({
     circ:             $ => choice('\\o', '\\circ', '∘'),
     star:             $ => choice('\\star', '⋆'),
     excl:             $ => choice('!!', '‼'),
-    qq:               $ => choice('??', '⁇'),
     hashhash:         $ => '##',
     dol:              $ => '$',
     doldol:           $ => '$$',
+    qq:               $ => choice('??', '⁇'),
     sqcap:            $ => choice('\\sqcap', '⊓'),
     sqcup:            $ => choice('\\sqcup', '⊔'),
     uplus:            $ => choice('\\uplus', '⊎'),
@@ -960,9 +960,10 @@ module.exports = grammar({
       $.rs_ttile,     $.rd_ttile,       $.ls_ttile,     $.ld_ttile,
       $.asymp,        $.cong,           $.doteq,        $.gg,
       $.ll,           $.in,             $.notin,        $.prec,
-      $.succ,         $.preceq,         $.succeq,       $.sim,
-      $.simeq,        $.sqsubset,       $.sqsupset,     $.sqsubseteq,
-      $.sqsupseteq,   $.compose,        $.map_to,       $.map_from,
+      $.succ,         $.preceq,         $.succeq,       $.propto,
+      $.sim,          $.simeq,          $.sqsubset,     $.sqsupset,
+      $.sqsubseteq,   $.sqsupseteq,     $.subset,       $.supset,
+      $.subseteq,     $.supseteq,       $.compose,      $.map_to,
       $.setminus,     $.cap,            $.cup,          $.dots_2,
       $.dots_3,       $.plus,           $.plusplus,     $.oplus,
       $.ominus,       $.mod,            $.modmod,       $.vert,
@@ -972,8 +973,8 @@ module.exports = grammar({
       $.bigcirc,      $.bullet,         $.div,          $.circ,
       $.star,         $.excl,           $.hashhash,     $.dol,
       $.doldol,       $.qq,             $.sqcap,        $.sqcup,
-      $.uplus,        $.wr,             $.cdot,         $.pow,
-      $.powpow,
+      $.uplus,        $.times,          $.wr,           $.cdot,
+      $.pow,          $.powpow,         $.map_from,
     ),
 
     // Infix operators are given highest value in precedence range for parsing.
