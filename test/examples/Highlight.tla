@@ -8,7 +8,6 @@ VARIABLES bar, baz
 
 const_ref ≜ Foo
 const_op_ref ≜ Const(1, 2)
-const_infix_op_ref ≜ 1 ≺ 2
 
 n ≜ -10 \* this is a single-line comment
 s ≜ "Hello world!\nHere \"is a quote\""
@@ -38,28 +37,28 @@ M2(a, b) ≜ INSTANCE Inner WITH x ← a, y ← b
 module_ref ≜ M2!inner_def \* Need stack graphs to ref-highlight this
 module_inner_ref ≜ inner_def
 
-higher_order_op(a, ~_, _‖_, _^#, param_op(_)) ≜ ~param_op(a ‖ bar)^#
-op_ref ≜ higher_order_op(1, +, -.)
-op_parameter_scope_test ≜
-  ∧ ~TRUE
-  ∧ a ‖ b
-  ∧ x^#
-  ∧ param_op(1)
+higher_order_op(a, param_op(_)) ≜ param_op(a)
+op_parameter_scope_test ≜  param_op(1)
 
 ¬ x ≜ x
-prefix_op_ref ≜ ¬ TRUE
-nonfix_prefix_op_ref ≜ ¬(TRUE)
 a ⊆ b ≜ a + b
-infix_op_ref ≜ 1 ⊆ 2
-nonfix_infix_op_ref ≜ ⊆(1, 2)
 x⁺ ≜ x
-postfix_op_ref ≜ 1⁺
-nonfix_postfix_op_ref ≜ ⁺(1)
-
-standalone_symbol_ref(-. _, _ ‼ _, _ ^#) ≜
+bound_symbol_ref(<> _, _ ‼ _, _ ^#) ≜
+  ∧ {□TRUE, 1 ≺ 2, x^*}   \* constant
+  ∧ {<>TRUE, a ‼ b, x^#}  \* parameter
+  ∧ {¬TRUE, a ⊆ b, x⁺}    \* defined operator
+nonfix_symbol_ref(<> _, _ ‼ _, _ ^#) ≜
+  ∧ {□(TRUE), ≺(1, 2), ^*(x)}   \* constant
+  ∧ {<>(TRUE), ‼(a, b), ^#(x)}  \* parameter
+  ∧ {¬(TRUE), ⊆(a, b), ⁺(x)}    \* defined operator
+standalone_symbol_ref(<> _, _ ‼ _, _ ^#) ≜
   ∧ op(□, ≺, ^*)  \* constant
-  ∧ op(-., ‼, ^#) \* parameter
+  ∧ op(<>, ‼, ^#) \* parameter
   ∧ op(¬, ⊆, ⁺)   \* defined operator
+symbol_scope_test ≜
+  ∧ <>(1)
+  ∧ a ‼ b
+  ∧ x^#
 
 RECURSIVE some_recursive_op(_), _ ⪯ _
 some_recursive_op(x) ≜ some_recursive_op(x-1)
@@ -68,10 +67,10 @@ some_recursive_op(x) ≜ some_recursive_op(x-1)
 let_in_def ≜
   ∧ LET let_in_op(x) ≜ x IN let_in_op(1)
   ∧ let_in_op(1)
-apply(a, b, c, op(_, _, _)) ≜ op(a, b, c)
 choose_def ≜
   ∧ CHOOSE ⟨x, y, z⟩ ∈ Nat : w < x < y < z
   ∧ w + x + y + z
+apply(a, b, c, op(_, _, _)) ≜ op(a, b, c)
 lambda_def ≜
   ∧ apply(1, 2, 3, LAMBDA x, y, z : w + x + y + z)
   ∧ w + x + y + z
