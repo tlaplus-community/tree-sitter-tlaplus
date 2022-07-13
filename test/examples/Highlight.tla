@@ -135,12 +135,16 @@ THEOREM TRUE
 <1>e. {w, x, y, z}
 <1>f. QED
 
+\* Scope test for DEFINE proof step
 THEOREM TRUE
 PROOF
-<*>a. DEFINE s(n) ≜ n + 1
-<*>b. 2
-  <+>a. 3
-  <*>b. QED
-<*> QED
+<1>a. TRUE
+  <2>a. DEFINE def_proof(n) ≜ n + 1
+  <2>b. def_proof(1)
+    <3>a. def_proof(1)
+    <3>b. QED
+  <2>b. QED
+<1>b. def_proof(1)
+<1>c QED
 ====
 
