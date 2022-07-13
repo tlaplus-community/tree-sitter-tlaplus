@@ -1358,32 +1358,6 @@
         }
       ]
     },
-    "single_quantifier_bound": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "identifier"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "tuple_of_identifiers"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "set_in"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        }
-      ]
-    },
     "tuple_of_identifiers": {
       "type": "SEQ",
       "members": [
@@ -1699,8 +1673,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "prefix_op_symbol"
+              "type": "FIELD",
+              "name": "symbol",
+              "content": {
+                "type": "SYMBOL",
+                "name": "prefix_op_symbol"
+              }
             },
             {
               "type": "STRING",
@@ -1720,8 +1698,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "infix_op_symbol"
+              "type": "FIELD",
+              "name": "symbol",
+              "content": {
+                "type": "SYMBOL",
+                "name": "infix_op_symbol"
+              }
             },
             {
               "type": "STRING",
@@ -1749,8 +1731,12 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "postfix_op_symbol"
+              "type": "FIELD",
+              "name": "symbol",
+              "content": {
+                "type": "SYMBOL",
+                "name": "postfix_op_symbol"
+              }
             },
             {
               "type": "STRING",
@@ -2889,7 +2875,7 @@
             "name": "generator",
             "content": {
               "type": "SYMBOL",
-              "name": "single_quantifier_bound"
+              "name": "quantifier_bound"
             }
           },
           {
@@ -3225,8 +3211,13 @@
             "value": "."
           },
           {
-            "type": "SYMBOL",
-            "name": "identifier"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            "named": true,
+            "value": "identifier_ref"
           }
         ]
       }
@@ -3324,8 +3315,13 @@
                 "value": "."
               },
               {
-                "type": "SYMBOL",
-                "name": "identifier"
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                "named": true,
+                "value": "identifier_ref"
               }
             ]
           },
@@ -4900,6 +4896,18 @@
         }
       ]
     },
+    "hashhash": {
+      "type": "STRING",
+      "value": "##"
+    },
+    "dol": {
+      "type": "STRING",
+      "value": "$"
+    },
+    "doldol": {
+      "type": "STRING",
+      "value": "$$"
+    },
     "qq": {
       "type": "CHOICE",
       "members": [
@@ -4912,18 +4920,6 @@
           "value": "⁇"
         }
       ]
-    },
-    "hashhash": {
-      "type": "STRING",
-      "value": "##"
-    },
-    "dol": {
-      "type": "STRING",
-      "value": "$"
-    },
-    "doldol": {
-      "type": "STRING",
-      "value": "$$"
     },
     "sqcap": {
       "type": "CHOICE",
@@ -5144,6 +5140,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "propto"
+        },
+        {
+          "type": "SYMBOL",
           "name": "sim"
         },
         {
@@ -5168,15 +5168,27 @@
         },
         {
           "type": "SYMBOL",
+          "name": "subset"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "supset"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "subseteq"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "supseteq"
+        },
+        {
+          "type": "SYMBOL",
           "name": "compose"
         },
         {
           "type": "SYMBOL",
           "name": "map_to"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "map_from"
         },
         {
           "type": "SYMBOL",
@@ -5328,6 +5340,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "times"
+        },
+        {
+          "type": "SYMBOL",
           "name": "wr"
         },
         {
@@ -5341,6 +5357,10 @@
         {
           "type": "SYMBOL",
           "name": "powpow"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "map_from"
         }
       ]
     },
@@ -6215,8 +6235,12 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "identifier"
+                  "type": "FIELD",
+                  "name": "name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  }
                 },
                 {
                   "type": "SYMBOL",
@@ -6266,8 +6290,12 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "identifier"
+                  "type": "FIELD",
+                  "name": "name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  }
                 },
                 {
                   "type": "SYMBOL",
@@ -9313,10 +9341,6 @@
     [
       "_expr",
       "quantifier_bound"
-    ],
-    [
-      "_expr",
-      "single_quantifier_bound"
     ],
     [
       "_expr",
