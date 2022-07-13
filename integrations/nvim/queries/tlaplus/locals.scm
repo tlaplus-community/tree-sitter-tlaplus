@@ -66,7 +66,7 @@
 (pcal_var_decl (identifier) @definition.var)
 (pcal_with (identifier) @definition.parameter)
 
-; Builtin variables
+; Built-in PlusCal variables
 (pcal_algorithm_body
   [
     (_ (identifier_ref) @definition.var)

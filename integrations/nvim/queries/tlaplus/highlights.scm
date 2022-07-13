@@ -1,6 +1,7 @@
 ; ; Intended for consumption by nvim-treesitter 
 ; ; Default capture names for nvim-treesitter found here:
 ; ; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
+; ; In this file, captures defined later take precedence over captures defined earlier
 
 ; Keywords
 [
@@ -74,6 +75,7 @@
   (temporal_exists)
   (temporal_forall)
 ] @keyword
+
 ;  Pluscal keywords
 [
   (pcal_algorithm_start)
@@ -161,7 +163,6 @@
 (recursive_declaration (operator_declaration name: (_) @function.macro))
 
 ; Constants and variables
-(assumption name: (identifier) @constant)
 (constant_declaration (identifier) @constant)
 (constant_declaration (operator_declaration name: (_) @constant))
 (pcal_var_decl (identifier) @variable)
@@ -169,7 +170,6 @@
 ((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
 (set_of_records (identifier) @attribute)
-(theorem name: (identifier) @constant)
 (variable_declaration (identifier) @variable)
 
 ; Parameters
@@ -178,16 +178,12 @@
 (lambda (identifier) @parameter)
 (module_definition (operator_declaration name: (_) @parameter))
 (module_definition parameter: (identifier) @parameter)
-(new (identifier) @parameter)
-(new (operator_declaration name: (_) @parameter))
 (operator_definition (operator_declaration name: (_) @parameter))
 (operator_definition parameter: (identifier) @parameter)
 (pcal_macro_decl parameter: (identifier) @parameter)
 (pcal_proc_var_decl (identifier) @parameter)
 (quantifier_bound (identifier) @parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @parameter))
-(take_proof_step (identifier) @parameter)
-(pick_proof_step (identifier) @parameter)
 (unbounded_quantification (identifier) @parameter)
 
 ; Delimiters
@@ -216,6 +212,10 @@
 ] @punctuation.delimiter
 
 ; Proofs
+(assume_prove (new (identifier) @parameter))
+(assume_prove (new (operator_declaration name: (_) @parameter)))
+(assumption name: (identifier) @constant)
+(pick_proof_step (identifier) @parameter)
 (proof_step_id "<" @punctuation.bracket)
 (proof_step_id (level) @label)
 (proof_step_id (name) @label)
@@ -224,6 +224,8 @@
 (proof_step_ref (level) @label)
 (proof_step_ref (name) @label)
 (proof_step_ref ">" @punctuation.bracket)
+(take_proof_step (identifier) @parameter)
+(theorem name: (identifier) @constant)
 
 ; Comments and tags
 (block_comment "(*" @comment)
