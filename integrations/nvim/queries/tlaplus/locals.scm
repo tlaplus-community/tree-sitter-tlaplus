@@ -1,4 +1,4 @@
-; Scopes
+; TLA+ scopes and definitions
 [
   (bounded_quantification)
   (choose)
@@ -9,16 +9,11 @@
   (module) 
   (module_definition)
   (operator_definition)
-  (pcal_algorithm)
-  (pcal_macro)
-  (pcal_procedure)
-  (pcal_with)
   (set_filter)
   (set_map)
   (unbounded_quantification)
 ] @scope
 
-; Definitions
 (choose (identifier) @definition.parameter)
 (choose (tuple_of_identifiers (identifier) @definition.parameter))
 (constant_declaration (identifier) @definition.constant)
@@ -37,14 +32,39 @@
   (#set! "definition.macro.scope" "parent"))
 (operator_definition parameter: (identifier) @definition.parameter)
 (operator_definition parameter: (operator_declaration name: (_) @definition.parameter))
-(pcal_macro_decl parameter: (identifier) @definition.parameter)
-(pcal_proc_var_decl (identifier) @definition.parameter)
-(pcal_var_decl (identifier) @definition.var)
-(pcal_with (identifier) @definition.parameter)
 (quantifier_bound (identifier) @definition.parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @definition.parameter))
 (unbounded_quantification (identifier) @definition.parameter)
 (variable_declaration (identifier) @definition.var)
+
+; Proof scopes and definitions
+[
+  (non_terminal_proof)
+  (suffices_proof_step)
+  (theorem)
+] @scope
+
+(assume_prove (new (identifier) @definition.parameter))
+(assume_prove (new (operator_declaration name: (_) @definition.parameter)))
+(assumption name: (identifier) @definition.constant)
+(pick_proof_step (identifier) @definition.parameter)
+(take_proof_step (identifier) @definition.parameter)
+(theorem
+  name: (identifier) @definition.constant
+  (#set! "definition.constant.scope" "parent"))
+
+; PlusCal scopes and definitions
+[
+  (pcal_algorithm)
+  (pcal_macro)
+  (pcal_procedure)
+  (pcal_with)
+] @scope
+
+(pcal_macro_decl parameter: (identifier) @definition.parameter)
+(pcal_proc_var_decl (identifier) @definition.parameter)
+(pcal_var_decl (identifier) @definition.var)
+(pcal_with (identifier) @definition.parameter)
 
 ; Builtin variables
 (pcal_algorithm_body

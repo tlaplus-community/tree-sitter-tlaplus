@@ -1030,14 +1030,14 @@ module.exports = grammar({
     // ASSUME C \in Nat
     assumption: $ => seq(
       choice('ASSUME', 'ASSUMPTION', 'AXIOM'),
-      optional(seq($.identifier, $.def_eq)),
+      optional(seq(field('name', $.identifier), $.def_eq)),
       $._expr
     ),
 
     // THEOREM Spec => []Safety
     theorem: $ => seq(
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
-      optional(seq($.identifier, $.def_eq)),
+      optional(seq(field('name', $.identifier), $.def_eq)),
       choice($._expr, $.assume_prove),
       optional($._proof)
     ),

@@ -161,6 +161,7 @@
 (recursive_declaration (operator_declaration name: (_) @function.macro))
 
 ; Constants and variables
+(assumption name: (identifier) @constant)
 (constant_declaration (identifier) @constant)
 (constant_declaration (operator_declaration name: (_) @constant))
 (pcal_var_decl (identifier) @variable)
@@ -168,6 +169,7 @@
 ((".") . (identifier) @attribute)
 (record_literal (identifier) @attribute)
 (set_of_records (identifier) @attribute)
+(theorem name: (identifier) @constant)
 (variable_declaration (identifier) @variable)
 
 ; Parameters
@@ -176,12 +178,16 @@
 (lambda (identifier) @parameter)
 (module_definition (operator_declaration name: (_) @parameter))
 (module_definition parameter: (identifier) @parameter)
+(new (identifier) @parameter)
+(new (operator_declaration name: (_) @parameter))
 (operator_definition (operator_declaration name: (_) @parameter))
 (operator_definition parameter: (identifier) @parameter)
 (pcal_macro_decl parameter: (identifier) @parameter)
 (pcal_proc_var_decl (identifier) @parameter)
 (quantifier_bound (identifier) @parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @parameter))
+(take_proof_step (identifier) @parameter)
+(pick_proof_step (identifier) @parameter)
 (unbounded_quantification (identifier) @parameter)
 
 ; Delimiters

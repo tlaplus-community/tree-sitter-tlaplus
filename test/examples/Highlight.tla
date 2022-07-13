@@ -93,6 +93,48 @@ func_literal ≜
   ∧ [x, y, z ∈ Nat ↦ w + x + y + z]
   ∧ w + x + y + z
 
+ASSUME asm ≜ TRUE
+assumption_ref ≜ asm
+THEOREM thm ≜ TRUE
+theorem_ref ≜ thm
+
+\* Scope test SUFFICES proof step
+THEOREM
+  ASSUME NEW CONSTANT y
+  PROVE y
+<1>a. SUFFICES
+  ASSUME
+    NEW x ∈ Foo,
+    ACTION assume_prove(_),
+    STATE _ ‼ _,
+    assume_prove(x) ‼ y
+  PROVE assume_prove(x) ‼ y
+  <2>a. assume_prove(x) ‼ y
+  <2>b. QED
+<1>b. assume_prove(x) ‼ y
+<1>c. QED
+
+\* Scope test for TAKE and PICK proof steps
+THEOREM TRUE
+<1>a. TRUE
+  <2>a. TAKE x, y, z
+  <2>b. {w, x, y, z}
+  <2>c. QED
+<1>b. {w, x, y, z}
+  <2>a. TAKE x ∈ Nat, ⟨y, z⟩ ∈ Nat × Nat
+  <2>b. {w, x, y, z}
+  <2>c. QED
+<1>c. {w, x, y, z}
+  <2>a. PICK x, y, z : TRUE
+  <2>b. {w, x, y, z}
+  <2>c. QED
+<1>d. {w, x, y, z}
+  <2>a. PICK x ∈ Nat, ⟨y, z⟩ ∈ Nat × Nat : TRUE
+  <2>b. {w, x, y, z}
+  <2>c. QED
+<1>e. {w, x, y, z}
+<1>f. QED
+
 THEOREM TRUE
 PROOF
 <*>a. DEFINE s(n) ≜ n + 1

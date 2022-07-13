@@ -369,7 +369,18 @@
   {
     "type": "assumption",
     "named": true,
-    "fields": {},
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -380,10 +391,6 @@
         },
         {
           "type": "def_eq",
-          "named": true
-        },
-        {
-          "type": "identifier",
           "named": true
         }
       ]
@@ -4369,7 +4376,18 @@
   {
     "type": "theorem",
     "named": true,
-    "fields": {},
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -4388,10 +4406,6 @@
         },
         {
           "type": "def_eq",
-          "named": true
-        },
-        {
-          "type": "identifier",
           "named": true
         }
       ]
