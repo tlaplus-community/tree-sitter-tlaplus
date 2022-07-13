@@ -1,6 +1,6 @@
 {
   "name": "@tlaplus/tree-sitter-tlaplus",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "A tree-sitter grammar for TLA+ and PlusCal",
   "main": "bindings/node",
   "scripts": {
