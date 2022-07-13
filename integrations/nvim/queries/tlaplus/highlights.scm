@@ -182,8 +182,6 @@
 (pcal_proc_var_decl (identifier) @parameter)
 (quantifier_bound (identifier) @parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @parameter))
-(single_quantifier_bound (identifier) @parameter)
-(single_quantifier_bound (tuple_of_identifiers (identifier) @parameter))
 (unbounded_quantification (identifier) @parameter)
 
 ; Delimiters

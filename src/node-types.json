@@ -3928,7 +3928,7 @@
         "required": true,
         "types": [
           {
-            "type": "single_quantifier_bound",
+            "type": "quantifier_bound",
             "named": true
           }
         ]
@@ -4017,33 +4017,6 @@
     "type": "simeq",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "single_quantifier_bound",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "tuple_of_identifiers",
-          "named": true
-        }
-      ]
-    }
   },
   {
     "type": "source_file",

@@ -84,7 +84,7 @@ bounded_quant_tuple ≜
   ∧ ∃ ⟨x, y, z⟩ ∈ Nat : w < x < y < z
   ∧ w + x + y + z
 set_filter ≜
-  ∧ {⟨ x, y, z ⟩ ∈ Nat : w < x < y < z}
+  ∧ {⟨x, y, z⟩ ∈ Nat : w < x < y < z}
   ∧ w + x + y + z
 set_map ≜
   ∧ {w + x + y + z : x, y, z ∈ Nat}

@@ -141,9 +141,6 @@ module.exports = grammar({
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
     // Matches both step_expr_or_stutter and function_literal
     [$._expr, $.quantifier_bound],
-    // Lookahead to disambiguate '{'  identifier  •  '\in'  …
-    // Matches set_filter, set_map, and finite_set_literal
-    [$._expr, $.single_quantifier_bound],
     // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
     // Matches step_expr_or_stutter and function_literal
     [$._expr, $.tuple_of_identifiers],
@@ -380,17 +377,6 @@ module.exports = grammar({
       ),
       $.set_in,
       field('set', $._expr)
-    ),
-
-    // x \in S
-    // <<x, y, z>> \in S \X T \X P
-    single_quantifier_bound: $ => seq(
-      choice(
-        $.identifier,
-        $.tuple_of_identifiers
-      ),
-      $.set_in,
-      $._expr
     ),
 
     // <<x, y, z>>
@@ -677,7 +663,7 @@ module.exports = grammar({
     // is parsed as set_filter instead of set_map during GLR parsing.
     set_filter: $ => prec.dynamic(1, seq(
       '{',
-      field('generator', $.single_quantifier_bound),
+      field('generator', $.quantifier_bound),
       ':',
       field('filter', $._expr),
       '}'

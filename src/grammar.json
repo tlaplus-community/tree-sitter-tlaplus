@@ -1358,32 +1358,6 @@
         }
       ]
     },
-    "single_quantifier_bound": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "identifier"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "tuple_of_identifiers"
-            }
-          ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "set_in"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_expr"
-        }
-      ]
-    },
     "tuple_of_identifiers": {
       "type": "SEQ",
       "members": [
@@ -2901,7 +2875,7 @@
             "name": "generator",
             "content": {
               "type": "SYMBOL",
-              "name": "single_quantifier_bound"
+              "name": "quantifier_bound"
             }
           },
           {
@@ -9359,10 +9333,6 @@
     [
       "_expr",
       "quantifier_bound"
-    ],
-    [
-      "_expr",
-      "single_quantifier_bound"
     ],
     [
       "_expr",

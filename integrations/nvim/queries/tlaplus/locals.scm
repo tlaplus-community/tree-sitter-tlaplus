@@ -43,8 +43,6 @@
 (pcal_with (identifier) @definition.parameter)
 (quantifier_bound (identifier) @definition.parameter)
 (quantifier_bound (tuple_of_identifiers (identifier) @definition.parameter))
-(single_quantifier_bound (identifier) @definition.parameter)
-(single_quantifier_bound (tuple_of_identifiers (identifier) @definition.parameter))
 (unbounded_quantification (identifier) @definition.parameter)
 (variable_declaration (identifier) @definition.var)
 
@@ -62,7 +60,10 @@
 
 ; References
 (identifier_ref) @reference
+((prefix_op_symbol) @reference)
 (bound_prefix_op symbol: (_) @reference)
+((infix_op_symbol) @reference)
 (bound_infix_op symbol: (_) @reference)
+((postfix_op_symbol) @reference)
 (bound_postfix_op symbol: (_) @reference)
 (bound_nonfix_op symbol: (_) @reference)
