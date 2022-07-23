@@ -1349,6 +1349,62 @@
   {
     "type": "except",
     "named": true,
+    "fields": {
+      "expr_to_update": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "except_update",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "except_update",
+    "named": true,
+    "fields": {
+      "new_val": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      },
+      "update_specifier": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "!",
+            "named": false
+          },
+          {
+            "type": "except_update_specifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "except_update_fn_appl",
+    "named": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -1356,6 +1412,40 @@
       "types": [
         {
           "type": "_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "except_update_record_field",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier_ref",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "except_update_specifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "except_update_fn_appl",
+          "named": true
+        },
+        {
+          "type": "except_update_record_field",
           "named": true
         }
       ]
