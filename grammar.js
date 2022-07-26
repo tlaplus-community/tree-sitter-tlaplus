@@ -706,20 +706,35 @@ module.exports = grammar({
     // r.val
     record_value: $ => prec.left('17-17', seq($._expr, '.', alias($.identifier, $.identifier_ref))),
 
-    // [f EXCEPT !.foo[bar].baz = 4, !.bar = 3]
+    // [f EXCEPT !.foo["bar"].baz = 4, !.bar = 3]
     except: $ => seq(
-      '[', $._expr, 'EXCEPT',
-      commaList1(seq('!', $._except_val, '=', $._expr)),
-      ']'
+        '[', 
+        field("expr_to_update", $._expr),
+        'EXCEPT',
+        commaList1($.except_update),
+        ']'
     ),
 
-    // .foo[bar].baz
-    _except_val: $ => repeat1(
-      choice(
-        seq('.', alias($.identifier, $.identifier_ref)),
-        seq('[', commaList1($._expr), ']')
-      )
+    // !.foo["bar"].baz = 4
+    except_update: $ => seq(
+        field("update_specifier", seq('!', $.except_update_specifier)),
+        '=', 
+        field("new_val", $._expr)
     ),
+
+    // .foo["bar"].baz
+    except_update_specifier: $ => repeat1(
+        choice(
+         $.except_update_record_field,
+         $.except_update_fn_appl
+        )
+    ),
+
+    // .foo
+    except_update_record_field: $ => seq('.', alias($.identifier, $.identifier_ref)),
+    
+    // ["bar"]
+    except_update_fn_appl: $ => seq('[', commaList1($._expr), ']'),
 
     // [f EXCEPT ![2] = @ + 1]
     prev_func_val: $ => '@',
