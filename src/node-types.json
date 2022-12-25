@@ -1049,6 +1049,16 @@
     "fields": {}
   },
   {
+    "type": "bullet_conj",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "bullet_disj",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "cap",
     "named": true,
     "fields": {}
@@ -5449,14 +5459,6 @@
   },
   {
     "type": "boolean_set",
-    "named": true
-  },
-  {
-    "type": "bullet_conj",
-    "named": true
-  },
-  {
-    "type": "bullet_disj",
     "named": true
   },
   {
