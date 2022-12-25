@@ -3723,11 +3723,28 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "_bullet"
+        },
+        {
+          "type": "SYMBOL",
           "name": "bullet_conj"
         },
         {
           "type": "SYMBOL",
           "name": "_expr"
+        }
+      ]
+    },
+    "bullet_conj": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "/\\"
+        },
+        {
+          "type": "STRING",
+          "value": "∧"
         }
       ]
     },
@@ -3756,11 +3773,28 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "_bullet"
+        },
+        {
+          "type": "SYMBOL",
           "name": "bullet_disj"
         },
         {
           "type": "SYMBOL",
           "name": "_expr"
+        }
+      ]
+    },
+    "bullet_disj": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "\\/"
+        },
+        {
+          "type": "STRING",
+          "value": "∨"
         }
       ]
     },
@@ -9474,11 +9508,7 @@
     },
     {
       "type": "SYMBOL",
-      "name": "bullet_conj"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "bullet_disj"
+      "name": "_bullet"
     },
     {
       "type": "SYMBOL",

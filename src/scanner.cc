@@ -53,8 +53,7 @@ namespace {
     LEADING_EXTRAMODULAR_TEXT,  // Freeform text at the start of the file.
     TRAILING_EXTRAMODULAR_TEXT, // Freeform text between or after modules.
     INDENT,             // Marks beginning of junction list.
-    BULLET_CONJ,        // New item of a conjunction list.
-    BULLET_DISJ,        // New item of a disjunction list.
+    BULLET,             // New item of a junction list.
     DEDENT,             // Marks end of junction list.
     BEGIN_PROOF,        // Marks the beginning of an entire proof.
     BEGIN_PROOF_STEP,   // Marks the beginning of a proof step.
@@ -1066,26 +1065,15 @@ namespace {
     }
 
     /**
-     * Emits a BULLET_CONJ or BULLET_DISJ token, marking the start of a
-     * new item in the current jlist.
+     * Emits a BULLET token, marking the start of a new item in the current
+     * jlist.
      *
      * @param lexer The tree-sitter lexing control structure.
-     * @param type The type of junction token to emit.
+     * @param type The type of junction list.
      * @return Whether a BULLET token was emitted.
      */
     bool emit_bullet(TSLexer* const lexer, const JunctType type) {
-      switch (type) {
-        case JunctType_CONJUNCTION:
-          lexer->result_symbol = BULLET_CONJ;
-          break;
-        case JunctType_DISJUNCTION:
-          lexer->result_symbol = BULLET_DISJ;
-          break;
-        default:
-          return false;
-      }
-      
-      lexer->mark_end(lexer);
+      lexer->result_symbol = BULLET;
       return true;
     }
 

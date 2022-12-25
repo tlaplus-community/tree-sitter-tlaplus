@@ -77,8 +77,7 @@ module.exports = grammar({
     $.leading_extramodular_text,
     $.trailing_extramodular_text,
     $._indent,
-    $.bullet_conj,
-    $.bullet_disj,
+    $._bullet,
     $._dedent,
     $._begin_proof,
     $._begin_proof_step,
@@ -813,7 +812,9 @@ module.exports = grammar({
     ),
 
     // /\ x
-    conj_item: $ => seq($.bullet_conj, $._expr),
+    conj_item: $ => seq($._bullet, $.bullet_conj, $._expr),
+
+    bullet_conj: $ => choice('/\\', '∧'),
 
     // This makes use of the external scanner.
     // \/ x
@@ -825,7 +826,9 @@ module.exports = grammar({
     ),
 
     // \/ x
-    disj_item: $ => seq($.bullet_disj, $._expr),
+    disj_item: $ => seq($._bullet, $.bullet_disj, $._expr),
+
+    bullet_disj: $ => choice('\\/', '∨'),
 
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
