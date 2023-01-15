@@ -23,11 +23,11 @@ jobs:
       - name: Build
         run: npm install
       - name: Unit Tests
-        run: node_modules/.bin/tree-sitter test
+        run: npx tree-sitter test
       - name: Corpus Tests
         shell: pwsh
         run: |
-          node_modules/.bin/tree-sitter init-config
+          npx tree-sitter init-config
           $specs = Get-ChildItem `
             -Path .\test\examples\external\specifications `
             -Filter "*.tla" `
@@ -36,7 +36,7 @@ jobs:
           Push-Location .\test\examples\external\specifications
           $specs | Resolve-Path -Relative
           Pop-Location
-          $failures = $specs.FullName |% {node_modules/.bin/tree-sitter parse -q $_}
+          $failures = $specs.FullName |% {npx tree-sitter parse -q $_}
           $failures
           exit $failures.length
       - name: Query File Tests
@@ -49,13 +49,13 @@ jobs:
           $results = $query_files.FullName `
             |% { `
               Write-Host (Resolve-Path -Path $_ -Relative); `
-              node_modules/.bin/tree-sitter query $_ ./test/examples/Highlight.tla | Out-Null; `
+              npx tree-sitter query $_ ./test/examples/Highlight.tla | Out-Null; `
               $lastexitcode `
             }
           $failures = $results |? {$_ -ne 0}
           exit $failures.length
       - name: Generate parser code
-        run: node_modules/.bin/tree-sitter generate
+        run: npx tree-sitter generate
       - name: Renormalize line endings
         shell: bash
         run: git add --renormalize .
