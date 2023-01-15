@@ -50,18 +50,17 @@ As applicable, query files for integrations live in the `integrations` directory
 1. Install a C compiler
 1. Clone the repo with the `--recurse-submodules` parameter
 1. Open a terminal in the repo root and run `npm install` to download packages & build the project
-1. Ensure `node_modules/.bin` is on your path
-1. Run `tree-sitter test` to run the unit tests
+1. Run `npm test` to run the unit tests
 1. Run corpus tests (parsing all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo) with the following powershell commands (no output if successful):
    - `$specs = Get-ChildItem -Path .\test\examples\external\specifications -Filter "*.tla" -Exclude "Reals.tla","Naturals.tla" -Recurse`
-   - `$specs |% {tree-sitter parse -q $_}`
+   - `$specs |% {npx tree-sitter parse -q $_}`
 
 ## The Playground
 The playground enables you to easily try out the parser in your browser.
 You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or set it up locally as follows:
-1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203))
-1. Run `tree-sitter build-wasm`
-1. Run `tree-sitter playground`
+1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203));
+1. Run `npx tree-sitter build-wasm`;
+1. Run `npx tree-sitter playground`;
 
 The playground consists of a pane containing an editable TLA+ spec, and another pane containing the parse tree for that spec.
 The parse tree is updated in real time as you edit the TLA+ spec.
@@ -73,6 +72,6 @@ You can also click the "query" checkbox to open a third pane for testing [tree q
 ```
 
 ## Contributions
-Pull requests are welcome. If you modify `grammar.js`, make sure you run `tree-sitter generate` before committing & pushing.
+Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tree-sitter generate` before committing & pushing.
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
