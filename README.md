@@ -50,10 +50,13 @@ As applicable, query files for integrations live in the `integrations` directory
 1. Install a C compiler
 1. Clone the repo with the `--recurse-submodules` parameter
 1. Open a terminal in the repo root and run `npm install` to download packages & build the project
-1. Run `npm test` to run the unit tests
-1. Run corpus tests (parsing all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo) with the following powershell commands (no output if successful):
-   - `$specs = Get-ChildItem -Path .\test\examples\external\specifications -Filter "*.tla" -Exclude "Reals.tla","Naturals.tla" -Recurse`
-   - `$specs |% {npx tree-sitter parse -q $_}`
+1. Run `npm test` to run Tree-sitter unit tests
+1. Before running corpus tests (which parse all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo), you might have to run `npx tree-sitter init-config`. Then, run either:
+
+   - `./test/run-corpus.sh` (Shell script on Unix operating systems)
+   - `.\test\run-corpus.ps1` (Powershell script on Windows)
+
+   No output means successful tests.
 
 ## The Playground
 The playground enables you to easily try out the parser in your browser.
