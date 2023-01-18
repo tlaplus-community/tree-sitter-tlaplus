@@ -4,7 +4,7 @@
   "description": "A tree-sitter grammar for TLA+ and PlusCal",
   "main": "bindings/node",
   "scripts": {
-    "test": "tree-sitter test"
+    "test": "npx tree-sitter test"
   },
   "repository": {
     "type": "git",
