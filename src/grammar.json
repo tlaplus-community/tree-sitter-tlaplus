@@ -497,6 +497,32 @@
       "type": "STRING",
       "value": "_"
     },
+    "bullet_conj": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "/\\"
+        },
+        {
+          "type": "STRING",
+          "value": "∧"
+        }
+      ]
+    },
+    "bullet_disj": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "\\/"
+        },
+        {
+          "type": "STRING",
+          "value": "∨"
+        }
+      ]
+    },
     "keyword": {
       "type": "CHOICE",
       "members": [
@@ -3735,19 +3761,6 @@
         }
       ]
     },
-    "bullet_conj": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "/\\"
-        },
-        {
-          "type": "STRING",
-          "value": "∧"
-        }
-      ]
-    },
     "disj_list": {
       "type": "SEQ",
       "members": [
@@ -3782,19 +3795,6 @@
         {
           "type": "SYMBOL",
           "name": "_expr"
-        }
-      ]
-    },
-    "bullet_disj": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "\\/"
-        },
-        {
-          "type": "STRING",
-          "value": "∨"
         }
       ]
     },

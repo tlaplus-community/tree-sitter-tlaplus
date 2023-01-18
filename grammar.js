@@ -165,9 +165,9 @@ module.exports = grammar({
 
   rules: {
     // Can be one of three things:
-    // * a valid TLA+ source file with an encapsulating module
+    // * a valid TLA⁺ source file with an encapsulating module
     // * a source file containing multiple modules (ambiguously valid but used by the tools)
-    // * a TLA+ snippet without an encapsulating module
+    // * a TLA⁺ snippet without an encapsulating module
     source_file: $ => choice(
       seq(
         optional(alias($.leading_extramodular_text, $.extramodular_text)),
@@ -244,6 +244,8 @@ module.exports = grammar({
     address:            $ => '@',
     label_as:           $ => choice('::', '∷'),
     placeholder:        $ => '_',
+    bullet_conj:        $ => choice('/\\', '∧'),
+    bullet_disj: $ => choice('\\/', '∨'),
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -603,8 +605,8 @@ module.exports = grammar({
       $.string_set,     $.boolean_set,  $.nat_number_set,
       $.int_number_set, $.real_number_set
     ),
-    string_set:       $ => 'STRING',            // From TLA+ builtins
-    boolean_set:      $ => 'BOOLEAN',           // From TLA+ builtins
+    string_set:       $ => 'STRING',            // From TLA⁺ builtins
+    boolean_set:      $ => 'BOOLEAN',           // From TLA⁺ builtins
     nat_number_set:   $ => choice('Nat', 'ℕ'),  // From Naturals standard module
     int_number_set:   $ => choice('Int', 'ℤ'),  // From Integers standard module
     real_number_set:  $ => choice('Real', 'ℝ'), // From Reals standard module
@@ -814,8 +816,6 @@ module.exports = grammar({
     // /\ x
     conj_item: $ => seq($._bullet, $.bullet_conj, $._expr),
 
-    bullet_conj: $ => choice('/\\', '∧'),
-
     // This makes use of the external scanner.
     // \/ x
     // \/ y
@@ -827,8 +827,6 @@ module.exports = grammar({
 
     // \/ x
     disj_item: $ => seq($._bullet, $.bullet_disj, $._expr),
-
-    bullet_disj: $ => choice('\\/', '∨'),
 
     /************************************************************************/
     /* PREFIX, INFIX, AND POSTFIX OPERATOR DEFINITIONS                      */
@@ -1209,7 +1207,7 @@ module.exports = grammar({
     ),
 
     /**************************************************************************/
-    /* PlusCal: written inside block comments and transpiled into TLA+.       */
+    /* PlusCal: written inside block comments and transpiled into TLA⁺.       */
     /* Has two syntaxes: p-syntax (explicit block endings)                    */
     /*               and c-syntax (blocks in braces).                         */
     /* Syntaxes cannot be mixed.                                              */

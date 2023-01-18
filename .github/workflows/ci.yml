@@ -15,11 +15,11 @@ jobs:
       fail-fast: false
     steps:
       - name: Clone repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
       - name: Build
         run: npm install
       - name: Unit Tests
@@ -31,7 +31,6 @@ jobs:
           $specs = Get-ChildItem `
             -Path .\test\examples\external\specifications `
             -Filter "*.tla" `
-            -Exclude "Reals.tla","Naturals.tla" `
             -Recurse
           Push-Location .\test\examples\external\specifications
           $specs | Resolve-Path -Relative
