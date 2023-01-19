@@ -6,7 +6,7 @@ failures=$(echo "$specs" | xargs -P $ncpu -I {} ./node_modules/.bin/tree-sitter 
 if test -z "$failures"; then
   exit 0
 else
-  echo $failures
+  echo "$failures"
   exit 1
 fi
 
