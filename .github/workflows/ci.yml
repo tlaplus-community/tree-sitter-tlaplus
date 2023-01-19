@@ -29,15 +29,13 @@ jobs:
         shell: pwsh
         run: |
           .\node_modules\.bin\tree-sitter init-config
-          $failures = .\test\run-corpus.ps1
-          exit $failures.length
+          .\test\run-corpus.ps1
       - name: Corpus Tests (Unix)
         if: matrix.os != 'windows-latest'
         shell: bash
         run: |
           ./node_modules/.bin/tree-sitter init-config
-          failure_count=$(./test/run-corpus.sh)
-          exit $failure_count
+          ./test/run-corpus.sh
       - name: Query File Tests
         shell: pwsh
         run: |

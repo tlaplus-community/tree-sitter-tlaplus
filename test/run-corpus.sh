@@ -1,5 +1,11 @@
 #! /bin/sh
 
-find "test/examples" -name "*.tla" |
-    xargs -P $(nproc) -I {} ./node_modules/.bin/tree-sitter parse -q {}
+specs=$(find "test/examples" -name "*.tla")
+failures=$(echo "$specs" | xargs -P $(nproc) -I {} ./node_modules/.bin/tree-sitter parse -q {})
+if test -z "$failures"; then
+  exit 0
+else
+  echo $failures
+  exit -1
+fi
 
