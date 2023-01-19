@@ -1,7 +1,7 @@
 #! /bin/sh
 
 specs=$(find "test/examples" -name "*.tla")
-ncpu=$(nproc 2> /dev/null || 1)
+ncpu=$(command -v nproc > /dev/null && nproc || 1)
 echo "$ncpu"
 failures=$(echo "$specs" | xargs -P $ncpu -I {} ./node_modules/.bin/tree-sitter parse -q {})
 if test -z "$failures"; then
