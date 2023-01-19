@@ -81,3 +81,4 @@ You can also click the "query" checkbox to open a third pane for testing [tree q
 Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tree-sitter generate` before committing & pushing.
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
+

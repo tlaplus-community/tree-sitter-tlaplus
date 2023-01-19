@@ -1,4 +1,4 @@
-; TLA+ scopes and definitions
+; TLA⁺ scopes and definitions
 [
   (bounded_quantification)
   (choose)

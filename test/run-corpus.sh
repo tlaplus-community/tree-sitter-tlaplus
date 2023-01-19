@@ -1,4 +1,5 @@
 #! /bin/sh
 
-find "test/examples/external/specifications" -name "*.tla" ! -iname "Reals.tla" ! -iname "Naturals.tla" |
-    xargs -P $(nproc) -I {} "npx tree-sitter parse -q {}"
+find "test/examples/external/specifications" -name "*.tla" |
+    xargs -P $(nproc) -I {} "./node_modules/.bin/tree-sitter parse -q {}"
+

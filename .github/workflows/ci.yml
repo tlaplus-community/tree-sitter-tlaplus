@@ -24,20 +24,20 @@ jobs:
         run: npm install
       - name: Unit Tests
         run: npx tree-sitter test
-      - name: Corpus Tests
+      - name: Corpus Tests (Windows)
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          npx tree-sitter init-config
-          $specs = Get-ChildItem `
-            -Path .\test\examples\external\specifications `
-            -Filter "*.tla" `
-            -Recurse
-          Push-Location .\test\examples\external\specifications
-          $specs | Resolve-Path -Relative
-          Pop-Location
-          $failures = $specs.FullName |% {npx tree-sitter parse -q $_}
-          $failures
+          .\node_modules\.bin\tree-sitter init-config
+          $failures = .\test\run-corpus.ps1
           exit $failures.length
+      - name: Corpus Tests (Unix)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          ./node_modules/.bin/tree-sitter init-config
+          failure_count=$(./test/run-corpus.sh)
+          exit $failure_count
       - name: Query File Tests
         shell: pwsh
         run: |
