@@ -6,7 +6,7 @@ authors = ["Andrew Helwer", "Vasiliy Morkovkin"]
 license = "MIT"
 readme = "README.md"
 keywords = ["tlaplus", "pluscal", "tree-sitter", "grammar", "parser"]
-categories = ["parsing", "text-editors"]
+categories = ["parser-implementations"]
 repository = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
 edition = "2018"
 
@@ -27,3 +27,4 @@ tree-sitter = "0.20.3"
 
 [build-dependencies]
 cc = "1.0"
+

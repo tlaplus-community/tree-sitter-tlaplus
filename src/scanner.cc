@@ -174,7 +174,7 @@ namespace {
   
   /**
    * Scans for extramodular text, the freeform text that can be present
-   * outside of TLA+ modules. This function skips any leading whitespace
+   * outside of TLA⁺ modules. This function skips any leading whitespace
    * to avoid extraneous extramodular text tokens given newlines at the
    * beginning or end of the file. It will consume any text up to the
    * point it performs lookahead that captures the following regex:
@@ -1226,7 +1226,7 @@ namespace {
      * 
      * One side-effect of all this is that tree-sitter parses certain
      * arrangements of jlists and delimiters that are actually illegal
-     * according to TLA+ syntax rules; that is okay since tree-sitter's
+     * according to TLA⁺ syntax rules; that is okay since tree-sitter's
      * use case of error-tolerant editor tooling ensures its design
      * errs on the side of being overly-permissive. For a concrete
      * example here, tree-sitter will parse this illegal expression
