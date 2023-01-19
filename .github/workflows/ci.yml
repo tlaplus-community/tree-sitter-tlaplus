@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: npm install
       - name: Unit Tests
-        run: npx tree-sitter test
+        run: ./node_modules/.bin/tree-sitter test
       - name: Corpus Tests (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -48,13 +48,13 @@ jobs:
           $results = $query_files.FullName `
             |% { `
               Write-Host (Resolve-Path -Path $_ -Relative); `
-              npx tree-sitter query $_ ./test/examples/Highlight.tla | Out-Null; `
+              ./node_modules/.bin/tree-sitter query $_ ./test/examples/Highlight.tla | Out-Null; `
               $lastexitcode `
             }
           $failures = $results |? {$_ -ne 0}
           exit $failures.length
       - name: Generate parser code
-        run: npx tree-sitter generate
+        run: ./node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
         shell: bash
         run: git add --renormalize .
