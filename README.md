@@ -13,6 +13,8 @@ You can take the parser for a spin at https://tlaplus-community.github.io/tree-s
 The most important files in this repo are `grammar.js` and `src/scanner.cc`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
 
+A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
+
 ## Aims & Capabilities
 The aim of this project is to facilitate creation of modern user-assistive language tooling for TLA⁺.
 To that end, the project provides two main capabilities:
@@ -28,7 +30,7 @@ Application possibilities include:
  * Lightweight backend for a TLA⁺ [language server](https://microsoft.github.io/language-server-protocol/)
  * Writing TLA⁺ specs via dictation using [Cursorless](https://github.com/pokey/cursorless-vscode)
  * Semantic analysis of TLA⁺ specs [on GitHub](https://github.com/github/semantic)
- * Real-time translation of TLA⁺ operator symbols into their unicode equivalents
+ * Translation of TLA⁺ operator symbols [into their unicode equivalents](https://github.com/tlaplus-community/tlauc)
 
 If you really want to use this project to write an interpreter, nobody's stopping you from trying.
 You could first use SANY to check spec validity, then use this parser to extract & interact with the actual parse tree.
@@ -39,9 +41,10 @@ There are a number of avenues available for consuming & using the parser in a pr
 
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA⁺ syntax highlighting & code folding in Neovim
- * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA⁺ syntax highlighting in Emacs
  * [tla-web](https://github.com/will62794/tla-web) for a web-based TLA⁺ interpreter and trace explorer
  * GitHub for syntax highlighting of TLA⁺ files and snippets
+ * [tlauc](https://github.com/tlaplus-community/tlauc) for translating between ASCII and Unicode TLA⁺ symbols
+ * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA⁺ syntax highlighting in Emacs
 
 As applicable, query files for integrations live in the `integrations` directory.
 
