@@ -1,11 +1,11 @@
 [package]
 name = "tree-sitter-tlaplus"
-description = "A tree-sitter grammar for TLA+ and PlusCal"
-version = "0.6.2"
+description = "A tree-sitter grammar for TLA⁺ and PlusCal"
+version = "1.0.0"
 authors = ["Andrew Helwer", "Vasiliy Morkovkin"]
 license = "MIT"
 readme = "README.md"
-keywords = ["tlaplus", "pluscal", "tree-sitter", "grammar", "parser"]
+keywords = ["tla+", "tlaplus", "pluscal", "tree-sitter", "grammar", "parser"]
 categories = ["parser-implementations"]
 repository = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
 edition = "2018"

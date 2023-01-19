@@ -1,7 +1,7 @@
 {
   "name": "@tlaplus/tree-sitter-tlaplus",
-  "version": "0.6.2",
-  "description": "A tree-sitter grammar for TLA+ and PlusCal",
+  "version": "1.0.0",
+  "description": "A tree-sitter grammar for TLA⁺ and PlusCal",
   "main": "bindings/node",
   "scripts": {
     "test": "npx tree-sitter test"
@@ -11,8 +11,9 @@
     "url": "git+https://github.com/tlaplus-community/tree-sitter-tlaplus.git"
   },
   "keywords": [
-    "TLA+",
-    "PlusCal",
+    "tla+",
+    "tlaplus",
+    "pluscal",
     "tree-sitter",
     "grammar",
     "parser"

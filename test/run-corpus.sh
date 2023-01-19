@@ -1,4 +1,12 @@
 #! /bin/sh
 
-find "test/examples/external/specifications" -name "*.tla" ! -iname "Reals.tla" ! -iname "Naturals.tla" |
-    xargs -P $(nproc) -I {} "npx tree-sitter parse -q {}"
+specs=$(find "test/examples" -name "*.tla")
+ncpu=$(command -v nproc > /dev/null && nproc || echo 1)
+failures=$(echo "$specs" | xargs -P $ncpu -I {} ./node_modules/.bin/tree-sitter parse -q {})
+if test -z "$failures"; then
+  exit 0
+else
+  echo "$failures"
+  exit 1
+fi
+

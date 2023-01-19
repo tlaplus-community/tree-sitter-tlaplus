@@ -3,7 +3,7 @@
 ; ; https://github.com/tree-sitter/tree-sitter/blob/f5d1c0b8609f8697861eab352ead44916c068c74/cli/src/highlight.rs#L150-L171
 ; ; In this file, captures defined earlier take precedence over captures defined later.
 
-; TLA+ Keywords
+; TLA⁺ Keywords
 [
   "ACTION"
   "ASSUME"
