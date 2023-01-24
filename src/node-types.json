@@ -1487,6 +1487,11 @@
     }
   },
   {
+    "type": "fair",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "fairness",
     "named": true,
     "fields": {},
@@ -2851,7 +2856,17 @@
   {
     "type": "pcal_algorithm_start",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "fair",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "pcal_assert",
@@ -4811,6 +4826,14 @@
   },
   {
     "type": "-+->",
+    "named": false
+  },
+  {
+    "type": "--algorithm",
+    "named": false
+  },
+  {
+    "type": "--fair",
     "named": false
   },
   {
