@@ -1254,16 +1254,14 @@ module.exports = grammar({
 
     pcal_algorithm_start: $ => 
       seq(
-        token(
-          prec(PREC.PCAL, (
-            choice(
-              '--algorithm', 
-              seq('--fair', 'algorithm')
-            )
-          ))
+        choice(
+          token(prec(PREC.PCAL, '--algorithm')),
+          $.fair
         ),
         $._notify_pcal_algorithm_start
       ),
+
+    fair: $ => seq(token(prec(PREC.PCAL, '--fair')), 'algorithm'),
 
     // Operators, which depend on PlusCal variables
     // define 
