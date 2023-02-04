@@ -1084,9 +1084,13 @@ namespace {
      * @return Whether a DEDENT token was emitted.
      */
     bool emit_dedent(TSLexer* const lexer) {
-      lexer->result_symbol = DEDENT;
-      this->jlists.pop_back();
-      return true;
+      if (is_in_jlist()) {
+        lexer->result_symbol = DEDENT;
+        this->jlists.pop_back();
+        return true;
+      } else {
+        return false;
+      }
     }
 
     /**
@@ -1515,13 +1519,28 @@ namespace {
      * we record the current proof level in case there is a child proof
      * of this step that uses <+> or PROOF <*> for its first step. Then
      * we pop the top proof level off the stack.
+     *
+     * It's possible to encounter a QED keyword while not inside of a proof
+     * as part of an earlier syntax error, and proof step IDs being treated
+     * as sequences of < and > operators. In this case the current proof
+     * state should not be modified, but a QED keyword token is still
+     * returned to help the error recovery process. Not performing this
+     * check previously led to a segfault; see:
+     * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/60
      * 
      * @param lexer The tree-sitter lexing control structure.
+     * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token should be emitted.
      */
-    bool handle_qed_keyword_token(TSLexer* const lexer) {
-      last_proof_level = get_current_proof_level();
-      proofs.pop_back();
+    bool handle_qed_keyword_token(
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
+      if (valid_symbols[QED_KEYWORD]) {
+        last_proof_level = get_current_proof_level();
+        proofs.pop_back();
+      }
+
       lexer->result_symbol = QED_KEYWORD;
       lexer->mark_end(lexer);
       return true;
@@ -1597,7 +1616,7 @@ namespace {
           case Token_OMITTED_KEYWORD:
             return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
           case Token_QED_KEYWORD:
-            return handle_qed_keyword_token(lexer);
+            return handle_qed_keyword_token(lexer, valid_symbols);
           case Token_WEAK_FAIRNESS:
             return handle_fairness_keyword_token(lexer, col, WEAK_FAIRNESS);
           case Token_STRONG_FAIRNESS:

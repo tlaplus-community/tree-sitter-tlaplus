@@ -24,18 +24,23 @@ jobs:
         run: npm install
       - name: Unit Tests
         run: ./node_modules/.bin/tree-sitter test
-      - name: Corpus Tests (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          .\node_modules\.bin\tree-sitter init-config
-          .\test\run-corpus.ps1
-      - name: Corpus Tests (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Crash Regression Tests
         shell: bash
         run: |
           ./node_modules/.bin/tree-sitter init-config
-          ./test/run-corpus.sh
+          ./node_modules/.bin/tree-sitter parse -q test/crash_regressions/QEDErrorRecovery.tla || (($? == 1))
+      - name: Corpus Tests (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: .\test\run-corpus.ps1
+      - name: Corpus Tests (Unix)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: ./test/run-corpus.sh --parallel
+      - name: Corpus Tests (MacOS)
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: ./test/run-corpus.sh
       - name: Query File Tests
         shell: pwsh
         run: |
