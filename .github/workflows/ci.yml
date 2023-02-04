@@ -24,6 +24,8 @@ jobs:
         run: npm install
       - name: Unit Tests
         run: ./node_modules/.bin/tree-sitter test
+      - name: Crash Regression Tests
+        run: ./node_modules/.bin/tree-sitter parse test/crash_regressions/QEDErrorRecovery.tla
       - name: Corpus Tests (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
