@@ -34,10 +34,13 @@ jobs:
         shell: pwsh
         run: .\test\run-corpus.ps1
       - name: Corpus Tests (Unix)
-        if: matrix.os != 'windows-latest'
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: |
-          ./test/run-corpus.sh
+        run: ./test/run-corpus.sh --parallel
+      - name: Corpus Tests (MacOS)
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: ./test/run-corpus.sh
       - name: Query File Tests
         shell: pwsh
         run: |
