@@ -14,7 +14,7 @@ The most important files in this repo are `grammar.js` and `src/scanner.cc`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
 
 A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
-This repo is [mirrored on sourcehut](mirrored at https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
+This repo is [mirrored on sourcehut](https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
 
 ## Aims & Capabilities
 The aim of this project is to facilitate creation of modern user-assistive language tooling for TLA⁺.
