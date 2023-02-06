@@ -58,10 +58,11 @@ highlights_out="${out_dir}/${highlights_file}"
 cp $highlights_in $highlights_out
 
 $CXX $CXXFLAGS -std=c++11 \
-  -I $ts_dir/lib/include/tree_sitter \
+  -I $ts_dir/lib/include \
   -D TS_LANG=$ts_lang -D TS_LANG_QUERY_FILENAME="\"${highlights_file}\"" \
   $fuzz_dir/fuzzer.cc $parser_out $scanner_out $ts_dir/libtree-sitter.a \
   -o $out_dir/${ts_lang}_fuzzer
 
+echo "Generating token dictionary"
 python "${fuzz_dir}/gen-dict.py" "${src_dir}/grammar.json" > "${out_dir}/${ts_lang}.dict"
 

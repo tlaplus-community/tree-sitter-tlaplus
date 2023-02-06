@@ -23,6 +23,7 @@ jobs:
         shell: bash
         run: |
           test/fuzzing/build-for-fuzzing.sh
+          echo "Running fuzzer"
           timeout 5 test/fuzzing/out/tree_sitter_tlaplus_fuzzer || (($? == 124))
       - name: Install Node.js
         uses: actions/setup-node@v3

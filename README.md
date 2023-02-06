@@ -78,6 +78,13 @@ You can also click the "query" checkbox to open a third pane for testing [tree q
 (operator_definition name: (identifier) @operator)
 ```
 
+## Fuzzing
+You can fuzz the grammar if you're running Linux with a recent version of Clang installed.
+Do so as follows:
+1. Clone the repo with the `--recurse-submodules` parameter
+2. From repo root, run the bash script `test/fuzzing/build-for-fuzzing.sh`
+3. From repo root, run `test/fuzzing/out/tree_sitter_tlaplus_fuzzer`
+
 ## Contributions
 One easy way to contribute is to add your TLA⁺ specifications to the [tlaplus/examples](https://github.com/tlaplus/examples) repo, which this grammar uses as a valuable test corpus!
 
@@ -85,4 +92,5 @@ Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tr
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
 
+You can also contribute by running the fuzzer and reporting bugs it finds, as described above.
 
