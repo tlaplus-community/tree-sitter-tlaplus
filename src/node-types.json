@@ -1332,6 +1332,11 @@
     "fields": {}
   },
   {
+    "type": "double_line",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "enabled",
     "named": true,
     "fields": {}
@@ -1633,6 +1638,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "header_line",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "hex_number",
@@ -4141,6 +4151,11 @@
     "fields": {}
   },
   {
+    "type": "single_line",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "source_file",
     "named": true,
     "fields": {},
@@ -4829,6 +4844,10 @@
     "named": false
   },
   {
+    "type": "----",
+    "named": false
+  },
+  {
     "type": "--algorithm",
     "named": false
   },
@@ -4918,6 +4937,10 @@
   },
   {
     "type": "==",
+    "named": false
+  },
+  {
+    "type": "====",
     "named": false
   },
   {
@@ -5513,10 +5536,6 @@
     "named": true
   },
   {
-    "type": "double_line",
-    "named": true
-  },
-  {
     "type": "either",
     "named": false
   },
@@ -5554,10 +5573,6 @@
   },
   {
     "type": "hashhash",
-    "named": true
-  },
-  {
-    "type": "header_line",
     "named": true
   },
   {
@@ -5670,10 +5685,6 @@
   },
   {
     "type": "setminus",
-    "named": true
-  },
-  {
-    "type": "single_line",
     "named": true
   },
   {
