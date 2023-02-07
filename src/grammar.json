@@ -255,12 +255,36 @@
       ]
     },
     "single_line": {
-      "type": "PATTERN",
-      "value": "-----*"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "----"
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "-*"
+          }
+        }
+      ]
     },
     "double_line": {
-      "type": "PATTERN",
-      "value": "=====*"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "===="
+        },
+        {
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "=*"
+          }
+        }
+      ]
     },
     "def_eq": {
       "type": "CHOICE",

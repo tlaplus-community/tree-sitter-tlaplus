@@ -268,11 +268,10 @@ namespace {
         int32_t multiplier = 1;
         for (size_t i = 0; i < raw_level.size(); i++) {
           const size_t index = raw_level.size() - i - 1;
-          int8_t digit_value = raw_level.at(index) - 48;
+          const int8_t digit_value = raw_level.at(index) - 48;
           level += digit_value * multiplier;
           multiplier *= 10;
         }
-
       }
     }
   };
@@ -949,7 +948,7 @@ namespace {
       if (!is_dry_run) { memcpy(&buffer[offset], &proof_depth, copied); }
       offset += copied;
       copied = proof_depth * sizeof(proof_level);
-      if (!is_dry_run) { memcpy(&buffer[offset], proofs.data(), copied); }
+      if (!is_dry_run && copied > 0) { memcpy(&buffer[offset], proofs.data(), copied); }
       offset += copied;
       
       copied = sizeof(proof_level);
@@ -1001,7 +1000,7 @@ namespace {
         offset += copied;
 
         copied = proof_depth * sizeof(proof_level);
-        memcpy(proofs.data(), &buffer[offset], copied);
+        if (copied > 0) { memcpy(proofs.data(), &buffer[offset], copied); }
         offset += copied;
         
         copied = sizeof(proof_level);
@@ -1658,14 +1657,14 @@ namespace {
       // First write number of enclosing contexts (guaranteed to be >= 1)
       nest_address const context_depth = this->enclosing_contexts.size() + 1;
       copied = sizeof(nest_address);
-      memcpy(&buffer[offset], &context_depth, copied);
+      if (copied > 0) memcpy(&buffer[offset], &context_depth, copied);
       offset += copied;
       
       // Then write size of N-1 enclosing contexts
       for (int i = 0; i < context_depth - 1; i++) {
         unsigned const context_size = this->enclosing_contexts[i].size();
         copied = sizeof(unsigned);
-        memcpy(&buffer[offset], &context_size, copied);
+        if (copied > 0) memcpy(&buffer[offset], &context_size, copied);
         offset += copied;
       }
       
@@ -1678,7 +1677,7 @@ namespace {
       for (int i = 0; i < this->enclosing_contexts.size(); i++) {
         std::vector<char>& context = this->enclosing_contexts[i];
         copied = context.size();
-        memcpy(&buffer[offset], context.data(), copied);
+        if (copied > 0) memcpy(&buffer[offset], context.data(), copied);
         offset += copied;
       }
 
@@ -1712,14 +1711,14 @@ namespace {
         std::vector<unsigned> context_sizes;
         context_sizes.resize(context_depth);
         copied = context_depth * sizeof(unsigned);
-        memcpy(context_sizes.data(), &buffer[offset], copied);
+        if (copied > 0) memcpy(context_sizes.data(), &buffer[offset], copied);
         offset += copied;
         
         // Deserialize N-1 contexts as enclosing contexts
         for (int i = 0; i < context_depth - 1; i++) {
           copied = context_sizes[i];
           this->enclosing_contexts[i].resize(copied);
-          memcpy(this->enclosing_contexts[i].data(), &buffer[offset], copied);
+          if (copied > 0) memcpy(this->enclosing_contexts[i].data(), &buffer[offset], copied);
           offset += copied;
         }
         

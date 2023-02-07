@@ -220,10 +220,10 @@ module.exports = grammar({
     ),
 
     // Line of ---------- of length at least 4
-    single_line: $ => /-----*/,
+    single_line: $ => seq('----', token.immediate(/-*/)),
 
     // Line of =========== of length at least 4
-    double_line: $ => /=====*/,
+    double_line: $ => seq('====', token.immediate(/=*/)),
 
     // Various syntactic elements and their unicode equivalents
     def_eq:             $ => choice('==', '≜'),
