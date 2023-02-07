@@ -2,5 +2,5 @@
 	path = test/examples/external
 	url = https://github.com/tlaplus/examples
 [submodule "test/fuzzing/tree-sitter"]
-	path = test/fuzzing/tree-sitter
+	path = test/dependencies/tree-sitter
 	url = https://github.com/tree-sitter/tree-sitter
