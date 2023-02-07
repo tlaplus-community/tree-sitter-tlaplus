@@ -26,7 +26,7 @@ export CXXFLAGS
 
 echo "Building tree-sitter..."
 fuzz_dir="test/fuzzing"
-ts_dir="${fuzz_dir}/tree-sitter"
+ts_dir="test/dependencies/tree-sitter"
 pushd $ts_dir
 make clean
 make
