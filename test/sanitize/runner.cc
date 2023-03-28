@@ -17,6 +17,8 @@ int main(int const argc, char const* const argv[]) {
   }
 
   TSParser *parser = ts_parser_new();
+  TSLogger *logger = ts_parser_logger(parser);
+  logger->log = true;
   bool language_ok = ts_parser_set_language(parser, TS_LANG());
   assert(language_ok);
 
