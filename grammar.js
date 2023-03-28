@@ -245,7 +245,7 @@ module.exports = grammar({
     label_as:           $ => choice('::', '∷'),
     placeholder:        $ => '_',
     bullet_conj:        $ => choice('/\\', '∧'),
-    bullet_disj: $ => choice('\\/', '∨'),
+    bullet_disj:        $ => choice('\\/', '∨'),
 
     // The set of all reserved keywords
     keyword: $ => choice(
@@ -1166,10 +1166,7 @@ module.exports = grammar({
     ),
 
     use_or_hide: $ => seq(
-      choice(
-        seq('USE', optional('ONLY')),
-        'HIDE'
-      ),
+      choice('USE', 'HIDE'),
       $.use_body
     ),
 

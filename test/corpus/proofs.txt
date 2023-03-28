@@ -135,7 +135,7 @@ THEOREM TRUE
 <1>h..... CASE 6
 <1>i..... PICK a, b, c : 7
 <1>j..... HIDE 8
-<1>k..... USE ONLY 9
+<1>k..... USE 9
 <1>l..... INSTANCE M
 <1>m..... QED
 ====

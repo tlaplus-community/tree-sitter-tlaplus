@@ -1252,6 +1252,7 @@ namespace {
     ) {
       return is_in_jlist()
         && valid_symbols[DEDENT]
+        && !this->jlists.empty()
         && emit_dedent(lexer);
     }
 
@@ -1535,7 +1536,7 @@ namespace {
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
-      if (valid_symbols[QED_KEYWORD]) {
+      if (is_in_proof()) {
         last_proof_level = get_current_proof_level();
         proofs.pop_back();
       }
@@ -1749,7 +1750,7 @@ namespace {
         this->current_context.deserialize(NULL, 0);
         lexer->result_symbol = PCAL_START;
         return true;
-      } else if (valid_symbols[PCAL_END]) {
+      } else if (valid_symbols[PCAL_END] && !this->enclosing_contexts.empty()) {
         // Exiting PlusCal block; rehydrate context then pop
         std::vector<char>& next = this->enclosing_contexts.back();
         this->current_context.deserialize(next.data(), next.size());
