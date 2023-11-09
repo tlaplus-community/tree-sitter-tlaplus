@@ -28,7 +28,9 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          puthon-version: '3.11'
+          puthon-version: '3.12'
+      - name: Install distutils for node-gyp
+        run: pip install setuptools
       - name: Install Node.js
         uses: actions/setup-node@v3
       - name: Build
