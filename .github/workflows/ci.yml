@@ -68,7 +68,7 @@ jobs:
         run: ./node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
         shell: bash
-        run: git add --renormalize .
+        run: git add --renormalize . src/*
       - name: List changes
         shell: bash
         run: git status
