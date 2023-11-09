@@ -2591,8 +2591,13 @@
                             "type": "SEQ",
                             "members": [
                               {
-                                "type": "SYMBOL",
-                                "name": "identifier"
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "SYMBOL",
+                                  "name": "identifier"
+                                },
+                                "named": true,
+                                "value": "identifier_ref"
                               },
                               {
                                 "type": "REPEAT",
@@ -2604,8 +2609,13 @@
                                       "value": ","
                                     },
                                     {
-                                      "type": "SYMBOL",
-                                      "name": "identifier"
+                                      "type": "ALIAS",
+                                      "content": {
+                                        "type": "SYMBOL",
+                                        "name": "identifier"
+                                      },
+                                      "named": true,
+                                      "value": "identifier_ref"
                                     }
                                   ]
                                 }
@@ -9600,4 +9610,3 @@
     "_primitive_value_set"
   ]
 }
-

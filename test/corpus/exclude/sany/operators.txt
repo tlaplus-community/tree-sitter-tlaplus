@@ -1,0 +1,16 @@
+=============|||
+Nonfix Minus (GH884)
+=============|||
+
+---- MODULE Test ----
+op == - (1,2)
+====
+
+--------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq)
+    (bound_nonfix_op (infix_op_symbol (minus)) (nat_number) (nat_number))
+  )
+(double_line)))
+

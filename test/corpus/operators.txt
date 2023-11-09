@@ -47,7 +47,6 @@ Minus and Negative
 =============|||
 
 ---- MODULE Test ----
-op == - (1,2)
 op == -. (1)
 op == - (1)
 op == - 1 - 2
@@ -56,9 +55,6 @@ op == - 1 - 2
 --------------|||
 
 (source_file (module (header_line) (identifier) (header_line)
-  (operator_definition (identifier) (def_eq)
-    (bound_nonfix_op (infix_op_symbol (minus)) (nat_number) (nat_number))
-  )
   (operator_definition (identifier) (def_eq)
     (bound_nonfix_op (prefix_op_symbol (negative)) (nat_number))
   )
@@ -105,4 +101,5 @@ op ==
   )
 (double_line)))
 
+=======
 

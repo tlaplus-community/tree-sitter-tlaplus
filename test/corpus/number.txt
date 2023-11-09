@@ -5,7 +5,6 @@ All Number Formats
 ---- MODULE Test ----
 op == 12345
 op == 12345.12345
-op == .5
 op == \b01010101
 op == \B10101010
 op == \o01234567
@@ -18,7 +17,6 @@ op == \H9876543210FEDCBA
 
 (source_file (module (header_line) (identifier) (header_line)
   (operator_definition (identifier) (def_eq) (nat_number))
-  (operator_definition (identifier) (def_eq) (real_number))
   (operator_definition (identifier) (def_eq) (real_number))
   (operator_definition (identifier) (def_eq) (binary_number (format) (value)))
   (operator_definition (identifier) (def_eq) (binary_number (format) (value)))

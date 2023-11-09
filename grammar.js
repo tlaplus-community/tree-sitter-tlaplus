@@ -614,7 +614,7 @@ module.exports = grammar({
     // Label for less-fragile addressing of subexpressions
     // lbl(a, b) :: e
     label: $ => prec('0-0', seq(
-      field('name', arity0OrN($.identifier, $.identifier)),
+      field('name', arity0OrN($.identifier, alias($.identifier, $.identifier_ref))),
       $.label_as,
       field('expression', $._expr)
     )),

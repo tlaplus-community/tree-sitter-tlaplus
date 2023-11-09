@@ -2156,7 +2156,7 @@
             "named": false
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           }
         ]
