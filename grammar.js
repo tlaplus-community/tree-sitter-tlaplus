@@ -842,7 +842,7 @@ module.exports = grammar({
     enabled:          $ => 'ENABLED',
     unchanged:        $ => 'UNCHANGED',
     always:           $ => choice('[]', '□'),
-    eventually:       $ => choice('<>', '⋄'),
+    eventually:       $ => choice('<>', '⋄', '◇'),
 
     // Use rule when using ops as higher-order constructs.
     // Negative is disambiguated from minus with a '.'
