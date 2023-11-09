@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Clone repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Smoke-test fuzzing harness
@@ -25,6 +25,10 @@ jobs:
           test/fuzzing/build-for-fuzzing.sh
           echo "Running fuzzer"
           timeout 5 test/fuzzing/out/tree_sitter_tlaplus_fuzzer || (($? == 124))
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          puthon-version: '3.11'
       - name: Install Node.js
         uses: actions/setup-node@v3
       - name: Build
@@ -68,10 +72,14 @@ jobs:
         run: ./node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
         shell: bash
-        run: git add --renormalize . src/*
+        run: |
+          git status
+          git add --renormalize src/parser.c src/grammar.json src/node-types.json
       - name: List changes
         shell: bash
-        run: git status
+        run: |
+          git status
+          git diff
         # Command from https://stackoverflow.com/a/62768943/2852699
       - name: Check grammar/code sync
         shell: bash

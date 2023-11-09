@@ -51,6 +51,7 @@ As applicable, query files for integrations live in the `integrations` directory
 
 ## Build & Test
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Install [Python](https://www.python.org/downloads/)
 1. Install a C compiler
 1. Clone the repo with the `--recurse-submodules` parameter
 1. Open a terminal in the repo root and run `npm install` to download packages & build the project
