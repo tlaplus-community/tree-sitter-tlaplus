@@ -28,7 +28,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          puthon-version: '3.12'
+          python-version: '3.12'
       - name: Install distutils for node-gyp
         run: pip install setuptools
       - name: Install Node.js
@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           git status
-          git add --renormalize src/parser.c src/grammar.json src/node-types.json
+          git add --renormalize .
       - name: List changes
         shell: bash
         run: |
