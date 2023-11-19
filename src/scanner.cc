@@ -468,6 +468,7 @@ namespace {
         ACCEPT_LEXEME(Lexeme_COLON);
         if (':' == lookahead) ADVANCE(LexState_OTHER);
         if ('=' == lookahead) ADVANCE(LexState_OTHER);
+        if ('>' == lookahead) ADVANCE(LexState_OTHER);
         END_LEX_STATE();
       case LexState_SEMICOLON:
         ACCEPT_LEXEME(Lexeme_SEMICOLON);
