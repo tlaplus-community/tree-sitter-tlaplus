@@ -1,7 +1,7 @@
 [package]
 name = "tree-sitter-tlaplus"
 description = "A tree-sitter grammar for TLA⁺ and PlusCal"
-version = "1.0.7"
+version = "1.0.8"
 authors = ["Andrew Helwer", "Vasiliy Morkovkin"]
 license = "MIT"
 readme = "README.md"

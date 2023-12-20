@@ -1,7 +1,8 @@
 const PREC = {
   COMMENT: 0,
   BLOCK_COMMENT: 1,
-  PCAL: 2
+  PCAL: 2,
+  STRING: 3
 }
 
 // A sequence of one or more comma-separated strings matching the rule
@@ -585,17 +586,16 @@ module.exports = grammar({
     string: $ => seq(
       '"',
       repeat(choice(
-        token.immediate(/[^"\n]/),
+        // Proper lexical precedence allows to parse strings like "(*",
+        // winning over block comment lexemes
+        token.immediate(prec(PREC.STRING, /[^"\n]/)),
         $.escape_char
       )),
       token.immediate('"')
     ),
 
     // "/\\", "say \"hello\" back", "one\ntwo"
-    escape_char: $ => seq(
-      token.immediate('\\'),
-      token.immediate(/./)
-    ),
+    escape_char: $ => token.immediate(prec(PREC.STRING, seq('\\', /./))),
 
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
