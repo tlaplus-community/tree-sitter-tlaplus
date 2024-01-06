@@ -1,10 +1,12 @@
 # tree-sitter-tlaplus
+
 [![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@tlaplus/tree-sitter-tlaplus.svg)](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus)
 [![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
 
 ## Overview
-This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for the formal specification language [TLA⁺](https://en.wikipedia.org/wiki/TLA%2B) (and [PlusCal](https://en.wikipedia.org/wiki/PlusCal)).
+
+This is a [tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for the formal specification language [TLA⁺](https://en.wikipedia.org/wiki/TLA%2B) and its embedded variant [PlusCal](https://en.wikipedia.org/wiki/PlusCal).
 Tree-sitter is an incremental error-tolerant parser generator primarily aimed at language tooling such as highlighting, code folding, symbol finding, and other tasks making use of its fully-featured syntax tree query API.
 This grammar is intended to function gracefully while parsing a source file mid-edit, when the syntax isn't fully correct.
 It is also fast enough to re-parse the file on every keystroke.
@@ -12,11 +14,14 @@ You can take the parser for a spin at https://tlaplus-community.github.io/tree-s
 
 The most important files in this repo are `grammar.js` and `src/scanner.cc`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
+This grammar is published as both a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) and [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), although most tree-sitter grammar consumers download this repo directly.
+A WASM build is included in the Node.js package.
 
 A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
 This repo is [mirrored on sourcehut](https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
 
 ## Aims & Capabilities
+
 The aim of this project is to facilitate creation of modern user-assistive language tooling for TLA⁺.
 To that end, the project provides two main capabilities:
 1. Provide an approximately-correct parse tree for TLA⁺ specifications in standardized form, for easy integration with general projects designed to consume the tree-sitter grammars of many languages.
@@ -38,6 +43,7 @@ You could first use SANY to check spec validity, then use this parser to extract
 For a REPL, you might want to wait until the [multiple entry points](https://github.com/tree-sitter/tree-sitter/issues/870) feature is added to tree-sitter so you can parse standalone TLA⁺ expressions without an encapsulating module.
 
 ## Use & Notable Integrations
+
 There are a number of avenues available for consuming & using the parser in a project of your own; see the [tlaplus-tool-dev-examples](https://github.com/tlaplus-community/tlaplus-tool-dev-examples) repo.
 
 Notable projects currently using or integrating this grammar include:
@@ -50,25 +56,30 @@ Notable projects currently using or integrating this grammar include:
 As applicable, query files for integrations live in the `integrations` directory.
 
 ## Build & Test
+
 1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-1. Install [Python](https://www.python.org/downloads/)
 1. Install a C compiler
-1. Clone the repo with the `--recurse-submodules` parameter
+1. Clone the repo with the `--recurse-submodules` parameter, or run `git submodule update --init --recursive` if you already cloned it without that parameter
 1. Open a terminal in the repo root and run `npm install` to download packages & build the project
 1. Run `npm test` to run Tree-sitter unit tests
-1. Before running corpus tests (which parse all specifications in the [tlaplus/examples](https://github.com/tlaplus/examples) repo), you might have to run `npx tree-sitter init-config`. Then, run either:
 
-   - `./test/run-corpus.sh` (Shell script on Unix operating systems)
-   - `.\test\run-corpus.ps1` (Powershell script on Windows)
+### Corpus Tests
 
-   No output means successful tests.
+This test ensures the grammar can parse all modules in the [tlaplus/examples](https://github.com/tlaplus/examples) repo, which is included as a git submodule.
+To run:
+1. If this is the first time running tree-sitter on your machine, run `npx tree-sitter init-config`
+1. For Unix-type OSs, run `./test/run-corpus.sh`; for Windows, run `.\test\run-corpus.ps1`
+1. The scripts exit with error code 0 if successful
+
+### WASM Build
+
+1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203))
+1. Run `npx tree-sitter build-wasm`
 
 ## The Playground
+
 The playground enables you to easily try out the parser in your browser.
-You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or set it up locally as follows:
-1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203));
-1. Run `npx tree-sitter build-wasm`;
-1. Run `npx tree-sitter playground`;
+You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or run it locally by building the WASM (see instructions above) then running `npx tree-sitter playground`.
 
 The playground consists of a pane containing an editable TLA⁺ spec, and another pane containing the parse tree for that spec.
 The parse tree is updated in real time as you edit the TLA⁺ spec.
@@ -80,6 +91,7 @@ You can also click the "query" checkbox to open a third pane for testing [tree q
 ```
 
 ## Fuzzing
+
 You can fuzz the grammar if you're running Linux with a recent version of Clang installed.
 Do so as follows:
 1. Clone the repo with the `--recurse-submodules` parameter
@@ -87,6 +99,7 @@ Do so as follows:
 3. From repo root, run `test/fuzzing/out/tree_sitter_tlaplus_fuzzer`
 
 ## Contributions
+
 One easy way to contribute is to add your TLA⁺ specifications to the [tlaplus/examples](https://github.com/tlaplus/examples) repo, which this grammar uses as a valuable test corpus!
 
 Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tree-sitter generate` before committing & pushing.
