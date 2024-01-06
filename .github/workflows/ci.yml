@@ -17,7 +17,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
       - name: Smoke-test fuzzing harness
         if: matrix.os == 'ubuntu-latest'
         shell: bash
