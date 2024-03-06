@@ -53,12 +53,11 @@ op == <<"/\\", "\\/">>
 (double_line)))
 
 ==================|||
-String with comment start
+String with block comment start
 ==================|||
 
 ---- MODULE Test ----
-op1 == "\*"
-op2 == "(*"
+op == "(*"
 ====
 
 ------------------|||
@@ -71,10 +70,6 @@ op2 == "(*"
     (operator_definition
       (identifier)
       (def_eq)
-      (string
-        (escape_char)))
-    (operator_definition
-      (identifier)
-      (def_eq)
       (string))
     (double_line)))
+
