@@ -26,7 +26,7 @@ function arity0OrN(op, expr) {
 function arity1OrN(op, expr) {
   return seq(
     field('name', op),
-    seq('(', commaList1(expr), ')')
+    field('parameter', seq('(', commaList1(expr), ')'))
   )
 }
 
