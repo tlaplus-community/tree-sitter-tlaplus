@@ -1061,8 +1061,8 @@ module.exports = grammar({
     theorem: $ => seq(
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
       optional(seq(field('name', $.identifier), $.def_eq)),
-      choice($._expr, $.assume_prove),
-      optional($._proof)
+      field('statement', choice($._expr, $.assume_prove)),
+      field('proof', optional($._proof))
     ),
 
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
@@ -1081,15 +1081,15 @@ module.exports = grammar({
 
     // NEW CONSTANT x \in Nat
     new: $ => seq(
-      oneOrBoth('NEW', $.level),
+      oneOrBoth('NEW', $.statement_level),
       choice(
-        seq($.identifier, $.set_in, $._expr),
-        $._id_or_op_declaration
+        seq($.identifier, optional(seq($.set_in, $._expr))),
+        $.operator_declaration
       )
     ),
 
     // The scope level of an introduction
-    level: $ => choice(
+    statement_level: $ => choice(
       'CONSTANT', 'VARIABLE', 'STATE', 'ACTION', 'TEMPORAL'
     ),
 

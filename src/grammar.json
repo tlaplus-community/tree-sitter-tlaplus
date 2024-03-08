@@ -6461,29 +6461,37 @@
           ]
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "_expr"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "assume_prove"
-            }
-          ]
+          "type": "FIELD",
+          "name": "statement",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_expr"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "assume_prove"
+              }
+            ]
+          }
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "_proof"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "FIELD",
+          "name": "proof",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_proof"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
         }
       ]
     },
@@ -6605,7 +6613,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "level"
+              "name": "statement_level"
             },
             {
               "type": "SEQ",
@@ -6616,7 +6624,7 @@
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "level"
+                  "name": "statement_level"
                 }
               ]
             }
@@ -6633,24 +6641,37 @@
                   "name": "identifier"
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "set_in"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "_expr"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "SYMBOL",
+                          "name": "set_in"
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "_expr"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "SYMBOL",
-              "name": "_id_or_op_declaration"
+              "name": "operator_declaration"
             }
           ]
         }
       ]
     },
-    "level": {
+    "statement_level": {
       "type": "CHOICE",
       "members": [
         {

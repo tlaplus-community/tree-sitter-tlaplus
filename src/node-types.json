@@ -2296,11 +2296,6 @@
     }
   },
   {
-    "type": "level",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "ll",
     "named": true,
     "fields": {}
@@ -2514,15 +2509,15 @@
           "named": true
         },
         {
-          "type": "level",
-          "named": true
-        },
-        {
           "type": "operator_declaration",
           "named": true
         },
         {
           "type": "set_in",
+          "named": true
+        },
+        {
+          "type": "statement_level",
           "named": true
         }
       ]
@@ -4276,6 +4271,11 @@
     "fields": {}
   },
   {
+    "type": "statement_level",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "step_expr_no_stutter",
     "named": true,
     "fields": {},
@@ -4578,24 +4578,36 @@
             "named": true
           }
         ]
+      },
+      "proof": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "_proof",
+            "named": true
+          }
+        ]
+      },
+      "statement": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          },
+          {
+            "type": "assume_prove",
+            "named": true
+          }
+        ]
       }
     },
     "children": {
-      "multiple": true,
-      "required": true,
+      "multiple": false,
+      "required": false,
       "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "_proof",
-          "named": true
-        },
-        {
-          "type": "assume_prove",
-          "named": true
-        },
         {
           "type": "def_eq",
           "named": true
@@ -5648,6 +5660,10 @@
   {
     "type": "if",
     "named": false
+  },
+  {
+    "type": "level",
+    "named": true
   },
   {
     "type": "macro",
