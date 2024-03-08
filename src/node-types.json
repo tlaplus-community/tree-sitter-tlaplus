@@ -1159,25 +1159,48 @@
   {
     "type": "choose",
     "named": true,
-    "fields": {},
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      },
+      "intro": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "tuple_of_identifiers",
+            "named": true
+          }
+        ]
+      },
+      "set": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
-      "required": true,
+      "multiple": false,
+      "required": false,
       "types": [
         {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "tuple_of_identifiers",
           "named": true
         }
       ]
@@ -3958,6 +3981,24 @@
     "type": "quantifier_bound",
     "named": true,
     "fields": {
+      "intro": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "tuple_of_identifiers",
+            "named": true
+          }
+        ]
+      },
       "set": {
         "multiple": false,
         "required": true,
@@ -3970,19 +4011,11 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "tuple_of_identifiers",
           "named": true
         }
       ]
@@ -4635,7 +4668,7 @@
           }
         ]
       },
-      "identifier": {
+      "intro": {
         "multiple": true,
         "required": true,
         "types": [
