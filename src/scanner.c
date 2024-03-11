@@ -1,5 +1,6 @@
-﻿#include <tree_sitter/parser.h>
-#include <tree_sitter/parser.h>
+﻿#include "tree_sitter/parser.h"
+#include "tree_sitter/alloc.h"
+#include "tree_sitter/array.h"
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
