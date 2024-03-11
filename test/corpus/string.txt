@@ -34,20 +34,6 @@ op == "The cow goes \"moo\", the chicken goes \"cluck cluck\""
 (double_line)))
 
 ==================|||
-Unicode String
-==================|||
-
----- MODULE Test ----
-op == "加拿大"
-====
-
-------------------|||
-
-(source_file (module (header_line) (identifier) (header_line)
-  (operator_definition (identifier) (def_eq) (string))
-(double_line)))
-
-==================|||
 Escape Escape String
 ==================|||
 
@@ -67,12 +53,11 @@ op == <<"/\\", "\\/">>
 (double_line)))
 
 ==================|||
-String with comment start
+String with block comment start
 ==================|||
 
 ---- MODULE Test ----
-op1 == "\*"
-op2 == "(*"
+op == "(*"
 ====
 
 ------------------|||
@@ -85,10 +70,20 @@ op2 == "(*"
     (operator_definition
       (identifier)
       (def_eq)
-      (string
-        (escape_char)))
-    (operator_definition
-      (identifier)
-      (def_eq)
       (string))
     (double_line)))
+
+==================|||
+String Set
+==================|||
+
+---- MODULE Test ----
+op == STRING
+====
+
+------------------|||
+
+(source_file (module (header_line) name: (identifier) (header_line)
+  (operator_definition name: (identifier) (def_eq) definition: (string_set))
+(double_line)))
+

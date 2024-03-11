@@ -26,7 +26,7 @@ function arity0OrN(op, expr) {
 function arity1OrN(op, expr) {
   return seq(
     field('name', op),
-    seq('(', commaList1(expr), ')')
+    field('parameter', seq('(', commaList1(expr), ')'))
   )
 }
 
@@ -141,6 +141,9 @@ module.exports = grammar({
     // Lookahead to disambiguate '['  identifier  •  '\in'  …
     // Matches both step_expr_or_stutter and function_literal
     [$._expr, $.quantifier_bound],
+    // Lookahead to disambiguate '{'  identifier  •  '\in'  …
+    // Matches both finite_set_literal and set_filter
+    [$._expr, $.restricted_quantifier_bound],
     // Lookahead to disambiguate '['  langle_bracket  identifier  •  '>>'  …
     // Matches step_expr_or_stutter and function_literal
     [$._expr, $.tuple_of_identifiers],
@@ -370,24 +373,6 @@ module.exports = grammar({
       field('definition', $._expr)
     ),
 
-    // x, y, z \in S
-    // <<x, y, z>> \in S \X T \X P
-    quantifier_bound: $ => seq(
-      choice(
-        commaList1($.identifier),
-        $.tuple_of_identifiers
-      ),
-      $.set_in,
-      field('set', $._expr)
-    ),
-
-    // <<x, y, z>>
-    tuple_of_identifiers: $ => seq(
-      $.langle_bracket,
-      commaList1($.identifier),
-      $.rangle_bracket
-    ),
-
     // INSTANCE ModuleName WITH x <- y, w <- z
     instance: $ => seq(
       'INSTANCE',
@@ -614,7 +599,7 @@ module.exports = grammar({
     // Label for less-fragile addressing of subexpressions
     // lbl(a, b) :: e
     label: $ => prec('0-0', seq(
-      field('name', arity0OrN($.identifier, $.identifier)),
+      field('name', arity0OrN($.identifier, alias($.identifier, $.identifier_ref))),
       $.label_as,
       field('expression', $._expr)
     )),
@@ -642,7 +627,7 @@ module.exports = grammar({
       field('quantifier', choice(
         $.forall, $.exists, $.temporal_forall, $.temporal_exists
       )),
-      field('identifier', commaList1($.identifier)),
+      field('intro', commaList1($.identifier)),
       ':',
       field('expression', $._expr)
     )),
@@ -650,10 +635,10 @@ module.exports = grammar({
     // CHOOSE r \in Real : r >= 0
     choose: $ => prec('0-0', seq(
       'CHOOSE',
-      choice($.identifier, $.tuple_of_identifiers),
-      optional(seq($.set_in, $._expr)),
+      field('intro', choice($.identifier, $.tuple_of_identifiers)),
+      optional(seq($.set_in, field('set', $._expr))),
       ':',
-      $._expr
+      field('expression', $._expr)
     )),
 
     // {1, 2, 3, 4, 5}
@@ -664,7 +649,7 @@ module.exports = grammar({
     // is parsed as set_filter instead of set_map during GLR parsing.
     set_filter: $ => prec.dynamic(1, seq(
       '{',
-      field('generator', $.quantifier_bound),
+      field('generator', alias($.restricted_quantifier_bound, $.quantifier_bound)),
       ':',
       field('filter', $._expr),
       '}'
@@ -677,6 +662,28 @@ module.exports = grammar({
       ':',
       field('generator', commaList1($.quantifier_bound)),
       '}'
+    ),
+
+    // x, y, z \in S
+    // <<x, y, z>> \in S \X T \X P
+    quantifier_bound: $ => seq(
+      field('intro', choice(commaList1($.identifier), $.tuple_of_identifiers)),
+      $.set_in,
+      field('set', $._expr)
+    ),
+
+    // A quantifier bound allowing only one introduced element
+    restricted_quantifier_bound: $ => seq(
+      field('intro', choice($.identifier, $.tuple_of_identifiers)),
+      $.set_in,
+      field('set', $._expr)
+    ),
+
+    // <<x, y, z>>
+    tuple_of_identifiers: $ => seq(
+      $.langle_bracket,
+      commaList1($.identifier),
+      $.rangle_bracket
     ),
 
     // f[5]
@@ -1054,8 +1061,8 @@ module.exports = grammar({
     theorem: $ => seq(
       choice('THEOREM', 'PROPOSITION', 'LEMMA', 'COROLLARY'),
       optional(seq(field('name', $.identifier), $.def_eq)),
-      choice($._expr, $.assume_prove),
-      optional($._proof)
+      field('statement', choice($._expr, $.assume_prove)),
+      field('proof', optional($._proof))
     ),
 
     // ASSUME NEW x \in Nat, NEW y \in Nat PROVE x + y \in Nat
@@ -1074,15 +1081,15 @@ module.exports = grammar({
 
     // NEW CONSTANT x \in Nat
     new: $ => seq(
-      oneOrBoth('NEW', $.level),
+      oneOrBoth('NEW', $.statement_level),
       choice(
-        seq($.identifier, $.set_in, $._expr),
-        $._id_or_op_declaration
+        seq($.identifier, optional(seq($.set_in, $._expr))),
+        $.operator_declaration
       )
     ),
 
     // The scope level of an introduction
-    level: $ => choice(
+    statement_level: $ => choice(
       'CONSTANT', 'VARIABLE', 'STATE', 'ACTION', 'TEMPORAL'
     ),
 

@@ -294,6 +294,7 @@ namespace {
     Lexeme_R_CURLY_BRACE,
     Lexeme_R_ANGLE_BRACKET,
     Lexeme_RIGHT_ARROW,
+    Lexeme_RIGHT_MAP_ARROW,
     Lexeme_COMMENT_START,
     Lexeme_BLOCK_COMMENT_START,
     Lexeme_SINGLE_LINE,
@@ -347,10 +348,13 @@ namespace {
     LexState_R_ANGLE_BRACKET,
     LexState_S, LexState_SF_,
     LexState_RIGHT_ARROW,
+    LexState_RIGHT_MAP_ARROW,
     LexState_COMMENT_START,
     LexState_BLOCK_COMMENT_START,
     LexState_SINGLE_LINE,
     LexState_DOUBLE_LINE,
+    LexState_PIPE,
+    LexState_RIGHT_TURNSTILE,
     LexState_A, LexState_ASSUM, LexState_ASSUME, LexState_ASSUMPTION, LexState_AX, LexState_AXIOM,
     LexState_B, LexState_BY,
     LexState_C, LexState_CO, LexState_CON, LexState_COR, LexState_CONSTANT, LexState_CONSTANTS, LexState_COROLLARY,
@@ -411,6 +415,7 @@ namespace {
         if (')' == lookahead) ADVANCE(LexState_R_PAREN);
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
         if ('}' == lookahead) ADVANCE(LexState_R_CURLY_BRACE);
+        if ('|' == lookahead) ADVANCE(LexState_PIPE);
         if ('A' == lookahead) ADVANCE(LexState_A);
         if ('B' == lookahead) ADVANCE(LexState_B);
         if ('C' == lookahead) ADVANCE(LexState_C);
@@ -430,6 +435,8 @@ namespace {
         if (L'⟩' == lookahead) ADVANCE(LexState_R_ANGLE_BRACKET);
         if (L'⟶' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
         if (L'→' == lookahead) ADVANCE(LexState_RIGHT_ARROW);
+        if (L'⟼' == lookahead) ADVANCE(LexState_RIGHT_MAP_ARROW);
+        if (L'↦' == lookahead) ADVANCE(LexState_RIGHT_MAP_ARROW);
         ADVANCE(LexState_OTHER);
         END_LEX_STATE();
       case LexState_FORWARD_SLASH:
@@ -498,6 +505,9 @@ namespace {
       case LexState_RIGHT_ARROW:
         ACCEPT_LEXEME(Lexeme_RIGHT_ARROW);
         END_LEX_STATE();
+      case LexState_RIGHT_MAP_ARROW:
+        ACCEPT_LEXEME(Lexeme_RIGHT_MAP_ARROW);
+        END_LEX_STATE();
       case LexState_COMMENT_START:
         ACCEPT_LEXEME(Lexeme_COMMENT_START);
         END_LEX_STATE();
@@ -509,6 +519,12 @@ namespace {
         END_LEX_STATE();
       case LexState_DOUBLE_LINE:
         ACCEPT_LEXEME(Lexeme_DOUBLE_LINE);
+        END_LEX_STATE();
+      case LexState_PIPE:
+        if ('-' == lookahead) ADVANCE(LexState_RIGHT_TURNSTILE);
+        END_LEX_STATE();
+      case LexState_RIGHT_TURNSTILE:
+        if ('>' == lookahead) ADVANCE(LexState_RIGHT_MAP_ARROW);
         END_LEX_STATE();
       case LexState_A:
         ACCEPT_LEXEME(Lexeme_IDENTIFIER);
@@ -791,6 +807,7 @@ namespace {
       case Lexeme_R_CURLY_BRACE: return Token_RIGHT_DELIMITER;
       case Lexeme_R_ANGLE_BRACKET: return Token_RIGHT_DELIMITER;
       case Lexeme_RIGHT_ARROW: return Token_RIGHT_DELIMITER;
+      case Lexeme_RIGHT_MAP_ARROW: return Token_RIGHT_DELIMITER;
       case Lexeme_COMMENT_START: return Token_COMMENT_START;
       case Lexeme_BLOCK_COMMENT_START: return Token_COMMENT_START;
       case Lexeme_SINGLE_LINE: return Token_TERMINATOR;

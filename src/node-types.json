@@ -886,21 +886,33 @@
             "named": true
           }
         ]
+      },
+      "parameter": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "_expr",
+            "named": true
+          },
+          {
+            "type": "_op",
+            "named": true
+          }
+        ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "_op",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -1147,25 +1159,48 @@
   {
     "type": "choose",
     "named": true,
-    "fields": {},
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      },
+      "intro": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "tuple_of_identifiers",
+            "named": true
+          }
+        ]
+      },
+      "set": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
-      "multiple": true,
-      "required": true,
+      "multiple": false,
+      "required": false,
       "types": [
         {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "tuple_of_identifiers",
           "named": true
         }
       ]
@@ -2156,7 +2191,7 @@
             "named": false
           },
           {
-            "type": "identifier",
+            "type": "identifier_ref",
             "named": true
           }
         ]
@@ -2259,11 +2294,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "level",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "ll",
@@ -2479,15 +2509,15 @@
           "named": true
         },
         {
-          "type": "level",
-          "named": true
-        },
-        {
           "type": "operator_declaration",
           "named": true
         },
         {
           "type": "set_in",
+          "named": true
+        },
+        {
+          "type": "statement_level",
           "named": true
         }
       ]
@@ -2590,11 +2620,33 @@
             "named": true
           }
         ]
+      },
+      "parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "placeholder",
+            "named": true
+          }
+        ]
       }
     },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "placeholder",
@@ -3924,6 +3976,24 @@
     "type": "quantifier_bound",
     "named": true,
     "fields": {
+      "intro": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "tuple_of_identifiers",
+            "named": true
+          }
+        ]
+      },
       "set": {
         "multiple": false,
         "required": true,
@@ -3936,19 +4006,11 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "set_in",
-          "named": true
-        },
-        {
-          "type": "tuple_of_identifiers",
           "named": true
         }
       ]
@@ -4205,6 +4267,11 @@
   },
   {
     "type": "star",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "statement_level",
     "named": true,
     "fields": {}
   },
@@ -4511,24 +4578,36 @@
             "named": true
           }
         ]
+      },
+      "proof": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "_proof",
+            "named": true
+          }
+        ]
+      },
+      "statement": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expr",
+            "named": true
+          },
+          {
+            "type": "assume_prove",
+            "named": true
+          }
+        ]
       }
     },
     "children": {
-      "multiple": true,
-      "required": true,
+      "multiple": false,
+      "required": false,
       "types": [
-        {
-          "type": "_expr",
-          "named": true
-        },
-        {
-          "type": "_proof",
-          "named": true
-        },
-        {
-          "type": "assume_prove",
-          "named": true
-        },
         {
           "type": "def_eq",
           "named": true
@@ -4601,7 +4680,7 @@
           }
         ]
       },
-      "identifier": {
+      "intro": {
         "multiple": true,
         "required": true,
         "types": [
@@ -5581,6 +5660,10 @@
   {
     "type": "if",
     "named": false
+  },
+  {
+    "type": "level",
+    "named": true
   },
   {
     "type": "macro",

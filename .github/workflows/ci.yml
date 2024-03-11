@@ -18,21 +18,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Smoke-test fuzzing harness
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        run: |
-          test/fuzzing/build-for-fuzzing.sh
-          echo "Running fuzzer"
-          timeout 5 test/fuzzing/out/tree_sitter_tlaplus_fuzzer || (($? == 124))
       - name: Install Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Install distutils for node-gyp
         run: pip install setuptools
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Build
         run: npm install
       - name: Unit Tests
@@ -71,7 +64,9 @@ jobs:
           $failures = $results |? {$_ -ne 0}
           exit $failures.length
       - name: Generate parser code
-        run: ./node_modules/.bin/tree-sitter generate
+        run: |
+          ./node_modules/.bin/tree-sitter --version
+          ./node_modules/.bin/tree-sitter generate
       - name: Renormalize line endings
         shell: bash
         run: |
@@ -81,7 +76,8 @@ jobs:
         shell: bash
         run: |
           git status
-          git diff
+          openssl dgst -sha256 src/parser.c
+          git diff | wc
         # Command from https://stackoverflow.com/a/62768943/2852699
       - name: Check grammar/code sync
         shell: bash

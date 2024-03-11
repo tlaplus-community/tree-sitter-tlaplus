@@ -11,15 +11,15 @@ OBVIOUS
 
 -------------------------------|||
 
-(source_file (module (header_line) (identifier) (header_line)
+(source_file (module (header_line) name: (identifier) (header_line)
   (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (identifier_ref)
-      (identifier_ref)
-      (identifier_ref)
+    name: (identifier) (def_eq)
+    statement: (assume_prove
+      assumption: (identifier_ref)
+      assumption: (identifier_ref)
+      conclusion: (identifier_ref)
     )
-    (terminal_proof)
+    proof: (terminal_proof)
   )
 (double_line)))
 
@@ -38,17 +38,20 @@ OMITTED
 
 -------------------------------|||
 
-(source_file (module (header_line) (identifier) (header_line)
+(source_file (module (header_line) name: (identifier) (header_line)
   (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (inner_assume_prove
+    name: (identifier) (def_eq)
+    statement: (assume_prove
+      assumption: (inner_assume_prove
         (identifier) (label_as)
-        (assume_prove (identifier_ref) (identifier_ref))
+        (assume_prove
+          assumption: (identifier_ref)
+          conclusion: (identifier_ref)
+        )
       )
-      (identifier_ref)
+      conclusion: (identifier_ref)
     )
-    (terminal_proof)
+    proof: (terminal_proof)
   )
 (double_line)))
 
@@ -65,14 +68,14 @@ OBVIOUS
 
 -------------------------------|||
 
-(source_file (module (header_line) (identifier) (header_line)
+(source_file (module (header_line) name: (identifier) (header_line)
   (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (new (level) (identifier) (set_in) (identifier_ref))
-      (identifier_ref)
+    name: (identifier) (def_eq)
+    statement: (assume_prove
+      assumption: (new (statement_level) (identifier) (set_in) (identifier_ref))
+      conclusion: (identifier_ref)
     )
-    (terminal_proof)
+    proof: (terminal_proof)
   )
 (double_line)))
 
@@ -89,16 +92,16 @@ OMITTED
 
 -------------------------------|||
 
-(source_file (module (header_line) (identifier) (header_line)
+(source_file (module (header_line) name: (identifier) (header_line)
   (theorem
-    (identifier) (def_eq)
-    (assume_prove
-      (new (level) (operator_declaration
-        (identifier) (placeholder) (placeholder)
+    name: (identifier) (def_eq)
+    statement: (assume_prove
+      assumption: (new (statement_level) (operator_declaration
+        name: (identifier) parameter: (placeholder) parameter: (placeholder)
       ))
-      (identifier_ref)
+      conclusion: (identifier_ref)
     )
-    (terminal_proof)
+    proof: (terminal_proof)
   )
 (double_line)))
 
@@ -109,23 +112,63 @@ Assume/Prove in Suffices Step
 ---- MODULE Test ----
 THEOREM TRUE
 <1>a. SUFFICES
-  ASSUME NEW CONSTANT x \in S
+  ASSUME CONSTANT x \in S
   PROVE TRUE
 <1>b. QED
 ====
 
 -------------------------------|||
 
-(source_file (module (header_line) (identifier) (header_line)
-  (theorem (boolean)
-    (non_terminal_proof
+(source_file (module (header_line) name: (identifier) (header_line)
+  (theorem statement: (boolean)
+    proof: (non_terminal_proof
       (proof_step (proof_step_id (level) (name))
         (suffices_proof_step (assume_prove
-          (new (level) (identifier) (set_in) (identifier_ref))
-          (boolean)
+          assumption: (new (statement_level) (identifier) (set_in) (identifier_ref))
+          conclusion: (boolean)
         ))
       )
       (qed_step (proof_step_id (level) (name)))
     )
   )
 (double_line)))
+
+===============================|||
+Assume/Prove with Mixed Assumptions
+===============================|||
+
+---- MODULE Test ----
+THEOREM thm ==
+  ASSUME
+    NEW f,
+    1 + 2,
+    /\ 1
+    /\ 2,
+    lbl :: ASSUME P PROVE Q
+  PROVE C
+OMITTED
+====
+
+-------------------------------|||
+
+(source_file (module (header_line) name: (identifier) (header_line)
+  (theorem
+    name: (identifier) (def_eq)
+    statement: (assume_prove
+      assumption: (new (identifier))
+      assumption: (bound_infix_op lhs: (nat_number) symbol: (plus) rhs: (nat_number))
+      assumption: (conj_list (conj_item (bullet_conj) (nat_number)) (conj_item (bullet_conj) (nat_number)))
+      assumption: (inner_assume_prove
+        (identifier)
+        (label_as)
+        (assume_prove
+          assumption: (identifier_ref)
+          conclusion: (identifier_ref)
+        )
+      )
+      conclusion: (identifier_ref)
+    )
+    proof: (terminal_proof)
+  )
+(double_line)))
+
