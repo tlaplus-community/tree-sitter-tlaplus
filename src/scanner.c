@@ -1,8 +1,9 @@
 ﻿#include <tree_sitter/parser.h>
-#include <cassert>
-#include <climits>
-#include <cstring>
-#include <cwctype>
+#include <tree_sitter/parser.h>
+#include <assert.h>
+#include <limits.h>
+#include <string.h>
+#include <cwctype.h>
 #include <vector>
 
 /**
