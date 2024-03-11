@@ -763,8 +763,6 @@ op == f(
   \succeq,
   \supset,
   \supseteq,
-  \X,
-  \times,
   \uplus,
   |,
   ||,
@@ -870,8 +868,6 @@ op == f(
     parameter: (infix_op_symbol (succeq))
     parameter: (infix_op_symbol (supset))
     parameter: (infix_op_symbol (supseteq))
-    parameter: (infix_op_symbol (times))
-    parameter: (infix_op_symbol (times))
     parameter: (infix_op_symbol (uplus))
     parameter: (infix_op_symbol (vert))
     parameter: (infix_op_symbol (vertvert))
@@ -910,7 +906,6 @@ op == {
   A!B!...(x, y),
   A!B!=(x, y),
   A!B!\equiv(x, y),
-  A!B!!!(x, y),
   A!B!>=(x, y),
   A!B!\geq(x, y),
   A!B!\gg(x, y),
@@ -1042,8 +1037,6 @@ op == {
       (bound_nonfix_op symbol: (infix_op_symbol (eq)) (identifier_ref) (identifier_ref)))
     (prefixed_op prefix: (subexpr_prefix (subexpr_component (identifier_ref)) (subexpr_component (identifier_ref))) op:
       (bound_nonfix_op symbol: (infix_op_symbol (equiv)) (identifier_ref) (identifier_ref)))
-    (prefixed_op prefix: (subexpr_prefix (subexpr_component (identifier_ref)) (subexpr_component (identifier_ref))) op:
-      (bound_nonfix_op symbol: (infix_op_symbol (excl)) (identifier_ref) (identifier_ref)))
     (prefixed_op prefix: (subexpr_prefix (subexpr_component (identifier_ref)) (subexpr_component (identifier_ref))) op:
       (bound_nonfix_op symbol: (infix_op_symbol (geq)) (identifier_ref) (identifier_ref)))
     (prefixed_op prefix: (subexpr_prefix (subexpr_component (identifier_ref)) (subexpr_component (identifier_ref))) op:
