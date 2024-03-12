@@ -1,15 +1,14 @@
-﻿#include "tree_sitter/parser.h"
+#include "tree_sitter/parser.h"
 #include "tree_sitter/alloc.h"
 #include "tree_sitter/array.h"
-#include <assert.h>
-#include <limits.h>
-#include <string.h>
-#include <cwctype.h>
-#include <vector>
+#include "assert.h"
+#include "limits.h"
+#include "string.h"
+#include "wctype.h"
 
 /**
  * Macro; goes to the lexer state without consuming any codepoints.
- * 
+ *
  * @param state_value The new lexer state.
  */
 #define GO_TO_STATE(state_value)  \
@@ -20,7 +19,7 @@
 
 /**
  * Macro; marks the given lexeme as accepted.
- * 
+ *
  * @param lexeme The lexeme to mark as accepted.
  */
 #define ACCEPT_LEXEME(lexeme)       \
@@ -31,7 +30,7 @@
 /**
  * Macro; marks the given token as accepted without also marking the
  * current position as its end.
- * 
+ *
  * @param token The token to mark as accepted.
  */
 #define ACCEPT_LOOKAHEAD_TOKEN(token)     \
@@ -47,8 +46,6 @@
   {                       \
     return result_lexeme; \
   }
-
-namespace {
 
   // Tokens emitted by this external scanner.
   enum TokenType {
@@ -72,31 +69,33 @@ namespace {
   };
 
   // Datatype used to record length of nested proofs & jlists.
-  using nest_address = int16_t;
+  typedef int16_t nest_address;
 
   // Datatype used to record column index of jlists.
-  using column_index = int16_t;
+  typedef int16_t column_index;
 
   // Datatype used to record proof levels.
-  using proof_level = int32_t;
-  
+  typedef int32_t proof_level;
+
+  typedef Array(char) CharArray;
+
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    */
-  void advance(TSLexer* const lexer) {
+  static void advance(TSLexer* const lexer) {
     lexer->advance(lexer, false);
   }
 
   /**
    * Checks whether the next codepoint is the one given.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param codepoint The codepoint to check.
    * @return Whether the next codepoint is the one given.
    */
-  bool is_next_codepoint(
+  static bool is_next_codepoint(
     const TSLexer* const lexer,
     int32_t const codepoint
   ) {
@@ -105,11 +104,11 @@ namespace {
 
   /**
    * Checks whether there are any codepoints left in the string.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @return Whether there are any codepoints left in the string.
    */
-  bool has_next(const TSLexer* const lexer) {
+  static bool has_next(const TSLexer* const lexer) {
     return !lexer->eof(lexer);
   }
 
@@ -117,22 +116,22 @@ namespace {
    * Checks whether the given codepoint could be used in an identifier,
    * which consist of capital ASCII letters, lowercase ASCII letters,
    * and underscores.
-   * 
+   *
    * @param codepoint The codepoint to check.
    * @return Whether the given codepoint could be used in an identifier.
    */
-  bool is_identifier_char(int32_t const codepoint) {
+  static bool is_identifier_char(int32_t const codepoint) {
     return iswalnum(codepoint) || ('_' == codepoint);
   }
 
   /**
    * Consumes codepoints as long as they are the one given.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param codepoint The codepoint to consume.
    * @return The number of codepoints consumed.
    */
-  void consume_codepoint(TSLexer* const lexer, const int32_t codepoint) {
+  static void consume_codepoint(TSLexer* const lexer, const int32_t codepoint) {
     while (has_next(lexer) && is_next_codepoint(lexer, codepoint)) {
       advance(lexer);
     }
@@ -141,12 +140,12 @@ namespace {
   /**
    * Checks whether the next codepoint sequence is the one given.
    * This function can change the state of the lexer.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param token The codepoint sequence to check for.
    * @return Whether the next codepoint sequence is the one given.
    */
-  bool is_next_codepoint_sequence(
+  static bool is_next_codepoint_sequence(
     TSLexer* const lexer,
     const char codepoint_sequence[]
   ) {
@@ -173,7 +172,7 @@ namespace {
     EMTLexState_END_OF_FILE,
     EMTLexState_BLANK_BEFORE_END_OF_FILE
   };
-  
+
   /**
    * Scans for extramodular text, the freeform text that can be present
    * outside of TLA⁺ modules. This function skips any leading whitespace
@@ -190,9 +189,9 @@ namespace {
    * @param valid_symbols Tokens possibly expected in this spot.
    * @return Whether any extramodular text was detected.
    */
-  bool scan_extramodular_text(TSLexer* const lexer, const bool* const valid_symbols) {
+  static bool scan_extramodular_text(TSLexer* const lexer, const bool* const valid_symbols) {
     bool has_consumed_any = false;
-    EMTLexState state = EMTLexState_CONSUME;
+    enum EMTLexState state = EMTLexState_CONSUME;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
@@ -240,43 +239,45 @@ namespace {
     ProofStepIdType_PLUS,     // <+>
     ProofStepIdType_NUMBERED  // <1234>
   };
-  
+
   // Data about a proof step ID.
   struct ProofStepId {
     // The proof step ID type.
-    ProofStepIdType type;
-    
+    enum ProofStepIdType type;
+
     // The proof step ID level (-1 if not NUMBERED).
     proof_level level;
-    
+  };
+
     /**
      * Initializes a new instance of the ProofStepId class.
-     * 
+     *
      * @param raw_level The unparsed contents of the <...> lexeme.
      */
-    ProofStepId(const std::vector<char>& raw_level) {
-      level = -1;
-      if ('*' == raw_level.at(0)) {
-        type = ProofStepIdType_STAR;
-      } else if ('+' == raw_level.at(0)) {
-        type = ProofStepIdType_PLUS;
+    static struct ProofStepId parse_proof_step_id(const CharArray* raw_level) {
+      struct ProofStepId id;
+      id.level = -1;
+      if ('*' == *array_get(raw_level, 0)) {
+        id.type = ProofStepIdType_STAR;
+      } else if ('+' == *array_get(raw_level, 0)) {
+        id.type = ProofStepIdType_PLUS;
       } else {
-        type = ProofStepIdType_NUMBERED;
+        id.type = ProofStepIdType_NUMBERED;
         // We can't use std::stoi because it isn't included in the emcc
         // build so will cause errors; thus we roll our own. raw_level
         // should also be a std::string but that isn't included either.
         // level = std::stoi(raw_level);
-        level = 0;
+        id.level = 0;
         int32_t multiplier = 1;
-        for (size_t i = 0; i < raw_level.size(); i++) {
-          const size_t index = raw_level.size() - i - 1;
-          const int8_t digit_value = raw_level.at(index) - 48;
-          level += digit_value * multiplier;
+        for (size_t i = 0; i < raw_level->size; i++) {
+          const size_t index = raw_level->size - i - 1;
+          const int8_t digit_value = *array_get(raw_level, index) - 48;
+          id.level += digit_value * multiplier;
           multiplier *= 10;
         }
       }
+      return id;
     }
-  };
 
   // Lexemes recognized by this lexer.
   enum Lexeme {
@@ -378,30 +379,30 @@ namespace {
     LexState_OTHER,
     LexState_END_OF_FILE
   };
-  
+
   /**
    * Looks ahead to identify the next lexeme. Consumes all leading
    * whitespace. Out parameters include column of first non-whitespace
    * codepoint and the level of the proof step ID lexeme if encountered.
    *
    * @param lexer The tree-sitter lexing control structure.
-   * @param lexeme_start_col The starting column of the first lexeme. 
+   * @param lexeme_start_col The starting column of the first lexeme.
    * @param proof_step_id_level The level of the proof step ID.
    * @return The lexeme encountered.
    */
-  Lexeme lex_lookahead(
+  static enum Lexeme lex_lookahead(
     TSLexer* const lexer,
-    column_index& lexeme_start_col,
-    std::vector<char>& proof_step_id_level
+    column_index* lexeme_start_col,
+    CharArray* proof_step_id_level
   ) {
-    LexState state = LexState_CONSUME_LEADING_SPACE;
-    Lexeme result_lexeme = Lexeme_OTHER;
+    enum LexState state = LexState_CONSUME_LEADING_SPACE;
+    enum Lexeme result_lexeme = Lexeme_OTHER;
     START_LEXER();
     eof = !has_next(lexer);
     switch (state) {
       case LexState_CONSUME_LEADING_SPACE:
         if (iswspace(lookahead)) SKIP(LexState_CONSUME_LEADING_SPACE);
-        lexeme_start_col = lexer->get_column(lexer);
+        *lexeme_start_col = lexer->get_column(lexer);
         lexer->mark_end(lexer);
         if (eof) ADVANCE(LexState_END_OF_FILE);
         if ('/' == lookahead) ADVANCE(LexState_FORWARD_SLASH);
@@ -451,7 +452,7 @@ namespace {
         if ('*' == lookahead) ADVANCE(LexState_COMMENT_START);
         END_LEX_STATE();
       case LexState_LT:
-        proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
+        array_push(proof_step_id_level, (char)(lookahead & CHAR_MAX));
         if (iswdigit(lookahead)) ADVANCE(LexState_PROOF_LEVEL_NUMBER);
         if ('*' == lookahead) ADVANCE(LexState_PROOF_LEVEL_STAR);
         if ('+' == lookahead) ADVANCE(LexState_PROOF_LEVEL_PLUS);
@@ -729,7 +730,7 @@ namespace {
         END_LEX_STATE();
       case LexState_PROOF_LEVEL_NUMBER:
         if (iswdigit(lookahead)) {
-          proof_step_id_level.push_back(static_cast<char>(lookahead & CHAR_MAX));
+          array_push(proof_step_id_level, (char)(lookahead & CHAR_MAX));
           ADVANCE(LexState_PROOF_LEVEL_NUMBER);
         }
         if ('>' == lookahead) ADVANCE(LexState_PROOF_NAME);
@@ -766,7 +767,7 @@ namespace {
         END_LEX_STATE();
     }
   }
-  
+
   // Tokens recognized by this scanner.
   enum Token {
     Token_LAND,
@@ -791,7 +792,7 @@ namespace {
    * @param lexeme The lexeme to map to a token.
    * @return The token corresponding to the given lexeme.
    */
-  Token tokenize_lexeme(Lexeme lexeme) {
+  static enum Token tokenize_lexeme(enum Lexeme lexeme) {
     switch (lexeme) {
       case Lexeme_FORWARD_SLASH: return Token_OTHER;
       case Lexeme_BACKWARD_SLASH: return Token_OTHER;
@@ -843,7 +844,7 @@ namespace {
       default: return Token_OTHER;
     }
   }
-    
+
   // Possible types of junction list.
   enum JunctType {
     JunctType_CONJUNCTION,
@@ -854,148 +855,152 @@ namespace {
   struct JunctList {
 
     // The type of jlist.
-    JunctType type;
+    enum JunctType type;
 
     // The starting alignment columnt of the jlist.
     column_index alignment_column;
-    
-    JunctList() { }
+  };
 
-    JunctList(JunctType const type, column_index const alignment_column) {
-      this->type = type;
-      this->alignment_column = alignment_column;
+    static struct JunctList create_junctlist(enum JunctType const type, column_index const alignment_column) {
+      struct JunctList jlist;
+      jlist.type = type;
+      jlist.alignment_column = alignment_column;
+      return jlist;
     }
 
-    unsigned serialize(char* const buffer, bool const is_dry_run) {
+    static unsigned jlist_serialize(struct JunctList* this, char* const buffer, bool const is_dry_run) {
       unsigned offset = 0;
       unsigned copied = 0;
 
       // Serialize junction type
       copied = sizeof(uint8_t);
-      if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(type); }
+      if (!is_dry_run) { buffer[offset] = (uint8_t)(this->type); }
       offset += copied;
 
       // Serialize alignment column
       copied = sizeof(column_index);
-      if (!is_dry_run) { memcpy(&buffer[offset], (char*)&alignment_column, copied); }
+      if (!is_dry_run) { memcpy(&buffer[offset], &this->alignment_column, copied); }
       offset += copied;
 
       return offset;
     }
 
-    unsigned deserialize(const char* const buffer) {
+    static unsigned jlist_deserialize(struct JunctList* this, const char* const buffer) {
       unsigned offset = 0;
       unsigned copied = 0;
 
       // Deserialize junction type
       copied = sizeof(uint8_t);
-      type = JunctType(buffer[offset]);
+      this->type = (enum JunctType)buffer[offset];
       offset += copied;
 
       // Deserialize alignment column
       copied = sizeof(column_index);
-      memcpy((char*)&alignment_column, &buffer[offset], copied);
+      memcpy(&this->alignment_column, &buffer[offset], copied);
       offset += copied;
-      
+
       return offset;
     }
-  };
-  
+
   /**
    * A stateful scanner used to parse junction lists and proofs.
    */
   struct Scanner {
 
     // The nested junction lists at the current lexer position.
-    std::vector<JunctList> jlists;
+    Array(struct JunctList) jlists;
 
     // The nested proofs at the current lexer position.
-    std::vector<proof_level> proofs;
+    Array(proof_level) proofs;
 
     // The level of the last proof.
     proof_level last_proof_level;
 
     // Whether we have seen a PROOF token.
     bool have_seen_proof_keyword;
-
-    /**
-     * Initializes a new instance of the Scanner object.
-     */
-    Scanner() {
-      deserialize(NULL, 0);
-    }
-    
-    /**
-     * Calculates the serialized size of the scanner.
-     */
-    unsigned serialized_size() {
-      return serialize(NULL, true);
-    }
-    
-    /**
-     * Serializes the Scanner state into the given buffer.
-     *
-     * @param buffer The buffer into which to serialize the scanner state.
-     * @return Number of bytes written into the buffer.
-     */
-    unsigned serialize(char* const buffer) {
-      return serialize(buffer, false);
-    }
+};
 
     /**
      * Serializes the Scanner state into the given buffer.
      *
+     * @param this The Scanner state to serialize.
      * @param buffer The buffer into which to serialize the scanner state.
      * @param is_dry_run Whether to actually copy the bytes to the buffer.
      * @return Number of bytes written into the buffer.
      */
-    unsigned serialize(char* const buffer, const bool is_dry_run) {
+    static unsigned scanner_try_serialize(
+      const struct Scanner* const this,
+      char* const buffer,
+      const bool is_dry_run
+    ) {
       unsigned offset = 0;
       unsigned copied = 0;
 
-      const nest_address jlist_depth = static_cast<nest_address>(jlists.size());
+      const nest_address jlist_depth = (nest_address)(this->jlists.size);
       copied = sizeof(nest_address);
       if (!is_dry_run) { memcpy(&buffer[offset], &jlist_depth, copied); }
       offset += copied;
       for (nest_address i = 0; i < jlist_depth; i++) {
         char* const buffer_addr = is_dry_run ? NULL : &buffer[offset];
-        copied = jlists[i].serialize(buffer_addr, is_dry_run);
+        copied = jlist_serialize(array_get(&this->jlists, i), buffer_addr, is_dry_run);
         offset += copied;
       }
-      
-      const nest_address proof_depth = static_cast<nest_address>(proofs.size());
+
+      const nest_address proof_depth = (nest_address)(this->proofs.size);
       copied = sizeof(nest_address);
       if (!is_dry_run) { memcpy(&buffer[offset], &proof_depth, copied); }
       offset += copied;
       copied = proof_depth * sizeof(proof_level);
-      if (!is_dry_run && copied > 0) { memcpy(&buffer[offset], proofs.data(), copied); }
+      if (!is_dry_run && copied > 0) { memcpy(&buffer[offset], this->proofs.contents, copied); }
       offset += copied;
-      
+
       copied = sizeof(proof_level);
-      if (!is_dry_run) { memcpy(&buffer[offset], &last_proof_level, copied); }
+      if (!is_dry_run) { memcpy(&buffer[offset], &this->last_proof_level, copied); }
       offset += copied;
-      
+
       copied = sizeof(uint8_t);
-      if (!is_dry_run) { buffer[offset] = static_cast<uint8_t>(have_seen_proof_keyword); }
+      if (!is_dry_run) { buffer[offset] = (uint8_t)(this->have_seen_proof_keyword); }
       offset += copied;
 
       return offset;
     }
 
     /**
+     * Serializes the Scanner state into the given buffer.
+     *
+     * @param this The Scanner state to serialize.
+     * @param buffer The buffer into which to serialize the scanner state.
+     * @return Number of bytes written into the buffer.
+     */
+    static unsigned scanner_serialize(const struct Scanner* this, char* buffer) {
+      return scanner_try_serialize(this, buffer, false);
+    }
+
+    /**
+     * Calculates the serialized size of the scanner.
+     *
+     * @param this The Scanner state to find the deserialized size of.
+     * @return The size of the Scanner when serialized.
+     */
+    static unsigned scanner_serialized_size(const struct Scanner* const this) {
+      return scanner_try_serialize(this, NULL, true);
+    }
+
+    /**
      * Deserializes the Scanner state from the given buffer.
-     * 
+     *
+     * @param this The Scanner state to deserialize.
      * @param buffer The buffer from which to deserialize the state.
      * @param length The bytes available to read from the buffer.
      */
-    void deserialize(const char* const buffer, unsigned const length) {
+    static void scanner_deserialize(struct Scanner* const this, const char* const buffer, unsigned const length) {
       // Very important to clear values of all fields here!
       // Scanner object is reused; if a variable isn't cleared, it can
       // lead to extremely strange & impossible-to-debug behavior.
-      jlists.clear();
-      proofs.clear();
-      last_proof_level = -1;
-      have_seen_proof_keyword = false;
+      array_delete(&this->jlists);
+      array_delete(&this->proofs);
+      this->last_proof_level = -1;
+      this->have_seen_proof_keyword = false;
 
       if (length > 0) {
         unsigned offset = 0;
@@ -1004,82 +1009,101 @@ namespace {
         nest_address jlist_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&jlist_depth, &buffer[offset], copied);
-        jlists.resize(jlist_depth);
+        array_reserve(&(this->jlists), jlist_depth);
         offset += copied;
 
         for (nest_address i = 0; i < jlist_depth; i++) {
           assert(offset < length);
-          copied = jlists[i].deserialize(&buffer[offset]);
+          copied = jlist_deserialize(array_get(&(this->jlists), i), &buffer[offset]);
           offset += copied;
         }
-      
+
         nest_address proof_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&proof_depth, &buffer[offset], copied);
-        proofs.resize(proof_depth);
+        array_reserve(&(this->proofs), proof_depth);
         offset += copied;
 
         copied = proof_depth * sizeof(proof_level);
-        if (copied > 0) { memcpy(proofs.data(), &buffer[offset], copied); }
+        if (copied > 0) { memcpy(this->proofs.contents, &buffer[offset], copied); }
         offset += copied;
-        
+
         copied = sizeof(proof_level);
-        memcpy(&last_proof_level, &buffer[offset], copied);
+        memcpy(&(this->last_proof_level), &buffer[offset], copied);
         offset += copied;
-        
+
         copied = sizeof(uint8_t);
-        have_seen_proof_keyword = static_cast<bool>(buffer[offset] & 1);
+        this->have_seen_proof_keyword = (bool)(buffer[offset] & 1);
         offset += copied;
- 
+
         assert(offset == length);
       }
     }
 
     /**
+     * Initializes a new instance of the Scanner object.
+     *
+     * @return A newly-created Scanner.
+     */
+    static struct Scanner create_scanner() {
+      struct Scanner s;
+      scanner_deserialize(&s, NULL, 0);
+      return s;
+    }
+
+    /**
      * Whether the Scanner state indicates we are currently in a jlist.
-     * 
+     *
+     * @param this The Scanner state.
      * @return Whether we are in a jlist.
      */
-    bool is_in_jlist() const {
-      return !jlists.empty();
+    static bool is_in_jlist(const struct Scanner* const this) {
+      return this->jlists.size > 0;
     }
 
     /**
      * The column index of the current jlist. Returns negative number if
      * we are not currently in a jlist.
-     * 
+     *
+     * @param this The Scanner state.
      * @return The column index of the current jlist.
      */
-    column_index get_current_jlist_column_index() const {
-      return is_in_jlist() ? this->jlists.back().alignment_column : -1;
+    static column_index get_current_jlist_column_index(const struct Scanner* const this) {
+      return is_in_jlist(this) ? array_back(&this->jlists)->alignment_column : -1;
     }
 
     /**
      * Whether the given jlist type matches the current jlist.
-     * 
+     *
+     * @param this The Scanner state.
      * @param type The jlist type to check.
      * @return Whether the given jlist type matches the current jlist.
      */
-    bool current_jlist_type_is(JunctType const type) const {
-      return is_in_jlist() && type == this->jlists.back().type;
+    static bool current_jlist_type_is(
+      struct Scanner* const this,
+      enum JunctType const type
+    ) {
+      return is_in_jlist(this) && type == array_back(&this->jlists)->type;
     }
 
     /**
      * Emits an INDENT token, recording the new jlist in the Scanner state.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param type The type of the new jlist.
      * @param col The column position of the new jlist.
      * @return Whether an INDENT token was emitted.
      */
-    bool emit_indent(
+    static bool emit_indent(
+      struct Scanner* const this,
       TSLexer* const lexer,
-      JunctType const type,
+      enum JunctType const type,
       column_index const col
     ) {
       lexer->result_symbol = INDENT;
-      JunctList new_list(type, col);
-      this->jlists.push_back(new_list);
+      struct JunctList new_list = create_junctlist(type, col);
+      array_push(&this->jlists, new_list);
       return true;
     }
 
@@ -1091,21 +1115,22 @@ namespace {
      * @param type The type of junction list.
      * @return Whether a BULLET token was emitted.
      */
-    bool emit_bullet(TSLexer* const lexer, const JunctType type) {
+    static bool emit_bullet(TSLexer* const lexer, enum JunctType type) {
       lexer->result_symbol = BULLET;
       return true;
     }
 
     /**
      * Emits a DEDENT token, removing a jlist from the Scanner state.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @return Whether a DEDENT token was emitted.
      */
-    bool emit_dedent(TSLexer* const lexer) {
-      if (is_in_jlist()) {
+    static bool emit_dedent(struct Scanner* const this, TSLexer* const lexer) {
+      if (is_in_jlist(this)) {
         lexer->result_symbol = DEDENT;
-        this->jlists.pop_back();
+        array_pop(&this->jlists);
         return true;
       } else {
         return false;
@@ -1130,64 +1155,66 @@ namespace {
      *    -> this is an infix operator that also ends the current list
      * 5. The junct is prior to the cpos of the current jlist
      *    -> this ends the current jlist, emit DEDENT token
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @param type The type of junction encountered.
      * @param next The column position of the junct token encountered.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_junct_token(
+    static bool handle_junct_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols,
-      JunctType const next_type,
+      enum JunctType const next_type,
       column_index const next_col
     ) {
-      const column_index current_col = get_current_jlist_column_index();
+      const column_index current_col = get_current_jlist_column_index(this);
       if (current_col < next_col) {
         if (valid_symbols[INDENT]) {
           /**
            * The start of a new junction list!
            */
-          return emit_indent(lexer, next_type, next_col);
+          return emit_indent(this, lexer, next_type, next_col);
         } else {
           /**
            * This is an infix junction symbol. Tree-sitter will only look for
            * a new jlist at the start of an expression rule; infix operators
            * occur when joining two expression rules together, so tree-sitter
            * is only looking for either BULLET or DEDENT rules. Examples:
-           * 
+           *
            *   /\ a /\ b
            *       ^ tree-sitter will NEVER look for an INDENT here
-           * 
+           *
            *   /\ a
            *   /\ b
            *  ^ tree-sitter WILL look for a BULLET here
-           * 
+           *
            *   /\ /\ a
            *     ^ tree-sitter WILL look for an INDENT here
            */
           return false;
         }
       } else if (current_col == next_col) {
-        if (current_jlist_type_is(next_type)) {
+        if (current_jlist_type_is(this, next_type)) {
           /**
            * This is another entry in the jlist.
            */
           return emit_bullet(lexer, next_type);
         } else {
-          /** 
+          /**
            * Disjunct in alignment with conjunct list or vice-versa; treat
            * this as an infix operator by terminating the current list.
            */
-          return emit_dedent(lexer);
+          return emit_dedent(this, lexer);
         }
       } else {
         /**
          * Junct found prior to the alignment column of the current jlist.
          * This marks the end of the jlist.
          */
-        return emit_dedent(lexer);
+        return emit_dedent(this, lexer);
       }
     }
 
@@ -1198,7 +1225,7 @@ namespace {
      * (), [], <<>>, and {}; it also includes IF/THEN, THEN/ELSE, CASE/->,
      * and basically every other language construct where an expression is
      * squeezed between a known start & end token.
-     * 
+     *
      * Previously I implemented complicated logic using a stack to keep
      * track of all the delimiters that have been seen (and their
      * pairs) but found that tree-sitter would never trigger the
@@ -1207,13 +1234,13 @@ namespace {
      * we can assume that when we *do* see a right delimiter, it
      * matches a left delimiter that occurred prior to the start of the
      * jlist, so we can emit a DEDENT token to end the jlist. Example:
-     * 
+     *
      *    /\ ( a + b )
      *              ^ tree-sitter will never look for an INDENT,
      *                BULLET, or DEDENT token here; it is only
      *                looking for another infix operator or the
      *                right-delimiter.
-     * 
+     *
      *    ( /\ a + b )
      *              ^ tree-sitter WILL look for an INDENT, BULLET, or
      *                DEDENT token here in addition to looking for an
@@ -1221,32 +1248,32 @@ namespace {
      *                token before seeing the right delimiter, although
      *                error recovery is simple enough that it would
      *                barely notice its absence.
-     * 
+     *
      * There are a few notable exceptions to this rule; for example, the
      * empty set or empty sequence:
-     * 
+     *
      *    /\  { }
      *         ^
      *    /\ << >>
      *         ^ there is the option for an expression here, so tree-sitter
      *           looks for INDENT tokens and we will see a right delimiter
      *           in this external scanner.
-     * 
+     *
      * Another example when the code is in a non-parseable state which we
      * nonetheless wish to handle gracefully:
-     * 
+     *
      *    /\ [x \in S |-> ]
      *                   ^ user is about to write an expression here, but
      *                     there is a time when the code is non-parseable;
      *                     tree-sitter will again look for an INDENT token
      *                     and we will see a right delimiter in this
      *                     external scanner.
-     * 
+     *
      * The easy solution to these cases is to simply check whether
      * tree-sitter is looking for a DEDENT token. If so, emit one; if not,
      * emit nothing. Tree-sitter will not look for a DEDENT token inside
      * enclosing delimiters within the scope of a jlist.
-     * 
+     *
      * One side-effect of all this is that tree-sitter parses certain
      * arrangements of jlists and delimiters that are actually illegal
      * according to TLA⁺ syntax rules; that is okay since tree-sitter's
@@ -1254,26 +1281,27 @@ namespace {
      * errs on the side of being overly-permissive. For a concrete
      * example here, tree-sitter will parse this illegal expression
      * without complaint:
-     * 
+     *
      *    /\ A
      *    /\ (B + C
      *  )
      *    /\ D
-     * 
+     *
      * This should simply be detected as an error at the semantic level.
      *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_right_delimiter_token(
+    static bool handle_right_delimiter_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
-      return is_in_jlist()
+      return is_in_jlist(this)
         && valid_symbols[DEDENT]
-        && !this->jlists.empty()
-        && emit_dedent(lexer);
+        && emit_dedent(this, lexer);
     }
 
     /**
@@ -1285,13 +1313,17 @@ namespace {
      * 3. End-of-file (this shouldn't happen but we will end the jlist to
      *    improve error reporting since the end-of-module token is missing)
      *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_terminator_token(TSLexer* const lexer) {
-      return is_in_jlist() && emit_dedent(lexer);
+    static bool handle_terminator_token(
+      struct Scanner* const this,
+      TSLexer* const lexer
+    ) {
+      return is_in_jlist(this) && emit_dedent(this, lexer);
     }
-    
+
     /**
      * Non-junct tokens could possibly indicate the end of a jlist. Rules:
      * - If the token cpos is leq to the current jlist cpos, the jlist
@@ -1306,66 +1338,80 @@ namespace {
      *              ELSE Q
      *      /\ R
      *   so emit no token.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param next The column position of the encountered token.
      * @return Whether a jlist-relevant token should be emitted.
      */
-    bool handle_other_token(
+    static bool handle_other_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       column_index const next
     ) {
-      return is_in_jlist()
-        && next <= get_current_jlist_column_index()
-        && emit_dedent(lexer);
+      return is_in_jlist(this)
+        && next <= get_current_jlist_column_index(this)
+        && emit_dedent(this, lexer);
     }
-    
+
     /**
      * Gets whether we are currently in a proof.
      *
+     * @param this The Scanner state.
      * @return Whether we are currently in a proof.
      */
-    bool is_in_proof() const {
-      return !proofs.empty();
+    static bool is_in_proof(const struct Scanner* const this) {
+      return this->proofs.size > 0;
     }
-    
+
     /**
      * Gets the current proof level; -1 if none.
-     * 
+     *
+     * @param this The Scanner state.
      * @return The current proof level.
      */
-    proof_level get_current_proof_level() const {
-      return is_in_proof() ? proofs.back() : -1;
+    static proof_level get_current_proof_level(const struct Scanner* const this) {
+      return is_in_proof(this) ? *array_back(&this->proofs) : -1;
     }
 
     /**
      * Emits a token indicating the start of a new proof.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param level The level of the new proof.
      * @return Whether a token should be emitted.
      */
-    bool emit_begin_proof(TSLexer* const lexer, proof_level level) {
+    static bool emit_begin_proof(
+      struct Scanner* const this,
+      TSLexer* const lexer,
+      proof_level level
+    ) {
       lexer->result_symbol = BEGIN_PROOF;
-      proofs.push_back(level);
-      last_proof_level = level;
-      have_seen_proof_keyword = false;
+      array_push(&this->proofs, level);
+      this->last_proof_level = level;
+      this->have_seen_proof_keyword = false;
       return true;
     }
-    
+
     /**
      * Emits a token indicating the start of a new proof step.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param level The level of the new proof step.
      * @return Whether a token should be emitted.
      */
-    bool emit_begin_proof_step(TSLexer* const lexer, proof_level level) {
-      last_proof_level = level;
+    static bool emit_begin_proof_step(
+      struct Scanner* const this,
+      TSLexer* const lexer,
+      proof_level level
+    ) {
+      this->last_proof_level = level;
       lexer->result_symbol = BEGIN_PROOF_STEP;
       return true;
     }
-    
+
     /**
      * Handle encountering a new proof step ID. This probably marks the
      * beginning of a new proof step, but could also be a reference to a
@@ -1390,7 +1436,7 @@ namespace {
      *    -> This is another proof step; emit BEGIN_PROOF_STEP token.
      * 3. The new proof token level is less than the current level
      *    -> This is an error, which we will try to recover from.
-     * 
+     *
      * There are also rules to handle proof step IDs where the level is
      * inferred, like <+> and <*>. They are as follows:
      * 1. The proof step ID is <+>
@@ -1409,22 +1455,24 @@ namespace {
      *
      * Proofs are ended upon encountering a QED step, which is handled
      * elsewhere.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @param next The column position of the encountered token.
      * @return Whether a token should be emitted.
      */
-    bool handle_proof_step_id_token(
+    static bool handle_proof_step_id_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols,
       column_index const next,
-      const std::vector<char>& proof_step_id_level
+      CharArray* proof_step_id_level
     ) {
-      ProofStepId proof_step_id_token(proof_step_id_level);
+      struct ProofStepId proof_step_id_token = parse_proof_step_id(proof_step_id_level);
       if (valid_symbols[BEGIN_PROOF] || valid_symbols[BEGIN_PROOF_STEP]) {
         proof_level next_proof_level = -1;
-        const proof_level current_proof_level = get_current_proof_level();
+        const proof_level current_proof_level = get_current_proof_level(this);
         switch (proof_step_id_token.type) {
           case ProofStepIdType_STAR:
             /**
@@ -1432,8 +1480,8 @@ namespace {
              * or directly following a PROOF keyword.
              */
             next_proof_level =
-              !is_in_proof() || have_seen_proof_keyword
-              ? last_proof_level + 1
+              !is_in_proof(this) || this->have_seen_proof_keyword
+              ? this->last_proof_level + 1
               : current_proof_level;
             break;
           case ProofStepIdType_PLUS:
@@ -1445,7 +1493,7 @@ namespace {
              * BEGIN_PROOF_STEP token.
              */
             next_proof_level = valid_symbols[BEGIN_PROOF]
-              ? last_proof_level + 1
+              ? this->last_proof_level + 1
               : current_proof_level;
             break;
           case ProofStepIdType_NUMBERED:
@@ -1456,16 +1504,16 @@ namespace {
         }
 
         if (next_proof_level > current_proof_level) {
-          return emit_begin_proof(lexer, next_proof_level);
+          return emit_begin_proof(this, lexer, next_proof_level);
         } else if (next_proof_level == current_proof_level) {
-          if (have_seen_proof_keyword) {
+          if (this->have_seen_proof_keyword) {
             // This has been declared a new proof using the PROOF keyword
             // but does not have a level greater than the old; thus we've
             // detected a syntax error.
             // TODO: handle this.
             return false;
           } else {
-            return emit_begin_proof_step(lexer, next_proof_level);
+            return emit_begin_proof_step(this, lexer, next_proof_level);
           }
         } else {
           // The next proof level is lower than the current. This is
@@ -1476,10 +1524,10 @@ namespace {
       } else {
         if (valid_symbols[DEDENT]) {
           // End all jlists before start of proof.
-          return handle_terminator_token(lexer);
+          return handle_terminator_token(this, lexer);
         } else {
           // This is a reference to a proof step in an expression.
-          return handle_other_token(lexer, next);
+          return handle_other_token(this, lexer, next);
         }
       }
     }
@@ -1488,51 +1536,55 @@ namespace {
      * Handles the PROOF keyword token. We record that we've seen the
      * PROOF keyword, which modifies the interpretation of the subsequent
      * proof step ID. The PROOF token also terminates any current jlist.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token should be emitted.
      */
-    bool handle_proof_keyword_token(
+    static bool handle_proof_keyword_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
       if (valid_symbols[PROOF_KEYWORD]) {
-        have_seen_proof_keyword = true;
+        this->have_seen_proof_keyword = true;
         lexer->result_symbol = PROOF_KEYWORD;
         lexer->mark_end(lexer);
         return true;
       } else {
-        return handle_terminator_token(lexer);
+        return handle_terminator_token(this, lexer);
       }
     }
-    
+
     /**
      * Handles the BY, OBVIOUS, and OMITTED keyword tokens. We record
      * that we've seen the keyword, which negates any PROOF keyword
      * previously encountered. These tokens also terminate any current
      * jlist.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @param keyword_type The specific keyword being handled.
      * @return Whether a token should be emitted.
      */
-    bool handle_terminal_proof_keyword_token(
+    static bool handle_terminal_proof_keyword_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols,
-      TokenType keyword_type
+      enum TokenType keyword_type
     ) {
       if (valid_symbols[keyword_type]) {
-        have_seen_proof_keyword = false;
+        this->have_seen_proof_keyword = false;
         lexer->result_symbol = keyword_type;
         lexer->mark_end(lexer);
         return true;
       } else {
-        return handle_terminator_token(lexer);
+        return handle_terminator_token(this, lexer);
       }
     }
-    
+
     /**
      * Handles the QED keyword token. The QED token indicates this is the
      * final step of a proof, so we modify the state accordingly. First
@@ -1547,41 +1599,45 @@ namespace {
      * returned to help the error recovery process. Not performing this
      * check previously led to a segfault; see:
      * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/60
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token should be emitted.
      */
-    bool handle_qed_keyword_token(
+    static bool handle_qed_keyword_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       const bool* const valid_symbols
     ) {
-      if (is_in_proof()) {
-        last_proof_level = get_current_proof_level();
-        proofs.pop_back();
+      if (is_in_proof(this)) {
+        this->last_proof_level = get_current_proof_level(this);
+        array_pop(&this->proofs);
       }
 
       lexer->result_symbol = QED_KEYWORD;
       lexer->mark_end(lexer);
       return true;
     }
-    
+
     /**
      * Handles the fairness tokens WF_ and SF_.
      * Need to handle this in an external scanner due to:
      * https://github.com/tree-sitter/tree-sitter/issues/1615
      *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param next The column position of the encountered token.
      * @param keyword_type The specific keyword being handled.
      * @return Whether a token should be emitted.
      */
-    bool handle_fairness_keyword_token(
+    static bool handle_fairness_keyword_token(
+      struct Scanner* const this,
       TSLexer* const lexer,
       column_index const next,
-      TokenType keyword_type
+      enum TokenType keyword_type
     ) {
-      if (handle_other_token(lexer, next)) {
+      if (handle_other_token(this, lexer, next)) {
         return true;
       } else {
         lexer->result_symbol = keyword_type;
@@ -1589,15 +1645,20 @@ namespace {
         return true;
       }
     }
-    
+
     /**
      * Scans for various possible external tokens.
-     * 
+     *
+     * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token was encountered.
      */
-    bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
+    static bool scan(
+      struct Scanner* const this,
+      TSLexer* const lexer,
+      const bool* const valid_symbols
+    ) {
       // All symbols are marked as valid during error recovery.
       // We can check for this by looking at the validity of the final
       // (unused) external symbol, ERROR_SENTINEL.
@@ -1613,43 +1674,42 @@ namespace {
         return scan_extramodular_text(lexer, valid_symbols);
       } else {
         column_index col = -1;
-        std::vector<char> proof_step_id_level;
-        switch (tokenize_lexeme(lex_lookahead(lexer, col, proof_step_id_level))) {
+        CharArray proof_step_id_level = array_new();
+        switch (tokenize_lexeme(lex_lookahead(lexer, &col, &proof_step_id_level))) {
           case Token_LAND:
-            return handle_junct_token(lexer, valid_symbols, JunctType_CONJUNCTION, col);
+            return handle_junct_token(this, lexer, valid_symbols, JunctType_CONJUNCTION, col);
           case Token_LOR:
-            return handle_junct_token(lexer, valid_symbols, JunctType_DISJUNCTION, col);
+            return handle_junct_token(this, lexer, valid_symbols, JunctType_DISJUNCTION, col);
           case Token_RIGHT_DELIMITER:
-            return handle_right_delimiter_token(lexer, valid_symbols);
+            return handle_right_delimiter_token(this, lexer, valid_symbols);
           case Token_COMMENT_START:
             return false;
           case Token_TERMINATOR:
-            return handle_terminator_token(lexer);
+            return handle_terminator_token(this, lexer);
           case Token_PROOF_STEP_ID:
-            return handle_proof_step_id_token(lexer, valid_symbols, col, proof_step_id_level);
+            return handle_proof_step_id_token(this, lexer, valid_symbols, col, &proof_step_id_level);
           case Token_PROOF_KEYWORD:
-            return handle_proof_keyword_token(lexer, valid_symbols);
+            return handle_proof_keyword_token(this, lexer, valid_symbols);
           case Token_BY_KEYWORD:
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols, BY_KEYWORD);
+            return handle_terminal_proof_keyword_token(this, lexer, valid_symbols, BY_KEYWORD);
           case Token_OBVIOUS_KEYWORD:
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols, OBVIOUS_KEYWORD);
+            return handle_terminal_proof_keyword_token(this, lexer, valid_symbols, OBVIOUS_KEYWORD);
           case Token_OMITTED_KEYWORD:
-            return handle_terminal_proof_keyword_token(lexer, valid_symbols, OMITTED_KEYWORD);
+            return handle_terminal_proof_keyword_token(this, lexer, valid_symbols, OMITTED_KEYWORD);
           case Token_QED_KEYWORD:
-            return handle_qed_keyword_token(lexer, valid_symbols);
+            return handle_qed_keyword_token(this, lexer, valid_symbols);
           case Token_WEAK_FAIRNESS:
-            return handle_fairness_keyword_token(lexer, col, WEAK_FAIRNESS);
+            return handle_fairness_keyword_token(this, lexer, col, WEAK_FAIRNESS);
           case Token_STRONG_FAIRNESS:
-            return handle_fairness_keyword_token(lexer, col, STRONG_FAIRNESS);
+            return handle_fairness_keyword_token(this, lexer, col, STRONG_FAIRNESS);
           case Token_OTHER:
-            return handle_other_token(lexer, col);
+            return handle_other_token(this, lexer, col);
           default:
             return false;
         }
       }
     }
-  };
-  
+
   /**
    * A hierarchy of nested stateful scanners.
    * Each time a PlusCal block is entered, a nested context is created.
@@ -1659,62 +1719,74 @@ namespace {
   struct NestedScanner {
 
     // The enclosing context(s) of the PlusCal block.
-    std::vector< std::vector<char> > enclosing_contexts;
-    
+    Array(CharArray) enclosing_contexts;
+
     // The currently-active context.
-    Scanner current_context;
+    struct Scanner current_context;
+
+  };
 
     /**
-     * Initializes a new instance of the NestedScanner object.
+     * Serialize the nested scanner into a buffer.
+     *
+     * @param this The NestedScanner state.
+     * @param buffer The buffer to serialize the state into.
+     * @return The number of bytes written into the buffer.
      */
-    NestedScanner() {
-      this->deserialize(NULL, 0);
-    }
-    
-    unsigned serialize(char* const buffer) {
+    static unsigned nested_scanner_serialize(
+      const struct NestedScanner* const this,
+      char* const buffer
+    ) {
       unsigned offset = 0;
       unsigned copied = 0;
 
       // First write number of enclosing contexts (guaranteed to be >= 1)
-      nest_address const context_depth = this->enclosing_contexts.size() + 1;
+      nest_address const context_depth = this->enclosing_contexts.size + 1;
       copied = sizeof(nest_address);
       if (copied > 0) memcpy(&buffer[offset], &context_depth, copied);
       offset += copied;
-      
+
       // Then write size of N-1 enclosing contexts
       for (int i = 0; i < context_depth - 1; i++) {
-        unsigned const context_size = this->enclosing_contexts[i].size();
+        unsigned const context_size = array_get(&this->enclosing_contexts, i)->size;
         copied = sizeof(unsigned);
         if (copied > 0) memcpy(&buffer[offset], &context_size, copied);
         offset += copied;
       }
-      
+
       // Reserve space for current context size
       unsigned const current_context_size_offset = offset;
       copied = sizeof(unsigned);
       offset += copied;
-      
+
       // Serialize N-1 enclosing contexts
-      for (int i = 0; i < this->enclosing_contexts.size(); i++) {
-        std::vector<char>& context = this->enclosing_contexts[i];
-        copied = context.size();
-        if (copied > 0) memcpy(&buffer[offset], context.data(), copied);
+      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+        CharArray* context = array_get(&this->enclosing_contexts, i);
+        copied = context->size;
+        if (copied > 0) memcpy(&buffer[offset], context->contents, copied);
         offset += copied;
       }
 
       // Serialize current context
-      copied = this->current_context.serialize(&buffer[offset]);
+      copied = scanner_serialize(&this->current_context, &buffer[offset]);
       offset += copied;
-      
+
       // Write current context size to reserved position
       memcpy(&buffer[current_context_size_offset], &copied, sizeof(unsigned));
-      
+
       return offset;
     }
 
-    void deserialize(const char* const buffer, unsigned const length) {
-      this->enclosing_contexts.clear();
-      this->current_context.deserialize(NULL, 0);
+    static void nested_scanner_deserialize(
+      struct NestedScanner* const this,
+      const char* const buffer,
+      unsigned const length
+    ) {
+      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+        array_delete(array_get(&this->enclosing_contexts, i));
+      }
+      array_delete(&this->enclosing_contexts);
+      scanner_deserialize(&this->current_context, NULL, 0);
 
       if (length > 0) {
         unsigned offset = 0;
@@ -1725,78 +1797,87 @@ namespace {
         copied = sizeof(nest_address);
         memcpy(&context_depth, &buffer[offset], copied);
         assert(1 <= context_depth);
-        this->enclosing_contexts.resize(context_depth - 1);
+        array_reserve(&this->enclosing_contexts, context_depth - 1);
         offset += copied;
-        
+
         // Next N items: size of all contexts
-        std::vector<unsigned> context_sizes;
-        context_sizes.resize(context_depth);
+        Array(unsigned) context_sizes = array_new();
+        array_reserve(&context_sizes, context_depth);
         copied = context_depth * sizeof(unsigned);
-        if (copied > 0) memcpy(context_sizes.data(), &buffer[offset], copied);
+        if (copied > 0) memcpy(context_sizes.contents, &buffer[offset], copied);
         offset += copied;
-        
+
         // Deserialize N-1 contexts as enclosing contexts
         for (int i = 0; i < context_depth - 1; i++) {
-          copied = context_sizes[i];
-          this->enclosing_contexts[i].resize(copied);
-          if (copied > 0) memcpy(this->enclosing_contexts[i].data(), &buffer[offset], copied);
+          copied = *array_get(&context_sizes, i);
+          array_reserve(array_get(&this->enclosing_contexts, i), copied);
+          if (copied > 0) memcpy(array_get(&this->enclosing_contexts, i)->contents, &buffer[offset], copied);
           offset += copied;
         }
-        
+
         // Final context is deserialized as current context
-        copied = context_sizes.back();
-        this->current_context.deserialize(&buffer[offset], copied);
+        copied = *array_back(&context_sizes);
+        scanner_deserialize(&this->current_context, &buffer[offset], copied);
         offset += copied;
 
         assert(offset == length);
       }
     }
 
-    bool scan(TSLexer* const lexer, const bool* const valid_symbols) {
+    /**
+     * Initializes a new instance of the NestedScanner object.
+     *
+     * @return A new blank NestedScanner.
+     */
+    static struct NestedScanner create_nested_scanner() {
+      struct NestedScanner scanner;
+      nested_scanner_deserialize(&scanner, NULL, 0);
+      return scanner;
+    }
+
+    static bool nested_scan(
+      struct NestedScanner* const this,
+      TSLexer* const lexer,
+      const bool* const valid_symbols) {
       // All symbols are marked as valid during error recovery.
       // We can check for this by looking at the validity of the final
       // (unused) external symbol, ERROR_SENTINEL.
-      // TODO: actually function during error recovery
-      // https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/19
       if (valid_symbols[ERROR_SENTINEL]) {
         return false;
       } else if (valid_symbols[PCAL_START]) {
         // Entering PlusCal block; push current context then clear
-        unsigned const expected_size = this->current_context.serialized_size();
-        this->enclosing_contexts.resize(this->enclosing_contexts.size() + 1);
-        this->enclosing_contexts.back().resize(expected_size);
-        unsigned const actual_size = this->current_context.serialize(this->enclosing_contexts.back().data());
+        unsigned const expected_size = scanner_serialized_size(&this->current_context);
+        CharArray serialized_current_context = array_new();
+        array_reserve(&serialized_current_context, expected_size);
+        unsigned const actual_size = scanner_serialize(&this->current_context, serialized_current_context.contents);
         assert(expected_size == actual_size);
-        this->current_context.deserialize(NULL, 0);
+        array_push(&this->enclosing_contexts, serialized_current_context);
+        this->current_context = create_scanner();
         lexer->result_symbol = PCAL_START;
         return true;
-      } else if (valid_symbols[PCAL_END] && !this->enclosing_contexts.empty()) {
+      } else if (valid_symbols[PCAL_END] && this->enclosing_contexts.size > 0) {
         // Exiting PlusCal block; rehydrate context then pop
-        std::vector<char>& next = this->enclosing_contexts.back();
-        this->current_context.deserialize(next.data(), next.size());
-        this->enclosing_contexts.pop_back();
+        CharArray* next = array_back(&this->enclosing_contexts);
+        scanner_deserialize(&this->current_context, next->contents, next->size);
+        array_delete(next);
+        array_pop(&this->enclosing_contexts);
         lexer->result_symbol = PCAL_END;
         return true;
       } else {
-        return current_context.scan(lexer, valid_symbols);
+        return scan(&this->current_context, lexer, valid_symbols);
       }
     }
-  };
-}
-
-extern "C" {
 
   // Called once when language is set on a parser.
   // Allocates memory for storing scanner state.
   void* tree_sitter_tlaplus_external_scanner_create() {
-    return new NestedScanner();
+    return ts_malloc(sizeof(struct NestedScanner));
   }
 
   // Called once parser is deleted or different language set.
   // Frees memory storing scanner state.
   void tree_sitter_tlaplus_external_scanner_destroy(void* const payload) {
-    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
-    delete scanner;
+    ts_free((struct NestedScanner*)(payload));
   }
 
   // Called whenever this scanner recognizes a token.
@@ -1805,8 +1886,8 @@ extern "C" {
     void* const payload,
     char* const buffer
   ) {
-    NestedScanner* scanner = static_cast<NestedScanner*>(payload);
-    return scanner->serialize(buffer);
+    const struct NestedScanner* const scanner = (struct NestedScanner*)(payload);
+    return nested_scanner_serialize(scanner, buffer);
   }
 
   // Called when handling edits and ambiguities.
@@ -1816,8 +1897,8 @@ extern "C" {
     const char* const buffer,
     unsigned const length
   ) {
-    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
-    scanner->deserialize(buffer, length);
+    struct NestedScanner* const scanner = (struct NestedScanner*)(payload);
+    nested_scanner_deserialize(scanner, buffer, length);
   }
 
   // Scans for tokens.
@@ -1826,7 +1907,7 @@ extern "C" {
     TSLexer* const lexer,
     const bool* const valid_symbols
   ) {
-    NestedScanner* const scanner = static_cast<NestedScanner*>(payload);
-    return scanner->scan(lexer, valid_symbols);
+    struct NestedScanner* const scanner = (struct NestedScanner*)(payload);
+    return nested_scan(scanner, lexer, valid_symbols);
   }
-}
+
