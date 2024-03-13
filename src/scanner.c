@@ -8,7 +8,7 @@
 
 /**
  * Macro; goes to the lexer state without consuming any codepoints.
- * 
+ *
  * @param state_value The new lexer state.
  */
 #define GO_TO_STATE(state_value)  \
@@ -19,7 +19,7 @@
 
 /**
  * Macro; marks the given lexeme as accepted.
- * 
+ *
  * @param lexeme The lexeme to mark as accepted.
  */
 #define ACCEPT_LEXEME(lexeme)       \
@@ -30,7 +30,7 @@
 /**
  * Macro; marks the given token as accepted without also marking the
  * current position as its end.
- * 
+ *
  * @param token The token to mark as accepted.
  */
 #define ACCEPT_LOOKAHEAD_TOKEN(token)     \
@@ -82,7 +82,7 @@
 
   /**
    * Advances the scanner while marking the codepoint as non-whitespace.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    */
   static void advance(TSLexer* const lexer) {
@@ -91,7 +91,7 @@
 
   /**
    * Checks whether the next codepoint is the one given.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param codepoint The codepoint to check.
    * @return Whether the next codepoint is the one given.
@@ -105,7 +105,7 @@
 
   /**
    * Checks whether there are any codepoints left in the string.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @return Whether there are any codepoints left in the string.
    */
@@ -117,7 +117,7 @@
    * Checks whether the given codepoint could be used in an identifier,
    * which consist of capital ASCII letters, lowercase ASCII letters,
    * and underscores.
-   * 
+   *
    * @param codepoint The codepoint to check.
    * @return Whether the given codepoint could be used in an identifier.
    */
@@ -127,7 +127,7 @@
 
   /**
    * Consumes codepoints as long as they are the one given.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param codepoint The codepoint to consume.
    * @return The number of codepoints consumed.
@@ -141,7 +141,7 @@
   /**
    * Checks whether the next codepoint sequence is the one given.
    * This function can change the state of the lexer.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param token The codepoint sequence to check for.
    * @return Whether the next codepoint sequence is the one given.
@@ -185,7 +185,7 @@
    * that the extramodular text does not itself include the captured module
    * start sequence, which is why this is in an external scanner rather
    * than a regex in the grammar itself.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure
    * @param valid_symbols Tokens possibly expected in this spot.
    * @return Whether any extramodular text was detected.
@@ -253,7 +253,7 @@
 
     /**
      * Initializes a new instance of the ProofStepId class.
-     * 
+     *
      * @param raw_level The unparsed contents of the <...> lexeme.
      */
     static struct ProofStepId parse_proof_step_id(const CharArray* raw_level) {
@@ -389,7 +389,7 @@
    * Looks ahead to identify the next lexeme. Consumes all leading
    * whitespace. Out parameters include column of first non-whitespace
    * codepoint and the level of the proof step ID lexeme if encountered.
-   * 
+   *
    * @param lexer The tree-sitter lexing control structure.
    * @param lexeme_start_col The starting column of the first lexeme.
    * @param proof_step_id_level The level of the proof step ID.
@@ -793,7 +793,7 @@
 
   /**
    * Maps the given lexeme to a token.
-   * 
+   *
    * @param lexeme The lexeme to map to a token.
    * @return The token corresponding to the given lexeme.
    */
@@ -927,7 +927,7 @@
 
     /**
      * Serializes the Scanner state into the given buffer.
-     * 
+     *
      * @param this The Scanner state to serialize.
      * @param buffer The buffer into which to serialize the scanner state.
      * @param is_dry_run Whether to actually copy the bytes to the buffer.
@@ -972,7 +972,7 @@
 
     /**
      * Serializes the Scanner state into the given buffer.
-     * 
+     *
      * @param this The Scanner state to serialize.
      * @param buffer The buffer into which to serialize the scanner state.
      * @return Number of bytes written into the buffer.
@@ -983,7 +983,7 @@
 
     /**
      * Calculates the serialized size of the scanner.
-     * 
+     *
      * @param this The Scanner state to find the deserialized size of.
      * @return The size of the Scanner when serialized.
      */
@@ -993,7 +993,7 @@
 
     /**
      * Deserializes the Scanner state from the given buffer.
-     * 
+     *
      * @param this The Scanner state to deserialize.
      * @param buffer The buffer from which to deserialize the state.
      * @param length The bytes available to read from the buffer.
@@ -1047,7 +1047,7 @@
 
     /**
      * Initializes a new instance of the Scanner object.
-     * 
+     *
      * @return A newly-created Scanner.
      */
     static struct Scanner scanner_create() {
@@ -1061,7 +1061,7 @@
 
     /**
      * Frees all memory associated with this Scanner.
-     * 
+     *
      * @param this The Scanner to free.
      */
     static void scanner_free(struct Scanner* const this) {
@@ -1071,7 +1071,7 @@
 
     /**
      * Whether the Scanner state indicates we are currently in a jlist.
-     * 
+     *
      * @param this The Scanner state.
      * @return Whether we are in a jlist.
      */
@@ -1082,7 +1082,7 @@
     /**
      * The column index of the current jlist. Returns negative number if
      * we are not currently in a jlist.
-     * 
+     *
      * @param this The Scanner state.
      * @return The column index of the current jlist.
      */
@@ -1092,7 +1092,7 @@
 
     /**
      * Whether the given jlist type matches the current jlist.
-     * 
+     *
      * @param this The Scanner state.
      * @param type The jlist type to check.
      * @return Whether the given jlist type matches the current jlist.
@@ -1106,7 +1106,7 @@
 
     /**
      * Emits an INDENT token, recording the new jlist in the Scanner state.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param type The type of the new jlist.
@@ -1128,7 +1128,7 @@
     /**
      * Emits a BULLET token, marking the start of a new item in the current
      * jlist.
-     * 
+     *
      * @param lexer The tree-sitter lexing control structure.
      * @param type The type of junction list.
      * @return Whether a BULLET token was emitted.
@@ -1140,7 +1140,7 @@
 
     /**
      * Emits a DEDENT token, removing a jlist from the Scanner state.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @return Whether a DEDENT token was emitted.
@@ -1173,7 +1173,7 @@
      *    -> this is an infix operator that also ends the current list
      * 5. The junct is prior to the cpos of the current jlist
      *    -> this ends the current jlist, emit DEDENT token
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1201,14 +1201,14 @@
            * a new jlist at the start of an expression rule; infix operators
            * occur when joining two expression rules together, so tree-sitter
            * is only looking for either BULLET or DEDENT rules. Examples:
-           * 
+           *
            *   /\ a /\ b
            *       ^ tree-sitter will NEVER look for an INDENT here
-           * 
+           *
            *   /\ a
            *   /\ b
            *  ^ tree-sitter WILL look for a BULLET here
-           * 
+           *
            *   /\ /\ a
            *     ^ tree-sitter WILL look for an INDENT here
            */
@@ -1243,7 +1243,7 @@
      * (), [], <<>>, and {}; it also includes IF/THEN, THEN/ELSE, CASE/->,
      * and basically every other language construct where an expression is
      * squeezed between a known start & end token.
-     * 
+     *
      * Previously I implemented complicated logic using a stack to keep
      * track of all the delimiters that have been seen (and their
      * pairs) but found that tree-sitter would never trigger the
@@ -1252,13 +1252,13 @@
      * we can assume that when we *do* see a right delimiter, it
      * matches a left delimiter that occurred prior to the start of the
      * jlist, so we can emit a DEDENT token to end the jlist. Example:
-     * 
+     *
      *    /\ ( a + b )
      *              ^ tree-sitter will never look for an INDENT,
      *                BULLET, or DEDENT token here; it is only
      *                looking for another infix operator or the
      *                right-delimiter.
-     * 
+     *
      *    ( /\ a + b )
      *              ^ tree-sitter WILL look for an INDENT, BULLET, or
      *                DEDENT token here in addition to looking for an
@@ -1266,17 +1266,17 @@
      *                token before seeing the right delimiter, although
      *                error recovery is simple enough that it would
      *                barely notice its absence.
-     * 
+     *
      * There are a few notable exceptions to this rule; for example, the
      * empty set or empty sequence:
-     * 
+     *
      *    /\  { }
      *         ^
      *    /\ << >>
      *         ^ there is the option for an expression here, so tree-sitter
      *           looks for INDENT tokens and we will see a right delimiter
      *           in this external scanner.
-     * 
+     *
      * Another example when the code is in a non-parseable state which we
      * nonetheless wish to handle gracefully:
      *
@@ -1286,12 +1286,12 @@
      *                     tree-sitter will again look for an INDENT token
      *                     and we will see a right delimiter in this
      *                     external scanner.
-     * 
+     *
      * The easy solution to these cases is to simply check whether
      * tree-sitter is looking for a DEDENT token. If so, emit one; if not,
      * emit nothing. Tree-sitter will not look for a DEDENT token inside
      * enclosing delimiters within the scope of a jlist.
-     * 
+     *
      * One side-effect of all this is that tree-sitter parses certain
      * arrangements of jlists and delimiters that are actually illegal
      * according to TLA⁺ syntax rules; that is okay since tree-sitter's
@@ -1299,14 +1299,14 @@
      * errs on the side of being overly-permissive. For a concrete
      * example here, tree-sitter will parse this illegal expression
      * without complaint:
-     * 
+     *
      *    /\ A
      *    /\ (B + C
      *  )
      *    /\ D
-     * 
+     *
      * This should simply be detected as an error at the semantic level.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1330,7 +1330,7 @@
      * 2. End-of-module token (====)
      * 3. End-of-file (this shouldn't happen but we will end the jlist to
      *    improve error reporting since the end-of-module token is missing)
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @return Whether a jlist-relevant token should be emitted.
@@ -1356,7 +1356,7 @@
      *              ELSE Q
      *      /\ R
      *   so emit no token.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param next The column position of the encountered token.
@@ -1374,7 +1374,7 @@
 
     /**
      * Gets whether we are currently in a proof.
-     * 
+     *
      * @param this The Scanner state.
      * @return Whether we are currently in a proof.
      */
@@ -1384,7 +1384,7 @@
 
     /**
      * Gets the current proof level; -1 if none.
-     * 
+     *
      * @param this The Scanner state.
      * @return The current proof level.
      */
@@ -1394,7 +1394,7 @@
 
     /**
      * Emits a token indicating the start of a new proof.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param level The level of the new proof.
@@ -1414,7 +1414,7 @@
 
     /**
      * Emits a token indicating the start of a new proof step.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param level The level of the new proof step.
@@ -1444,7 +1444,7 @@
      *    -> This is a proof step reference, so treat as other token.
      *       P => <1>b
      *           ^ tree-sitter will only look for INDENT here
-     * 
+     *
      * For handling proof steps alone, there are the following cases:
      * 1. The new proof token level is greater than the current level
      *    -> This is the start of a new proof; emit BEGIN_PROOF token
@@ -1470,10 +1470,10 @@
      * 4. The proof step ID is <*> and it *does not* follow a PROOF keyword
      *    -> This is another step in the same proof; its level is the
      *       same as last_proof_level.
-     * 
+     *
      * Proofs are ended upon encountering a QED step, which is handled
      * elsewhere.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1554,7 +1554,7 @@
      * Handles the PROOF keyword token. We record that we've seen the
      * PROOF keyword, which modifies the interpretation of the subsequent
      * proof step ID. The PROOF token also terminates any current jlist.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1580,7 +1580,7 @@
      * that we've seen the keyword, which negates any PROOF keyword
      * previously encountered. These tokens also terminate any current
      * jlist.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1609,7 +1609,7 @@
      * we record the current proof level in case there is a child proof
      * of this step that uses <+> or PROOF <*> for its first step. Then
      * we pop the top proof level off the stack.
-     * 
+     *
      * It's possible to encounter a QED keyword while not inside of a proof
      * as part of an earlier syntax error, and proof step IDs being treated
      * as sequences of < and > operators. In this case the current proof
@@ -1617,7 +1617,7 @@
      * returned to help the error recovery process. Not performing this
      * check previously led to a segfault; see:
      * https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/60
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1642,7 +1642,7 @@
      * Handles the fairness tokens WF_ and SF_.
      * Need to handle this in an external scanner due to:
      * https://github.com/tree-sitter/tree-sitter/issues/1615
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param next The column position of the encountered token.
@@ -1666,7 +1666,7 @@
 
     /**
      * Scans for various possible external tokens.
-     * 
+     *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
      * @param valid_symbols Tokens possibly expected in this spot.
@@ -1749,7 +1749,7 @@
 
     /**
      * Serialize the nested scanner into a buffer.
-     * 
+     *
      * @param this The NestedScanner state.
      * @param buffer The buffer to serialize the state into.
      * @return The number of bytes written into the buffer.
@@ -1800,7 +1800,7 @@
 
     /**
      * Deserialize a nested scanner.
-     * 
+     *
      * @param this The nested scanner instance to deserialize into.
      * @param buffer The buffer to deserialize from.
      * @param length The number of bytes in the buffer.
@@ -1855,7 +1855,7 @@
 
     /**
      * Initializes a new instance of the NestedScanner object.
-     * 
+     *
      * @param this The NestedScanner to initialize.
      */
     static void nested_scanner_init(struct NestedScanner* const this) {
@@ -1865,7 +1865,7 @@
 
     /**
      * Frees all memory allocated by the nested scanner.
-     * 
+     *
      * @param this The NestedScanner to free.
      */
     static void nested_scanner_free(struct NestedScanner* const this) {
@@ -1893,6 +1893,7 @@
         unsigned const actual_size = scanner_serialize(&this->current_context, serialized_current_context.contents);
         assert(expected_size == actual_size);
         array_push(&this->enclosing_contexts, serialized_current_context);
+        scanner_free(&this->current_context);
         this->current_context = scanner_create();
         lexer->result_symbol = PCAL_START;
         return true;
@@ -1901,7 +1902,7 @@
         CharArray* next = array_back(&this->enclosing_contexts);
         scanner_deserialize(&this->current_context, next->contents, next->size);
         array_delete(next);
-        array_pop(&this->enclosing_contexts);
+        array_delete(&array_pop(&this->enclosing_contexts));
         lexer->result_symbol = PCAL_END;
         return true;
       } else {
