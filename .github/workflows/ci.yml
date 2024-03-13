@@ -40,10 +40,12 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: .\test\run-corpus.ps1
-      - name: Corpus Tests (Unix)
+      - name: Corpus Tests (Linix)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: ./test/run-corpus.sh --parallel
+        run: |
+          ./test/sanitize/build-sanitized.sh
+          ./test/sanitize/run-corpus.sh
       - name: Corpus Tests (MacOS)
         if: matrix.os == 'macos-latest'
         shell: bash
