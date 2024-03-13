@@ -77,6 +77,7 @@
   // Datatype used to record proof levels.
   typedef int32_t proof_level;
 
+  // A dynamic array of chars.
   typedef Array(char) CharArray;
 
   /**
@@ -1797,6 +1798,13 @@
       return offset;
     }
 
+    /**
+     * Deserialize a nested scanner.
+     *
+     * @param this The nested scanner instance to deserialize into.
+     * @param buffer The buffer to deserialize from.
+     * @param length The number of bytes in the buffer.
+     */
     static void nested_scanner_deserialize(
       struct NestedScanner* const this,
       const char* const buffer,
