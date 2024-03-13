@@ -237,7 +237,8 @@
   enum ProofStepIdType {
     ProofStepIdType_STAR,     // <*>
     ProofStepIdType_PLUS,     // <+>
-    ProofStepIdType_NUMBERED  // <1234>
+    ProofStepIdType_NUMBERED, // <1234>
+    ProofStepIdType_NONE      // Invalid or nonexistent
   };
 
   // Data about a proof step ID.
@@ -257,7 +258,9 @@
     static struct ProofStepId parse_proof_step_id(const CharArray* raw_level) {
       struct ProofStepId id;
       id.level = -1;
-      if ('*' == *array_get(raw_level, 0)) {
+      if (0 == raw_level->size) {
+        id.type = ProofStepIdType_NONE;
+      } else if ('*' == *array_get(raw_level, 0)) {
         id.type = ProofStepIdType_STAR;
       } else if ('+' == *array_get(raw_level, 0)) {
         id.type = ProofStepIdType_PLUS;
@@ -276,6 +279,7 @@
           multiplier *= 10;
         }
       }
+      array_delete(raw_level);
       return id;
     }
 
@@ -1009,7 +1013,7 @@
         nest_address jlist_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&jlist_depth, &buffer[offset], copied);
-        array_reserve(&(this->jlists), jlist_depth);
+        if (jlist_depth > 0) array_grow_by(&(this->jlists), jlist_depth);
         offset += copied;
 
         for (nest_address i = 0; i < jlist_depth; i++) {
@@ -1021,7 +1025,7 @@
         nest_address proof_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&proof_depth, &buffer[offset], copied);
-        array_reserve(&(this->proofs), proof_depth);
+        if (proof_depth > 0) array_grow_by(&(this->proofs), proof_depth);
         offset += copied;
 
         copied = proof_depth * sizeof(proof_level);
@@ -1045,10 +1049,23 @@
      *
      * @return A newly-created Scanner.
      */
-    static struct Scanner create_scanner() {
+    static struct Scanner scanner_create() {
       struct Scanner s;
-      scanner_deserialize(&s, NULL, 0);
+      array_init(&s.jlists);
+      array_init(&s.proofs);
+      s.last_proof_level = -1;
+      s.have_seen_proof_keyword = false;
       return s;
+    }
+
+    /**
+     * Frees all memory associated with this Scanner.
+     *
+     * @param this The Scanner to free.
+     */
+    static void scanner_free(struct Scanner* const this) {
+      array_delete(&this->jlists);
+      array_delete(&this->proofs);
     }
 
     /**
@@ -1467,9 +1484,9 @@
       TSLexer* const lexer,
       const bool* const valid_symbols,
       column_index const next,
-      CharArray* proof_step_id_level
+      struct ProofStepId proof_step_id_token
     ) {
-      struct ProofStepId proof_step_id_token = parse_proof_step_id(proof_step_id_level);
+      assert(ProofStepIdType_NONE != proof_step_id_token.type);
       if (valid_symbols[BEGIN_PROOF] || valid_symbols[BEGIN_PROOF_STEP]) {
         proof_level next_proof_level = -1;
         const proof_level current_proof_level = get_current_proof_level(this);
@@ -1675,7 +1692,10 @@
       } else {
         column_index col = -1;
         CharArray proof_step_id_level = array_new();
-        switch (tokenize_lexeme(lex_lookahead(lexer, &col, &proof_step_id_level))) {
+        enum Token token = tokenize_lexeme(lex_lookahead(lexer, &col, &proof_step_id_level));
+        struct ProofStepId proof_step_id_token = parse_proof_step_id(&proof_step_id_level);
+        array_delete(&proof_step_id_level);
+        switch (token) {
           case Token_LAND:
             return handle_junct_token(this, lexer, valid_symbols, JunctType_CONJUNCTION, col);
           case Token_LOR:
@@ -1687,7 +1707,7 @@
           case Token_TERMINATOR:
             return handle_terminator_token(this, lexer);
           case Token_PROOF_STEP_ID:
-            return handle_proof_step_id_token(this, lexer, valid_symbols, col, &proof_step_id_level);
+            return handle_proof_step_id_token(this, lexer, valid_symbols, col, proof_step_id_token);
           case Token_PROOF_KEYWORD:
             return handle_proof_keyword_token(this, lexer, valid_symbols);
           case Token_BY_KEYWORD:
@@ -1797,12 +1817,12 @@
         copied = sizeof(nest_address);
         memcpy(&context_depth, &buffer[offset], copied);
         assert(1 <= context_depth);
-        array_reserve(&this->enclosing_contexts, context_depth - 1);
+        if (context_depth - 1 > 0) array_grow_by(&this->enclosing_contexts, context_depth - 1);
         offset += copied;
 
         // Next N items: size of all contexts
         Array(unsigned) context_sizes = array_new();
-        array_reserve(&context_sizes, context_depth);
+        if (context_depth > 0) array_grow_by(&context_sizes, context_depth);
         copied = context_depth * sizeof(unsigned);
         if (copied > 0) memcpy(context_sizes.contents, &buffer[offset], copied);
         offset += copied;
@@ -1810,7 +1830,7 @@
         // Deserialize N-1 contexts as enclosing contexts
         for (int i = 0; i < context_depth - 1; i++) {
           copied = *array_get(&context_sizes, i);
-          array_reserve(array_get(&this->enclosing_contexts, i), copied);
+          array_grow_by(array_get(&this->enclosing_contexts, i), copied);
           if (copied > 0) memcpy(array_get(&this->enclosing_contexts, i)->contents, &buffer[offset], copied);
           offset += copied;
         }
@@ -1820,6 +1840,7 @@
         scanner_deserialize(&this->current_context, &buffer[offset], copied);
         offset += copied;
 
+        array_delete(&context_sizes);
         assert(offset == length);
       }
     }
@@ -1827,12 +1848,24 @@
     /**
      * Initializes a new instance of the NestedScanner object.
      *
-     * @return A new blank NestedScanner.
+     * @param this The NestedScanner to initialize.
      */
-    static struct NestedScanner create_nested_scanner() {
-      struct NestedScanner scanner;
-      nested_scanner_deserialize(&scanner, NULL, 0);
-      return scanner;
+    static void nested_scanner_init(struct NestedScanner* const this) {
+      array_init(&this->enclosing_contexts);
+      this->current_context = scanner_create();
+    }
+
+    /**
+     * Frees all memory allocated by the nested scanner.
+     *
+     * @param this The NestedScanner to free.
+     */
+    static void nested_scanner_free(struct NestedScanner* const this) {
+      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+        array_delete(array_get(&this->enclosing_contexts, i));
+      }
+      array_delete(&this->enclosing_contexts);
+      scanner_free(&this->current_context);
     }
 
     static bool nested_scan(
@@ -1848,11 +1881,11 @@
         // Entering PlusCal block; push current context then clear
         unsigned const expected_size = scanner_serialized_size(&this->current_context);
         CharArray serialized_current_context = array_new();
-        array_reserve(&serialized_current_context, expected_size);
+        array_grow_by(&serialized_current_context, expected_size);
         unsigned const actual_size = scanner_serialize(&this->current_context, serialized_current_context.contents);
         assert(expected_size == actual_size);
         array_push(&this->enclosing_contexts, serialized_current_context);
-        this->current_context = create_scanner();
+        this->current_context = scanner_create();
         lexer->result_symbol = PCAL_START;
         return true;
       } else if (valid_symbols[PCAL_END] && this->enclosing_contexts.size > 0) {
@@ -1871,13 +1904,17 @@
   // Called once when language is set on a parser.
   // Allocates memory for storing scanner state.
   void* tree_sitter_tlaplus_external_scanner_create() {
-    return ts_malloc(sizeof(struct NestedScanner));
+    struct NestedScanner* scanner = ts_malloc(sizeof(struct NestedScanner));
+    nested_scanner_init(scanner);
+    return scanner;
   }
 
   // Called once parser is deleted or different language set.
   // Frees memory storing scanner state.
   void tree_sitter_tlaplus_external_scanner_destroy(void* const payload) {
-    ts_free((struct NestedScanner*)(payload));
+    struct NestedScanner* const scanner = (struct NestedScanner*)(payload);
+    nested_scanner_free(scanner);
+    ts_free(scanner);
   }
 
   // Called whenever this scanner recognizes a token.
