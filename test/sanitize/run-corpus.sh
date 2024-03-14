@@ -6,6 +6,7 @@ find "test/examples" -type f -name "*.tla" | while IFS= read -r file; do
   RESULT=$?
   if [ "$RESULT" -ne 0 ]; then
     echo "FAILURE: $RESULT"
+    valgrind ./test/sanitize/out/parse_tlaplus "$file" -q
     EXITCODE=1
   fi
 done

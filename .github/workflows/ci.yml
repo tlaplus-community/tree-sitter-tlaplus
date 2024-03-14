@@ -44,6 +44,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
+          sudo apt update && sudo apt install -y valgrind
           ./test/sanitize/build-sanitized.sh
           ./test/sanitize/run-corpus.sh
       - name: Corpus Tests (MacOS)
