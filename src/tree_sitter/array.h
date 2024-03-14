@@ -66,12 +66,9 @@ extern "C" {
 /// Increase the array's size by `count` elements.
 /// New elements are zero-initialized.
 #define array_grow_by(self, count) \
-  do { \
-    if ((count) == 0) break; \
-    _array__grow((Array *)(self), count, array_elem_size(self)); \
-    memset((self)->contents + (self)->size, 0, (count) * array_elem_size(self)); \
-    (self)->size += (count); \
-  } while (0)
+  (_array__grow((Array *)(self), count, array_elem_size(self)), \
+   memset((self)->contents + (self)->size, 0, (count) * array_elem_size(self)), \
+   (self)->size += (count))
 
 /// Append all elements from one array to the end of another.
 #define array_push_all(self, other)                                       \
