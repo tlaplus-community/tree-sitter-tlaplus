@@ -267,17 +267,19 @@
         id.type = ProofStepIdType_PLUS;
       } else {
         id.type = ProofStepIdType_NUMBERED;
-        // We can't use std::stoi because it isn't included in the emcc
-        // build so will cause errors; thus we roll our own. raw_level
-        // should also be a std::string but that isn't included either.
-        // level = std::stoi(raw_level);
         id.level = 0;
         int32_t multiplier = 1;
         for (size_t i = 0; i < raw_level->size; i++) {
           const size_t index = raw_level->size - i - 1;
           const int8_t digit_value = *array_get(raw_level, index) - 48;
-          id.level += digit_value * multiplier;
-          multiplier *= 10;
+          if (0 <= digit_value && digit_value <= 9) {
+            id.level += digit_value * multiplier;
+            multiplier *= 10;
+          } else {
+            id.type = ProofStepIdType_NONE;
+            id.level = -1;
+            break;
+          }
         }
       }
       array_delete(raw_level);
@@ -1829,26 +1831,24 @@
         offset += copied;
 
         // Next N items: size of all contexts
-        Array(unsigned) context_sizes = array_new();
-        if (context_depth > 0) array_grow_by(&context_sizes, context_depth);
+        unsigned context_sizes[context_depth];
         copied = context_depth * sizeof(unsigned);
-        if (copied > 0) memcpy(context_sizes.contents, &buffer[offset], copied);
+        if (copied > 0) memcpy(&context_sizes, &buffer[offset], copied);
         offset += copied;
 
         // Deserialize N-1 contexts as enclosing contexts
         for (int i = 0; i < context_depth - 1; i++) {
-          copied = *array_get(&context_sizes, i);
+          copied = context_sizes[i];
           array_grow_by(array_get(&this->enclosing_contexts, i), copied);
           if (copied > 0) memcpy(array_get(&this->enclosing_contexts, i)->contents, &buffer[offset], copied);
           offset += copied;
         }
 
         // Final context is deserialized as current context
-        copied = *array_back(&context_sizes);
+        copied = context_sizes[context_depth - 1];
         scanner_deserialize(&this->current_context, &buffer[offset], copied);
         offset += copied;
 
-        array_delete(&context_sizes);
         assert(offset == length);
       }
     }
@@ -1901,7 +1901,6 @@
         // Exiting PlusCal block; rehydrate context then pop
         CharArray* next = array_back(&this->enclosing_contexts);
         scanner_deserialize(&this->current_context, next->contents, next->size);
-        array_delete(next);
         array_delete(&array_pop(&this->enclosing_contexts));
         lexer->result_symbol = PCAL_END;
         return true;
