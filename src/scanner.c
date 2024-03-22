@@ -1783,7 +1783,7 @@
       offset += copied;
 
       // Serialize N-1 enclosing contexts
-      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+      for (unsigned i = 0; i < this->enclosing_contexts.size; i++) {
         CharArray* context = array_get(&this->enclosing_contexts, i);
         copied = context->size;
         if (copied > 0) memcpy(&buffer[offset], context->contents, copied);
@@ -1812,7 +1812,7 @@
       const char* const buffer,
       unsigned const length
     ) {
-      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+      for (unsigned i = 0; i < this->enclosing_contexts.size; i++) {
         array_delete(array_get(&this->enclosing_contexts, i));
       }
       array_delete(&this->enclosing_contexts);
@@ -1831,24 +1831,26 @@
         offset += copied;
 
         // Next N items: size of all contexts
-        unsigned context_sizes[context_depth];
+        Array(unsigned) context_sizes = array_new();
+        if (context_depth > 0) array_grow_by(&context_sizes, context_depth);
         copied = context_depth * sizeof(unsigned);
-        if (copied > 0) memcpy(&context_sizes, &buffer[offset], copied);
+        if (copied > 0) memcpy(context_sizes.contents, &buffer[offset], copied);
         offset += copied;
 
         // Deserialize N-1 contexts as enclosing contexts
         for (int i = 0; i < context_depth - 1; i++) {
-          copied = context_sizes[i];
+          copied = *array_get(&context_sizes, i);
           array_grow_by(array_get(&this->enclosing_contexts, i), copied);
           if (copied > 0) memcpy(array_get(&this->enclosing_contexts, i)->contents, &buffer[offset], copied);
           offset += copied;
         }
 
         // Final context is deserialized as current context
-        copied = context_sizes[context_depth - 1];
+        copied = *array_back(&context_sizes);
         scanner_deserialize(&this->current_context, &buffer[offset], copied);
         offset += copied;
 
+        array_delete(&context_sizes);
         assert(offset == length);
       }
     }
@@ -1869,7 +1871,7 @@
      * @param this The NestedScanner to free.
      */
     static void nested_scanner_free(struct NestedScanner* const this) {
-      for (int i = 0; i < this->enclosing_contexts.size; i++) {
+      for (unsigned i = 0; i < this->enclosing_contexts.size; i++) {
         array_delete(array_get(&this->enclosing_contexts, i));
       }
       array_delete(&this->enclosing_contexts);
