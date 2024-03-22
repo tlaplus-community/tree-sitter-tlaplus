@@ -3,8 +3,11 @@
   "version": "1.1.0",
   "description": "A tree-sitter grammar for TLA⁺ and PlusCal",
   "main": "bindings/node",
+  "types": "bindings/node",
   "scripts": {
-    "test": "npx tree-sitter test"
+    "test": "npx tree-sitter test",
+    "install": "node-gyp-build",
+    "prebuildify": "prebuildify --napi --strip"
   },
   "repository": {
     "type": "git",
@@ -28,11 +31,29 @@
   },
   "homepage": "https://github.com/tlaplus-community/tree-sitter-tlaplus#readme",
   "dependencies": {
-    "nan": "^2.14.2"
+    "node-gyp-build": "^4.8.0",
+    "node-addon-api": "^7.1.0"
   },
-  "devDependencies": {
+  "peerDependencies": {
     "tree-sitter-cli": "0.21.0"
   },
+  "peerDependenciesMeta": {
+    "tree_sitter": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "prebuildify": "6.0.0",
+    "tree-sitter-cli": "0.22.1"
+  },
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**"
+  ],
   "tree-sitter": [
     {
       "scope": "source.tlaplus",
