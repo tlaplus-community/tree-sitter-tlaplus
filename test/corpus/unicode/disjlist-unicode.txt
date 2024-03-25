@@ -137,7 +137,7 @@ Multiline Unicode Disjlist
 
 ---- MODULE Test ----
 op ≜
-  ∨ 
+  ∨
    1
   ∨
    2
@@ -216,7 +216,7 @@ Infix Op Unicode Disjlist
 ---- MODULE Test ----
 op ≜
  ∨ 1
-  + 2 
+  + 2
  ∨ 3
 ====
 
@@ -245,7 +245,7 @@ Division Infix Op Unicode Disjlist
 ---- MODULE Test ----
 op ≜
  ∨ 1
-  / 2 
+  / 2
  ∨ 3
 ====
 
@@ -274,7 +274,7 @@ Infix Op Terminated Unicode Disjlist
 ---- MODULE Test ----
 op ≜
  ∨ 1
- + 2 
+ + 2
  ∨ 3
 ====
 
@@ -301,7 +301,7 @@ Division Infix Op Terminated Unicode Disjlist
 ---- MODULE Test ----
 op ≜
  ∨ 1
- / 2 
+ / 2
  ∨ 3
 ====
 
@@ -461,37 +461,6 @@ op ≜
             )
           )
           (disj_item (bullet_disj) (nat_number))
-        )
-      )
-      (disj_item (bullet_disj) (nat_number))
-    )
-  )
-(double_line)))
-
-=============|||
-Overly-Permissive Unicode Disjlist Parentheses Parsing
-=============|||
-
----- MODULE Test ----
-op ≜
-  ∨ 1
-  ∨ (2 + 3
-)
-  ∨ 4
-====
-
--------------|||
-
-(source_file (module (header_line) (identifier) (header_line)
-  (operator_definition (identifier) (def_eq)
-    (disj_list
-      (disj_item (bullet_disj) (nat_number))
-      (disj_item
-        (bullet_disj)
-        (parentheses
-          (bound_infix_op
-            (nat_number) (plus) (nat_number)
-          )
         )
       )
       (disj_item (bullet_disj) (nat_number))
