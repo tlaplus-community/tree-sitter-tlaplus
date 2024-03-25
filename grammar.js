@@ -110,7 +110,7 @@ module.exports = grammar({
     $.comment,
     $.block_comment,
   ],
-  
+
   // Prefix, infix, and postfix operator precedence categories, defined
   // on p271 of Specifying Systems. Precedences defined in this way are
   // defined only in relation to each other, not to every other rule.
@@ -198,7 +198,7 @@ module.exports = grammar({
       token(prec(PREC.BLOCK_COMMENT, '*)'))
     ),
 
-    block_comment_text: $ => 
+    block_comment_text: $ =>
       prec.right(repeat1(
         choice(
           token(prec(PREC.BLOCK_COMMENT, regexOr(
@@ -237,7 +237,7 @@ module.exports = grammar({
     exists:             $ => choice('\\E', '\\exists', '∃'),
     temporal_forall:    $ => choice('\\AA'),
     temporal_exists:    $ => choice('\\EE'),
-    all_map_to:         $ => choice('|->', '⟼', '↦'), 
+    all_map_to:         $ => choice('|->', '⟼', '↦'),
     maps_to:            $ => choice('->', '⟶', '→'),
     langle_bracket:     $ => choice('<<', '〈', '⟨'),
     rangle_bracket:     $ => choice('>>', '〉', '⟩'),
@@ -276,7 +276,7 @@ module.exports = grammar({
     // Can contain letters, numbers, and underscores
     // Must contain at least one alphabetic character (not number or _)
     // Cannot start with WF_ or SF_
-    identifier: $ => /[0-9_]*[A-Za-z][A-Za-z0-9_]*/,
+    identifier: $ => /([0-9_]*[A-Za-z][A-Za-z0-9_]*)|ℕ|ℤ|ℝ/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(
@@ -296,7 +296,7 @@ module.exports = grammar({
       $.module,
       $.single_line
     ),
-    
+
     local_definition: $ => seq('LOCAL', $._definition),
 
     _definition: $ => choice(
@@ -716,7 +716,7 @@ module.exports = grammar({
 
     // [f EXCEPT !.foo["bar"].baz = 4, !.bar = 3]
     except: $ => seq(
-        '[', 
+        '[',
         field("expr_to_update", $._expr),
         'EXCEPT',
         commaList1($.except_update),
@@ -726,7 +726,7 @@ module.exports = grammar({
     // !.foo["bar"].baz = 4
     except_update: $ => seq(
         field("update_specifier", seq('!', $.except_update_specifier)),
-        '=', 
+        '=',
         field("new_val", $._expr)
     ),
 
@@ -740,7 +740,7 @@ module.exports = grammar({
 
     // .foo
     except_update_record_field: $ => seq('.', alias($.identifier, $.identifier_ref)),
-    
+
     // ["bar"]
     except_update_fn_appl: $ => seq('[', commaList1($._expr), ']'),
 
@@ -783,7 +783,7 @@ module.exports = grammar({
     // This exhibits dangling else parsing ambiguity; consider
     // CASE e -> CASE f -> g [] h -> i
     // This can be parsed as:
-    // (1) CASE e -> (CASE f -> g) [] h -> i 
+    // (1) CASE e -> (CASE f -> g) [] h -> i
     // (2) CASE e -> (CASE f -> g [] h -> i)
     // Parse (2) is used, making this right-associative
     case: $ => prec.right(seq(
@@ -1181,7 +1181,7 @@ module.exports = grammar({
 
     // P, MODULE Naturals, Q, MODULE Integers
     use_body_expr: $ => commaList1(choice($._expr, $.module_ref)),
-    
+
     // DEFS >, R, MODULE Reals, =
     use_body_def: $ => seq(
       choice('DEF', 'DEFS'),
@@ -1221,7 +1221,7 @@ module.exports = grammar({
     /**************************************************************************/
 
     pcal_algorithm: $ => choice(
-      $._pcal_p_algorithm, 
+      $._pcal_p_algorithm,
       $._pcal_c_algorithm
     ),
 
@@ -1256,7 +1256,7 @@ module.exports = grammar({
       '}', $._notify_pcal_algorithm_end
     ),
 
-    pcal_algorithm_start: $ => 
+    pcal_algorithm_start: $ =>
       seq(
         choice(
           token(prec(PREC.PCAL, '--algorithm')),
@@ -1268,7 +1268,7 @@ module.exports = grammar({
     fair: $ => seq(token(prec(PREC.PCAL, '--fair')), 'algorithm'),
 
     // Operators, which depend on PlusCal variables
-    // define 
+    // define
     //   zy == y*(x+y)
     // end define ;
     pcal_p_definitions: $ => seq(
@@ -1302,7 +1302,7 @@ module.exports = grammar({
       'macro', field('name', $.identifier),
       '(',
       optional(seq(
-        field('parameter', $.identifier), 
+        field('parameter', $.identifier),
         repeat(seq(',', field('parameter', $.identifier)))
       )),
       ')'
@@ -1324,7 +1324,7 @@ module.exports = grammar({
       alias($.pcal_c_algorithm_body, $.pcal_algorithm_body),
       optional(';')
     ),
-    
+
     pcal_proc_decl: $ => seq(
       'procedure', field('name', $.identifier),
       '(',
@@ -1371,7 +1371,7 @@ module.exports = grammar({
       optional(';')
     ),
 
-    // x \in 1..10 
+    // x \in 1..10
     // x = "x"
     pcal_var_decl: $ => seq(
       $.identifier,
@@ -1389,7 +1389,7 @@ module.exports = grammar({
     // procedure foo(a, b=1)
     //               🠑   🠑
     // variable x=1;
-    //           🠑 
+    //           🠑
     pcal_proc_var_decl: $ => seq(
       $.identifier,
       optional(seq('=', $._expr))
@@ -1405,8 +1405,8 @@ module.exports = grammar({
     // A:+ call my_procedure();
     // x := y || y := x
     _pcal_p_stmts: $ => seq(
-      repeat(seq($._pcal_p_stmt, ';')), 
-      $._pcal_p_stmt, 
+      repeat(seq($._pcal_p_stmt, ';')),
+      $._pcal_p_stmt,
       optional(';')
     ),
 
@@ -1436,7 +1436,7 @@ module.exports = grammar({
     ),
 
     _pcal_label: $ => seq(
-      field('label', seq($.identifier, ':')), 
+      field('label', seq($.identifier, ':')),
       optional(choice('+', '-'))
     ),
 
@@ -1478,7 +1478,7 @@ module.exports = grammar({
 
     // x[i] := x[j] || a := b
     pcal_assign: $ => seq(
-      $.pcal_lhs, 
+      $.pcal_lhs,
       $.assign,
       $._expr,
       repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr))
@@ -1498,7 +1498,7 @@ module.exports = grammar({
     //   clause1
     // elsif test2 then
     //   clause2
-    // else 
+    // else
     //   clause3
     // end if
     pcal_p_if: $ => seq(
@@ -1525,7 +1525,7 @@ module.exports = grammar({
     ),
 
     pcal_c_while: $ => seq(
-      'while', '(', $._expr, ')', 
+      'while', '(', $._expr, ')',
       $._pcal_c_stmt
     ),
 
@@ -1546,7 +1546,7 @@ module.exports = grammar({
       repeat1(seq('or', $._pcal_c_stmt))
     )),
 
-    // with id \in S do body end with 
+    // with id \in S do body end with
     pcal_p_with: $ => seq(
       'with', $._pcal_with_vars, 'do',
       $._pcal_p_stmts,
@@ -1554,7 +1554,7 @@ module.exports = grammar({
     ),
 
     pcal_c_with: $ => seq(
-      'with', '(', $._pcal_with_vars, ')', 
+      'with', '(', $._pcal_with_vars, ')',
       $._pcal_c_stmt
     ),
 
@@ -1587,7 +1587,7 @@ module.exports = grammar({
     // skip
     pcal_skip: $ => seq('skip'),
 
-    // Used in procedures. Assigns to the parameters and local 
+    // Used in procedures. Assigns to the parameters and local
     // procedure variables their previous values
     // procedure foo(a=1) begin
     // variable b=2;
@@ -1598,7 +1598,7 @@ module.exports = grammar({
 
     // Jump to a label:
     // process foo begin
-    //   A: 
+    //   A:
     //     print("A");
     //   B:
     //     goto A;

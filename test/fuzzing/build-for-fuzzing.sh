@@ -42,9 +42,9 @@ out_dir="${fuzz_dir}/out"
 mkdir -p $out_dir
 
 scanner="scanner"
-scanner_in="${src_dir}/${scanner}.cc"
+scanner_in="${src_dir}/${scanner}.c"
 scanner_out="${out_dir}/${scanner}.o"
-$CXX $CXXFLAGS -g -O1 -I $src_dir -c $scanner_in -o $scanner_out
+$CC $CFLAGS -g -O0 -I $src_dir -c $scanner_in -o $scanner_out
 
 # Compiling with -O0 speeds up the build dramatically
 parser="parser"

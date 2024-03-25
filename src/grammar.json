@@ -774,7 +774,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[0-9_]*[A-Za-z][A-Za-z0-9_]*"
+      "value": "([0-9_]*[A-Za-z][A-Za-z0-9_]*)|ℕ|ℤ|ℝ"
     },
     "extends": {
       "type": "SEQ",

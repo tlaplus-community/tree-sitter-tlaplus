@@ -137,7 +137,7 @@ Multiline Unicode Conjlist
 
 ---- MODULE Test ----
 op ≜
-  ∧ 
+  ∧
    1
   ∧
    2
@@ -216,7 +216,7 @@ Infix Op Unicode Conjlist
 ---- MODULE Test ----
 op ≜
  ∧ 1
-  + 2 
+  + 2
  ∧ 3
 ====
 
@@ -245,7 +245,7 @@ Division Infix Op Unicode Conjlist
 ---- MODULE Test ----
 op ≜
  ∧ 1
-  / 2 
+  / 2
  ∧ 3
 ====
 
@@ -274,7 +274,7 @@ Infix Op Terminated Unicode Conjlist
 ---- MODULE Test ----
 op ≜
  ∧ 1
- + 2 
+ + 2
  ∧ 3
 ====
 
@@ -301,7 +301,7 @@ Division Infix Op Terminated Unicode Conjlist
 ---- MODULE Test ----
 op ≜
  ∧ 1
- / 2 
+ / 2
  ∧ 3
 ====
 
@@ -461,37 +461,6 @@ op ≜
             )
           )
           (conj_item (bullet_conj) (nat_number))
-        )
-      )
-      (conj_item (bullet_conj) (nat_number))
-    )
-  )
-(double_line)))
-
-=============|||
-Overly-Permissive Unicode Conjlist Parentheses Parsing
-=============|||
-
----- MODULE Test ----
-op ≜
-  ∧ 1
-  ∧ (2 + 3
-)
-  ∧ 4
-====
-
--------------|||
-
-(source_file (module (header_line) (identifier) (header_line)
-  (operator_definition (identifier) (def_eq)
-    (conj_list
-      (conj_item (bullet_conj) (nat_number))
-      (conj_item
-        (bullet_conj)
-        (parentheses
-          (bound_infix_op
-            (nat_number) (plus) (nat_number)
-          )
         )
       )
       (conj_item (bullet_conj) (nat_number))
