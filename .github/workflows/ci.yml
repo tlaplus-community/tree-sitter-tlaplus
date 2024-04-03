@@ -80,3 +80,17 @@ jobs:
         run: |
           diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
           exit $diff_count
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 2.0.16
+      - name: Generate parser WASM
+        run: npx tree-sitter build-wasm
+      - name: Publish
+        run: npm pack
+      - name: Upload npm tarball.
+        uses: actions/upload-artifact@v4
+        with:
+          name: tlaplus-tree-sitter-tlaplus-${{matrix.os}}.tgz
+          path: '*.tgz'
+          if-no-files-found: error
