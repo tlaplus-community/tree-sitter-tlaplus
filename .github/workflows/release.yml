@@ -31,10 +31,8 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
-      - name: Install Rust
-        uses: actions-rs/toolchain@v2
-        with:
-          toolchain: stable
+      - name: Use stable rust toolchain
+        run: rustup default stable
       - name: Build
         run: cargo check
       - name: Publish
