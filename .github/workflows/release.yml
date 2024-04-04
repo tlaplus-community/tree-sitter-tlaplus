@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     permissions:
+      # Permission for PyPI OIDC token
       id-token: write
     steps:
       - name: Clone repo
@@ -41,6 +42,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Test crates.io publish
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --dry-run
+      - name: Test publishing package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
       - name: Upload WASM to GitHub release
         uses: actions/upload-release-asset@v1
         env:

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@tlaplus/tree-sitter-tlaplus": "file:../../../",
+    "tree-sitter": "^0.21.1"
+  }
+}
+
