@@ -4,8 +4,12 @@ on:
     types: [created]
 
 jobs:
-  node-module-npmjs:
+  publish-packages:
+    name: Publish all packages
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
@@ -13,7 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           registry-url: https://registry.npmjs.org/
-      - name: Build
+      - name: Use stable rust toolchain
+        run: rustup default stable
+      - name: Install node.js dependencies
         run: npm install
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -21,20 +27,27 @@ jobs:
           version: 3.1.6
       - name: Generate parser WASM
         run: npx tree-sitter build-wasm
-      - name: Publish
+      - name: Build rust crate
+        run: cargo check
+      - name: Test NPM publish
+        run: npm publish --access public --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+      - name: Test crates.io publish
+        run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --dry-run
+      - name: Upload WASM to GitHub release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: tree-sitter-tlaplus.wasm
+          asset_name: tree-sitter-tlaplus.wasm
+          asset_content_type: application/octet-stream
+      - name: Publish to NPM
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-
-  rust-crate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v4
-      - name: Use stable rust toolchain
-        run: rustup default stable
-      - name: Build
-        run: cargo check
-      - name: Publish
+      - name: Publish to crates.io
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
 
