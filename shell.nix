@@ -6,7 +6,8 @@ in pkgs.mkShell {
       python-pkgs.wheel
       python-pkgs.build
     ]))
-    tree-sitter
+    (tree-sitter.override { webUISupport = true; })
+    emscripten
     gcc
   ];
 }

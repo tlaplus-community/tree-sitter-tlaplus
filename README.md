@@ -57,11 +57,17 @@ As applicable, query files for integrations live in the `integrations` directory
 
 ## Build & Test
 
-1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-1. Install a C compiler
-1. Clone the repo with the `--recurse-submodules` parameter, or run `git submodule update --init --recursive` if you already cloned it without that parameter
-1. Open a terminal in the repo root and run `npm install` to download packages & build the project
-1. Run `npm test` to run Tree-sitter unit tests
+Be sure to clone the repo with the `--recurse-submodules` parameter, or run `git submodule update --init --recursive` if you already cloned it without that parameter.
+
+If using nix:
+1. Run `nix-shell`
+1. Run `tree-sitter test`
+
+Otherwise:
+1. Install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Ensure a C compiler is installed and on your path
+1. Run `npm install`
+1. Run `npm test`
 
 ### Corpus Tests
 
@@ -71,15 +77,22 @@ To run:
 1. For Unix-type OSs, run `./test/run-corpus.sh`; for Windows, run `.\test\run-corpus.ps1`
 1. The scripts exit with error code 0 if successful
 
-### WASM Build
+### Build WASM & Start Playground
 
-1. Install Emscripten 3.x
+If using nix:
+1. Run `nix-shell`
+1. Run `tree-sitter build-wasm`
+1. Start the playground with `tree-sitter playground`
+
+Otherwise:
+1. Install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Install [Emscripten 3.x](https://emscripten.org/)
+1. Run `npm install`
 1. Run `npx tree-sitter build-wasm`
-
-## The Playground
+1. Start the playground with `npx tree-sitter playground`
 
 The playground enables you to easily try out the parser in your browser.
-You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or run it locally by building the WASM (see instructions above) then running `npx tree-sitter playground`.
+You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or run it locally by following the directions above.
 
 The playground consists of a pane containing an editable TLA⁺ spec, and another pane containing the parse tree for that spec.
 The parse tree is updated in real time as you edit the TLA⁺ spec.

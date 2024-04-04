@@ -36,6 +36,8 @@ jobs:
       - name: Test python consumer
         working-directory: test/consumers/python
         run: |
+          pip install setuptools
+          pip install build
           pip install -r requirements.txt
           python main.py
       - name: Unit Tests
