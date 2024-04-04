@@ -24,6 +24,7 @@
  */
 #define ACCEPT_LEXEME(lexeme)       \
   {                                 \
+    (void)result;                   \
     result_lexeme = lexeme;         \
   }
 
@@ -213,7 +214,7 @@
       case EMTLexState_SINGLE_LINE:
         consume_codepoint(lexer, '-');
         consume_codepoint(lexer, ' ');
-        if (is_next_codepoint_sequence(lexer, "MODULE")) ADVANCE(EMTLexState_MODULE);
+        if (is_next_codepoint_sequence(lexer, "MODULE")) { ADVANCE(EMTLexState_MODULE); }
         has_consumed_any = true;
         GO_TO_STATE(EMTLexState_CONSUME);
         END_STATE();
@@ -225,7 +226,7 @@
         END_STATE();
       case EMTLexState_END_OF_FILE:
         if (!has_consumed_any) GO_TO_STATE(EMTLexState_BLANK_BEFORE_END_OF_FILE);
-        if (valid_symbols[TRAILING_EXTRAMODULAR_TEXT]) ACCEPT_TOKEN(TRAILING_EXTRAMODULAR_TEXT);
+        if (valid_symbols[TRAILING_EXTRAMODULAR_TEXT]) { ACCEPT_TOKEN(TRAILING_EXTRAMODULAR_TEXT); }
         END_STATE();
       case EMTLexState_BLANK_BEFORE_END_OF_FILE:
         END_STATE();
@@ -1132,10 +1133,9 @@
      * jlist.
      *
      * @param lexer The tree-sitter lexing control structure.
-     * @param type The type of junction list.
      * @return Whether a BULLET token was emitted.
      */
-    static bool emit_bullet(TSLexer* const lexer, enum JunctType type) {
+    static bool emit_bullet(TSLexer* const lexer) {
       lexer->result_symbol = BULLET;
       return true;
     }
@@ -1150,7 +1150,7 @@
     static bool emit_dedent(struct Scanner* const this, TSLexer* const lexer) {
       if (is_in_jlist(this)) {
         lexer->result_symbol = DEDENT;
-        array_pop(&this->jlists);
+        (void)array_pop(&this->jlists);
         return true;
       } else {
         return false;
@@ -1221,7 +1221,7 @@
           /**
            * This is another entry in the jlist.
            */
-          return emit_bullet(lexer, next_type);
+          return emit_bullet(lexer);
         } else {
           /**
            * Disjunct in alignment with conjunct list or vice-versa; treat
@@ -1622,17 +1622,15 @@
      *
      * @param this The Scanner state.
      * @param lexer The tree-sitter lexing control structure.
-     * @param valid_symbols Tokens possibly expected in this spot.
      * @return Whether a token should be emitted.
      */
     static bool handle_qed_keyword_token(
       struct Scanner* const this,
-      TSLexer* const lexer,
-      const bool* const valid_symbols
+      TSLexer* const lexer
     ) {
       if (is_in_proof(this)) {
         this->last_proof_level = get_current_proof_level(this);
-        array_pop(&this->proofs);
+        (void)array_pop(&this->proofs);
       }
 
       lexer->result_symbol = QED_KEYWORD;
@@ -1720,7 +1718,7 @@
           case Token_OMITTED_KEYWORD:
             return handle_terminal_proof_keyword_token(this, lexer, valid_symbols, OMITTED_KEYWORD);
           case Token_QED_KEYWORD:
-            return handle_qed_keyword_token(this, lexer, valid_symbols);
+            return handle_qed_keyword_token(this, lexer);
           case Token_WEAK_FAIRNESS:
             return handle_fairness_keyword_token(this, lexer, col, WEAK_FAIRNESS);
           case Token_STRONG_FAIRNESS:
