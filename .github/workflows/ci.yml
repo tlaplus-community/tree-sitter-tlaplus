@@ -101,6 +101,8 @@ jobs:
         run: |
           pip install -r requirements.txt
           python main.py
+      - name: Check python package
+        run: pip wheel .
       - name: Check rust package
         run: cargo check
       - name: Install Emscripten

@@ -22,6 +22,7 @@ bin
 lib
 lib64
 dist
+*.whl
 
 # build artifacts
 build
