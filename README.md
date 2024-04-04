@@ -15,7 +15,7 @@ You can take the parser for a spin at https://tlaplus-community.github.io/tree-s
 The most important files in this repo are `grammar.js` and `src/scanner.cc`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
 This grammar is published as both a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) and [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), although most tree-sitter grammar consumers download this repo directly.
-A WASM build is included in the Node.js package.
+A WASM build is included in the Node.js package and attached to the releases in this repo.
 
 A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
 This repo is [mirrored on sourcehut](https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
@@ -44,7 +44,7 @@ For a REPL, you might want to wait until the [multiple entry points](https://git
 
 ## Use & Notable Integrations
 
-There are a number of avenues available for consuming & using the parser in a project of your own; see the [tlaplus-tool-dev-examples](https://github.com/tlaplus-community/tlaplus-tool-dev-examples) repo.
+There are a number of avenues available for consuming & using the parser in a project of your own; see the [directory of examples](test/consumers) for several languages.
 
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA⁺ syntax highlighting & code folding in Neovim
@@ -73,7 +73,7 @@ To run:
 
 ### WASM Build
 
-1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203))
+1. Install Emscripten 3.x
 1. Run `npx tree-sitter build-wasm`
 
 ## The Playground
@@ -105,6 +105,4 @@ One easy way to contribute is to add your TLA⁺ specifications to the [tlaplus/
 Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tree-sitter generate` before committing & pushing.
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
-
-You can also contribute by running the fuzzer and reporting bugs it finds, as described above.
 
