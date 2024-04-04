@@ -3,3 +3,5 @@ To run example:
 2. Run `npm install`
 3. Run `node index.js`
 
+In your actual project, use the `@tlaplus/tree-sitter-tlaplus` package instead of a local reference in your `package.json`.
+

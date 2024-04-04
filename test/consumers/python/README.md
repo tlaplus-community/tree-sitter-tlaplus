@@ -5,3 +5,5 @@ To run example:
 4. run `pip install -r requirements.txt`
 6. run `python main.py`
 
+In your actual project, use the `tree-sitter-tlaplus` package instead of a local reference in your `requirements.txt`.
+
