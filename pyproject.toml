@@ -1,13 +1,13 @@
 [project]
 name = "tree-sitter-tlaplus"
-description = "TLA+ grammar for tree-sitter"
+description = "A tree-sitter grammar for TLA⁺ and PlusCal"
 version = "1.2.5"
 authors = [
-  { name="Andrew Helwer" },
-  { name="Vasiliy Morkovkin" },
+  { name = "Andrew Helwer" },
+  { name = "Vasiliy Morkovkin" },
 ]
 maintainers = [
-  { name="Andrew Helwer" },
+  { name = "Andrew Helwer" },
 ]
 keywords = ["incremental", "parsing", "tree-sitter", "tlaplus"]
 classifiers = [

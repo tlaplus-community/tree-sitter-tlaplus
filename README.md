@@ -3,6 +3,7 @@
 [![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@tlaplus/tree-sitter-tlaplus.svg)](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus)
 [![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
+[![pypi][pypi]](https://pypi.org/project/tree-sitter-tlaplus)
 
 ## Overview
 
@@ -12,10 +13,11 @@ This grammar is intended to function gracefully while parsing a source file mid-
 It is also fast enough to re-parse the file on every keystroke.
 You can take the parser for a spin at https://tlaplus-community.github.io/tree-sitter-tlaplus/
 
-The most important files in this repo are `grammar.js` and `src/scanner.cc`.
+The most important files in this repo are `grammar.js` and `src/scanner.c`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
-This grammar is published as both a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) and [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), although most tree-sitter grammar consumers download this repo directly.
-A WASM build is included in the Node.js package and attached to the releases in this repo.
+This grammar is published as a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus), [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), and [Python package](https://pypi.org/project/tree-sitter-tlaplus).
+You can see examples of how to consume these packages [here](test/consumers).
+A WASM build is also included in the Node.js package and attached to the releases in this repo.
 
 A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
 This repo is [mirrored on sourcehut](https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
@@ -44,7 +46,7 @@ For a REPL, you might want to wait until the [multiple entry points](https://git
 
 ## Use & Notable Integrations
 
-There are a number of avenues available for consuming & using the parser in a project of your own; see the [directory of examples](test/consumers) for several languages.
+There are a number of avenues available for consuming & using the parser in a project of your own; see examples in several different programming languages [here](test/consumers).
 
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA⁺ syntax highlighting & code folding in Neovim
