@@ -4,7 +4,6 @@ const fs = require('fs');
 
 const parser = new Parser();
 parser.setLanguage(TLA);
-console.log(parser.getLanguage());
 
 const sourceCode = `
 ---- MODULE Test ----

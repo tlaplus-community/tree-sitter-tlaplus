@@ -1,18 +1,35 @@
-Cargo.lock
-node_modules
-examples/*/node_modules
-build
-target
+# misc
+Test.tla
+Test.scm
+debug.txt
+
+# editor config dirs
 .vscode
 .vs
+
+# rust
+Cargo.lock
+
+# node.js
+package-lock.json
+node_modules
+
+# python
+pyvenv.cfg
+*.egg-info
 out
+bin
+lib
+lib64
+dist
+
+# build artifacts
+build
+target
 *.exp
 *.lib
 *.obj
 *.so
 *.obj
 *.wasm
-Test.tla
-Test.scm
-debug.txt
-package-lock.json
+
