@@ -22,6 +22,8 @@ jobs:
         run: pip install setuptools
       - name: Build
         run: npm install
+      - name: Build python package
+        run: python -m build
       - name: Test rust consumer
         run: cargo run
         working-directory: test/consumers/rust
@@ -75,29 +77,36 @@ jobs:
         run: |
           git status
           git add --renormalize .
-      - name: List changes
+      - name: List parser info & changes
         shell: bash
         run: |
-          git status
+          # Print size - the generated parser is quite large!
+          ls -sh src/parser.c
+          # Hash (for debugging issues like https://github.com/tree-sitter/tree-sitter/issues/2755)
           openssl dgst -sha256 src/parser.c
+          # List differences caused by regenerating parser
+          git status
           git diff | wc
-        # Command from https://stackoverflow.com/a/62768943/2852699
       - name: Check grammar/code sync
         shell: bash
         run: |
+          # Command from https://stackoverflow.com/a/62768943/2852699
           diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
           exit $diff_count
+      - name: Check rust package
+        run: cargo pack
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.6
       - name: Generate parser WASM
         run: npx tree-sitter build-wasm
-      - name: Publish
+      - name: Package node tarball
         run: npm pack
-      - name: Upload npm tarball.
+      - name: Upload node tarball to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tlaplus-tree-sitter-tlaplus-${{matrix.os}}.tgz
           path: '*.tgz'
           if-no-files-found: error
+
