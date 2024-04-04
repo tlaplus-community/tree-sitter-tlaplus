@@ -1825,7 +1825,7 @@
         copied = sizeof(nest_address);
         memcpy(&context_depth, &buffer[offset], copied);
         assert(1 <= context_depth);
-        if (context_depth - 1 > 0) { array_grow_by(&this->enclosing_contexts, context_depth - 1) };
+        if (context_depth - 1 > 0) { array_grow_by(&this->enclosing_contexts, context_depth - 1); }
         offset += copied;
 
         // Next N items: size of all contexts
