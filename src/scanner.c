@@ -1133,7 +1133,6 @@
      * jlist.
      *
      * @param lexer The tree-sitter lexing control structure.
-     * @param type The type of junction list.
      * @return Whether a BULLET token was emitted.
      */
     static bool emit_bullet(TSLexer* const lexer) {
