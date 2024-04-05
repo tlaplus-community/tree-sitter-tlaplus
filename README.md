@@ -31,7 +31,7 @@ To that end, the project provides two main capabilities:
 
 The correctness criterion of this parser is as follows: if the TLA⁺ specification being parsed constitutes valid TLA⁺ (both syntactically and semantically), the parse tree will be correct.
 If the spec is not valid TLA⁺, the parse tree will be approximately correct - perhaps permissively allowing illegal syntax, or interpreting erroneous syntax in strange ways.
-This permissive behavior makes it excellent for user-assistive language tooling, but probably a poor choice as the backbone for an interpreter or model-checker.
+This permissive behavior makes it excellent for user-assistive language tooling, but a less-compelling choice as the backbone for an interpreter or model-checker.
 Application possibilities include:
  * Advanced syntax highlighting
  * Syntax-aware code folding
@@ -39,10 +39,6 @@ Application possibilities include:
  * Writing TLA⁺ specs via dictation using [Cursorless](https://github.com/pokey/cursorless-vscode)
  * Semantic analysis of TLA⁺ specs [on GitHub](https://github.com/github/semantic)
  * Translation of TLA⁺ operator symbols [into their unicode equivalents](https://github.com/tlaplus-community/tlauc)
-
-If you really want to use this project to write an interpreter, nobody's stopping you from trying.
-You could first use SANY to check spec validity, then use this parser to extract & interact with the actual parse tree.
-For a REPL, you might want to wait until the [multiple entry points](https://github.com/tree-sitter/tree-sitter/issues/870) feature is added to tree-sitter so you can parse standalone TLA⁺ expressions without an encapsulating module.
 
 ## Use & Notable Integrations
 
@@ -53,7 +49,6 @@ Notable projects currently using or integrating this grammar include:
  * [tla-web](https://github.com/will62794/tla-web) for a web-based TLA⁺ interpreter and trace explorer
  * GitHub for syntax highlighting of TLA⁺ files and snippets
  * [tlauc](https://github.com/tlaplus-community/tlauc) for translating between ASCII and Unicode TLA⁺ symbols
- * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA⁺ syntax highlighting in Emacs
 
 As applicable, query files for integrations live in the `integrations` directory.
 
