@@ -115,11 +115,10 @@ jobs:
         run: cargo check
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
-        if: matrix.os != 'windows-latest' # Windows is slow
         with:
           version: 3.1.6
+          actions-cache-folder: 'emsdk-cache'
       - name: Generate parser WASM
-        if: matrix.os != 'windows-latest' # Windows is slow
         run: npx tree-sitter build-wasm
       - name: Package node tarball
         run: npm pack
