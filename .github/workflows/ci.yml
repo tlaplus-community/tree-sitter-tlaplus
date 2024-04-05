@@ -31,9 +31,13 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: python -m pip install --upgrade setuptools
       - name: Install Dependencies & Build
-        run: |
-          npm install
-          echo "./node_modules/.bin" >> "$GITHUB_PATH"
+        run: npm install
+      - name: Setup path (Linux & macOS)
+        if: matrix.os != 'windows-latest'
+        run: echo "./node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Setup path (Windows)
+        if: matrix.os == 'windows-latest'
+        run: echo ".\node_modules\.bin" >> "$GITHUB_PATH"
 
       # Validation
       - name: Unit Tests
