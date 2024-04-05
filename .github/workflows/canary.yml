@@ -23,12 +23,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-      - name: Setup path (Linux & macOS)
-        if: matrix.os != 'windows-latest'
-        run: echo "./node_modules/.bin" >> "$GITHUB_PATH"
-      - name: Setup path (Windows)
-        if: matrix.os == 'windows-latest'
-        run: echo ".\node_modules\.bin" >> "$GITHUB_PATH"
 
       # Find latest version
       - name: Find latest version
@@ -54,7 +48,7 @@ jobs:
         run: |
           sed -i -e "s/..\/..\/..\//$LATEST_VERSION" package.json
           npm install
-          ts-node app.ts
+          ./node_modules/.bin/ts-node app.ts
       #- name: Test python consumer
       #  working-directory: test/consumers/python
       #  run: |
