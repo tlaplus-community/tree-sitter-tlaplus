@@ -14,20 +14,27 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
       fail-fast: false
     steps:
+      # Dependencies
       - name: Clone repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install Python
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        if: matrix.os != 'windows-latest' # Windows is slow
+      - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: Install distutils for node-gyp
-        run: pip install setuptools
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-      - name: Build
+          python-version: 3.12
+      - name: Setup rust
+        run: rustup default stable
+      - name: Install setuptools for Windows build
+        if: matrix.os == 'windows-latest'
+        run: python -m pip install --upgrade setuptools
+      - name: Install Dependencies & Build
         run: npm install
+
+      # Validation
       - name: Unit Tests
         run: ./node_modules/.bin/tree-sitter test
       - name: Crash Regression Tests
@@ -68,29 +75,57 @@ jobs:
         run: |
           git status
           git add --renormalize .
-      - name: List changes
+      - name: List parser info & changes
         shell: bash
         run: |
-          git status
+          # Print size - the generated parser is quite large!
+          ls -sh src/parser.c
+          # Hash (for debugging issues like https://github.com/tree-sitter/tree-sitter/issues/2755)
           openssl dgst -sha256 src/parser.c
+          # List differences caused by regenerating parser
+          git status
           git diff | wc
-        # Command from https://stackoverflow.com/a/62768943/2852699
       - name: Check grammar/code sync
         shell: bash
         run: |
+          # Command from https://stackoverflow.com/a/62768943/2852699
           diff_count=$(git status --porcelain=v1 2>/dev/null | wc -l)
           exit $diff_count
+      - name: Test rust consumer
+        working-directory: test/consumers/rust
+        run: cargo run
+      - name: Test node.js consumer
+        working-directory: test/consumers/node
+        run: |
+          npm install
+          node index.js
+      - name: Test TypeScript consumer
+        working-directory: test/consumers/typescript
+        run: |
+          npm install
+          ./node_modules/.bin/ts-node app.ts
+      - name: Test python consumer
+        working-directory: test/consumers/python
+        run: |
+          pip install -r requirements.txt
+          python main.py
+      - name: Check python package
+        run: pip wheel .
+      - name: Check rust package
+        run: cargo check
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.6
+          actions-cache-folder: 'emsdk-cache'
       - name: Generate parser WASM
         run: npx tree-sitter build-wasm
-      - name: Publish
+      - name: Package node tarball
         run: npm pack
-      - name: Upload npm tarball.
+      - name: Upload node tarball to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tlaplus-tree-sitter-tlaplus-${{matrix.os}}.tgz
           path: '*.tgz'
           if-no-files-found: error
+

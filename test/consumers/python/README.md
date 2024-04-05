@@ -1,0 +1,9 @@
+To run example:
+1. Install [python3](https://www.python.org/downloads/) or run `nix-shell` if using nix
+2. run `python -m venv .`
+3. run `source ./bin/activate` on Linux and maxOS or `.\Scripts\Activate.ps1` on Windows
+4. run `pip install -r requirements.txt`
+6. run `python main.py`
+
+In your actual project, use the `tree-sitter-tlaplus` package instead of a local reference in your `requirements.txt`.
+

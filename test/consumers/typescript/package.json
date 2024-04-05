@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@tlaplus/tree-sitter-tlaplus": "file:../../..",
+    "tree-sitter": "^0.21.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  }
+}

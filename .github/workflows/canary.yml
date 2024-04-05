@@ -1,0 +1,58 @@
+name: Test Package Consumers
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [tree-sitter-tlaplus-release]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+      fail-fast: false
+    steps:
+      # Dependencies
+      - name: Clone repo
+        uses: actions/checkout@v4
+      - name: Setup rust
+        run: rustup default stable
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      # Find latest version
+      - name: Find latest version
+        run: |
+          tag=$(git tag -l --sort=-creatordate | head -n 1)
+          version="${tag//'v'}"
+          echo "export LATEST_VERSION=$version" >> "$GITHUB_ENV"
+
+      # Test consumers using actual published packages
+      - name: Test rust consumer
+        working-directory: test/consumers/rust
+        run: |
+          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" Cargo.toml
+          cargo run
+      - name: Test node.js consumer
+        working-directory: test/consumers/node
+        run: |
+          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" package.json
+          npm install
+          node index.js
+      - name: Test TypeScript consumer
+        working-directory: test/consumers/typescript
+        run: |
+          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" package.json
+          npm install
+          ./node_modules/.bin/ts-node app.ts
+      #- name: Test python consumer
+      #  working-directory: test/consumers/python
+      #  run: |
+      #    sed -i -e "s/..\/..\/..\//tree-sitter-tlaplus" requirements.txt
+      #    pip install -r requirements.txt
+      #    python main.py
+

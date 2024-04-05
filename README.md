@@ -3,6 +3,7 @@
 [![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@tlaplus/tree-sitter-tlaplus.svg)](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus)
 [![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
+[![pypi][pypi]](https://pypi.org/project/tree-sitter-tlaplus)
 
 ## Overview
 
@@ -12,10 +13,11 @@ This grammar is intended to function gracefully while parsing a source file mid-
 It is also fast enough to re-parse the file on every keystroke.
 You can take the parser for a spin at https://tlaplus-community.github.io/tree-sitter-tlaplus/
 
-The most important files in this repo are `grammar.js` and `src/scanner.cc`.
+The most important files in this repo are `grammar.js` and `src/scanner.c`.
 The former is the source of truth for parser code generation and the latter contains logic for parsing the context-sensitive parts of TLA⁺ like nested proofs and conjunction/disjunction lists.
-This grammar is published as both a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus) and [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), although most tree-sitter grammar consumers download this repo directly.
-A WASM build is included in the Node.js package.
+This grammar is published as a [Rust crate](https://crates.io/crates/tree-sitter-tlaplus), [Node.js package](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus), and [Python package](https://pypi.org/project/tree-sitter-tlaplus).
+You can see examples of how to consume these packages [here](test/consumers).
+A WASM build is also included in the Node.js package and attached to the releases in this repo.
 
 A blog post detailing the development process of this parser can be found [here](https://ahelwer.ca/post/2023-01-11-tree-sitter-tlaplus/).
 This repo is [mirrored on sourcehut](https://git.sr.ht/~ahelwer/tree-sitter-tlaplus).
@@ -29,7 +31,7 @@ To that end, the project provides two main capabilities:
 
 The correctness criterion of this parser is as follows: if the TLA⁺ specification being parsed constitutes valid TLA⁺ (both syntactically and semantically), the parse tree will be correct.
 If the spec is not valid TLA⁺, the parse tree will be approximately correct - perhaps permissively allowing illegal syntax, or interpreting erroneous syntax in strange ways.
-This permissive behavior makes it excellent for user-assistive language tooling, but probably a poor choice as the backbone for an interpreter or model-checker.
+This permissive behavior makes it excellent for user-assistive language tooling, but a less-compelling choice as the backbone for an interpreter or model-checker.
 Application possibilities include:
  * Advanced syntax highlighting
  * Syntax-aware code folding
@@ -38,30 +40,31 @@ Application possibilities include:
  * Semantic analysis of TLA⁺ specs [on GitHub](https://github.com/github/semantic)
  * Translation of TLA⁺ operator symbols [into their unicode equivalents](https://github.com/tlaplus-community/tlauc)
 
-If you really want to use this project to write an interpreter, nobody's stopping you from trying.
-You could first use SANY to check spec validity, then use this parser to extract & interact with the actual parse tree.
-For a REPL, you might want to wait until the [multiple entry points](https://github.com/tree-sitter/tree-sitter/issues/870) feature is added to tree-sitter so you can parse standalone TLA⁺ expressions without an encapsulating module.
-
 ## Use & Notable Integrations
 
-There are a number of avenues available for consuming & using the parser in a project of your own; see the [tlaplus-tool-dev-examples](https://github.com/tlaplus-community/tlaplus-tool-dev-examples) repo.
+There are a number of avenues available for consuming & using the parser in a project of your own; see examples in several different programming languages [here](test/consumers).
 
 Notable projects currently using or integrating this grammar include:
  * [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for TLA⁺ syntax highlighting & code folding in Neovim
  * [tla-web](https://github.com/will62794/tla-web) for a web-based TLA⁺ interpreter and trace explorer
  * GitHub for syntax highlighting of TLA⁺ files and snippets
  * [tlauc](https://github.com/tlaplus-community/tlauc) for translating between ASCII and Unicode TLA⁺ symbols
- * [tla-mode](https://github.com/carlthuringer/tla-mode) for TLA⁺ syntax highlighting in Emacs
 
 As applicable, query files for integrations live in the `integrations` directory.
 
 ## Build & Test
 
-1. Install [Node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-1. Install a C compiler
-1. Clone the repo with the `--recurse-submodules` parameter, or run `git submodule update --init --recursive` if you already cloned it without that parameter
-1. Open a terminal in the repo root and run `npm install` to download packages & build the project
-1. Run `npm test` to run Tree-sitter unit tests
+Be sure to clone the repo with the `--recurse-submodules` parameter, or run `git submodule update --init --recursive` if you already cloned it without that parameter.
+
+If using nix:
+1. Run `nix-shell`
+1. Run `tree-sitter test`
+
+Otherwise:
+1. Install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Ensure a C compiler is installed and on your path
+1. Run `npm install`
+1. Run `npm test`
 
 ### Corpus Tests
 
@@ -71,15 +74,22 @@ To run:
 1. For Unix-type OSs, run `./test/run-corpus.sh`; for Windows, run `.\test\run-corpus.ps1`
 1. The scripts exit with error code 0 if successful
 
-### WASM Build
+### Build WASM & Start Playground
 
-1. Install Emscripten 2.0.17 or **earlier** ([why?](https://github.com/tree-sitter/tree-sitter/issues/1098#issuecomment-842326203))
+If using nix:
+1. Run `nix-shell`
+1. Run `tree-sitter build-wasm`
+1. Start the playground with `tree-sitter playground`
+
+Otherwise:
+1. Install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+1. Install [Emscripten 3.x](https://emscripten.org/)
+1. Run `npm install`
 1. Run `npx tree-sitter build-wasm`
-
-## The Playground
+1. Start the playground with `npx tree-sitter playground`
 
 The playground enables you to easily try out the parser in your browser.
-You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or run it locally by building the WASM (see instructions above) then running `npx tree-sitter playground`.
+You can use the playground [online](https://tlaplus-community.github.io/tree-sitter-tlaplus/) (serving the latest release) or run it locally by following the directions above.
 
 The playground consists of a pane containing an editable TLA⁺ spec, and another pane containing the parse tree for that spec.
 The parse tree is updated in real time as you edit the TLA⁺ spec.
@@ -105,6 +115,4 @@ One easy way to contribute is to add your TLA⁺ specifications to the [tlaplus/
 Pull requests are welcome. If you modify `grammar.js`, make sure you run `npx tree-sitter generate` before committing & pushing.
 Generated files are (unfortunately) currently present in the repo but will hopefully be removed in [the future](https://github.com/tree-sitter/tree-sitter/discussions/1243).
 Their correspondence is enforced during CI.
-
-You can also contribute by running the fuzzer and reporting bugs it finds, as described above.
 

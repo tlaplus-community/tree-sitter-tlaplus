@@ -1,11 +1,14 @@
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "tree-sitter-tlaplus"
-description = "Tlaplus grammar for tree-sitter"
-version = "1.1.0"
+description = "A tree-sitter grammar for TLA⁺ and PlusCal"
+version = "1.2.5"
+authors = [
+  { name = "Andrew Helwer" },
+  { name = "Vasiliy Morkovkin" },
+]
+maintainers = [
+  { name = "Andrew Helwer" },
+]
 keywords = ["incremental", "parsing", "tree-sitter", "tlaplus"]
 classifiers = [
   "Intended Audience :: Developers",
@@ -19,11 +22,17 @@ license.text = "MIT"
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/tree-sitter/tree-sitter-tlaplus"
+Homepage = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
+Issues = "https://github.com/tlaplus-community/tree-sitter-tlaplus/issues"
 
 [project.optional-dependencies]
 core = ["tree-sitter~=0.21"]
 
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.cibuildwheel]
 build = "cp38-*"
 build-frontend = "build"
+
