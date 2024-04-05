@@ -1,8 +1,15 @@
 name: Test Package Consumers
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [tree-sitter-tlaplus-release]
+    inputs:
+      version:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
 
 jobs:
   build-and-test:
@@ -23,36 +30,71 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
+      - name: Install setuptools for Windows build
+        if: matrix.os == 'windows-latest'
+        run: python -m pip install --upgrade setuptools
 
-      # Find latest version
-      - name: Find latest version
+      # Input release version into package files
+      - name: Modify package files (Linux & macOS)
+        if: matrix.os != 'windows-latest'
+        working-directory: test/consumers
+        shell: bash
         run: |
-          tag=$(git tag -l --sort=-creatordate | head -n 1)
-          version="${tag//'v'}"
-          echo "export LATEST_VERSION=$version" >> "$GITHUB_ENV"
+          sed -i -e "s/{path = \"..\/..\/..\"}/\"${{ inputs.version }}\"/" rust/Cargo.toml
+          cat rust/Cargo.toml
+          sed -i -e "s/file:..\/..\/../${{ inputs.version }}/" node/package.json
+          cat node/package.json
+          sed -i -e "s/file:..\/..\/../${{ inputs.version }}/" typescript/package.json
+          cat typescript/package.json
+          sed -i -e "s/..\/..\/../tree-sitter-tlaplus==${{ inputs.version }}/" python/requirements.txt
+          cat python/requirements.txt
+      - name: Modify package files (Windows)
+        if: matrix.os == 'windows-latest'
+        working-directory: test/consumers
+        shell: pwsh
+        run: |
+          $path = "rust\Cargo.toml"
+          $packageFile = Get-Content -Path $path -Raw
+          $updatedPackageFile = $packageFile -replace [Regex]::Escape('{path = "../../.."}'), """${{ inputs.version }}"""
+          Set-Content -Path $path -Value $updatedPackageFile
+          Get-Content -Path $path
+
+          $path = "node\package.json"
+          $packageFile = Get-Content -Path $path -Raw
+          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
+          Set-Content -Path $path -Value $updatedPackageFile
+          Get-Content -Path $path
+
+          $path = "typescript\package.json"
+          $packageFile = Get-Content -Path $path -Raw
+          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
+          Set-Content -Path $path -Value $updatedPackageFile
+          Get-Content -Path $path
+
+          $path = "python\requirements.txt"
+          $packageFile = Get-Content -Path $path -Raw
+          $updatedPackageFile = $packageFile -replace [Regex]::Escape('../../..'), "tree-sitter-tlaplus==${{ inputs.version }}"
+          Set-Content -Path $path -Value $updatedPackageFile
+          Get-Content -Path $path
 
       # Test consumers using actual published packages
       - name: Test rust consumer
+        if: matrix.os != 'windows-latest'
         working-directory: test/consumers/rust
-        run: |
-          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" Cargo.toml
-          cargo run
+        run: cargo run
       - name: Test node.js consumer
         working-directory: test/consumers/node
         run: |
-          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" package.json
           npm install
           node index.js
       - name: Test TypeScript consumer
         working-directory: test/consumers/typescript
         run: |
-          sed -i -e "s/..\/..\/..\//$LATEST_VERSION" package.json
           npm install
           ./node_modules/.bin/ts-node app.ts
       #- name: Test python consumer
       #  working-directory: test/consumers/python
       #  run: |
-      #    sed -i -e "s/..\/..\/..\//tree-sitter-tlaplus" requirements.txt
       #    pip install -r requirements.txt
       #    python main.py
 
