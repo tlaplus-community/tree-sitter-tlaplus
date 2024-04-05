@@ -1,6 +1,5 @@
 import {default as Parser, Query} from 'tree-sitter';
-//@ts-ignore
-import TlaPlus = require('@tlaplus/tree-sitter-tlaplus');
+import {default as TlaPlus} from '@tlaplus/tree-sitter-tlaplus';
 
 const parser : Parser = new Parser();
 parser.setLanguage(TlaPlus);
