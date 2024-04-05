@@ -12,13 +12,18 @@ jobs:
       # Permission for PyPI OIDC token
       id-token: write
     steps:
+      # Dependencies
       - name: Clone repo
         uses: actions/checkout@v4
-      - name: Install Node.js
+      - name: Setup node.js
         uses: actions/setup-node@v4
         with:
           registry-url: https://registry.npmjs.org/
-      - name: Use stable rust toolchain
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Setup rust
         run: rustup default stable
       - name: Install node.js dependencies
         run: npm install
@@ -26,6 +31,8 @@ jobs:
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.6
+
+      # Validation
       - name: Generate parser WASM
         run: npx tree-sitter build-wasm
       - name: Check python package
@@ -44,6 +51,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Test crates.io publish
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --dry-run
+
+      # Publishing
       - name: Upload WASM to GitHub release
         uses: actions/upload-release-asset@v1
         env:
@@ -53,8 +62,8 @@ jobs:
           asset_path: tree-sitter-tlaplus.wasm
           asset_name: tree-sitter-tlaplus.wasm
           asset_content_type: application/octet-stream
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      #- name: Publish package to PyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
       - name: Publish global package to NPM
         run: npm publish --access public
         env:
@@ -67,4 +76,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Publish to crates.io
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
+
+      # Downstream Consumers
+      - name: Trigger canary workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: tree-sitter-tlaplus-release
+      - name: Trigger playground update
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          repository: tlaplus-community/tlaplus-community.github.io
+          event-type: tree-sitter-tlaplus-release
 
