@@ -53,29 +53,21 @@ jobs:
         working-directory: test/consumers
         shell: pwsh
         run: |
-          $path = "rust\Cargo.toml"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('{path = "../../.."}'), """${{ inputs.version }}"""
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "node\package.json"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "typescript\package.json"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "python\requirements.txt"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('../../..'), "tree-sitter-tlaplus==${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
+          function Convert-PackageFile {
+            param(
+              [string]$path
+              [string]$source
+              [string]$target
+            )
+            $packageFile = Get-Content -Path $path -Raw
+            $updatedPackageFile = $packageFile -replace $source, $target
+            Set-Content -Path $path -Value $updatedPackageFile
+            $updatedPackageFile
+          }
+          Convert-PackageFile "rust\Cargo.toml"         [Regex]::Escape('{path = "../../.."}')  """${{ inputs.version }}"""
+          Convert-PackageFile "node\package.json"       [Regex]::Escape('file:../../..')        "${{ inputs.version }}"
+          Convert-PackageFile "typescript\package.json" [Regex]::Escape('file:../../..')        "${{ inputs.version }}"
+          Convert-PackageFile "python\requirements.txt" [Regex]::Escape('../../..')             "tree-sitter-tlaplus==${{ inputs.version }}"
 
       # Test consumers using actual published packages
       - name: Test rust consumer
