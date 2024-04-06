@@ -5,11 +5,6 @@ on:
       version:
         required: true
         type: string
-  workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
 
 jobs:
   build-and-test:
@@ -53,29 +48,17 @@ jobs:
         working-directory: test/consumers
         shell: pwsh
         run: |
-          $path = "rust\Cargo.toml"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('{path = "../../.."}'), """${{ inputs.version }}"""
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "node\package.json"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "typescript\package.json"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('file:../../..'), "${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
-
-          $path = "python\requirements.txt"
-          $packageFile = Get-Content -Path $path -Raw
-          $updatedPackageFile = $packageFile -replace [Regex]::Escape('../../..'), "tree-sitter-tlaplus==${{ inputs.version }}"
-          Set-Content -Path $path -Value $updatedPackageFile
-          Get-Content -Path $path
+          function Convert-PackageFile {
+            param($path, $source, $target)
+            $packageFile = Get-Content -Path $path -Raw
+            $updatedPackageFile = $packageFile -replace [Regex]::Escape($source), $target
+            Set-Content -Path $path -Value $updatedPackageFile
+            $updatedPackageFile
+          }
+          Convert-PackageFile 'rust\Cargo.toml'         '{path = "../../.."}' """${{ inputs.version }}"""
+          Convert-PackageFile 'node\package.json'       'file:../../..'       "${{ inputs.version }}"
+          Convert-PackageFile 'typescript\package.json' 'file:../../..'       "${{ inputs.version }}"
+          Convert-PackageFile 'python\requirements.txt' '../../..'            "tree-sitter-tlaplus==${{ inputs.version }}"
 
       # Test consumers using actual published packages
       - name: Test rust consumer
@@ -92,9 +75,9 @@ jobs:
         run: |
           npm install
           ./node_modules/.bin/ts-node app.ts
-      #- name: Test python consumer
-      #  working-directory: test/consumers/python
-      #  run: |
-      #    pip install -r requirements.txt
-      #    python main.py
+      - name: Test python consumer
+        working-directory: test/consumers/python
+        run: |
+          pip install -r requirements.txt
+          python main.py
 
