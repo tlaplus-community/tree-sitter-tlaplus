@@ -79,10 +79,11 @@ jobs:
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
 
       # Downstream Consumers
-      #- name: Trigger canary workflow
-      #  uses: peter-evans/repository-dispatch@v3
-      #  with:
-      #    event-type: tree-sitter-tlaplus-release
+      - name: Trigger canary workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: canary.yml
+          inputs: '{ "version": "${{ github.ref_name }}" }'
       - name: Trigger playground update
         uses: peter-evans/repository-dispatch@v3
         with:
