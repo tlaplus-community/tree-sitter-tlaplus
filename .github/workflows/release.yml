@@ -42,9 +42,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@v4
       - name: Install NPM dependencies
-        run: |
-          npm install
-          npm ci --legacy-peer-deps
+        run: npm install
       - name: Build x64 binary
         run: npm x -- prebuildify --strip --arch x64
       - name: Build arm64 binary
