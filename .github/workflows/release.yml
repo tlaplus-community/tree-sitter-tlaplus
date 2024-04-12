@@ -56,6 +56,7 @@ jobs:
 
   publish-packages:
     name: Publish all packages
+    needs: [build-packages]
     runs-on: ubuntu-latest
     environment: release
     permissions:
