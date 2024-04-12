@@ -56,14 +56,14 @@ jobs:
           function Convert-PackageFile {
             param($path, $source, $target)
             $packageFile = Get-Content -Path $path -Raw
-            $updatedPackageFile = $packageFile -replace $source, $target
+            $updatedPackageFile = $packageFile -replace [Regex]::Escape($source), $target
             Set-Content -Path $path -Value $updatedPackageFile
             $updatedPackageFile
           }
-          Convert-PackageFile "rust\Cargo.toml"         ([Regex]::Escape('{path = "../../.."}'))  """${{ inputs.version }}"""
-          Convert-PackageFile "node\package.json"       ([Regex]::Escape('file:../../..'))        "${{ inputs.version }}"
-          Convert-PackageFile "typescript\package.json" ([Regex]::Escape('file:../../..'))        "${{ inputs.version }}"
-          Convert-PackageFile "python\requirements.txt" ([Regex]::Escape('../../..'))             "tree-sitter-tlaplus==${{ inputs.version }}"
+          Convert-PackageFile 'rust\Cargo.toml'         '{path = "../../.."}' """${{ inputs.version }}"""
+          Convert-PackageFile 'node\package.json'       'file:../../..'       "${{ inputs.version }}"
+          Convert-PackageFile 'typescript\package.json' 'file:../../..'       "${{ inputs.version }}"
+          Convert-PackageFile 'python\requirements.txt' '../../..'            "tree-sitter-tlaplus==${{ inputs.version }}"
 
       # Test consumers using actual published packages
       - name: Test rust consumer
@@ -80,9 +80,9 @@ jobs:
         run: |
           npm install
           ./node_modules/.bin/ts-node app.ts
-      #- name: Test python consumer
-      #  working-directory: test/consumers/python
-      #  run: |
-      #    pip install -r requirements.txt
-      #    python main.py
+      - name: Test python consumer
+        working-directory: test/consumers/python
+        run: |
+          pip install -r requirements.txt
+          python main.py
 
