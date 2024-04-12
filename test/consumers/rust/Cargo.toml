@@ -4,9 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tree-sitter-tlaplus = "1.2.3"
+tree-sitter-tlaplus = {path = "../../.."}
 tree-sitter = "0.22.2"
-
-
-
 
