@@ -108,13 +108,13 @@ jobs:
       - name: Check rust crate
         run: cargo check
       - name: Test NPM publish scoped package
-        run: npm publish --access public --dry-run
+        run: npm publish --access=public --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Change node package name
         run: sed -i -e "s/@tlaplus\/tree-sitter-tlaplus/tree-sitter-tlaplus/" package.json
       - name: Test NPM publish global package
-        run: npm publish --access public --dry-run
+        run: npm publish --access=public --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Test crates.io publish
@@ -131,13 +131,13 @@ jobs:
           asset_name: tree-sitter-tlaplus.wasm
           asset_content_type: application/octet-stream
       - name: Publish global package to NPM
-        run: npm publish --access public
+        run: npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Change back node package name
         run: git checkout package.json
       - name: Publish scoped package to NPM
-        run: npm publish --access public
+        run: npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Publish package to PyPI
