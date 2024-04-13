@@ -130,18 +130,18 @@ jobs:
           asset_path: tree-sitter-tlaplus.wasm
           asset_name: tree-sitter-tlaplus.wasm
           asset_content_type: application/octet-stream
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-      - name: Publish global package to NPM
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+      #- name: Publish global package to NPM
+      #  run: npm publish --access public
+      #  env:
+      #    NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Change back node package name
         run: git checkout package.json
       - name: Publish scoped package to NPM
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
       - name: Publish to crates.io
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
 
