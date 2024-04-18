@@ -1017,7 +1017,7 @@
         nest_address jlist_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&jlist_depth, &buffer[offset], copied);
-        if (jlist_depth > 0) { array_grow_by(&(this->jlists), jlist_depth); }
+        array_grow_by(&(this->jlists), jlist_depth);
         offset += copied;
 
         for (nest_address i = 0; i < jlist_depth; i++) {
@@ -1029,7 +1029,7 @@
         nest_address proof_depth = 0;
         copied = sizeof(nest_address);
         memcpy(&proof_depth, &buffer[offset], copied);
-        if (proof_depth > 0) { array_grow_by(&(this->proofs), proof_depth); }
+        array_grow_by(&(this->proofs), proof_depth);
         offset += copied;
 
         copied = proof_depth * sizeof(proof_level);
@@ -1825,12 +1825,12 @@
         copied = sizeof(nest_address);
         memcpy(&context_depth, &buffer[offset], copied);
         assert(1 <= context_depth);
-        if (context_depth - 1 > 0) { array_grow_by(&this->enclosing_contexts, context_depth - 1); }
+        array_grow_by(&this->enclosing_contexts, context_depth - 1);
         offset += copied;
 
         // Next N items: size of all contexts
         Array(unsigned) context_sizes = array_new();
-        if (context_depth > 0) { array_grow_by(&context_sizes, context_depth); }
+        array_grow_by(&context_sizes, context_depth);
         copied = context_depth * sizeof(unsigned);
         if (copied > 0 && context_sizes.contents != NULL) memcpy(context_sizes.contents, &buffer[offset], copied);
         offset += copied;
@@ -1889,7 +1889,7 @@
         // Entering PlusCal block; push current context then clear
         unsigned const expected_size = scanner_serialized_size(&this->current_context);
         CharArray serialized_current_context = array_new();
-        if (expected_size > 0) { array_grow_by(&serialized_current_context, expected_size); }
+        array_grow_by(&serialized_current_context, expected_size);
         unsigned const actual_size = scanner_serialize(&this->current_context, serialized_current_context.contents);
         assert(expected_size == actual_size);
         array_push(&this->enclosing_contexts, serialized_current_context);
