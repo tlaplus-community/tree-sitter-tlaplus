@@ -5,6 +5,11 @@ on:
       version:
         required: true
         type: string
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
 
 jobs:
   build-and-test:
