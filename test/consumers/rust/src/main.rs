@@ -10,7 +10,7 @@ fn main() {
     let tree = parser.parse(source_code, None).unwrap();
     println!("{}", tree.root_node().to_sexp());
 
-    let query = Query::new(&tree_sitter_tlaplus::language(), "(def_eq) @capture").unwrap();
+    let query = Query::new(&tree_sitter_tlaplus::language(), "(def_eq ≜) @capture").unwrap();
     let mut cursor = QueryCursor::new();
     for capture in cursor.matches(&query, tree.root_node(), "".as_bytes()) {
         println!("{:?}", capture);

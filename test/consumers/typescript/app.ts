@@ -11,6 +11,6 @@ op ≜ ∀ n ∈ ℕ : n ≥ 0
 const tree : Parser.Tree = parser.parse(source);
 console.log(tree.rootNode.toString());
 
-const query : Query = new Query(TlaPlus, '(def_eq) @capture')
+const query : Query = new Query(TlaPlus, '(def_eq ≜) @capture')
 console.log(query.captures(tree.rootNode))
 
