@@ -148,15 +148,17 @@ jobs:
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
 
       # Downstream Consumers
-      - name: Trigger canary workflow
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: canary.yml
-          inputs: '{ "version": "${{ github.ref_name }}" }'
       - name: Trigger playground update
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GH_PAT }}
           repository: tlaplus-community/tlaplus-community.github.io
           event-type: tree-sitter-tlaplus-release
+
+  trigger-canary:
+    name: Trigger canary workflow
+    needs: [publish-packages]
+    uses: tlaplus-community/tree-sitter-tlaplus/.github/workflows/canary.yml
+    with:
+      version: ${{ github.ref_name }}
 
