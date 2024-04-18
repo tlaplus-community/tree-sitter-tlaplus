@@ -16,6 +16,6 @@ const tree = parser.parse(sourceCode);
 const callExpression = tree.rootNode.toString();
 console.log(callExpression)
 
-const query = new Query(TLA, '(def_eq ≜) @capture')
+const query = new Query(TLA, '(def_eq "≜") @capture')
 console.log(query.captures(tree.rootNode))
 
