@@ -1,7 +1,7 @@
 [package]
 name = "tree-sitter-tlaplus"
 description = "A tree-sitter grammar for TLA⁺ and PlusCal"
-version = "1.2.7"
+version = "1.2.8"
 authors = ["Andrew Helwer", "Vasiliy Morkovkin"]
 license = "MIT"
 readme = "README.md"
@@ -18,7 +18,7 @@ include = ["bindings/rust/*", "grammar.js", "queries/*", "src/*"]
 path = "bindings/rust/lib.rs"
 
 [dependencies]
-tree-sitter = "0.22.1"
+tree-sitter = "0.22.5"
 
 [build-dependencies]
 cc = "1.0.87"

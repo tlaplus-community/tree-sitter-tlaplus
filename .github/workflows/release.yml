@@ -158,7 +158,7 @@ jobs:
   trigger-canary:
     name: Trigger canary workflow
     needs: [publish-packages]
-    uses: tlaplus-community/tree-sitter-tlaplus/.github/workflows/canary.yml
+    uses: tlaplus-community/tree-sitter-tlaplus/.github/workflows/canary.yml@main
     with:
       version: ${{ github.ref_name }}
 

@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 tree-sitter-tlaplus = {path = "../../.."}
-tree-sitter = "0.22.2"
+tree-sitter = "0.22.5"
 
