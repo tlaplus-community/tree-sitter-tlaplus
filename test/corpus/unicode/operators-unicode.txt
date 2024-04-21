@@ -471,10 +471,12 @@ op ≜ f(
   ⇔,
   ⇒,
   ∈,
+  ∧,
   ⫤,
   ↝,
   ≤,
   ≪,
+  ∨,
   ⊣,
   ≠,
   ∉,
@@ -542,10 +544,12 @@ op ≜ f(
     parameter: (infix_op_symbol (iff))
     parameter: (infix_op_symbol (implies))
     parameter: (infix_op_symbol (in))
+    parameter: (infix_op_symbol (land))
     parameter: (infix_op_symbol (ld_ttile))
     parameter: (infix_op_symbol (leads_to))
     parameter: (infix_op_symbol (leq))
     parameter: (infix_op_symbol (ll))
+    parameter: (infix_op_symbol (lor))
     parameter: (infix_op_symbol (ls_ttile))
     parameter: (infix_op_symbol (neq))
     parameter: (infix_op_symbol (notin))
