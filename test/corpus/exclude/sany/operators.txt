@@ -1,5 +1,5 @@
 =============|||
-Nonfix Minus (GH884)
+Nonfix Minus (TLA#GH884)
 =============|||
 
 ---- MODULE Test ----
@@ -15,7 +15,7 @@ op == - (1,2)
 (double_line)))
 
 =============|||
-Nonfix Submodule Excl (GH884)
+Nonfix Submodule Excl (TLA#GH884)
 =============|||
 
 ---- MODULE Test ----
