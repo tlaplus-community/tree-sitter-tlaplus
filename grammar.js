@@ -1361,7 +1361,7 @@ module.exports = grammar({
     ),
 
     // variables x = 0; y = [a |-> "a", b |-> {}];
-    pcal_var_decls: $ => seq(
+    pcal_var_decls: $ => prec.left(seq(
       choice('variable', 'variables'),
       $.pcal_var_decl,
       repeat(seq(
@@ -1369,7 +1369,7 @@ module.exports = grammar({
         $.pcal_var_decl
       )),
       optional(';')
-    ),
+    )),
 
     // x \in 1..10
     // x = "x"
@@ -1380,10 +1380,10 @@ module.exports = grammar({
 
     // Procedure local variables:
     // variables x=1..10, y=1;
-    pcal_proc_var_decls: $ => seq(
+    pcal_proc_var_decls: $ => prec.left(seq(
       choice('variable', 'variables'),
       repeat1(seq($.pcal_proc_var_decl, choice(';', ',')))
-    ),
+    )),
 
     // Procedure variable or parameter, maybe with a default value:
     // procedure foo(a, b=1)
@@ -1410,15 +1410,26 @@ module.exports = grammar({
       optional(';')
     ),
 
-    pcal_c_algorithm_body: $ => seq(
-      seq(
-        '{',
-        $._pcal_c_stmt,
-        repeat(seq(';', $._pcal_c_stmt)),
-        optional(';'),
-        '}'
+    // Either multiple sequential statements contained within curly braces
+    // or a single statement with curly braces elided. Trailing semicolon is
+    // optional in both cases; prec.left ensures it is a member of the top-
+    // level pcal_c_algorithm_body node instead of a child body node (since
+    // this rule is mutually recursive with _pcal_c_unlabeled_stmt).
+    pcal_c_algorithm_body: $ => prec.left(seq(
+      choice(
+        seq(
+          '{',
+          $._pcal_c_stmt,
+          repeat(seq(';', $._pcal_c_stmt)),
+          optional(';'),
+          '}'
+        ),
+        seq(
+          $._pcal_c_stmt,
+          optional(';')
+        )
       )
-    ),
+    )),
 
     // Single statement, optionally prefixed with a label:
     // A:+ call my_procedure()
@@ -1429,10 +1440,7 @@ module.exports = grammar({
 
     _pcal_c_stmt: $ => seq(
       optional($._pcal_label),
-      choice(
-        $._pcal_c_unlabeled_stmt,
-        alias($.pcal_c_algorithm_body, $.pcal_algorithm_body)
-      )
+      $._pcal_c_unlabeled_stmt,
     ),
 
     _pcal_label: $ => seq(
@@ -1585,7 +1593,7 @@ module.exports = grammar({
 
     // Statement, that does nothing:
     // skip
-    pcal_skip: $ => seq('skip'),
+    pcal_skip: $ => 'skip',
 
     // Used in procedures. Assigns to the parameters and local
     // procedure variables their previous values
@@ -1594,7 +1602,7 @@ module.exports = grammar({
     //   a := b;
     //   return;
     // end procedure
-    pcal_return: $ => seq('return'),
+    pcal_return: $ => 'return',
 
     // Jump to a label:
     // process foo begin

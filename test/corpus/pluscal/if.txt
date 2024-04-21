@@ -41,7 +41,7 @@ PlusCal C-Syntax If
 (* --algorithm Test {
   {
     if (x) { skip }
-    else { 
+    else {
       if (x) { skip }
       else { skip }
     };
@@ -72,3 +72,87 @@ PlusCal C-Syntax If
                 (pcal_algorithm_body
                   (pcal_skip))))))))
     (double_line)))
+
+==================|||
+PlusCal C-Syntax If With Multiple Else
+==================|||
+
+---- MODULE Test ----
+(*
+--algorithm Test {
+  {
+    if (TRUE) {
+      skip;
+      skip;
+      skip;
+    } else if (TRUE) {
+      skip;
+      skip;
+      skip;
+    } else if (TRUE) {
+      skip;
+      skip;
+      skip;
+    }
+  }
+}
+*)
+====
+
+-------------|||
+
+(source_file (module (header_line) name: (identifier) (header_line)
+  (block_comment (pcal_algorithm
+    (pcal_algorithm_start) name: (identifier)
+    (pcal_algorithm_body
+      (pcal_if (boolean)
+        (pcal_algorithm_body (pcal_skip) (pcal_skip) (pcal_skip))
+        (pcal_if (boolean)
+          (pcal_algorithm_body (pcal_skip) (pcal_skip) (pcal_skip))
+          (pcal_if (boolean)
+            (pcal_algorithm_body (pcal_skip) (pcal_skip) (pcal_skip))
+          )
+        )
+      )
+    )
+  ))
+(double_line)))
+
+==================|||
+PlusCal C-Syntax If With No Delimiters
+==================|||
+
+---- MODULE Test ----
+(*
+--algorithm Test {
+  {
+    if (TRUE)
+      skip;
+    else if (TRUE)
+      skip;
+    else if (TRUE)
+      skip;
+  }
+}
+*)
+====
+
+-------------|||
+
+(source_file (module (header_line) name: (identifier) (header_line)
+  (block_comment (pcal_algorithm
+    (pcal_algorithm_start) name: (identifier)
+    (pcal_algorithm_body
+      (pcal_if (boolean)
+        (pcal_algorithm_body (pcal_skip))
+        (pcal_if (boolean)
+          (pcal_algorithm_body (pcal_skip))
+          (pcal_if (boolean)
+            (pcal_algorithm_body (pcal_skip))
+          )
+        )
+      )
+    )
+  ))
+(double_line)))
+
