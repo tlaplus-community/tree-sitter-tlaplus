@@ -774,7 +774,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "([0-9_]*[A-Za-z][A-Za-z0-9_]*)|ℕ|ℤ|ℝ"
+      "value": "([0-9_]*[A-Za-z][A-Za-z0-9_]*)"
     },
     "extends": {
       "type": "SEQ",
@@ -1160,8 +1160,17 @@
                   "type": "FIELD",
                   "name": "name",
                   "content": {
-                    "type": "SYMBOL",
-                    "name": "identifier"
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "identifier"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "_number_set"
+                      }
+                    ]
                   }
                 },
                 {
@@ -2170,13 +2179,22 @@
             "type": "CHOICE",
             "members": [
               {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "identifier"
-                },
-                "named": true,
-                "value": "identifier_ref"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "identifier"
+                    },
+                    "named": true,
+                    "value": "identifier_ref"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_number_set"
+                  }
+                ]
               },
               {
                 "type": "SYMBOL",
@@ -2401,6 +2419,23 @@
         }
       ]
     },
+    "_number_set": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "nat_number_set"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "int_number_set"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "real_number_set"
+        }
+      ]
+    },
     "_primitive_value_set": {
       "type": "CHOICE",
       "members": [
@@ -2414,15 +2449,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "nat_number_set"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "int_number_set"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "real_number_set"
+          "name": "_number_set"
         }
       ]
     },
@@ -9683,6 +9710,7 @@
     "_op",
     "_proof",
     "_number",
-    "_primitive_value_set"
+    "_primitive_value_set",
+    "_number_set"
   ]
 }
