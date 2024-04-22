@@ -165,7 +165,7 @@ module.exports = grammar({
     [$._expr, $.pcal_lhs],
     // Lookahead to disambiguate _expr  •  '||'  …
     // Could be `x || y` or could be assignment `x := y || y := x`
-    [$.bound_infix_op, $.pcal_assign],
+    //[$.bound_infix_op, $.pcal_assign],
   ],
 
   rules: {
@@ -1478,10 +1478,15 @@ module.exports = grammar({
 
     // x[i] := x[j] || a := b
     pcal_assign: $ => seq(
+      $.pcal_assignment,
+      repeat(seq($.vertvert, $.pcal_assignment))
+    ),
+
+    // x[i] := 5
+    pcal_assignment: $ => seq(
       $.pcal_lhs,
       $.assign,
       $._expr,
-      repeat(seq($.vertvert, $.pcal_lhs, $.assign, $._expr))
     ),
 
     // Left part of assignment:

@@ -1,0 +1,32 @@
+=============|||
+Multiple Assignments in Single Step
+=============|||
+
+---- MODULE Test ----
+(*
+--algorithm Test {
+  variables x, y, z;
+  {
+    x := 0 || y := 0 || z := 0
+  }
+}
+*)
+====
+
+--------------|||
+
+(source_file (module (header_line) name: (identifier) (header_line)
+  (block_comment (pcal_algorithm name: (identifier)
+    (pcal_var_decls
+      (pcal_var_decl (identifier))
+      (pcal_var_decl (identifier))
+      (pcal_var_decl (identifier))
+    )
+    (pcal_algorithm_body (pcal_assign
+      (pcal_lhs (identifier_ref)) (assign) (nat_number)
+      (vertvert) (pcal_lhs (identifier_ref)) (assign) (nat_number)
+      (vertvert) (pcal_lhs (identifier_ref)) (assign) (nat_number)
+    ))
+  ))
+(double_line)))
+
