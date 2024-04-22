@@ -864,9 +864,8 @@ module.exports = grammar({
     // Precedence defined on p271 of Specifying Systems.
     bound_prefix_op: $ => choice(
       prefixOpPrec('4-4',   $._expr,  $.lnot),
-      prefixOpPrec('8-8',   $._expr, choice($.union, $.powerset)),
-      prefixOpPrec('9-9',   $._expr, $.domain),
       prefixOpPrec('12-12', $._expr, $.negative),
+      prefixOpPrec('13-13', $._expr, choice($.powerset, $.union, $.domain)),
       prefixOpPrec('15-15', $._expr, choice(
         $.enabled, $.unchanged, $.always, $.eventually))
     ),

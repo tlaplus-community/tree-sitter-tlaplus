@@ -4055,7 +4055,32 @@
         },
         {
           "type": "PREC_LEFT",
-          "value": "8-8",
+          "value": "12-12",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "symbol",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "negative"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "rhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_expr"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_LEFT",
+          "value": "13-13",
           "content": {
             "type": "SEQ",
             "members": [
@@ -4067,63 +4092,17 @@
                   "members": [
                     {
                       "type": "SYMBOL",
+                      "name": "powerset"
+                    },
+                    {
+                      "type": "SYMBOL",
                       "name": "union"
                     },
                     {
                       "type": "SYMBOL",
-                      "name": "powerset"
+                      "name": "domain"
                     }
                   ]
-                }
-              },
-              {
-                "type": "FIELD",
-                "name": "rhs",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_expr"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "PREC_LEFT",
-          "value": "9-9",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "FIELD",
-                "name": "symbol",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "domain"
-                }
-              },
-              {
-                "type": "FIELD",
-                "name": "rhs",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_expr"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "PREC_LEFT",
-          "value": "12-12",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "FIELD",
-                "name": "symbol",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "negative"
                 }
               },
               {
