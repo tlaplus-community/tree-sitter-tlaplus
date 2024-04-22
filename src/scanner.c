@@ -66,6 +66,7 @@
     STRONG_FAIRNESS,    // The SF_ keyword.
     PCAL_START,         // Notifies scanner of start of PlusCal block.
     PCAL_END,           // Notifies scanner of end of PlusCal block.
+    DOUBLE_EXCL,        // The !! infix op; lexical conflict with subexpr!
     ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
@@ -299,6 +300,7 @@
     Lexeme_SEMICOLON,
     Lexeme_LAND,
     Lexeme_LOR,
+    Lexeme_DOUBLE_EXCL,
     Lexeme_L_PAREN,
     Lexeme_R_PAREN,
     Lexeme_R_SQUARE_BRACKET,
@@ -349,6 +351,8 @@
     LexState_DASH,
     LexState_COMMA,
     LexState_COLON,
+    LexState_EXCL,
+    LexState_DOUBLE_EXCL,
     LexState_SEMICOLON,
     LexState_LAND,
     LexState_LOR,
@@ -427,6 +431,7 @@
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
         if ('}' == lookahead) ADVANCE(LexState_R_CURLY_BRACE);
         if ('|' == lookahead) ADVANCE(LexState_PIPE);
+        if ('!' == lookahead) ADVANCE(LexState_EXCL);
         if ('A' == lookahead) ADVANCE(LexState_A);
         if ('B' == lookahead) ADVANCE(LexState_B);
         if ('C' == lookahead) ADVANCE(LexState_C);
@@ -533,6 +538,12 @@
         END_LEX_STATE();
       case LexState_PIPE:
         if ('-' == lookahead) ADVANCE(LexState_RIGHT_TURNSTILE);
+        END_LEX_STATE();
+      case LexState_EXCL:
+        if ('!' == lookahead) ADVANCE(LexState_DOUBLE_EXCL);
+        END_LEX_STATE();
+      case LexState_DOUBLE_EXCL:
+        ACCEPT_LEXEME(Lexeme_DOUBLE_EXCL);
         END_LEX_STATE();
       case LexState_RIGHT_TURNSTILE:
         if ('>' == lookahead) ADVANCE(LexState_RIGHT_MAP_ARROW);
@@ -780,6 +791,7 @@
   enum Token {
     Token_LAND,
     Token_LOR,
+    Token_DOUBLE_EXCL,
     Token_RIGHT_DELIMITER,
     Token_COMMENT_START,
     Token_TERMINATOR,
@@ -812,6 +824,7 @@
       case Lexeme_SEMICOLON: return Token_TERMINATOR;
       case Lexeme_LAND: return Token_LAND;
       case Lexeme_LOR: return Token_LOR;
+      case Lexeme_DOUBLE_EXCL: return Token_DOUBLE_EXCL;
       case Lexeme_L_PAREN: return Token_OTHER;
       case Lexeme_R_PAREN: return Token_RIGHT_DELIMITER;
       case Lexeme_R_SQUARE_BRACKET: return Token_RIGHT_DELIMITER;
@@ -1112,6 +1125,8 @@
      * to the next non-whitespace char to check whether it is a , or ) token.
      * If so, this is not the start of a new jlist; instead, it is a higher-
      * level parameter to an operator, like op(x, /\) or op(\/, x).
+     *
+     * @param lexer The tree-sitter lexing control structure.
      */
     static bool is_junct_token_higher_level_op_parameter(TSLexer* const lexer) {
       while (iswspace(lexer->lookahead) && has_next(lexer)) {
@@ -1394,6 +1409,48 @@
       return is_in_jlist(this)
         && next <= get_current_jlist_column_index(this)
         && emit_dedent(this, lexer);
+    }
+
+    /**
+     * Handles the infix !! operator. This has a lexical conflict with the
+     * subexpression separator !, so an expression like A!!!B will be parsed
+     * incorrectly as A !! (!B) instead of (A!) !! B. Ideally tree-sitter
+     * would add negative-lookahead in regexes so this wouldn't have to be
+     * corrected in the external scanner, but it is what it is.
+     *
+     * This function first checks whether the !! token is interfering with an
+     * existing jlist. If not, it checks the next character to see whether it
+     * is !. If so, this function emits false - no !! token found - under the
+     * assumption that this is a A!!!B scenario so this string should be
+     * split into (!)(!!) instead of (!!)(!).
+     *
+     * Note there is a case A!!!!B which should be grouped as (A!) (!!) (!B)
+     * but will not be according to these rules. The workaround for this case
+     * (as with several other lexing ambiguities in this language) is to
+     * insert a space for disambiguation, like A!!! !B. Humorously, this does
+     * mean that !!!!!!!!!!!!!!!!!!!!!! (ad infinitum) is valid TLA+ syntax.
+     *
+     * @param this The Scanner state.
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the encountered token.
+     */
+    static bool handle_double_excl_token(
+      struct Scanner* const this,
+      TSLexer* const lexer,
+      column_index const next
+    ) {
+      if (handle_other_token(this, lexer, next)) {
+        // This token is affecting a jlist, emit dedent
+        return true;
+      } else {
+        if ('!' == lexer->lookahead) {
+          return false;
+        } else {
+          lexer->mark_end(lexer);
+          lexer->result_symbol = DOUBLE_EXCL;
+          return true;
+        }
+      }
     }
 
     /**
@@ -1745,6 +1802,8 @@
             return handle_fairness_keyword_token(this, lexer, col, WEAK_FAIRNESS);
           case Token_STRONG_FAIRNESS:
             return handle_fairness_keyword_token(this, lexer, col, STRONG_FAIRNESS);
+          case Token_DOUBLE_EXCL:
+            return handle_double_excl_token(this, lexer, col);
           case Token_OTHER:
             return handle_other_token(this, lexer, col);
           default:
