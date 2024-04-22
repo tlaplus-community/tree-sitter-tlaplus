@@ -1,5 +1,5 @@
 =============|||
-Nonfix Double Exclamation Operator (TSTLA#97)
+Nonfix Double Exclamation Operator (TSTLA#GH97, TLA#GH884)
 =============|||
 
 ---- MODULE Test ----
