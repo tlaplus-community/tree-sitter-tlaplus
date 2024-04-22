@@ -1108,6 +1108,19 @@
     }
 
     /**
+     * Assuming the lexer is situated directly after a junct token, read
+     * to the next non-whitespace char to check whether it is a , or ) token.
+     * If so, this is not the start of a new jlist; instead, it is a higher-
+     * level parameter to an operator, like op(x, /\) or op(\/, x).
+     */
+    static bool is_junct_token_higher_level_op_parameter(TSLexer* const lexer) {
+      while (iswspace(lexer->lookahead) && has_next(lexer)) {
+        lexer->advance(lexer, true);
+      }
+      return ',' == lexer->lookahead || ')' == lexer->lookahead;
+    }
+
+    /**
      * Emits an INDENT token, recording the new jlist in the Scanner state.
      *
      * @param this The Scanner state.
@@ -1193,10 +1206,19 @@
       const column_index current_col = get_current_jlist_column_index(this);
       if (current_col < next_col) {
         if (valid_symbols[INDENT]) {
-          /**
-           * The start of a new junction list!
-           */
-          return emit_indent(this, lexer, next_type, next_col);
+          if (is_junct_token_higher_level_op_parameter(lexer)) {
+            /**
+             * Handle case op(x, /\) or op(\/, x) - junct token is the first
+             * token of a new expression and thus could be a new jlist, but
+             * actually is a higher-level operator parameter.
+             */
+            return false;
+          } else {
+            /**
+             * The start of a new junction list!
+             */
+            return emit_indent(this, lexer, next_type, next_col);
+          }
         } else {
           /**
            * This is an infix junction symbol. Tree-sitter will only look for
