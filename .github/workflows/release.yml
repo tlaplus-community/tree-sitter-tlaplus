@@ -73,6 +73,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@v4
         with:
+          # Parameter is necessary for NPM publishing to work
           registry-url: 'https://registry.npmjs.org'
       - name: Setup python
         uses: actions/setup-python@v5
@@ -103,6 +104,10 @@ jobs:
           merge-multiple: true
       - name: Check NPM prebuilds
         run: tree prebuilds
+      - name: Set package version
+        run: |
+          sed -i -e "s/TSTLA_RELEASE_VERSION/${{ github.ref_name }}/" \
+            Cargo.toml package.json pyproject.toml
 
       # Validation
       - name: Generate parser WASM
