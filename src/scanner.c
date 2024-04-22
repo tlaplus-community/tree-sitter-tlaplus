@@ -1125,6 +1125,8 @@
      * to the next non-whitespace char to check whether it is a , or ) token.
      * If so, this is not the start of a new jlist; instead, it is a higher-
      * level parameter to an operator, like op(x, /\) or op(\/, x).
+     *
+     * @param lexer The tree-sitter lexing control structure.
      */
     static bool is_junct_token_higher_level_op_parameter(TSLexer* const lexer) {
       while (iswspace(lexer->lookahead) && has_next(lexer)) {
@@ -1409,17 +1411,45 @@
         && emit_dedent(this, lexer);
     }
 
+    /**
+     * Handles the infix !! operator. This has a lexical conflict with the
+     * subexpression separator !, so an expression like A!!!B will be parsed
+     * incorrectly as A !! (!B) instead of (A!) !! B. Ideally tree-sitter
+     * would add negative-lookahead in regexes so this wouldn't have to be
+     * corrected in the external scanner, but it is what it is.
+     *
+     * This function first checks whether the !! token is interfering with an
+     * existing jlist. If not, it checks the next character to see whether it
+     * is !. If so, this function emits false - no !! token found - under the
+     * assumption that this is a A!!!B scenario so this string should be
+     * split into (!)(!!) instead of (!!)(!).
+     *
+     * Note there is a case A!!!!B which should be grouped as (A!) (!!) (!B)
+     * but will not be according to these rules. The workaround for this case
+     * (as with several other lexing ambiguities in this language) is to
+     * insert a space for disambiguation, like A!!! !B. Humorously, this does
+     * mean that !!!!!!!!!!!!!!!!!!!!!! (ad infinitum) is valid TLA+ syntax.
+     *
+     * @param this The Scanner state.
+     * @param lexer The tree-sitter lexing control structure.
+     * @param next The column position of the encountered token.
+     */
     static bool handle_double_excl_token(
       struct Scanner* const this,
       TSLexer* const lexer,
       column_index const next
     ) {
-      bool should_dedent = handle_other_token(this, lexer, next);
-      if (should_dedent) {
+      if (handle_other_token(this, lexer, next)) {
+        // This token is affecting a jlist, emit dedent
         return true;
       } else {
-        lexer->mark_end(lexer);
-
+        if ('!' == lexer->lookahead) {
+          return false;
+        } else {
+          lexer->mark_end(lexer);
+          lexer->result_symbol = DOUBLE_EXCL;
+          return true;
+        }
       }
     }
 
@@ -1773,7 +1803,7 @@
           case Token_STRONG_FAIRNESS:
             return handle_fairness_keyword_token(this, lexer, col, STRONG_FAIRNESS);
           case Token_DOUBLE_EXCL:
-            return handle_double_excl_token(this, lexer, valid_symbols, col);
+            return handle_double_excl_token(this, lexer, col);
           case Token_OTHER:
             return handle_other_token(this, lexer, col);
           default:

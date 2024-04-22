@@ -91,7 +91,7 @@ module.exports = grammar({
     'SF_',
     $._notify_pcal_algorithm_start,
     $._notify_pcal_algorithm_end,
-    '!!',
+    $._double_excl,
     $._error_sentinel
   ],
 
@@ -946,7 +946,7 @@ module.exports = grammar({
     div:              $ => choice('\\div', '÷'),
     circ:             $ => choice('\\o', '\\circ', '∘'),
     star:             $ => choice('\\star', '⋆'),
-    excl:             $ => choice('!!', '‼'),
+    excl:             $ => choice(alias($._double_excl, '!!'), '‼'),
     hashhash:         $ => '##',
     dol:              $ => '$',
     doldol:           $ => '$$',

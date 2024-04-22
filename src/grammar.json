@@ -5018,7 +5018,12 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_double_excl"
+          },
+          "named": false,
           "value": "!!"
         },
         {
@@ -9661,6 +9666,10 @@
     {
       "type": "SYMBOL",
       "name": "_notify_pcal_algorithm_end"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_double_excl"
     },
     {
       "type": "SYMBOL",
