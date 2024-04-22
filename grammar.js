@@ -91,6 +91,7 @@ module.exports = grammar({
     'SF_',
     $._notify_pcal_algorithm_start,
     $._notify_pcal_algorithm_end,
+    '!!',
     $._error_sentinel
   ],
 

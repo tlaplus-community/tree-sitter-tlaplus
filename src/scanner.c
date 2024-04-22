@@ -66,6 +66,7 @@
     STRONG_FAIRNESS,    // The SF_ keyword.
     PCAL_START,         // Notifies scanner of start of PlusCal block.
     PCAL_END,           // Notifies scanner of end of PlusCal block.
+    DOUBLE_EXCL,        // The !! infix op; lexical conflict with subexpr!
     ERROR_SENTINEL      // Only valid if in error recovery mode.
   };
 
@@ -299,6 +300,7 @@
     Lexeme_SEMICOLON,
     Lexeme_LAND,
     Lexeme_LOR,
+    Lexeme_DOUBLE_EXCL,
     Lexeme_L_PAREN,
     Lexeme_R_PAREN,
     Lexeme_R_SQUARE_BRACKET,
@@ -349,6 +351,8 @@
     LexState_DASH,
     LexState_COMMA,
     LexState_COLON,
+    LexState_EXCL,
+    LexState_DOUBLE_EXCL,
     LexState_SEMICOLON,
     LexState_LAND,
     LexState_LOR,
@@ -427,6 +431,7 @@
         if (']' == lookahead) ADVANCE(LexState_R_SQUARE_BRACKET);
         if ('}' == lookahead) ADVANCE(LexState_R_CURLY_BRACE);
         if ('|' == lookahead) ADVANCE(LexState_PIPE);
+        if ('!' == lookahead) ADVANCE(LexState_EXCL);
         if ('A' == lookahead) ADVANCE(LexState_A);
         if ('B' == lookahead) ADVANCE(LexState_B);
         if ('C' == lookahead) ADVANCE(LexState_C);
@@ -533,6 +538,12 @@
         END_LEX_STATE();
       case LexState_PIPE:
         if ('-' == lookahead) ADVANCE(LexState_RIGHT_TURNSTILE);
+        END_LEX_STATE();
+      case LexState_EXCL:
+        if ('!' == lookahead) ADVANCE(LexState_DOUBLE_EXCL);
+        END_LEX_STATE();
+      case LexState_DOUBLE_EXCL:
+        ACCEPT_LEXEME(Lexeme_DOUBLE_EXCL);
         END_LEX_STATE();
       case LexState_RIGHT_TURNSTILE:
         if ('>' == lookahead) ADVANCE(LexState_RIGHT_MAP_ARROW);
@@ -780,6 +791,7 @@
   enum Token {
     Token_LAND,
     Token_LOR,
+    Token_DOUBLE_EXCL,
     Token_RIGHT_DELIMITER,
     Token_COMMENT_START,
     Token_TERMINATOR,
@@ -812,6 +824,7 @@
       case Lexeme_SEMICOLON: return Token_TERMINATOR;
       case Lexeme_LAND: return Token_LAND;
       case Lexeme_LOR: return Token_LOR;
+      case Lexeme_DOUBLE_EXCL: return Token_DOUBLE_EXCL;
       case Lexeme_L_PAREN: return Token_OTHER;
       case Lexeme_R_PAREN: return Token_RIGHT_DELIMITER;
       case Lexeme_R_SQUARE_BRACKET: return Token_RIGHT_DELIMITER;
@@ -1396,6 +1409,20 @@
         && emit_dedent(this, lexer);
     }
 
+    static bool handle_double_excl_token(
+      struct Scanner* const this,
+      TSLexer* const lexer,
+      column_index const next
+    ) {
+      bool should_dedent = handle_other_token(this, lexer, next);
+      if (should_dedent) {
+        return true;
+      } else {
+        lexer->mark_end(lexer);
+
+      }
+    }
+
     /**
      * Gets whether we are currently in a proof.
      *
@@ -1745,6 +1772,8 @@
             return handle_fairness_keyword_token(this, lexer, col, WEAK_FAIRNESS);
           case Token_STRONG_FAIRNESS:
             return handle_fairness_keyword_token(this, lexer, col, STRONG_FAIRNESS);
+          case Token_DOUBLE_EXCL:
+            return handle_double_excl_token(this, lexer, valid_symbols, col);
           case Token_OTHER:
             return handle_other_token(this, lexer, col);
           default:
