@@ -106,7 +106,7 @@ jobs:
         run: tree prebuilds
       - name: Set package version
         run: |
-          sed -i -e "s/TSTLA_RELEASE_VERSION/${{ github.ref_name }}/" \
+          sed -i -e "s/0\.0\.0/${{ github.ref_name }}/" \
             Cargo.toml package.json pyproject.toml
 
       # Validation

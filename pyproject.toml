@@ -1,7 +1,7 @@
 [project]
 name = "tree-sitter-tlaplus"
 description = "A tree-sitter grammar for TLA⁺ and PlusCal"
-version = "TSTLA_RELEASE_VERSION"
+version = "0.0.0"
 authors = [
   { name = "Andrew Helwer" },
   { name = "Vasiliy Morkovkin" },
