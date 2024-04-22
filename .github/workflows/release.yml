@@ -125,7 +125,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Test crates.io publish
-        run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --dry-run
+        run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --dry-run --allow-dirty
 
       # Publishing
       - name: Upload WASM to GitHub release
@@ -150,7 +150,7 @@ jobs:
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
       - name: Publish to crates.io
-        run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}}
+        run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --allow-dirty
 
       # Downstream Consumers
       - name: Trigger playground update
