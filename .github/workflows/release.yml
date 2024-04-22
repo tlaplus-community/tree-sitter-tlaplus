@@ -142,7 +142,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       - name: Change back node package name
-        run: git checkout package.json
+        run: |
+          git checkout package.json
+          sed -i -e "s/0\.0\.0/${{ github.ref_name }}/" package.json
       - name: Publish scoped package to NPM
         run: npm publish --access=public
         env:
