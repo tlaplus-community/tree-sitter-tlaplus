@@ -103,7 +103,8 @@ module.exports = grammar({
     $._op,
     $._proof,
     $._number,
-    $._primitive_value_set
+    $._primitive_value_set,
+    $._number_set
   ],
 
   extras: $ => [
@@ -277,7 +278,7 @@ module.exports = grammar({
     // Can contain letters, numbers, and underscores
     // Must contain at least one alphabetic character (not number or _)
     // Cannot start with WF_ or SF_
-    identifier: $ => /([0-9_]*[A-Za-z][A-Za-z0-9_]*)|ℕ|ℤ|ℝ/,
+    identifier: $ => /([0-9_]*[A-Za-z][A-Za-z0-9_]*)/,
 
     // EXTENDS Naturals, FiniteSets, Sequences
     extends: $ => seq(
@@ -347,7 +348,7 @@ module.exports = grammar({
     // x ≜ 〈 1, 2, 3, 4, 5 〉
     operator_definition: $ => seq(
       choice(
-        arity0OrN($.identifier, $._id_or_op_declaration),
+        arity0OrN(choice($.identifier, $._number_set), $._id_or_op_declaration),
         seq(
           field('name', $.prefix_op_symbol),
           field('parameter', $.identifier)
@@ -532,7 +533,7 @@ module.exports = grammar({
     prefixed_op: $ => seq(
       field('prefix', $.subexpr_prefix),
       field('op', choice(
-        alias($.identifier, $.identifier_ref),
+        choice(alias($.identifier, $.identifier_ref), $._number_set),
         $.bound_op,
         $.bound_nonfix_op
       ))
@@ -586,11 +587,12 @@ module.exports = grammar({
     // TRUE, FALSE, BOOLEAN
     boolean: $ => choice('TRUE', 'FALSE'),
 
+    // Various number sets
+    _number_set: $ => choice($.nat_number_set, $.int_number_set, $.real_number_set),
+
     // Set of all strings, booleans, and numbers
-    _primitive_value_set: $ => choice(
-      $.string_set,     $.boolean_set,  $.nat_number_set,
-      $.int_number_set, $.real_number_set
-    ),
+    _primitive_value_set: $ => choice($.string_set, $.boolean_set, $._number_set),
+
     string_set:       $ => 'STRING',            // From TLA⁺ builtins
     boolean_set:      $ => 'BOOLEAN',           // From TLA⁺ builtins
     nat_number_set:   $ => choice('Nat', 'ℕ'),  // From Naturals standard module

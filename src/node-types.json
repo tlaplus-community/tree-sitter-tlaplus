@@ -184,6 +184,24 @@
     ]
   },
   {
+    "type": "_number_set",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "int_number_set",
+        "named": true
+      },
+      {
+        "type": "nat_number_set",
+        "named": true
+      },
+      {
+        "type": "real_number_set",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "_op",
     "named": true,
     "subtypes": [
@@ -210,19 +228,11 @@
     "named": true,
     "subtypes": [
       {
+        "type": "_number_set",
+        "named": true
+      },
+      {
         "type": "boolean_set",
-        "named": true
-      },
-      {
-        "type": "int_number_set",
-        "named": true
-      },
-      {
-        "type": "nat_number_set",
-        "named": true
-      },
-      {
-        "type": "real_number_set",
         "named": true
       },
       {
@@ -2674,6 +2684,10 @@
         "required": true,
         "types": [
           {
+            "type": "_number_set",
+            "named": true
+          },
+          {
             "type": "identifier",
             "named": true
           },
@@ -3823,6 +3837,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "_number_set",
+            "named": true
+          },
           {
             "type": "bound_nonfix_op",
             "named": true
