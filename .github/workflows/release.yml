@@ -108,6 +108,9 @@ jobs:
         run: |
           sed -i -e "s/0\.0\.0/${{ github.ref_name }}/" \
             Cargo.toml package.json pyproject.toml
+          cat Cargo.toml
+          cat package.json
+          cat pyproject.toml
 
       # Validation
       - name: Generate parser WASM
@@ -141,10 +144,10 @@ jobs:
         run: npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
       - name: Publish to crates.io
         run: cargo publish --token ${{secrets.CRATES_AUTH_TOKEN}} --allow-dirty
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
 
       # Downstream Consumers
       - name: Trigger playground update
