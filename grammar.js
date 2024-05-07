@@ -174,6 +174,7 @@ module.exports = grammar({
     // * a valid TLA⁺ source file with an encapsulating module
     // * a source file containing multiple modules (ambiguously valid but used by the tools)
     // * a TLA⁺ snippet without an encapsulating module
+    // * a PlusCal algorithm without an encapsulating module
     source_file: $ => choice(
       seq(
         optional(alias($.leading_extramodular_text, $.extramodular_text)),
@@ -182,7 +183,8 @@ module.exports = grammar({
       seq(
         optional($.extends),
         repeat($._unit)
-      )
+      ),
+      $.pcal_algorithm
     ),
 
     // \* this is a comment ending with newline
