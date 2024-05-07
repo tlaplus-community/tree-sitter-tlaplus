@@ -4249,6 +4249,10 @@
         {
           "type": "extramodular_text",
           "named": true
+        },
+        {
+          "type": "pcal_algorithm",
+          "named": true
         }
       ]
     }
