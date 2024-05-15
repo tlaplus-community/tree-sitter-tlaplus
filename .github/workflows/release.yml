@@ -13,6 +13,20 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v4
+      - name: Set Python package version
+        if: matrix.os != 'windows-latest'
+        run: sed -i -e "s/0\.0\.0/${{ github.ref_name }}/" pyproject.toml
+      - name: Set Python package version
+        if: matrix.os == 'windows-latest'
+        run: |
+          function Convert-PackageFile {
+            param($path, $source, $target)
+            $packageFile = Get-Content -Path $path -Raw
+            $updatedPackageFile = $packageFile -replace [Regex]::Escape($source), $target
+            Set-Content -Path $path -Value $updatedPackageFile
+            $updatedPackageFile
+          }
+          Convert-PackageFile 'pyproject.toml' '0.0.0' "${{ github.ref_name }}"
       # Build Python wheels
       - name: Setup python
         uses: actions/setup-python@v5
