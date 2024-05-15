@@ -26,7 +26,7 @@ Homepage = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
 Issues = "https://github.com/tlaplus-community/tree-sitter-tlaplus/issues"
 
 [project.optional-dependencies]
-core = ["tree-sitter~=0.21"]
+core = ["tree-sitter~=0.22"]
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]
