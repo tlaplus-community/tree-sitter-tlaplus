@@ -182,7 +182,7 @@ module.exports = grammar({
       ),
       seq(
         optional($.extends),
-        repeat($._unit)
+        repeat1($._unit)
       ),
       $.pcal_algorithm
     ),
