@@ -85,27 +85,27 @@
   "call"
   "define"
   "either"
-  "else" 
+  "else"
   "elsif"
   "end"
   "fair"
   "goto"
-  "if" 
+  "if"
   "macro"
   "or"
   "print"
   "procedure"
   "process"
-  "return"
-  "skip"
   "variable"
   "variables"
   "when"
   "with"
-  "then" 
+  "then"
   (pcal_algorithm_start)
   (pcal_end_either)
   (pcal_end_if)
+  (pcal_return)
+  (pcal_skip)
   (pcal_process ("="))
   (pcal_with ("="))
 ] @keyword

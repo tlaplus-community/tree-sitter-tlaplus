@@ -368,22 +368,12 @@
       ]
     },
     "temporal_forall": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "\\AA"
-        }
-      ]
+      "type": "STRING",
+      "value": "\\AA"
     },
     "temporal_exists": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "\\EE"
-        }
-      ]
+      "type": "STRING",
+      "value": "\\EE"
     },
     "all_map_to": {
       "type": "CHOICE",
@@ -9338,22 +9328,12 @@
       ]
     },
     "pcal_skip": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "skip"
-        }
-      ]
+      "type": "STRING",
+      "value": "skip"
     },
     "pcal_return": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "return"
-        }
-      ]
+      "type": "STRING",
+      "value": "return"
     },
     "pcal_goto": {
       "type": "SEQ",

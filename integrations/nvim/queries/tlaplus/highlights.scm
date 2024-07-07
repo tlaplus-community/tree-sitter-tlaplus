@@ -1,4 +1,4 @@
-; ; Intended for consumption by nvim-treesitter 
+; ; Intended for consumption by nvim-treesitter
 ; ; Default capture names for nvim-treesitter found here:
 ; ; https://github.com/nvim-treesitter/nvim-treesitter/blob/e473630fe0872cb0ed97cd7085e724aa58bc1c84/lua/nvim-treesitter/highlight.lua#L14-L104
 ; ; In this file, captures defined later take precedence over captures defined earlier
@@ -91,7 +91,7 @@
   "or"
   "procedure"
   "process"
-  "skip"
+  (pcal_skip)
   "variable"
   "variables"
   "when"
@@ -102,23 +102,23 @@
 ] @keyword.coroutine
 (pcal_with ("=") @keyword)
 (pcal_process ("=") @keyword)
-[ 
-  "if" 
-  "then" 
-  "else" 
+[
+  "if"
+  "then"
+  "else"
   "elsif"
   (pcal_end_if)
   "either"
   (pcal_end_either)
 ] @conditional
-[ 
-  "while" 
-  "do" 
-  (pcal_end_while) 
-  "with" 
+[
+  "while"
+  "do"
+  (pcal_end_while)
+  "with"
   (pcal_end_with)
 ] @repeat
-("return") @keyword.return
+(pcal_return) @keyword.return
 ("print") @function.macro
 
 
