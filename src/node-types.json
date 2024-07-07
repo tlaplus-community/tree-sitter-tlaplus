@@ -3468,16 +3468,6 @@
     }
   },
   {
-    "type": "pcal_return",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "pcal_skip",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "pcal_var_decl",
     "named": true,
     "fields": {},
@@ -4563,16 +4553,6 @@
     }
   },
   {
-    "type": "temporal_exists",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "temporal_forall",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "terminal_proof",
     "named": true,
     "fields": {},
@@ -5328,15 +5308,7 @@
     "named": false
   },
   {
-    "type": "\\AA",
-    "named": false
-  },
-  {
     "type": "\\E",
-    "named": false
-  },
-  {
-    "type": "\\EE",
     "named": false
   },
   {
@@ -5744,6 +5716,14 @@
     "named": true
   },
   {
+    "type": "pcal_return",
+    "named": true
+  },
+  {
+    "type": "pcal_skip",
+    "named": true
+  },
+  {
     "type": "placeholder",
     "named": true
   },
@@ -5780,16 +5760,8 @@
     "named": true
   },
   {
-    "type": "return",
-    "named": false
-  },
-  {
     "type": "setminus",
     "named": true
-  },
-  {
-    "type": "skip",
-    "named": false
   },
   {
     "type": "slash",
@@ -5805,6 +5777,14 @@
   },
   {
     "type": "sup_hash",
+    "named": true
+  },
+  {
+    "type": "temporal_exists",
+    "named": true
+  },
+  {
+    "type": "temporal_forall",
     "named": true
   },
   {

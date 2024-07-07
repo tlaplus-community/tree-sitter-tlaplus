@@ -239,8 +239,8 @@ module.exports = grammar({
     gets:               $ => choice('<-', '⟵', '←'),
     forall:             $ => choice('\\A', '\\forall', '∀'),
     exists:             $ => choice('\\E', '\\exists', '∃'),
-    temporal_forall:    $ => choice('\\AA'),
-    temporal_exists:    $ => choice('\\EE'),
+    temporal_forall:    $ => '\\AA',
+    temporal_exists:    $ => '\\EE',
     all_map_to:         $ => choice('|->', '⟼', '↦'),
     maps_to:            $ => choice('->', '⟶', '→'),
     langle_bracket:     $ => choice('<<', '〈', '⟨'),
@@ -1589,7 +1589,7 @@ module.exports = grammar({
 
     // Statement, that does nothing:
     // skip
-    pcal_skip: $ => seq('skip'),
+    pcal_skip: $ => 'skip',
 
     // Used in procedures. Assigns to the parameters and local
     // procedure variables their previous values
@@ -1598,7 +1598,7 @@ module.exports = grammar({
     //   a := b;
     //   return;
     // end procedure
-    pcal_return: $ => seq('return'),
+    pcal_return: $ => 'return',
 
     // Jump to a label:
     // process foo begin
