@@ -15,6 +15,14 @@ jobs:
       fail-fast: false
     steps:
       # Dependencies
+      - name: Start Eco Measurement
+        if: matrix.os == 'ubuntu-latest'
+        uses: green-coding-solutions/eco-ci-energy-estimation@93ceb3e78e9ca03585a1dd9ac0c490a17c98ac3b
+        env:
+          ELECTRICITY_MAPS_TOKEN: ${{ secrets.ELECTRICITY_MAPS_TOKEN }}
+        with:
+          task: start-measurement
+          company-uuid: ${{ secrets.CARBONDB_UUID }}
       - name: Clone repo
         uses: actions/checkout@v4
         with:
@@ -122,10 +130,27 @@ jobs:
         run: npx tree-sitter build-wasm
       - name: Package node tarball
         run: npm pack
+
+      # Wrap-up
       - name: Upload node tarball to workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tlaplus-tree-sitter-tlaplus-${{matrix.os}}.tgz
           path: '*.tgz'
           if-no-files-found: error
+      - name: Take Eco Measurement
+        if: matrix.os == 'ubuntu-latest'
+        uses: green-coding-solutions/eco-ci-energy-estimation@93ceb3e78e9ca03585a1dd9ac0c490a17c98ac3b
+        env:
+          ELECTRICITY_MAPS_TOKEN: ${{ secrets.ELECTRICITY_MAPS_TOKEN }}
+        with:
+          task: get-measurement
+          label: final
+      - name: Show Eco Results
+        if: matrix.os == 'ubuntu-latest'
+        uses: green-coding-solutions/eco-ci-energy-estimation@93ceb3e78e9ca03585a1dd9ac0c490a17c98ac3b
+        env:
+          ELECTRICITY_MAPS_TOKEN: ${{ secrets.ELECTRICITY_MAPS_TOKEN }}
+        with:
+          task: display-results
 
