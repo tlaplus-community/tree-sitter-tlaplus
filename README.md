@@ -1,6 +1,8 @@
 # tree-sitter-tlaplus
 
 [![Build & Test](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml/badge.svg)](https://github.com/tlaplus-community/tree-sitter-tlaplus/actions/workflows/ci.yml)
+[![Green Coding](https://api.green-coding.io/v1/ci/badge/get?repo=tlaplus-community/tree-sitter-tlaplus&amp;branch=120/merge&amp;workflow=11094909)](https://metrics.green-coding.io/ci.html?repo=tlaplus-community/tree-sitter-tlaplus&amp;branch=120/merge&amp;workflow=11094909)
+
 [![npm](https://img.shields.io/npm/v/@tlaplus/tree-sitter-tlaplus.svg)](https://www.npmjs.com/package/@tlaplus/tree-sitter-tlaplus)
 [![crates.io](https://img.shields.io/crates/v/tree-sitter-tlaplus.svg)](https://crates.io/crates/tree-sitter-tlaplus)
 [![PyPI](https://img.shields.io/pypi/v/tree-sitter-tlaplus.svg)](https://pypi.org/project/tree-sitter-tlaplus)
