@@ -35,7 +35,7 @@
     "node-addon-api": "^7.1.0"
   },
   "peerDependencies": {
-    "tree-sitter-cli": "0.22.5"
+    "tree-sitter-cli": "0.22.6"
   },
   "peerDependenciesMeta": {
     "tree_sitter": {
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "prebuildify": "6.0.1",
-    "tree-sitter-cli": "0.22.5"
+    "tree-sitter-cli": "0.22.6"
   },
   "files": [
     "grammar.js",
