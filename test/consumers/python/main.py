@@ -11,6 +11,6 @@ op ≜ ∀ n ∈ ℕ : n ≥ 0
 print(tree.root_node)
 
 query = TLAPLUS_LANGUAGE.query('(def_eq \"≜\") @capture')
-for node, capture_name in query.captures(tree.root_node):
-    print(node)
+captures = query.captures(tree.root_node)
+print(captures['capture'])
 
