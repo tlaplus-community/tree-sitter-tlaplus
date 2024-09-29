@@ -75,7 +75,7 @@ jobs:
         working-directory: test/consumers/typescript
         run: |
           npm install
-          ./node_modules/.bin/ts-node app.ts
+          npx tsx app.ts
       - name: Test python consumer
         working-directory: test/consumers/python
         run: |
