@@ -1,4 +1,5 @@
 use tree_sitter::{Parser, Query, QueryCursor};
+use streaming_iterator::StreamingIterator;
 
 fn main() {
     let mut parser = Parser::new();
@@ -18,7 +19,8 @@ fn main() {
     )
     .unwrap();
     let mut cursor = QueryCursor::new();
-    for capture in cursor.matches(&query, tree.root_node(), "".as_bytes()) {
+    let mut captures = cursor.matches(&query, tree.root_node(), "".as_bytes());
+    while let Some(capture) = captures.next() {
         println!("{:?}", capture);
     }
 }

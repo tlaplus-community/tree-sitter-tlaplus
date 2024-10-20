@@ -1,0 +1,43 @@
+{
+  "grammars": [
+    {
+      "name": "@tlaplus/tlaplus",
+      "camelcase": "TlaplusTlaplus",
+      "scope": "source.tlaplus",
+      "path": ".",
+      "file-types": [
+        "tla"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "locals": [
+        "queries/locals.scm"
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "0.0.0",
+    "license": "MIT",
+    "description": "A tree-sitter grammar for TLA⁺ and PlusCal",
+    "authors": [
+      {
+        "name": "Andrew Helwer"
+      },
+      {
+        "name": "Vasiliy Morkovkin"
+      }
+    ],
+    "links": {
+      "repository": "git+https://github.com/tlaplus-community/tree-sitter-tlaplus.git"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}
