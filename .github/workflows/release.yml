@@ -128,7 +128,7 @@ jobs:
 
       # Validation
       - name: Generate parser WASM
-        run: npx tree-sitter build-wasm
+        run: npx tree-sitter build --wasm
       - name: Check rust crate
         run: cargo check
       - name: Test NPM publish scoped package

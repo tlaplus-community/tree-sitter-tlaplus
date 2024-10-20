@@ -1357,11 +1357,6 @@
     "fields": {}
   },
   {
-    "type": "domain",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "doteq",
     "named": true,
     "fields": {}
@@ -1378,11 +1373,6 @@
   },
   {
     "type": "double_line",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "enabled",
     "named": true,
     "fields": {}
   },
@@ -3758,11 +3748,6 @@
     }
   },
   {
-    "type": "powerset",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "prec",
     "named": true,
     "fields": {}
@@ -4223,6 +4208,7 @@
   {
     "type": "source_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -4721,16 +4707,6 @@
     }
   },
   {
-    "type": "unchanged",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "union",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "uplus",
     "named": true,
     "fields": {}
@@ -5104,15 +5080,7 @@
     "named": false
   },
   {
-    "type": "DOMAIN",
-    "named": false
-  },
-  {
     "type": "ELSE",
-    "named": false
-  },
-  {
-    "type": "ENABLED",
     "named": false
   },
   {
@@ -5232,10 +5200,6 @@
     "named": false
   },
   {
-    "type": "SUBSET",
-    "named": false
-  },
-  {
     "type": "SUFFICES",
     "named": false
   },
@@ -5257,14 +5221,6 @@
   },
   {
     "type": "TRUE",
-    "named": false
-  },
-  {
-    "type": "UNCHANGED",
-    "named": false
-  },
-  {
-    "type": "UNION",
     "named": false
   },
   {
@@ -5600,6 +5556,10 @@
     "named": true
   },
   {
+    "type": "domain",
+    "named": true
+  },
+  {
     "type": "either",
     "named": false
   },
@@ -5610,6 +5570,10 @@
   {
     "type": "elsif",
     "named": false
+  },
+  {
+    "type": "enabled",
+    "named": true
   },
   {
     "type": "end",
@@ -5736,6 +5700,10 @@
     "named": true
   },
   {
+    "type": "powerset",
+    "named": true
+  },
+  {
     "type": "powpow",
     "named": true
   },
@@ -5790,6 +5758,14 @@
   {
     "type": "then",
     "named": false
+  },
+  {
+    "type": "unchanged",
+    "named": true
+  },
+  {
+    "type": "union",
+    "named": true
   },
   {
     "type": "value",

@@ -35,7 +35,7 @@
     "node-addon-api": "^7.1.0"
   },
   "peerDependencies": {
-    "tree-sitter-cli": "0.22.5"
+    "tree-sitter-cli": "0.24.3"
   },
   "peerDependenciesMeta": {
     "tree_sitter": {
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "prebuildify": "6.0.1",
-    "tree-sitter-cli": "0.22.5"
+    "tree-sitter-cli": "0.24.3"
   },
   "files": [
     "grammar.js",
@@ -54,19 +54,5 @@
     "queries/*",
     "src/**",
     "*.wasm"
-  ],
-  "tree-sitter": [
-    {
-      "scope": "source.tlaplus",
-      "file-types": [
-        "tla"
-      ],
-      "highlights": [
-        "queries/highlights.scm"
-      ],
-      "locals": [
-        "queries/locals.scm"
-      ]
-    }
   ]
 }
