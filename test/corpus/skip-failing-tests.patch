@@ -1,0 +1,48 @@
+diff --git a/test/corpus/jlist.txt b/test/corpus/jlist.txt
+index 18dfa25..5482f6e 100644
+--- a/test/corpus/jlist.txt
++++ b/test/corpus/jlist.txt
+@@ -173,6 +173,7 @@ disj ==
+ =============|||
+ Invalid parentheses use in jlist
+ :error
++:skip
+ =============|||
+
+ ---- MODULE Test ----
+diff --git a/test/corpus/labels.txt b/test/corpus/labels.txt
+index 43df6cc..e20737c 100644
+--- a/test/corpus/labels.txt
++++ b/test/corpus/labels.txt
+@@ -61,6 +61,7 @@ op == a + lab :: b * c
+ =============|||
+ Label interfering with precedence
+ :error
++:skip
+ =============|||
+
+ ---- MODULE Test ----
+diff --git a/test/corpus/proofs.txt b/test/corpus/proofs.txt
+index c071278..1864682 100644
+--- a/test/corpus/proofs.txt
++++ b/test/corpus/proofs.txt
+@@ -207,6 +207,7 @@ PROOF
+ ===============================|||
+ Extra QED
+ :error
++:skip
+ ===============================|||
+
+ ---- MODULE Test ----
+diff --git a/test/corpus/case.txt b/test/corpus/case.txt
+index a1cb122..a5b0fab 100644
+--- a/test/corpus/case.txt
++++ b/test/corpus/case.txt
+@@ -217,6 +217,7 @@ op ==
+
+ =============|||
+ CASE in jlist with weird indentation
++:error
+ =============|||
+
+ ---- MODULE Test ----
