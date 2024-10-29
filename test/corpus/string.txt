@@ -132,3 +132,17 @@ op == "\\ \n \r \f \t \""
   )
 (double_line)))
 
+==================|||
+String with Backtick
+==================|||
+
+---- MODULE Test ----
+op == "foo ` bar"
+====
+
+------------------|||
+
+(source_file (module (header_line) (identifier) (header_line)
+  (operator_definition (identifier) (def_eq) (string))
+(double_line)))
+
