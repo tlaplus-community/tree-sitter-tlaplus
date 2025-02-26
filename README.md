@@ -108,6 +108,10 @@ Do so as follows:
 2. From repo root, run the bash script `test/fuzzing/build-for-fuzzing.sh`
 3. From repo root, run `test/fuzzing/out/tree_sitter_tlaplus_fuzzer`
 
+There are known pathological inputs that cause crashes when fuzzing with [inputs of >1024 bytes] in length. These crashes can be avoided by passing  `-max-len=1024` to libFuzzer to limit the input size.
+
+[inputs of >1024 bytes]: https://github.com/tlaplus-community/tree-sitter-tlaplus/issues/134
+
 ## Contributions
 
 One easy way to contribute is to add your TLA⁺ specifications to the [tlaplus/examples](https://github.com/tlaplus/examples) repo, which this grammar uses as a valuable test corpus!
