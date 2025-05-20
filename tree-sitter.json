@@ -1,8 +1,8 @@
 {
   "grammars": [
     {
-      "name": "@tlaplus/tlaplus",
-      "camelcase": "TlaplusTlaplus",
+      "name": "tlaplus",
+      "camelcase": "TLAplus",
       "scope": "source.tlaplus",
       "path": ".",
       "file-types": [
