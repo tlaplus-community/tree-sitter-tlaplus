@@ -1982,7 +1982,8 @@
         // Exiting PlusCal block; rehydrate context then pop
         CharArray* next = array_back(&this->enclosing_contexts);
         scanner_deserialize(&this->current_context, next->contents, next->size);
-        array_delete(&array_pop(&this->enclosing_contexts));
+        CharArray ctx = array_pop(&this->enclosing_contexts);
+        array_delete(&ctx);
         lexer->result_symbol = PCAL_END;
         return true;
       } else {
